@@ -5,8 +5,6 @@ import Link from "next/link";
 import { generatePassword } from "@/utils/generatePassword";
 
 export default function Home() {
-  dbConnect();
-  console.log(generatePassword());
   
   return (
     <div>
