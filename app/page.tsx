@@ -1,11 +1,13 @@
+"use client";
 import Image from "next/image";
 import { dbConnect } from "./lib/DB";
-"use client";
-
 import Link from "next/link";
+import { generatePassword } from "@/utils/generatePassword";
 
 export default function Home() {
   dbConnect();
+  console.log(generatePassword());
+  
   return (
     <div>
       <section className="hero">
