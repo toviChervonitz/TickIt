@@ -1,19 +1,20 @@
 "use client";
-/**/
-import React, { useState } from "react";
+
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import "../login.css";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [image, setImage] = useState(null);
-  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [image, setImage] = useState<string | null>(null);
+  const [error, setError] = useState<string>("");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
 
     if (!name || !email || !phone || !password) {
@@ -23,12 +24,13 @@ export default function RegisterPage() {
 
     setError("");
     console.log({ name, email, phone, password, image });
-    //SEND TO REGISTER
+    // TODO: Send data to backend register endpoint
   };
 
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(URL.createObjectURL(e.target.files[0])); // preview
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(URL.createObjectURL(file)); // preview
     }
   };
 
