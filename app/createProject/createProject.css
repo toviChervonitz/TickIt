@@ -1,0 +1,130 @@
+/* createProject.css */
+
+/* Page background */
+.create-project-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  padding: 4rem 2rem;
+  font-family: 'Rubik', 'Assistant', sans-serif;
+  color: #1e293b;
+}
+
+/* Section cards */
+.create-project-section {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(124, 58, 237, 0.1);
+}
+
+/* Section headers */
+.create-project-section h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+/* Section description */
+.create-project-section p {
+  color: #475569;
+  margin-bottom: 1.5rem;
+}
+
+/* Forms */
+.create-project-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-project-form input,
+.create-project-form textarea {
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+}
+
+.create-project-form input:focus,
+.create-project-form textarea:focus {
+  outline: none;
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+}
+
+/* Gradient button for Add user */
+.create-project-add-button {
+  background: linear-gradient(90deg, #7c3aed, #f472b6);
+  color: white;
+  border: none;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.create-project-add-button:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* Solid purple buttons for Back / Next / Submit */
+.step-button {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.step-button:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+/* Users list */
+.users-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.users-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+/* ...keep previous styles... */
+
+/* Users list wrapper for spacing and scroll */
+.users-list-wrapper {
+  margin-top: 1.5rem; /* space between Add button and list */
+  max-height: 200px; /* adjust height as needed */
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  background: #f9fafb;
+}
+
+/* Individual user items */
+.users-list-wrapper li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+.users-list-wrapper li:last-child {
+  border-bottom: none;
+}
+/**/

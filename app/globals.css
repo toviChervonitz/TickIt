@@ -1,3 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
 /* צבעים */
 :root {
   --color-bg: #ffffff;
