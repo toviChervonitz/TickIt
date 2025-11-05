@@ -1,7 +1,6 @@
+"use client";
 import Image from "next/image";
 import { dbConnect } from "./lib/DB";
-"use client";
-
 import Link from "next/link";
 
 export default function Home() {
