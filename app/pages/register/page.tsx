@@ -3,7 +3,7 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import "../login.css";
-
+import { Register } from "@/app/lib/server/authServer";
 export default function RegisterPage() {
   const router = useRouter();
 
@@ -14,18 +14,32 @@ export default function RegisterPage() {
   const [image, setImage] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
-    e.preventDefault();
+const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+  e.preventDefault();
 
-    if (!name || !email || !phone || !password) {
-      setError("Please fill in all required fields.");
-      return;
+  if (!name || !email || !phone || !password) {
+    setError("Please fill in all required fields.");
+    return;
+  }
+
+  setError("");
+  console.log("Registering:", { name, email, phone, password, image });
+
+  try {
+    const result = await Register({ name, email, phone, password, image });
+    if(result.status==409){
+      console.log("email already exists")
+      setError("email already exists")
     }
+    console.log("Registration success:", result);
 
-    setError("");
-    console.log({ name, email, phone, password, image });
-    // TODO: Send data to backend register endpoint
-  };
+    // Optionally redirect or show success message
+    router.push("/createProject"); // or maybe "/dashboard"
+  } catch (err: any) {
+    console.error("Registration error:", err);
+    setError(err.message || "Registration failed");
+  }
+};
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0];
