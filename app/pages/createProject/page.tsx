@@ -2,6 +2,7 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { CreateProject } from '../../lib/server/projectServer';
 import "./createProject.css";
 
 interface ProjectDetails {
@@ -15,33 +16,25 @@ interface User {
 }
 
 export default function CreateProjectPage() {
+
   const router = useRouter();
-
   const [step, setStep] = useState<number>(1);
-
-  // Step 1: Project Details
   const [projectDetails, setProjectDetails] = useState<ProjectDetails>({
     name: "",
     description: "",
   });
-
-  // Step 2: Users
   const [users, setUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // Add user function (stub for backend check)
   const handleAddUser = async (): Promise<void> => {
     if (!newUser.trim()) return;
-
-    // stub: pretend we check backend and user exists
     const fakeBackendCheck = (email: string): User => {
       return { name: email.split("@")[0], email };
     };
 
     try {
       const user = fakeBackendCheck(newUser.trim());
-
       if (users.some((u) => u.email === user.email)) {
         setError("User already added.");
         return;
@@ -55,10 +48,14 @@ export default function CreateProjectPage() {
     }
   };
 
-  // Next step function (stub for backend project creation)
   const handleNext = async (): Promise<void> => {
-    console.log("Creating project with:", { projectDetails, users });
-    router.push("/nextPage"); // change to your next page
+    try {
+      const result = await CreateProject(projectDetails);
+      nextStep();
+    } catch (err: any) {
+      setError(err.message);
+      return;
+    }
   };
 
   const nextStep = (): void => setStep((prev) => prev + 1);
