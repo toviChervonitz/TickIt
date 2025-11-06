@@ -1,20 +1,21 @@
 "use client";
 
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import "../login.css";
+import { Register } from "@/app/lib/server/authServer";
 
 export default function RegisterPage() {
   const router = useRouter();
 
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [image, setImage] = useState<string | null>(null);
-  const [error, setError] = useState<string>("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [image, setImage] = useState<string>("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
 
     if (!name || !email || !phone || !password) {
@@ -23,14 +24,21 @@ export default function RegisterPage() {
     }
 
     setError("");
-    console.log({ name, email, phone, password, image });
-    // TODO: Send data to backend register endpoint
-  };
+    console.log("Registering:", { name, email, phone, password, image });
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImage(URL.createObjectURL(file)); // preview
+    try {
+      const result = await Register({ name, email, tel:phone, password, image });
+
+      if (result.status === 409) {
+        setError("Email already exists");
+        return;
+      }
+
+      console.log("Registration success:", result);
+      router.push("/pages/createProject");
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      setError(err.message || "Registration failed");
     }
   };
 
@@ -42,20 +50,15 @@ export default function RegisterPage() {
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
 
-        {/* Profile image picker */}
-        <label className="profile-image-wrapper">
-          {image ? (
-            <img src={image} alt="Profile" />
-          ) : (
-            <span>Pick a profile picture</span>
-          )}
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            style={{ display: "none" }}
-          />
-        </label>
+        {image && (
+          <div style={{ marginBottom: "1rem" }}>
+            <img
+              src={image}
+              alt="Preview"
+              style={{ width: "80px", height: "80px", borderRadius: "50%" }}
+            />
+          </div>
+        )}
 
         <form className="login-form" onSubmit={handleSubmit}>
           <input
@@ -86,6 +89,13 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          <input
+            type="url"
+            placeholder="Image URL (optional)"
+            value={image}
+            onChange={(e) => setImage(e.target.value)}
+          />
+
           <button type="submit">Register</button>
         </form>
       </div>
