@@ -12,8 +12,18 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [image, setImage] = useState<string>("");
+  const [image, setImage] = useState<string>(""); // will hold object URL
   const [error, setError] = useState("");
+
+  // Handle file selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Convert to object URL for preview
+    const url = URL.createObjectURL(file);
+    setImage(url);
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -27,7 +37,7 @@ export default function RegisterPage() {
     console.log("Registering:", { name, email, phone, password, image });
 
     try {
-      const result = await Register({ name, email, tel:phone, password, image });
+      const result = await Register({ name, email, tel: phone, password, image });
 
       if (result.status === 409) {
         setError("Email already exists");
@@ -50,15 +60,39 @@ export default function RegisterPage() {
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
 
-        {image && (
-          <div style={{ marginBottom: "1rem" }}>
+        {/* Profile picture picker */}
+        <div
+          style={{
+            width: "100px",
+            height: "100px",
+            borderRadius: "50%",
+            backgroundColor: "#ddd",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 1rem auto",
+            cursor: "pointer",
+            overflow: "hidden",
+          }}
+          onClick={() => document.getElementById("imageInput")?.click()}
+        >
+          {image ? (
             <img
               src={image}
-              alt="Preview"
-              style={{ width: "80px", height: "80px", borderRadius: "50%" }}
+              alt="Profile"
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
-          </div>
-        )}
+          ) : (
+            <span>+</span>
+          )}
+        </div>
+        <input
+          id="imageInput"
+          type="file"
+          accept="image/*"
+          style={{ display: "none" }}
+          onChange={handleImageChange}
+        />
 
         <form className="login-form" onSubmit={handleSubmit}>
           <input
@@ -89,15 +123,13 @@ export default function RegisterPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
-          <input
-            type="url"
-            placeholder="Image URL (optional)"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-          />
 
           <button type="submit">Register</button>
         </form>
+
+        <p style={{ marginTop: "1rem" }}>
+          Already have an account? <a href="/login" style={{ color: "#0070f3" }}>Log in</a>
+        </p>
       </div>
     </div>
   );
