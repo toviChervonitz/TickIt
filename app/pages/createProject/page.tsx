@@ -3,6 +3,7 @@
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CreateProject } from '../../lib/server/projectServer';
+import { AddUserToProject } from '../../lib/server/userServer'
 import "./createProject.css";
 
 interface ProjectDetails {
@@ -25,32 +26,31 @@ export default function CreateProjectPage() {
   });
   const [users, setUsers] = useState<User[]>([]);
   const [newUser, setNewUser] = useState<string>("");
+  const [projectId, setProjectId] = useState<string>("");
   const [error, setError] = useState<string>("");
 
   const handleAddUser = async (): Promise<void> => {
     if (!newUser.trim()) return;
-    const fakeBackendCheck = (email: string): User => {
-      return { name: email.split("@")[0], email };
-    };
-
     try {
-      const user = fakeBackendCheck(newUser.trim());
-      if (users.some((u) => u.email === user.email)) {
+      setError("");
+      const addedUser = await AddUserToProject(projectId, newUser.trim());
+      if (users.some((u) => u.email === addedUser.email)) {
         setError("User already added.");
         return;
       }
-
-      setUsers([...users, user]);
+      setUsers([...users, addedUser]);
       setNewUser("");
-      setError("");
-    } catch {
-      setError("User not found.");
+
+    } catch (err: any) {
+      setError(err.message || "Failed to add user");
     }
   };
+
 
   const handleNext = async (): Promise<void> => {
     try {
       const result = await CreateProject(projectDetails);
+      setProjectId(result.project._id);
       nextStep();
     } catch (err: any) {
       setError(err.message);
@@ -74,7 +74,6 @@ export default function CreateProjectPage() {
 
   return (
     <div className="create-project-page">
-      {/* Step 1 - Project Details */}
       {step === 1 && (
         <div className="create-project-section">
           <h2>Project Details</h2>
@@ -112,7 +111,6 @@ export default function CreateProjectPage() {
         </div>
       )}
 
-      {/* Step 2 - Add Users */}
       {step === 2 && (
         <div className="create-project-section">
           <h2>Add Users</h2>
@@ -139,7 +137,6 @@ export default function CreateProjectPage() {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
-          {/* Users list */}
           <div className="users-list-wrapper">
             <ul className="users-list">
               {users.map((user, idx) => (

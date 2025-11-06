@@ -14,6 +14,11 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
+        const authHeader = req.headers.get("authorization");
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        
         const project = await Project.create({
             name: body.name,
             description: body.description,

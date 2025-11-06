@@ -8,9 +8,14 @@ import ProjectUser from "@/app/models/ProjectUserModel";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, manger , projectId} = await req.json();
+    const { name, email, manger, projectId } = await req.json();
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     //לבדוק אם המשתמש קיים בDB
@@ -33,7 +38,7 @@ export async function POST(req: Request) {
         email: email,
         password: hashedPassword,
       });
-      
+
       await sendPasswordEmail(email, tempPassword, manger.name);
 
       createProjectUser(newUser._id, projectId, "viewer");
@@ -49,10 +54,10 @@ export async function POST(req: Request) {
   }
 }
 
-async function createProjectUser(userId: any, projectId: any, role:string ) {
+async function createProjectUser(userId: any, projectId: any, role: string) {
   await ProjectUser.create({
     userId: userId,
     projectId: projectId,
-    role: role, 
+    role: role,
   });
 }
