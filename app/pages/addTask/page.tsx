@@ -4,6 +4,7 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import "./addTask.css";
 import { CreateTask } from "@/app/lib/server/taskServer";
+import { GetUserId } from "@/app/lib/server/userServer";
 
 interface TaskForm {
   title: string;
@@ -31,7 +32,13 @@ export default function AddTaskPage() {
 
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-
+    let userId=-1;
+    try{
+         userId=await GetUserId(task.userEmail);
+    }
+    catch{
+        //tell them email doesnt exist
+    }
     try {
       // Call your backend function
       const result = await CreateTask({
@@ -40,8 +47,9 @@ export default function AddTaskPage() {
         status: "todo",
         createdAt: new Date(),              // current date
         dueDate: new Date(task.dueDate),    // selected date
-        userEmail: task.userEmail,          // if backend expects email
+        userId: userId,          // if backend expects email
       });
+      //add project id
 
       console.log("Task added:", result);
       alert("Task added successfully!");
