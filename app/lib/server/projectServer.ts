@@ -7,6 +7,8 @@ export async function CreateProject(form: any) {
         throw new Error(error.message);
     }
     const token = getAuthToken();
+    console.log("token from create project " + token);
+    
     if (!token) {
         throw new Error("Missing authentication token. Please log in again.");
     }

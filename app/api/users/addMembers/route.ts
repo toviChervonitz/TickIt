@@ -1,14 +1,16 @@
-import { hashPassword } from "@/app/lib/bcrypt";
+// import { hashPassword } from "@/app/lib/bcrypt";
 import { sendExistMail, sendPasswordEmail } from "@/app/lib/mailer";
 import { generatePassword } from "@/utils/generatePassword";
-import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import User from "@/app/models/UserModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
+import { hashPassword } from "@/app/lib/bcrypt";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, manger, projectId } = await req.json();
+    const manager = "manager";
+    const { email, projectId } = await req.json();
+
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
@@ -18,33 +20,39 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    //לבדוק אם המשתמש קיים בDB
-    const existingUser = await User.findOne({ email: email });
+    let user;
+
+    // לבדוק אם המשתמש קיים ב־DB
+    const existingUser = await User.findOne({ email });
+
     if (existingUser) {
-      //אם קיים לשלוח מייל ולעדכן בPROJECTUSERS
-      sendExistMail(email, manger.name);
-      createProjectUser(existingUser._id, projectId, "viewer");
+      // אם קיים – לשלוח מייל ולעדכן בטבלת PROJECTUSERS
+      await sendExistMail(email, manager);
+      await createProjectUser(existingUser._id, projectId, "viewer");
+      user = existingUser;
     } else {
-      //אם לא קיים  לגנרט סיסמה לשמור בDB לשלוח מייל ולעדכן בPROJECTUSERS
-
+      // אם לא קיים – ליצור משתמש חדש עם סיסמה זמנית
       const tempPassword = generatePassword(8);
-
-      const hashedPassword = hashPassword(tempPassword);
-
-      // TODO store email and password in db
+      const hashedPassword = await hashPassword(tempPassword); // ✅ הוספנו await
 
       const newUser = await User.create({
         name: email.split("@")[0],
-        email: email,
+        email,
         password: hashedPassword,
       });
 
-      await sendPasswordEmail(email, tempPassword, manger.name);
-
-      createProjectUser(newUser._id, projectId, "viewer");
+      await sendPasswordEmail(email, tempPassword, manager);
+      await createProjectUser(newUser._id, projectId, "viewer");
+      user = newUser;
     }
 
-    return NextResponse.json({ success: true });
+    // ✅ החזרה של שם ומייל בלבד (כדי שה-frontend ידע להציג)
+    return NextResponse.json({
+      name: user.name,
+      email: user.email,
+      message: "User added successfully",
+    });
+
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(
@@ -56,8 +64,8 @@ export async function POST(req: Request) {
 
 async function createProjectUser(userId: any, projectId: any, role: string) {
   await ProjectUser.create({
-    userId: userId,
-    projectId: projectId,
-    role: role,
+    userId,
+    projectId,
+    role,
   });
 }

@@ -10,7 +10,6 @@ export async function AddUserToProject(projectId: string, email: string) {
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
-
         },
         body: JSON.stringify({ projectId, email }),
     });
