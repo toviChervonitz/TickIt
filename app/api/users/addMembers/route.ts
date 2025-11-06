@@ -55,6 +55,7 @@ export async function POST(req: Request) {
 
   } catch (err: any) {
     console.error(err);
+    console.log(err);
     return NextResponse.json(
       { success: false, error: err.message },
       { status: 500 }
@@ -62,7 +63,7 @@ export async function POST(req: Request) {
   }
 }
 
-async function createProjectUser(userId: any, projectId: any, role: string) {
+async function createProjectUser(userId: string, projectId: string, role: string) {
   await ProjectUser.create({
     userId,
     projectId,
