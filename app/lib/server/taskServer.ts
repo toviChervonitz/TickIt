@@ -16,17 +16,15 @@ export async function CreateTask(form: any) {
     //get user id from token
     //get project id from zustand
     //check if projectUser exists and role=manager
-    const projectId=0;//get from zustand
     const res1 = await fetch('/api/projectUser/verifyManager', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({userId: payload.id, projectId: projectId, role: 'manager'}),
+        body: JSON.stringify({userId: payload.id, projectId: form.projectId, role: 'manager'}),
     });
     const data1 = await res1.json();
     if (!res1.ok) {
         throw new Error(data1.error || 'You are not the manager of this project');
     }
-    ////
     
     const res = await fetch('/api/task/createTask', {
         method: 'POST',
