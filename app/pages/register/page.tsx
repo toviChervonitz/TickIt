@@ -128,7 +128,7 @@ export default function RegisterPage() {
         </form>
 
         <p style={{ marginTop: "1rem" }}>
-          Already have an account? <a href="/login" style={{ color: "#0070f3" }}>Log in</a>
+          Already have an account? <a href="/pages/login" style={{ color: "#0070f3" }}>Log in</a>
         </p>
       </div>
     </div>
