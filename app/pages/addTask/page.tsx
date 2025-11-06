@@ -1,44 +1,54 @@
-//task : id,createdAt,duedate,userId,projectId,content,status-{enum},title
 "use client";
 
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import "./addTask.css";
+import { CreateTask } from "@/app/lib/server/taskServer";
 
-interface Task {
+interface TaskForm {
   title: string;
   content: string;
   userEmail: string;
-  dueDate: string;
+  dueDate: string; // string from input type="date"
 }
 
 export default function AddTaskPage() {
   const router = useRouter();
 
-  const [task, setTask] = useState<Task>({
+  const [task, setTask] = useState<TaskForm>({
     title: "",
     content: "",
     userEmail: "",
     dueDate: "",
   });
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setTask((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: FormEvent):Promise<void> => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
 
     try {
-      //const result = await AddTask({  });
-      //all the feilds of task
-      console.log("Task added:", task);
+      // Call your backend function
+      const result = await CreateTask({
+        title: task.title,
+        content: task.content,
+        status: "todo",
+        createdAt: new Date(),              // current date
+        dueDate: new Date(task.dueDate),    // selected date
+        userEmail: task.userEmail,          // if backend expects email
+      });
+
+      console.log("Task added:", result);
       alert("Task added successfully!");
-      router.push("/dashboard"); // Redirect to dashboard page
-    } catch (error) {
+      router.push("/dashboard");
+    } catch (error: any) {
       console.error("Error adding task:", error);
-      alert("Failed to add task.");
+      alert(error?.message || "Failed to add task.");
     }
   };
 
@@ -63,7 +73,6 @@ export default function AddTaskPage() {
             name="content"
             value={task.content}
             onChange={handleChange}
-            required
           />
         </label>
 
@@ -78,16 +87,18 @@ export default function AddTaskPage() {
           />
         </label>
 
-        <label>
-          Due Date:
-          <input
-            type="date"
-            name="dueDate"
-            value={task.dueDate}
-            onChange={handleChange}
-            required
-          />
-        </label>
+       <label>
+  Due Date:
+  <input
+    type="date"
+    name="dueDate"
+    value={task.dueDate}
+    onChange={handleChange}
+    required
+    min={new Date().toISOString().split("T")[0]} // prevents past dates
+  />
+</label>
+
 
         <button type="submit" className="submit-btn">
           Add Task
