@@ -171,8 +171,8 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { CreateProject } from "../../lib/server/projectServer";
-import { AddUserToProject } from "../../lib/server/userServer";
+import { CreateProject } from '../../lib/server/projectServer';
+import { AddUserToProject } from '../../lib/server/userServer'
 import "./createProject.css";
 
 interface ProjectDetails {
@@ -186,6 +186,7 @@ interface User {
 }
 
 export default function CreateProjectPage() {
+
   const router = useRouter();
   const [step, setStep] = useState<number>(1);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails>({
