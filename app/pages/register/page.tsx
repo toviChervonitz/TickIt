@@ -50,14 +50,12 @@ export default function RegisterPage() {
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
 
-        {/* Optional image preview */}
         {image && (
           <div style={{ marginBottom: "1rem" }}>
             <img
               src={image}
               alt="Preview"
               style={{ width: "80px", height: "80px", borderRadius: "50%" }}
-              onError={() => setImage("")} // clear if invalid URL
             />
           </div>
         )}

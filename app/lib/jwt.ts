@@ -2,6 +2,12 @@ import jwt from "jsonwebtoken";
 
 const SECRET = process.env.JWT_SECRET!;
 
+export function getFromLocalStorage<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+  const item = localStorage.getItem(key);
+  return item ? JSON.parse(item) : null;
+}
+
 export function createToken(payload: any) {
   return jwt.sign(payload, SECRET, { expiresIn: "30d" });
 }
@@ -15,10 +21,10 @@ export function verifyToken(token: string) {
 }
 
 export function getAuthToken(): string | null {
-  if (typeof document === "undefined") return null;
-  const match = document.cookie.match(/token=([^;]+)/);
-  return match ? match[1] : null;
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
 }
+
 export function getTokenPayload(token?: string): any | null {
   const jwtToken = token || getAuthToken();
   if (!jwtToken) return null;
@@ -26,8 +32,8 @@ export function getTokenPayload(token?: string): any | null {
   try {
     const payload = jwt.verify(jwtToken, SECRET) as any;
 
-    return payload; 
-    {}
+    return payload;
+    { }
   } catch {
     return null;
   }
