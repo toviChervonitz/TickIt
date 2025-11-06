@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, ChangeEvent, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import "./createProject.css";
 
 interface ProjectDetails {
@@ -9,14 +8,11 @@ interface ProjectDetails {
   description: string;
 }
 
-interface User {
-  name: string;
+interface Member {
   email: string;
 }
 
 export default function CreateProjectPage() {
-  const router = useRouter();
-
   const [step, setStep] = useState<number>(1);
 
   // Step 1: Project Details
@@ -25,40 +21,53 @@ export default function CreateProjectPage() {
     description: "",
   });
 
-  // Step 2: Users
-  const [users, setUsers] = useState<User[]>([]);
-  const [newUser, setNewUser] = useState<string>("");
+  // Step 2: Members
+  const [members, setMembers] = useState<Member[]>([]);
+  const [newMember, setNewMember] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // Add user function (stub for backend check)
-  const handleAddUser = async (): Promise<void> => {
-    if (!newUser.trim()) return;
+  // Add member function (stub for backend check)
+  const handleAddMember = async (): Promise<void> => {
+    if (!newMember.trim()) return;
 
-    // stub: pretend we check backend and user exists
-    const fakeBackendCheck = (email: string): User => {
-      return { name: email.split("@")[0], email };
+    // stub: pretend we check backend and member exists
+    const fakeBackendCheck = (email: string): Member => {
+      return { email };
     };
 
     try {
-      const user = fakeBackendCheck(newUser.trim());
+      const member = fakeBackendCheck(newMember.trim());
 
-      if (users.some((u) => u.email === user.email)) {
-        setError("User already added.");
+      if (members.some((u) => u.email === member.email)) {
+        setError("Member already added.");
         return;
       }
 
-      setUsers([...users, user]);
-      setNewUser("");
+      setMembers([...members, member]);
+      setNewMember("");
       setError("");
     } catch {
-      setError("User not found.");
+      setError("Member not found.");
     }
   };
 
-  // Next step function (stub for backend project creation)
-  const handleNext = async (): Promise<void> => {
-    console.log("Creating project with:", { projectDetails, users });
-    router.push("/nextPage"); // change to your next page
+  // Final project creation function
+  const handleCreateProject = async (): Promise<void> => {
+    try {
+      console.log("Final project data:", {
+        projectDetails,
+        members,
+      });
+
+      // TODO: call your backend or perform any logic here
+      // Example:
+      // await createProjectAPI(projectDetails, members);
+
+      alert("Project created successfully!"); // just for demo
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong while creating the project.");
+    }
   };
 
   const nextStep = (): void => setStep((prev) => prev + 1);
@@ -71,8 +80,8 @@ export default function CreateProjectPage() {
     setProjectDetails((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUserInput = (e: ChangeEvent<HTMLInputElement>): void => {
-    setNewUser(e.target.value);
+  const handleMemberInput = (e: ChangeEvent<HTMLInputElement>): void => {
+    setNewMember(e.target.value);
   };
 
   return (
@@ -103,11 +112,7 @@ export default function CreateProjectPage() {
               required
             />
             <div style={{ display: "flex", gap: "1rem" }}>
-              <button
-                type="button"
-                className="step-button"
-                onClick={nextStep}
-              >
+              <button type="button" className="step-button" onClick={nextStep}>
                 Next
               </button>
             </div>
@@ -115,25 +120,25 @@ export default function CreateProjectPage() {
         </div>
       )}
 
-      {/* Step 2 - Add Users */}
+      {/* Step 2 - Add Members */}
       {step === 2 && (
         <div className="create-project-section">
-          <h2>Add Users</h2>
-          <p>Add users who will collaborate on this project.</p>
+          <h2>Add Members</h2>
+          <p>Add members who will collaborate on this project.</p>
 
           <form
             className="create-project-form"
             onSubmit={(e: FormEvent<HTMLFormElement>) => {
               e.preventDefault();
-              handleAddUser();
+              handleAddMember();
             }}
           >
             <input
               type="text"
-              placeholder="User email"
-              value={newUser}
-              onChange={handleUserInput}
-              onKeyDown={(e) => e.key === "Enter" && handleAddUser()}
+              placeholder="Member email"
+              value={newMember}
+              onChange={handleMemberInput}
+              onKeyDown={(e) => e.key === "Enter" && handleAddMember()}
             />
             <button type="submit" className="create-project-add-button">
               Add
@@ -142,13 +147,11 @@ export default function CreateProjectPage() {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
-          {/* Users list */}
-          <div className="users-list-wrapper">
-            <ul className="users-list">
-              {users.map((user, idx) => (
-                <li key={idx}>
-                  {user.name} ({user.email})
-                </li>
+          {/* Members list */}
+          <div className="members-list-wrapper">
+            <ul className="members-list">
+              {members.map((member, idx) => (
+                <li key={idx}>{member.email}</li>
               ))}
             </ul>
           </div>
@@ -163,8 +166,8 @@ export default function CreateProjectPage() {
             <button className="step-button" onClick={prevStep}>
               Back
             </button>
-            <button className="step-button" onClick={handleNext}>
-              Next
+            <button className="step-button" onClick={handleCreateProject}>
+              Finish
             </button>
           </div>
         </div>

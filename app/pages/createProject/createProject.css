@@ -95,21 +95,21 @@
   transform: translateY(-1px);
 }
 
-/* Users list */
-.users-list {
+/* Members list */
+.members-list {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.users-list li {
+.members-list li {
   padding: 0.5rem 0;
   border-bottom: 1px solid #e5e7eb;
 }
 /* ...keep previous styles... */
 
-/* Users list wrapper for spacing and scroll */
-.users-list-wrapper {
+/* Members list wrapper for spacing and scroll */
+.members-list-wrapper {
   margin-top: 1.5rem; /* space between Add button and list */
   max-height: 200px; /* adjust height as needed */
   overflow-y: auto;
@@ -119,12 +119,12 @@
   background: #f9fafb;
 }
 
-/* Individual user items */
-.users-list-wrapper li {
+/* Individual member items */
+.members-list-wrapper li {
   padding: 0.5rem 0;
   border-bottom: 1px solid #e5e7eb;
 }
-.users-list-wrapper li:last-child {
+.members-list-wrapper li:last-child {
   border-bottom: none;
 }
 /**/

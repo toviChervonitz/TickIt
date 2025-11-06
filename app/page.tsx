@@ -13,7 +13,7 @@ export default function Home() {
         <p>
           A comprehensive solution for managing projects, prioritizing tasks, and enabling seamless collaboration — all in one efficient and organized platform.
         </p>
-        <Link href="/login" className="hero-button">
+        <Link href="/pages/login" className="hero-button">
           Get Started
         </Link>
         <div className="hero-image">
@@ -50,7 +50,7 @@ export default function Home() {
         <p>
           Join now and empower your organization with a smarter way to manage work.
         </p>
-        <Link href="/register" className="cta-button">
+        <Link href="/pages/register" className="cta-button">
           Create an Account
         </Link>
       </section>

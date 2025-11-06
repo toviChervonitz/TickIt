@@ -19,3 +19,16 @@ export function getAuthToken(): string | null {
   const match = document.cookie.match(/token=([^;]+)/);
   return match ? match[1] : null;
 }
+export function getTokenPayload(token?: string): any | null {
+  const jwtToken = token || getAuthToken();
+  if (!jwtToken) return null;
+
+  try {
+    const payload = jwt.verify(jwtToken, SECRET) as any;
+
+    return payload; 
+    {}
+  } catch {
+    return null;
+  }
+}

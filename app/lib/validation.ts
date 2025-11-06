@@ -51,3 +51,19 @@ export const projectSchema = Joi.object({
         "string.max": "Description cannot exceed 500 characters.",
     }),
 });
+
+export const taskSchema = Joi.object({
+  title: Joi.string().min(2).max(100).required().messages({
+    "string.empty": "Task title is required.",
+    "string.min": "Task title must be at least 2 characters long.",
+    "string.max": "Task title cannot exceed 100 characters.",
+  }),
+  content: Joi.string().max(1000).optional().allow("").messages({
+    "string.max": "Content cannot exceed 1000 characters.",
+  }),
+  dueDate: Joi.date().iso().required().messages({
+    "date.base": "Due date must be a valid date.",
+    "any.required": "Due date is required.",
+    "date.format": "Due date must be in ISO format (YYYY-MM-DD).",
+  }),
+});
