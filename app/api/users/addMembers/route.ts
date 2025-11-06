@@ -1,4 +1,3 @@
-// import { hashPassword } from "@/app/lib/bcrypt";
 import { sendExistMail, sendPasswordEmail } from "@/app/lib/mailer";
 import { generatePassword } from "@/utils/generatePassword";
 import { NextResponse } from "next/server";
@@ -22,18 +21,15 @@ export async function POST(req: Request) {
 
     let user;
 
-    // לבדוק אם המשתמש קיים ב־DB
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      // אם קיים – לשלוח מייל ולעדכן בטבלת PROJECTUSERS
       await sendExistMail(email, manager);
       await createProjectUser(existingUser._id, projectId, "viewer");
       user = existingUser;
     } else {
-      // אם לא קיים – ליצור משתמש חדש עם סיסמה זמנית
       const tempPassword = generatePassword(8);
-      const hashedPassword = await hashPassword(tempPassword); // ✅ הוספנו await
+      const hashedPassword = await hashPassword(tempPassword);
 
       const newUser = await User.create({
         name: email.split("@")[0],
@@ -46,7 +42,6 @@ export async function POST(req: Request) {
       user = newUser;
     }
 
-    // ✅ החזרה של שם ומייל בלבד (כדי שה-frontend ידע להציג)
     return NextResponse.json({
       name: user.name,
       email: user.email,
