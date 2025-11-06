@@ -22,7 +22,7 @@ export async function sendPasswordEmail(
       </div>
     `,
   };
-
+  console.log("in mail function");
   await sgMail.send(msg);
 }
 
