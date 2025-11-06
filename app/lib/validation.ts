@@ -40,3 +40,14 @@ export const loginSchema = Joi.object({
         "string.empty": "Password is required.",
     }),
 });
+
+export const projectSchema = Joi.object({
+    name: Joi.string().min(2).max(100).required().messages({
+        "string.empty": "Project name is required.",
+        "string.min": "Project name must be at least 2 characters long.",
+        "string.max": "Project name cannot exceed 100 characters.",
+    }),
+    description: Joi.string().max(500).optional().allow("").messages({
+        "string.max": "Description cannot exceed 500 characters.",
+    }),
+});
