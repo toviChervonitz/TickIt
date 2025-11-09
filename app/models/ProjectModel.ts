@@ -1,4 +1,6 @@
 import mongoose from "mongoose";
+import { IProject } from "./types";
+
 
 const ProjectSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -6,4 +8,4 @@ const ProjectSchema = new mongoose.Schema({
   tasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
 }, { timestamps: true });
 
-export default mongoose.models.Project || mongoose.model("Project", ProjectSchema);
+export default mongoose.models.Project || mongoose.model<IProject>("Project", ProjectSchema);
