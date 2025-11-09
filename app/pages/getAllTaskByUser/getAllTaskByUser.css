@@ -1,0 +1,102 @@
+/* עיצוב כללי לרשימת משימות */
+.tasks-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 20px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #fafafa;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.tasks-container h2 {
+  text-align: center;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+/* כרטיס משימה בודדת */
+.task-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-left: 6px solid transparent;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 15px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* כותרת המשימה */
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin: 0;
+}
+
+/* תוכן המשימה */
+.task-content {
+  margin: 10px 0;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* תחתית המשימה */
+.task-footer {
+  border-top: 1px solid #eee;
+  margin-top: 10px;
+  padding-top: 8px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.task-footer p {
+  margin: 4px 0;
+}
+
+/* סטטוסים בצבעים */
+.task-status {
+  font-size: 0.85rem;
+  font-weight: bold;
+  padding: 5px 10px;
+  border-radius: 15px;
+  text-transform: uppercase;
+  color: white;
+}
+
+.task-status.todo {
+  background-color: #f39c12;
+}
+
+.task-status.doing {
+  background-color: #3498db;
+}
+
+.task-status.done {
+  background-color: #2ecc71;
+}
+
+/* פס צבע בצד שמאל לפי הסטטוס */
+.task-card.todo {
+  border-left-color: #f39c12;
+}
+
+.task-card.doing {
+  border-left-color: #3498db;
+}
+
+.task-card.done {
+  border-left-color: #2ecc71;
+}
