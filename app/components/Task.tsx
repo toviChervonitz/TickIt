@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import "./Task.css";
 
 interface TaskProps {
   title: string;

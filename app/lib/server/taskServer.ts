@@ -48,14 +48,13 @@ export async function GetTasksByUserId(userId: string) {
         if (!token) {
             throw new Error("Missing authentication token. Please log in again.");
         }
-        
+
         const res = await fetch(`/api/task/tasks?userId=${userId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
                 ...(token ? { Authorization: `Bearer ${token}` } : {}),
             },
-            body: JSON.stringify({ userId }),
             cache: "no-store",
         });
 
