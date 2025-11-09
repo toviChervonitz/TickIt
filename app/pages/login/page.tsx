@@ -34,7 +34,7 @@ export default function LoginPage() {
         return;
       }
       console.log("Login success:", result);
-      setUser(result.data.user);
+      setUser(result.user);
       router.push("/dashboard");
     } catch (err: any) {
       console.error("Login error:", err);
