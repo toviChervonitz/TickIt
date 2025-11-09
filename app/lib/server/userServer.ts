@@ -40,17 +40,33 @@ export async function GetUserId(email: string) {
 }
 
 export async function UpdateUser(email: string, updates: Record<string, any>) {
-  const res = await fetch("/api/users/user/getId", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, ...updates }),
+  if (!email) throw new Error("User email is required");
+
+  const filteredUpdates: Record<string, any> = {};
+  Object.entries(updates).forEach(([key, value]) => {
+    if (value !== "" && value !== null && value !== undefined) {
+      filteredUpdates[key] = value;
+    }
   });
 
-  const data = await res.json();
+  const res = await fetch("/api/users/user", {  // <-- use correct route
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, ...filteredUpdates }),
+  });
+
+  const text = await res.text();
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    throw new Error(`Invalid response from server: ${text}`);
+  }
 
   if (!res.ok) {
     throw new Error(data.message || "Failed to update user");
   }
 
-  return data; // contains { status, message, user }
+  return data;
 }
+

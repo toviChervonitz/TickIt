@@ -17,7 +17,7 @@ export default function RegisterPage() {
   const [image, setImage] = useState<string>(""); // will hold object URL
   const [error, setError] = useState("");
   const { user } = useAppStore(); // assuming you also store projectId
-  
+
   // Handle file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,27 +28,34 @@ export default function RegisterPage() {
     setImage(url);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
-    e.preventDefault();
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (!name || !phone || !password) {
-      setError("Please fill in all required fields.");
-      return;
-    }
+  // Prepare updates only for filled fields
+  const updates: Record<string, any> = {};
+  if (name) updates.name = name;
+  if (phone) updates.phone = phone;
+  if (password) updates.password = password;
+  if (image) updates.image = image;
 
-    setError("");
-    console.log("Updating:", { name, phone, password, image });
+  if (Object.keys(updates).length === 0) {
+    setError("Please fill in at least one field to update.");
+    return;
+  }
 
-    try {
-      const result=await UpdateUser(user?.email||"", {name, phone, password, image})
-        //should i make it that you dont have to put in all the fields?
-      console.log("Updating success:", result);
-      router.push("/pages/dashboard");
-    } catch (err: any) {
-      console.error("Updating error:", err);
-      setError(err.message || "Updating failed");
-    }
-  };
+  setError("");
+  console.log("Updating:", updates);
+
+  try {
+    const result = await UpdateUser(user?.email || "", updates);
+    console.log("Updating success:", result);
+    router.push("/pages/dashboard");
+  } catch (err: any) {
+    console.error("Updating error:", err);
+    setError(err.message || "Updating failed");
+  }
+};
+
 
   return (
     <div className="login-page">
