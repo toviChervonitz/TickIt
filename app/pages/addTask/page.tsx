@@ -16,6 +16,7 @@ interface TaskForm {
 export default function AddTaskPage() {
   const router = useRouter();
   const { projectUsers, projectId } = useAppStore(); // assuming you also store projectId
+  console.log(projectUsers, projectId)
   const [task, setTask] = useState<TaskForm>({
     title: "",
     content: "",
@@ -92,7 +93,7 @@ export default function AddTaskPage() {
           >
             <option value="">-- Select a user --</option>
             {projectUsers.map((user) => (
-              <option key={user.id} value={user.id}>
+              <option key={user._id} value={user._id}>
                 {user.email}
               </option>
             ))}

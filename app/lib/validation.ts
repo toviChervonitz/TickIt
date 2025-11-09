@@ -66,4 +66,5 @@ export const taskSchema = Joi.object({
     "any.required": "Due date is required.",
     "date.format": "Due date must be in ISO format (YYYY-MM-DD).",
   }),
-});
+}).unknown(true); // ✅ allow extra fields like "status"
+

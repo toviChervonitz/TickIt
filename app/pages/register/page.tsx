@@ -4,9 +4,11 @@ import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import "../login.css";
 import { Register } from "@/app/lib/server/authServer";
+import useAppStore from "@/app/store/useAppStore";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { setUser } = useAppStore();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -14,19 +16,17 @@ export default function RegisterPage() {
   const [password, setPassword] = useState("");
   const [image, setImage] = useState<string>(""); // optional profile image
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // to prevent multiple submissions
+  const [loading, setLoading] = useState(false);
 
-  // Handle file selection (optional)
+  // Handle file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Convert to object URL for preview
     const url = URL.createObjectURL(file);
     setImage(url);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!name || !email || !phone || !password) {
@@ -38,7 +38,6 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      // Only include image if it’s a valid URL (not blob:)
       const payload: any = {
         name,
         email,
@@ -58,11 +57,15 @@ export default function RegisterPage() {
         return;
       }
 
+      // ✅ Save user to Zustand
+      setUser(result.user);
+
       console.log("Registration success:", result);
       router.push("/pages/createProject");
     } catch (err: any) {
       console.error("Registration error:", err);
       setError(err.message || "Registration failed");
+    } finally {
       setLoading(false);
     }
   };
@@ -75,7 +78,7 @@ export default function RegisterPage() {
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
 
-        {/* Optional profile picture picker */}
+        {/* Profile image */}
         <div
           style={{
             width: "100px",
