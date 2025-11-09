@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
+import "@/app/models/ProjectModel";
+import "@/app/models/UserModel";
 import Task from "@/app/models/TaskModel";
+import mongoose from "mongoose";
 
 export async function GET(req: Request) {
     await dbConnect();
 
 
     try {
-        
+
         const authHeader = req.headers.get("authorization");
         if (!authHeader || !authHeader.startsWith("Bearer ")) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,6 +25,9 @@ export async function GET(req: Request) {
                 { status: 400 }
             );
         }
+
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+
         const tasks = await Task.find({ userId })
             .populate("userId", "name")
             .populate("projectId", "name");
