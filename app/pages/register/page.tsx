@@ -12,10 +12,11 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [image, setImage] = useState<string>(""); // will hold object URL
+  const [image, setImage] = useState<string>(""); // optional profile image
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // to prevent multiple submissions
 
-  // Handle file selection
+  // Handle file selection (optional)
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -34,13 +35,26 @@ export default function RegisterPage() {
     }
 
     setError("");
-    console.log("Registering:", { name, email, phone, password, image });
+    setLoading(true);
 
     try {
-      const result = await Register({ name, email, tel: phone, password, image });
+      // Only include image if it’s a valid URL (not blob:)
+      const payload: any = {
+        name,
+        email,
+        tel: phone,
+        password,
+      };
+
+      if (image && !image.startsWith("blob:")) {
+        payload.image = image;
+      }
+
+      const result = await Register(payload);
 
       if (result.status === 409) {
         setError("Email already exists");
+        setLoading(false);
         return;
       }
 
@@ -49,6 +63,7 @@ export default function RegisterPage() {
     } catch (err: any) {
       console.error("Registration error:", err);
       setError(err.message || "Registration failed");
+      setLoading(false);
     }
   };
 
@@ -60,7 +75,7 @@ export default function RegisterPage() {
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
 
-        {/* Profile picture picker */}
+        {/* Optional profile picture picker */}
         <div
           style={{
             width: "100px",
@@ -124,11 +139,16 @@ export default function RegisterPage() {
             required
           />
 
-          <button type="submit">Register</button>
+          <button type="submit" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
+          </button>
         </form>
 
         <p style={{ marginTop: "1rem" }}>
-          Already have an account? <a href="/pages/login" style={{ color: "#0070f3" }}>Log in</a>
+          Already have an account?{" "}
+          <a href="/pages/login" style={{ color: "#0070f3" }}>
+            Log in
+          </a>
         </p>
       </div>
     </div>

@@ -40,7 +40,7 @@ export default function RegisterPage() {
     console.log("Updating:", { name, phone, password, image });
 
     try {
-      const result=await UpdateUser(user.email, {name, phone, password, image})
+      const result=await UpdateUser(user?.email||"", {name, phone, password, image})
         //should i make it that you dont have to put in all the fields?
       console.log("Updating success:", result);
       router.push("/pages/dashboard");
