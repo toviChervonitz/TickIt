@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ITask } from "./types";
 
 const TaskSchema = new mongoose.Schema({
     title: { type: String, required: true },
@@ -12,6 +13,6 @@ const TaskSchema = new mongoose.Schema({
     dueDate: { type: Date, required: false },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     projectId: { type: mongoose.Schema.Types.ObjectId, ref: "Project" },
-}, { timestamps: true });
+});
 
-export default mongoose.models.Task || mongoose.model("Task", TaskSchema);
+export default mongoose.models.Task || mongoose.model<ITask>("Task", TaskSchema);

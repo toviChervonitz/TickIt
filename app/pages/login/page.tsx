@@ -5,9 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link"; // Import Link from next/navigation
 import "../login.css";
 import { Login } from "@/app/lib/server/authServer";
+import useAppStore from "@/app/store/useAppStore";
+import { set } from "mongoose";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { setUser } = useAppStore();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -31,7 +34,7 @@ export default function LoginPage() {
         return;
       }
       console.log("Login success:", result);
-
+      setUser(result.data.user);
       router.push("/dashboard");
     } catch (err: any) {
       console.error("Login error:", err);
@@ -41,9 +44,9 @@ export default function LoginPage() {
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-    };
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setter(e.target.value);
+      };
 
   return (
     <div className="login-page">

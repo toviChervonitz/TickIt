@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { IProjectUser } from "./types";
 
 const ProjectUserSchema = new mongoose.Schema(
   {
@@ -22,4 +23,4 @@ const ProjectUserSchema = new mongoose.Schema(
 );
 
 export default mongoose.models.ProjectUser ||
-  mongoose.model("ProjectUser", ProjectUserSchema);
+  mongoose.model<IProjectUser>("ProjectUser", ProjectUserSchema);
