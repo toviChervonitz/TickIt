@@ -1,7 +1,7 @@
 import Joi from "joi";
 
-const passwordPattern =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+
 
 export const registerSchema = Joi.object({
     name: Joi.string().min(2).max(50).required().messages({
@@ -25,7 +25,7 @@ export const registerSchema = Joi.object({
         .messages({
             "string.empty": "Password is required.",
             "string.pattern.base":
-                "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.",
+                "Password must be at least 6 characters long and include an letter and a number.",
         }),
     image: Joi.string().uri().optional(),
 });
