@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CreateProject } from "@/app/lib/server/projectServer";
 import { AddUserToProject, AddManagerToProject } from "@/app/lib/server/userServer";
 import useAppStore from "@/app/store/useAppStore";
 import "./createProject.css";
+import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
 
 interface ProjectDetails {
   name: string;
@@ -13,9 +14,9 @@ interface ProjectDetails {
 }
 
 interface User {
-  name: string;
-  email: string;
   _id: string;
+  email: string;
+  name: string;
 }
 
 export default function CreateProjectPage() {
@@ -28,60 +29,99 @@ export default function CreateProjectPage() {
     description: "",
   });
   const [users, setUsers] = useState<User[]>([]);
-  const [newUser, setNewUser] = useState<string>("");
-  const [projectId, setLocalProjectId] = useState<string>(""); // local state
+  const [newUserEmail, setNewUserEmail] = useState<string>("");
+  const [projectIdLocal, setProjectIdLocal] = useState<string>("");
+  const [tasks, setTasks] = useState<TaskFormData[]>([]);
+  const [task, setTask] = useState<TaskFormData>({
+    title: "",
+    content: "",
+    userId: "",
+    dueDate: "",
+  });
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleNext = async (): Promise<void> => {
+  // Step 1: Create project and add manager
+  const handleNextStep1 = async () => {
     if (loading) return;
     try {
       setLoading(true);
       setError("");
 
-      // 1️⃣ Create the project
       const result = await CreateProject(projectDetails);
       if (!result?.project?._id) throw new Error("Invalid project ID");
 
       const newProjectId = result.project._id;
-      setLocalProjectId(newProjectId);
-      setProjectId(newProjectId);       // save to zustand
-      setProjectUsers([]);               // initialize empty users in store
+      setProjectIdLocal(newProjectId);
+      setProjectId(newProjectId);
+      setProjectUsers([]);
 
-      // 2️⃣ Automatically add current user as manager
+      // Add current user as manager
       const manager = await AddManagerToProject(newProjectId);
+      setProjectUsers([manager]);
+      setUsers([manager]);
 
-      setProjectUsers([manager]);        // add manager to zustand
-      setUsers([manager]);               // add manager to local state
-
-      // 3️⃣ Move to next step
       setStep(2);
     } catch (err: any) {
-      console.error(err);
       setError(err.message || "Failed to create project");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddUser = async (): Promise<void> => {
-    if (!newUser.trim() || !projectId) return;
+  // Step 2: Add user
+  const handleAddUser = async () => {
+    if (!newUserEmail.trim() || !projectIdLocal) return;
+    if (users.some((u) => u.email === newUserEmail.trim())) {
+      setError("User already added.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+      const addedUser = await AddUserToProject(projectIdLocal, newUserEmail.trim());
+      setUsers([...users, addedUser]);
+      setProjectUsers([...users, addedUser]);
+      setNewUserEmail("");
+    } catch (err: any) {
+      setError(err.message || "Failed to add user");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 3: Add task
+  const handleAddTask = () => {
+    if (!task.title || !task.userId || !task.dueDate) {
+      setError("Please fill all fields for the task.");
+      return;
+    }
+
+    setTasks([...tasks, task]);
+    setTask({ title: "", content: "", userId: "", dueDate: "" });
+    setError("");
+  };
+
+  // Step 4: Finish project
+  const handleFinish = async () => {
     try {
       setLoading(true);
       setError("");
 
-      const addedUser = await AddUserToProject(projectId, newUser.trim());
-
-      if (projectUsers.some((u) => u.email === addedUser.email)) {
-        setError("User already added.");
-        return;
+      // Optionally, save all tasks to backend
+      for (const t of tasks) {
+        await fetch("/api/task/create", { // or use your CreateTask function
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...t, projectId: projectIdLocal }),
+        });
       }
 
-      setProjectUsers([...projectUsers, addedUser]);
-      setUsers([...users, addedUser]);
-      setNewUser("");
+      alert("Project created successfully!");
+      router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "Failed to add user");
+      setError(err.message || "Failed to finish project");
     } finally {
       setLoading(false);
     }
@@ -92,17 +132,11 @@ export default function CreateProjectPage() {
     setProjectDetails((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleUserInput = (e: ChangeEvent<HTMLInputElement>) => {
-    setNewUser(e.target.value);
-  };
-
   return (
     <div className="create-project-page">
       {step === 1 && (
         <div className="create-project-section">
           <h2>Project Details</h2>
-          <p>Enter the name and description for your project.</p>
-
           <form className="create-project-form" onSubmit={(e) => e.preventDefault()}>
             <input
               type="text"
@@ -120,12 +154,7 @@ export default function CreateProjectPage() {
               required
             />
             {error && <p style={{ color: "red" }}>{error}</p>}
-            <button
-              type="button"
-              className="step-button"
-              onClick={handleNext}
-              disabled={loading}
-            >
+            <button type="button" onClick={handleNextStep1} disabled={loading}>
               {loading ? "Creating..." : "Next"}
             </button>
           </form>
@@ -135,46 +164,55 @@ export default function CreateProjectPage() {
       {step === 2 && (
         <div className="create-project-section">
           <h2>Add Users</h2>
-          <p>Add users who will collaborate on this project.</p>
-
-          <form
-            className="create-project-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleAddUser();
-            }}
-          >
-            <input
-              type="text"
-              placeholder="User email"
-              value={newUser}
-              onChange={handleUserInput}
-              onKeyDown={(e) => e.key === "Enter" && handleAddUser()}
-            />
-            <button type="submit" disabled={loading}>
-              {loading ? "Adding..." : "Add"}
-            </button>
-          </form>
-
+          <input
+            type="text"
+            placeholder="User Email"
+            value={newUserEmail}
+            onChange={(e) => setNewUserEmail(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleAddUser()}
+          />
+          <button onClick={handleAddUser} disabled={loading}>
+            {loading ? "Adding..." : "Add User"}
+          </button>
           {error && <p style={{ color: "red" }}>{error}</p>}
 
           <ul>
-            {users.map((user) => (
-              <li key={user._id}>
-                {user.name} ({user.email}) {user._id === users[0]._id && "(Manager)"}
+            {users.map((u) => (
+              <li key={u._id}>
+                {u.name} ({u.email}) {u._id === users[0]._id && "(Manager)"}
               </li>
             ))}
           </ul>
 
-          <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-            <button onClick={() => setStep(1)} disabled={loading}>
-              Back
+          <div style={{ marginTop: "1rem" }}>
+            <button onClick={() => setStep(1)} disabled={loading}>Back</button>
+            <button onClick={() => setStep(3)} disabled={loading || users.length === 0}>
+              Next
             </button>
-            <button
-              onClick={() => router.push("/pages/addTask")}
-              disabled={loading}
-            >
-              Finish
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="create-project-section">
+          <h2>Add Tasks</h2>
+          <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} />
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
+          {tasks.length > 0 && (
+            <ul style={{ marginTop: "1rem" }}>
+              {tasks.map((t, idx) => (
+                <li key={idx}>
+                  {t.title} - {t.dueDate} - {projectUsers.find(u => u._id === t.userId)?.email}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div style={{ marginTop: "1rem" }}>
+            <button onClick={() => setStep(2)} disabled={loading}>Back</button>
+            <button onClick={handleFinish} disabled={loading}>
+              {loading ? "Finishing..." : "Finish Project"}
             </button>
           </div>
         </div>

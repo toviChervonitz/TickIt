@@ -29,18 +29,18 @@ export async function CreateProject(form: any) {
   return { status: res.status, ...data };
 }
 
-export async function GetAllProjects() {
-    try {
+// export async function GetAllProjects() {
+//     try {
         
-        const projects = await ProjectModel.find();
-        console.log("i am here");
+//         const projects = await ProjectModel.find();
+//         console.log("i am here");
         
-        return projects;
-    } catch (error) {
-        console.log("errorrrrrrrrr");
+//         return projects;
+//     } catch (error) {
+//         console.log("errorrrrrrrrr");
         
-    }
-}
+//     }
+// }
 
 
 //   const token = getAuthToken();
