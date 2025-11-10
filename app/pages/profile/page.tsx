@@ -5,80 +5,67 @@ import { useRouter } from "next/navigation";
 import "../login.css";
 import { Register } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
+import { UpdateUser } from "@/app/lib/server/userServer";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setUser } = useAppStore();
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+//   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [image, setImage] = useState<string>(""); // optional profile image
+  const [image, setImage] = useState<string>(""); // will hold object URL
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { user } = useAppStore(); // assuming you also store projectId
 
   // Handle file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Convert to object URL for preview
     const url = URL.createObjectURL(file);
     setImage(url);
   };
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (!name || !email || !phone || !password) {
-      setError("Please fill in all required fields.");
-      return;
-    }
+  // Prepare updates only for filled fields
+  const updates: Record<string, any> = {};
+  if (name) updates.name = name;
+  if (phone) updates.phone = phone;
+  if (password) updates.password = password;
+  if (image) updates.image = image;
 
-    setError("");
-    setLoading(true);
+  if (Object.keys(updates).length === 0) {
+    setError("Please fill in at least one field to update.");
+    return;
+  }
 
-    try {
-      const payload: any = {
-        name,
-        email,
-        tel: phone,
-        password,
-      };
+  setError("");
+  console.log("Updating:", updates);
 
-      if (image && !image.startsWith("blob:")) {
-        payload.image = image;
-      }
+  try {
+    const result = await UpdateUser(user?.email || "", updates);
+    console.log("Updating success:", result);
+    router.push("/pages/dashboard");
+  } catch (err: any) {
+    console.error("Updating error:", err);
+    setError(err.message || "Updating failed");
+  }
+};
 
-      const result = await Register(payload);
-
-      if (result.status === 409) {
-        setError("Email already exists");
-        setLoading(false);
-        return;
-      }
-
-      // ✅ Save user to Zustand
-      setUser(result.user);
-
-      console.log("Registration success:", result);
-      router.push("/pages/createProject");
-    } catch (err: any) {
-      console.error("Registration error:", err);
-      setError(err.message || "Registration failed");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="login-page">
       <div className="login-container">
-        <h1>Register</h1>
-        <p>Create your account</p>
+        
+        <p>Please fill in the details for your account</p>
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
 
-        {/* Profile image */}
+        {/* Profile picture picker */}
         <div
           style={{
             width: "100px",
@@ -120,13 +107,7 @@ export default function RegisterPage() {
             onChange={(e) => setName(e.target.value)}
             required
           />
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+         
           <input
             type="tel"
             placeholder="Phone"
@@ -142,24 +123,10 @@ export default function RegisterPage() {
             required
           />
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              opacity: loading ? 0.6 : 1,
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
-            {loading ? "Registering..." : "Register"}
-          </button>
+          <button type="submit">Update</button>
         </form>
 
-        <p style={{ marginTop: "1rem" }}>
-          Already have an account?{" "}
-          <a href="/pages/login" style={{ color: "#0070f3" }}>
-            Log in
-          </a>
-        </p>
+      
       </div>
     </div>
   );

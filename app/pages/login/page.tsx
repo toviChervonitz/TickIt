@@ -2,11 +2,10 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link"; // Import Link from next/navigation
+import Link from "next/link";
 import "../login.css";
 import { Login } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
-import { set } from "mongoose";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false); // NEW: loading state
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
@@ -24,6 +24,7 @@ export default function LoginPage() {
     }
 
     setError("");
+    setLoading(true); // disable button
     console.log("Logging in with", { email, password });
 
     try {
@@ -40,6 +41,8 @@ export default function LoginPage() {
     } catch (err: any) {
       console.error("Login error:", err);
       setError(err.message || "Login failed");
+    } finally {
+      setLoading(false); // re-enable button
     }
   };
 
@@ -72,12 +75,20 @@ export default function LoginPage() {
             onChange={handleChange(setPassword)}
             required
           />
-          <button type="submit">Login</button>
+          <button
+            type="submit"
+            disabled={loading} // disable while loading
+            style={{
+              opacity: loading ? 0.6 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </button>
         </form>
 
-        {/* Add the register link */}
         <p style={{ marginTop: "1rem" }}>
-          Don't have an account?{" "}
+          Don’t have an account?{" "}
           <Link href="/pages/register" style={{ color: "#0070f3" }}>
             Register
           </Link>

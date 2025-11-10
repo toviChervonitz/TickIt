@@ -1,117 +1,46 @@
 "use client";
 
-import React, { useState, ChangeEvent, FormEvent } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import "./addTask.css";
 import { CreateTask } from "@/app/lib/server/taskServer";
-import { GetUserId } from "@/app/lib/server/userServer";
-
-interface TaskForm {
-  title: string;
-  content: string;
-  userEmail: string;
-  dueDate: string; // string from input type="date"
-}
+import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
+import useAppStore from "@/app/store/useAppStore";
+import "./addTask.css";
 
 export default function AddTaskPage() {
   const router = useRouter();
-
-  const [task, setTask] = useState<TaskForm>({
+  const { projectId } = useAppStore(); // <-- get projectId from Zustand
+  const [task, setTask] = useState<TaskFormData>({
     title: "",
     content: "",
-    userEmail: "",
+    userId: "",
     dueDate: "",
   });
 
-  const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value } = e.target;
-    setTask((prev) => ({ ...prev, [name]: value }));
-  };
+  const handleAdd = async () => {
+    if (!task.userId) {
+      alert("Please select a user to assign this task to.");
+      return;
+    }
 
-  const handleSubmit = async (e: FormEvent): Promise<void> => {
-    e.preventDefault();
-    let userId=-1;
-    try{
-         userId=await GetUserId(task.userEmail);
+    if (!projectId) {
+      alert("No project selected. Please create or select a project first.");
+      return;
     }
-    catch{
-        //tell them email doesnt exist
-    }
+
     try {
-      // Call your backend function
-      const result = await CreateTask({
-        title: task.title,
-        content: task.content,
-        status: "todo",
-        createdAt: new Date(),              // current date
-        dueDate: new Date(task.dueDate),    // selected date
-        userId: userId,          // if backend expects email
-      });
-      //add project id
-
-      console.log("Task added:", result);
+      await CreateTask({ ...task, projectId }); // <-- use Zustand projectId
       alert("Task added successfully!");
       router.push("/dashboard");
-    } catch (error: any) {
-      console.error("Error adding task:", error);
-      alert(error?.message || "Failed to add task.");
+    } catch (err: any) {
+      alert(err.message || "Failed to add task.");
     }
   };
 
   return (
     <div className="add-task-container">
       <h1>Add New Task</h1>
-      <form className="add-task-form" onSubmit={handleSubmit}>
-        <label>
-          Title:
-          <input
-            type="text"
-            name="title"
-            value={task.title}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-        <label>
-          Content:
-          <textarea
-            name="content"
-            value={task.content}
-            onChange={handleChange}
-          />
-        </label>
-
-        <label>
-          User Email:
-          <input
-            type="email"
-            name="userEmail"
-            value={task.userEmail}
-            onChange={handleChange}
-            required
-          />
-        </label>
-
-       <label>
-  Due Date:
-  <input
-    type="date"
-    name="dueDate"
-    value={task.dueDate}
-    onChange={handleChange}
-    required
-    min={new Date().toISOString().split("T")[0]} // prevents past dates
-  />
-</label>
-
-
-        <button type="submit" className="submit-btn">
-          Add Task
-        </button>
-      </form>
+      <TaskForm task={task} setTask={setTask} onSubmit={handleAdd} />
     </div>
   );
 }
