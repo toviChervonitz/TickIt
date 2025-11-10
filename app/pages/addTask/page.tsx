@@ -4,27 +4,28 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import "./addTask.css";
 import { CreateTask } from "@/app/lib/server/taskServer";
-import { GetUserId } from "@/app/lib/server/userServer";
+import useAppStore from "@/app/store/useAppStore";
 
 interface TaskForm {
   title: string;
   content: string;
-  userEmail: string;
-  dueDate: string; // string from input type="date"
+  userId: string;
+  dueDate: string;
 }
 
 export default function AddTaskPage() {
   const router = useRouter();
-
+  const { projectUsers, projectId } = useAppStore(); // assuming you also store projectId
+  console.log(projectUsers, projectId)
   const [task, setTask] = useState<TaskForm>({
     title: "",
     content: "",
-    userEmail: "",
+    userId: "",
     dueDate: "",
   });
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setTask((prev) => ({ ...prev, [name]: value }));
@@ -32,24 +33,22 @@ export default function AddTaskPage() {
 
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
-    let userId=-1;
-    try{
-         userId=await GetUserId(task.userEmail);
+
+    if (!task.userId) {
+      alert("Please select a user to assign this task to.");
+      return;
     }
-    catch{
-        //tell them email doesnt exist
-    }
+
     try {
-      // Call your backend function
       const result = await CreateTask({
         title: task.title,
         content: task.content,
         status: "todo",
-        createdAt: new Date(),              // current date
-        dueDate: new Date(task.dueDate),    // selected date
-        userId: userId,          // if backend expects email
+        createdAt: new Date(),
+        dueDate: new Date(task.dueDate),
+        userId: task.userId,
+        projectId: projectId,
       });
-      //add project id
 
       console.log("Task added:", result);
       alert("Task added successfully!");
@@ -85,28 +84,33 @@ export default function AddTaskPage() {
         </label>
 
         <label>
-          User Email:
-          <input
-            type="email"
-            name="userEmail"
-            value={task.userEmail}
+          Assign To:
+          <select
+            name="userId"
+            value={task.userId}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">-- Select a user --</option>
+            {projectUsers.map((user) => (
+              <option key={user._id} value={user._id}>
+                {user.email}
+              </option>
+            ))}
+          </select>
         </label>
 
-       <label>
-  Due Date:
-  <input
-    type="date"
-    name="dueDate"
-    value={task.dueDate}
-    onChange={handleChange}
-    required
-    min={new Date().toISOString().split("T")[0]} // prevents past dates
-  />
-</label>
-
+        <label>
+          Due Date:
+          <input
+            type="date"
+            name="dueDate"
+            value={task.dueDate}
+            onChange={handleChange}
+            required
+            min={new Date().toISOString().split("T")[0]} // prevents past dates
+          />
+        </label>
 
         <button type="submit" className="submit-btn">
           Add Task
