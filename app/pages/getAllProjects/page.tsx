@@ -17,7 +17,7 @@ export default function GetAllProjectsPage() {
         console.log("Fetching projects for user:", user._id);
 
         const response = await GetAllProjectsByUserId(user._id);
-        console.log(response);
+        console.log(response,"res");
 
         if (response?.status !== "success") {
           console.error("Error fetching projects:", response?.message);
@@ -39,7 +39,7 @@ export default function GetAllProjectsPage() {
       <h1>All Projects</h1>
       <ul>
         {projectUsers.map((project: any) => (
-          <li key={project.id}>
+          <li key={project._id}>
             <Link href={`/pages/project/${project._id}`}>
               <h2>{project.name}</h2>
             </Link>
