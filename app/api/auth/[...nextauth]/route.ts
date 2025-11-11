@@ -34,74 +34,87 @@
 // const handler = NextAuth(authOptions);
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { JWT } from "next-auth/jwt";
 import { dbConnect } from "@/app/lib/DB";
 import User from "@/app/models/UserModel";
+import { JWT } from "next-auth/jwt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: { scope: "openid email profile" }, // ensures we get user.email
+      },
     }),
   ],
+
   session: { strategy: "jwt" },
+
   callbacks: {
     /**
      * Called when a user signs in via Google
      */
-    async signIn({ user }) {
+    async signIn({ user, account, profile }) {
+      console.log("🚀 Google sign-in triggered");
       try {
-        console.log("Google user info:", user);
-
-        // Connect to DB (must be the same URI as your manual register route)
         await dbConnect();
-        console.log("DB connected!");
+        console.log("✅ DB connected");
 
-        // Check if user exists
+        if (!user?.email) {
+          console.error("❌ Google user has no email");
+          return false;
+        }
+
         const existingUser = await User.findOne({ email: user.email });
-        console.log("Existing user:", existingUser);
 
-        // Create new user if not exists
         if (!existingUser) {
-          const newUser = await User.create({
+          console.log("🆕 Creating new user:", user.email);
+          await User.create({
             name: user.name,
             email: user.email,
             image: user.image,
             provider: "google",
-            password: "", // OAuth users have no password
+            password: "", // leave blank for OAuth users
           });
-          console.log("Created new user:", newUser);
+        } else {
+          console.log("✅ Existing user found:", existingUser.email);
         }
 
         return true; // allow sign-in
       } catch (err) {
-        console.error("Google sign-in DB error:", err);
-        return true; // allow sign-in even if DB fails
+        console.error("❌ Google sign-in error:", err);
+        return false;
       }
     },
 
     /**
-     * JWT callback
+     * JWT callback — attaches Google access token
      */
     async jwt({ token, account }) {
       if (account) {
-        (token as JWT & { accessToken?: string }).accessToken = account.access_token;
+        (token as JWT & { accessToken?: string }).accessToken =
+          account.access_token;
       }
       return token;
     },
 
     /**
-     * Session callback
+     * Session callback — exposes accessToken to the client
      */
     async session({ session, token }) {
-      return {
-        ...session,
-        accessToken: (token as JWT & { accessToken?: string }).accessToken,
-      };
+      (session as SessionWithAccessToken).accessToken = (
+        token as JWT & { accessToken?: string }
+      ).accessToken;
+      return session;
     },
   },
 };
+
+// 👇 Extend session type for TypeScript safety
+interface SessionWithAccessToken {
+  accessToken?: string;
+}
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
