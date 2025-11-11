@@ -1,17 +1,13 @@
 import { dbConnect } from "@/app/lib/DB";
-import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   await dbConnect();
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
+    const projectId = searchParams.get("projectId");
 
     if (!userId) {
       return NextResponse.json(
@@ -19,26 +15,18 @@ export async function GET(req: Request) {
         { status: 400 }
       );
     }
-
-    const projectLinks = await ProjectUser.find({ userId }).select("projectId");
-
-    if (!projectLinks.length) {
+    const res = await await ProjectUser.findOne({ userId, projectId });
+    if (!res) {
       return NextResponse.json(
-        { status: "success", message: "No projects found", projects: [] },
+        { status: "success", message: "No role found", role: null },
         { status: 200 }
       );
     }
-
-    const projectIds = projectLinks.map((link) => link.projectId);
-
-    const projects = await Project.find({ _id: { $in: projectIds } });
-
     return NextResponse.json(
       {
         status: "success",
-        message: "Projects fetched successfully",
-        count: projects.length,
-        projects,
+        message: "role fetched successfully",
+        role: res.role,
       },
       { status: 200 }
     );

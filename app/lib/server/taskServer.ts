@@ -78,6 +78,8 @@ export async function UpdateTask(taskId: string, updates: any) {
   // Get token and payload
   const token = getAuthToken();
   const payload = getTokenPayload();
+  console.log(updates);
+
 
   if (!token || !payload?.id) {
     throw new Error("Missing authentication token. Please log in again.");
@@ -119,5 +121,33 @@ export async function UpdateTask(taskId: string, updates: any) {
     throw new Error(data.error || "Failed to update task.");
   }
 
+  return { status: res.status, ...data };
+}
+
+
+export async function UpdateTaskStatus(taskId: string, userId: string, newStatus: "todo" | "doing" | "done") {
+  const token = getAuthToken();
+  const payload = getTokenPayload();
+
+  if (!token || !payload?.id) {
+    throw new Error("Missing authentication token. Please log in again.");
+  }
+
+  if (payload.id !== userId) {
+    throw new Error("You are not authorized to update this task.");
+  }
+
+  const res = await fetch(`/api/task/editStatusTask/${taskId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ status: newStatus }),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || "Failed to update task status.");
+  }
   return { status: res.status, ...data };
 }

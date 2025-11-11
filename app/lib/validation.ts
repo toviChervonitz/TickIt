@@ -35,7 +35,7 @@ export const registerSchema = Joi.object({
       then: Joi.required().messages({
         "string.empty": "Password is required for manual users.",
         "string.pattern.base":
-          "Password must be at least 8 characters long and include an uppercase letter, a lowercase letter, a number, and a special character.",
+          "Password must be at least 6 characters long and include an letter and a number.",
       }),
       otherwise: Joi.forbidden(), // disallow password for google users
     }),
