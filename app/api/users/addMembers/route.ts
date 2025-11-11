@@ -88,7 +88,7 @@ export async function POST(req: Request) {
 
 // helper to create ProjectUser
 async function createProjectUser(
-  userId: string,
+  userId: string | any,
   projectId: string,
   role: "viewer" | "manager"
 ) {
