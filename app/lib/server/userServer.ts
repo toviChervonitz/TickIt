@@ -23,21 +23,6 @@ export async function AddUserToProject(projectId: string, email: string) {
   return { status: res.status, ...data };
 }
 
-export async function GetUserId(email: string) {
-  const res = await fetch("/api/users/user/getId", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-
-  const data = await res.json();
-
-  if (res.ok) {
-    return data.userId;
-  } else {
-    throw new Error(data.message);
-  }
-}
 
 export async function UpdateUser(email: string, updates: Record<string, any>) {
   if (!email) throw new Error("User email is required");
