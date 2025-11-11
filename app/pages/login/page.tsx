@@ -48,8 +48,8 @@ export default function LoginPage() {
         setError(result.message || "Login failed");
         return;
       }
-
-      // ✅ Login successful, save safe user
+      console.log("Login success:", result);
+      console.log(result.user);
       setUser(result.user);
       router.push("/pages/getAllTaskByUser");
     } catch (err: any) {
@@ -73,6 +73,11 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+  const handleChange =
+    (setter: React.Dispatch<React.SetStateAction<string>>) =>
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setter(e.target.value);
+      };
 
   return (
     <div className="login-page">
