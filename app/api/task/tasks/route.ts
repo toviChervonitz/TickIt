@@ -37,7 +37,7 @@ export async function GET(req: Request) {
                 { status: "success", message: "No tasks found", tasks: [] },
                 { status: 200 }
             );
-        }
+        }        
         return NextResponse.json(
             {
                 status: "success",

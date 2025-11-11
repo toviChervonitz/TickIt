@@ -38,7 +38,7 @@ export function verifyToken(token: string) {
 //     return null;
 //   }
 // }
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export function getFromLocalStorage<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
@@ -63,3 +63,12 @@ export function getTokenPayload(token?: string): any | null {
     return null;
   }
 }
+
+export function getTokenPayloadFromHeader(token: string) {
+  try {
+    return jwt.verify(token, process.env.JWT_SECRET!);
+  } catch {
+    return null;
+  }
+}
+
