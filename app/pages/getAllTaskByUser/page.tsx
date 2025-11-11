@@ -5,7 +5,7 @@ import "../getAllTaskByUser/getAllTaskByUser.css";
 import Task from "@/app/components/Task";
 import useAppStore from "@/app/store/useAppStore";
 import { GetTasksByUserId } from "@/app/lib/server/taskServer";
-import { IProject, IUser } from "@/app/models/types";
+import { IProject, IUser, ITask } from "@/app/models/types";
 
 interface TaskType {
     _id: string;
@@ -23,7 +23,7 @@ export default function UserTasks() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        async function loadTasks() {
+        async function loadTasks() {            
             if (tasks.length > 0) {
                 setLoading(false);
                 return;
@@ -43,6 +43,17 @@ export default function UserTasks() {
         loadTasks();
     }, [user?._id]);
 
+    const handleStatusChange = (
+        id: string,
+        newStatus: "todo" | "doing" | "done"
+    ) => {
+        const updated = tasks.map((t) =>
+            t._id === id ? { ...t, status: newStatus } : t
+        );
+
+        setTasks(updated);
+    };
+
     if (loading) return <p>Loading tasks...</p>;
     if (error) return <p style={{ color: "red" }}>{error}</p>;
     return (
@@ -53,12 +64,15 @@ export default function UserTasks() {
                 tasks.map((task) => (
                     <Task
                         key={task._id}
+                        _id={task._id!}
+                        userId={(task.userId as IUser)?._id || ""}
                         title={task.title}
                         content={task.content}
                         status={task.status}
                         dueDate={task.dueDate ? new Date(task.dueDate) : undefined}
                         userName={(task.userId as IUser)?.name || "Unknown"}
                         projectName={(task.projectId as IProject)?.name || "No project"}
+                        onStatusChange={handleStatusChange}
                     />
                 ))
             ) : (
