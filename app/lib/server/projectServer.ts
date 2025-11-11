@@ -2,12 +2,13 @@
 import ProjectModel from "@/app/models/ProjectModel";
 import { getAuthToken } from "../jwt";
 import { projectSchema } from "../validation";
-import{getAllProjects} from "@/api/project/getAllProjects/route";
+
 export async function CreateProject(form: any) {
   const { error } = projectSchema.validate(form);
   if (error) {
     throw new Error(error.message);
   }
+  
   const token = getAuthToken();
   console.log("token from create project " + token);
 

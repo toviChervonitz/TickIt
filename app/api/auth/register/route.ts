@@ -10,8 +10,6 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-
-    // Validate request body
     const { error } = registerSchema.validate(body);
     if (error) {
       return NextResponse.json(
@@ -20,7 +18,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email: body.email });
     if (existingUser) {
       return NextResponse.json(
@@ -29,7 +26,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Enforce password for manual users
     if (body.provider === "credentials" && !body.password) {
       return NextResponse.json(
         { status: "error", message: "Password is required for manual registration" },
@@ -37,19 +33,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash password only if it exists
     const hashedPassword = body.password ? await hashPassword(body.password) : undefined;
 
-    // Create new user
     const newUser = await User.create({
       ...body,
       password: hashedPassword,
     });
 
-    // Generate JWT
     const token = createToken({ id: newUser._id, email: newUser.email });
 
-    // Return safe user object (no password)
     const userObj = newUser.toObject();
     delete userObj.password;
 
