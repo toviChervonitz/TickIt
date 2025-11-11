@@ -33,7 +33,7 @@ const useAppStore = create(
       setProjectUsers: (projectUsers) => set({ projectUsers }),
       setProjectTasks: (projectTasks) => set({ projectTasks }),
       setTasks: (tasks) => set({ tasks }),
-      logout: () =>
+      logout: () => {
         set({
           user: null,
           projectId: null,
@@ -41,6 +41,9 @@ const useAppStore = create(
           projectTasks: [],
           tasks: [],
         }),
+          localStorage.removeItem("task-manager-storage");
+      }
+
     }),
     {
       name: "task-manager-storage",
