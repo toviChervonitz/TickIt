@@ -1,7 +1,7 @@
 import Joi from "joi";
 
-const passwordPattern =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d).{6,}$/;
+
 
 
 export const registerSchema = Joi.object({
@@ -40,7 +40,15 @@ export const registerSchema = Joi.object({
       otherwise: Joi.forbidden(), // disallow password for google users
     }),
 
-  image: Joi.string().uri().optional(),
+    password: Joi.string()
+        .pattern(passwordPattern)
+        .required()
+        .messages({
+            "string.empty": "Password is required.",
+            "string.pattern.base":
+                "Password must be at least 6 characters long and include an letter and a number.",
+        }),
+    image: Joi.string().uri().optional(),
 });
 
 export const loginSchema = Joi.object({
