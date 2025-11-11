@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 const passwordPattern =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
+/^(?=.*[A-Za-z])(?=.*\d).{6,}$/
 
 
 export const registerSchema = Joi.object({
