@@ -25,7 +25,7 @@ export async function POST(req: Request) {
             );
         }
 
-        const valid = await comparePassword(body.password, user.password);
+        const valid = await comparePassword(body.password, user.password!);
         if (!valid) {
             return NextResponse.json(
                 { status: "error", message: "Invalid password" },
