@@ -56,7 +56,7 @@ export async function GetAllProjectsByUserId(userId: string) {
   }
 }
 
-export async function getUserRoleInProject(userId: string, projectId: string) {
+export async function getUserRoleInProject(userId: string|undefined, projectId: string|null) {
   try {
     const res = await fetch(
       `/api/projectUser/getUserRoleInProject?userId=${userId}&projectId=${projectId}`,

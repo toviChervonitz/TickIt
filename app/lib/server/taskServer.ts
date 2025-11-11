@@ -43,7 +43,7 @@ export async function CreateTask(form: any) {
   return { status: res.status, ...data };
 }
 
-export async function GetTasksByUserId(userId: string) {
+export async function GetTasksByUserId(userId: string|undefined) {
   try {
     const token = getAuthToken();
 
@@ -52,6 +52,39 @@ export async function GetTasksByUserId(userId: string) {
     }
 
     const res = await fetch(`/api/task/tasks?userId=${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to fetch tasks");
+    }
+
+    return data.tasks;
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    return [];
+  }
+}
+
+export async function GetTasksByProjectId(projectId: string|null) {
+  if (!projectId) {
+    throw new Error("Missing projectdId.");
+  }
+  try {
+    const token = getAuthToken();
+
+    if (!token) {
+      throw new Error("Missing authentication token. Please log in again.");
+    }
+
+    const res = await fetch(`/api/task/projectTasks?projectId=${projectId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
