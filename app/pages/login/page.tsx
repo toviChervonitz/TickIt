@@ -35,6 +35,7 @@ export default function LoginPage() {
         return;
       }
       console.log("Login success:", result);
+      console.log(result.user);
       setUser(result.user);
       router.push("/pages/getAllTaskByUser");
     } catch (err: any) {
