@@ -2,36 +2,50 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import "../login.css";
+import { signIn } from "next-auth/react";
 import { Login } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
+import { IUserSafe } from "@/app/models/types";
+import "../login.css";
+
+interface LoginResponse {
+  status: "success" | "error";
+  message?: string;
+  user?: IUserSafe;
+  token?: string;
+}
 
 export default function LoginPage() {
   const router = useRouter();
   const { setUser } = useAppStore();
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false); // NEW: loading state
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange =
+    (setter: React.Dispatch<React.SetStateAction<string>>) =>
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+    };
+
+  // ---- Manual login ----
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     if (!email || !password) {
       setError("Please enter both email and password.");
       return;
     }
 
     setError("");
-    setLoading(true); // disable button
-    console.log("Logging in with", { email, password });
+    setLoading(true);
 
     try {
-      const result = await Login({ email, password });
-      if (result.status === 401 || result.status === 404 || result.status === 400) {
-        console.log("Login failed:", result);
-        setError("Invalid email or password.");
+      const result: LoginResponse = await Login({ email, password });
+
+      if (result.status === "error" || !result.user) {
+        setError(result.message || "Login failed");
         return;
       }
       console.log("Login success:", result);
@@ -39,13 +53,26 @@ export default function LoginPage() {
       setUser(result.user);
       router.push("/pages/getAllTaskByUser");
     } catch (err: any) {
-      console.error("Login error:", err);
+      console.error(err);
       setError(err.message || "Login failed");
     } finally {
-      setLoading(false); // re-enable button
+      setLoading(false);
     }
   };
 
+  // ---- Google login ----
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      await signIn("google", { callbackUrl: "/pages/getAllTaskByUser" });
+    } catch (err: any) {
+      console.error(err);
+      setError("Google sign-in failed");
+    } finally {
+      setLoading(false);
+    }
+  };
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
       (e: ChangeEvent<HTMLInputElement>) => {
@@ -56,42 +83,38 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="login-container">
         <h1>Log In</h1>
-        <p>Enter your credentials to access your account.</p>
+        <p>Enter your credentials or use Google</p>
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
 
         <form className="login-form" onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={handleChange(setEmail)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={handleChange(setPassword)}
-            required
-          />
-          <button
-            type="submit"
-            disabled={loading} // disable while loading
-            style={{
-              opacity: loading ? 0.6 : 1,
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
+          <input type="email" placeholder="Email" value={email} onChange={handleChange(setEmail)} required />
+          <input type="password" placeholder="Password" value={password} onChange={handleChange(setPassword)} required />
+          <button type="submit" disabled={loading} style={{ opacity: loading ? 0.6 : 1, cursor: loading ? "not-allowed" : "pointer" }}>
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
+        <button
+          onClick={handleGoogleSignIn}
+          disabled={loading}
+          style={{
+            marginTop: "1rem",
+            backgroundColor: "#4285F4",
+            color: "white",
+            border: "none",
+            padding: "10px 16px",
+            borderRadius: "5px",
+            fontWeight: "bold",
+            cursor: loading ? "not-allowed" : "pointer",
+            width: "100%",
+          }}
+        >
+          {loading ? "Signing in..." : "Sign in with Google"}
+        </button>
+
         <p style={{ marginTop: "1rem" }}>
-          Don’t have an account?{" "}
-          <Link href="/pages/register" style={{ color: "#0070f3" }}>
-            Register
-          </Link>
+          Don’t have an account? <a href="/pages/register" style={{ color: "#0070f3" }}>Register</a>
         </p>
       </div>
     </div>

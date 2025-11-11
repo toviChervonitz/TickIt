@@ -1,42 +1,60 @@
 import mongoose from "mongoose";
 
+// Project interfaces
 export interface IProject {
-    _id?: string;
-    name: string;
-    description?: string;
-    tasks?: mongoose.Types.ObjectId[];
+  _id?: string;
+  name: string;
+  description?: string;
+  tasks?: mongoose.Types.ObjectId[];
 }
 
 export interface IProjectUser {
-    _id?: string;
-    userId: mongoose.Types.ObjectId;
-    projectId: mongoose.Types.ObjectId;
-    role: "owner" | "editor" | "viewer";
-    createdAt?: Date;
-    updatedAt?: Date;
+  _id?: string;
+  userId: mongoose.Types.ObjectId;
+  projectId: mongoose.Types.ObjectId;
+  role: "owner" | "editor" | "viewer";
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-
+// Task interface
 export interface ITask {
-    _id?: string;
-    title: string;
-    content?: string;
-    status: "todo" | "doing" | "done";
-    createdAt?: Date;
-    dueDate?: Date;
-    userId?: mongoose.Types.ObjectId|IUser;
-    projectId?: mongoose.Types.ObjectId|IProject;
+  _id?: string;
+  title: string;
+  content?: string;
+  status: "todo" | "doing" | "done";
+  createdAt?: Date;
+  dueDate?: Date;
+  userId?: mongoose.Types.ObjectId | IUser;
+  projectId?: mongoose.Types.ObjectId | IProject;
 }
 
-export interface IUser {
-    _id?: string;
-    name: string;
-    email: string;
-    tel?: string;
-    password: string;
-    image?: string;
-    tasks?: mongoose.Types.ObjectId[];
-    createdAt?: Date;
-    updatedAt?: Date;
-}
+// User types
+export type IUser =
+  | {
+      _id?: string;           // include _id
+      provider: "credentials";
+      name: string;
+      email: string;
+      tel?: string;
+      password: string;        // required for manual users
+      image?: string;
+    }
+  | {
+      _id?: string;           // include _id
+      provider: "google";
+      name: string;
+      email: string;
+      tel?: string;
+      password?: undefined;    // optional/undefined for Google users
+      image?: string;
+    };
 
+// Safe user for frontend (no password)
+export interface IUserSafe {
+  _id: string;                // include _id for TS safety
+  name: string;
+  email: string;
+  provider: "credentials" | "google";
+  image?: string;
+}
