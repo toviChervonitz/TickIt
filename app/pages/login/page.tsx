@@ -73,11 +73,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-  const handleChange =
-    (setter: React.Dispatch<React.SetStateAction<string>>) =>
-      (e: ChangeEvent<HTMLInputElement>) => {
-        setter(e.target.value);
-      };
+
 
   return (
     <div className="login-page">
