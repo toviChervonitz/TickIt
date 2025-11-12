@@ -4,6 +4,7 @@ import "@/app/models/ProjectModel";
 import "@/app/models/UserModel";
 import Task from "@/app/models/TaskModel";
 import mongoose from "mongoose";
+import { compareToken } from "@/app/lib/jwt";
 
 export async function GET(req: Request) {
     await dbConnect();
@@ -11,14 +12,8 @@ export async function GET(req: Request) {
 
     try {
 
-        const authHeader = req.headers.get("authorization");
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
         const { searchParams } = new URL(req.url);
         const userId = searchParams.get("userId");
-
         if (!userId) {
             return NextResponse.json(
                 { status: "error", message: "userId is required" },
@@ -26,7 +21,11 @@ export async function GET(req: Request) {
             );
         }
 
-        const userObjectId = new mongoose.Types.ObjectId(userId);
+        const authHeader = req.headers.get("authorization");
+        const compareTokenResult = compareToken(userId, authHeader!);
+        if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         const tasks = await Task.find({ userId })
             .populate("userId", "name")
@@ -37,7 +36,7 @@ export async function GET(req: Request) {
                 { status: "success", message: "No tasks found", tasks: [] },
                 { status: 200 }
             );
-        }        
+        }
         return NextResponse.json(
             {
                 status: "success",

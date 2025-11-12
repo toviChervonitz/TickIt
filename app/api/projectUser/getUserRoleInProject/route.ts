@@ -1,4 +1,5 @@
 import { dbConnect } from "@/app/lib/DB";
+import { compareToken } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
 
@@ -8,6 +9,12 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
     const projectId = searchParams.get("projectId");
+
+    const authHeader = req.headers.get("authorization");
+    const compareTokenResult = compareToken(userId, authHeader!);
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     if (!userId) {
       return NextResponse.json(
