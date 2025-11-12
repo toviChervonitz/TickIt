@@ -27,7 +27,8 @@ export function getAuthToken(): string | null {
   return localStorage.getItem("token");
 }
 
-export function getTokenPayload(token?: string): any | null {
+// Decode token payload without verifying (safe on client)
+export function getTokenPayload(token?: string | null): any | null {
   const jwtToken = token || getAuthToken();
   if (!jwtToken) return null;
 
@@ -46,4 +47,10 @@ export function getTokenPayloadFromHeader(token: string) {
     return null;
   }
 }
-
+export function compareToken(id: string|null, token?: string | null) {
+  const payload = getTokenPayload(token);
+  if (id !== payload?.id) {
+    return false;
+  }
+  return true;
+}

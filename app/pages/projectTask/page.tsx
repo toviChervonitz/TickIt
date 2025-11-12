@@ -35,13 +35,13 @@ export default function GetProjectTasks() {
         setLoading(false);
         return;
       }
-let data;
+      let data;
       //check is manger
       const role = await getUserRoleInProject(user?._id, projectId);
       if (role !== "viewer") {
         setIsManager(true);
         //get from db all tasks by projects
-         data = await GetTasksByProjectId(projectId);
+        data = await GetTasksByProjectId(projectId);
         console.log("GetTasksByProjectId", data);
         setFilteredTasks(data);
       } else {
@@ -49,17 +49,17 @@ let data;
         if (!tasks || tasks.length === 0) {
           //get all tasks by userId and put it in store
 
-           data = await GetTasksByUserId(user?._id);
+          data = await GetTasksByUserId(user?._id);
           console.log("GetTasksByUserId", data);
           setTasks(data);
         }
-      }
-
-      //filter tasks by projectId
-    const filtered = tasks.filter(
+        //filter tasks by projectId
+        const filtered = tasks.filter(
           (task: any) => task.projectId._id === projectId
         );
         setFilteredTasks(filtered);
+      }
+
     }
 
     loadTasks();
@@ -70,10 +70,10 @@ let data;
   return (
     <div className="tasks-container">
       <h2>Project Tasks</h2>
-{/* {isManager?
+      {/* {isManager?
 <button>Add Task</button>} */}
-      {tasks.length ? (
-        tasks.map((task) => (
+      {filteredTasks.length ? (
+        filteredTasks.map((task) => (
           <Task
             key={task._id}
             title={task.title}

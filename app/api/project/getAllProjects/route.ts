@@ -1,14 +1,20 @@
 import { dbConnect } from "@/app/lib/DB";
+import { compareToken, getTokenPayload, verifyToken } from "@/app/lib/jwt";
 import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
+import useAppStore from "@/app/store/useAppStore";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
+ 
+
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get("userId");
   await dbConnect();
   try {
 
     const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!authHeader || !authHeader.startsWith("Bearer ")||compareToken(userId, authHeader)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     
