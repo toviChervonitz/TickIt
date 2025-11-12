@@ -46,13 +46,12 @@ export default function GetProjectTasks() {
         setFilteredTasks(data);
       } else {
         //:if !tasks
-        if (!tasks || tasks.length === 0) {
           //get all tasks by userId and put it in store
 
           data = await GetTasksByUserId(user?._id);
           console.log("GetTasksByUserId", data);
           setTasks(data);
-        }
+        
         //filter tasks by projectId
         const filtered = tasks.filter(
           (task: any) => task.projectId._id === projectId

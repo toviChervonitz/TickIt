@@ -8,9 +8,6 @@ export default function GetAllProjectsPage() {
   const { user, projectUsers, setProjectUsers } = useAppStore();
 
   useEffect(() => {
-    if (projectUsers.length > 0) {
-      return;
-    }
     if (!user?._id) return;
     async function fetchProjects() {
       try {
