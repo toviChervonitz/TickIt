@@ -15,7 +15,6 @@ export function verifyToken(token: string) {
   }
 }
 
-
 export function getFromLocalStorage<T>(key: string): T | null {
   if (typeof window === "undefined") return null;
   const item = localStorage.getItem(key);
@@ -47,7 +46,7 @@ export function getTokenPayloadFromHeader(token: string) {
     return null;
   }
 }
-export function compareToken(id: string|null, token?: string | null) {
+export function compareToken(id: string | null, token?: string | null) {
   const payload = getTokenPayload(token);
   console.log(payload);
   console.log(id);
@@ -56,5 +55,5 @@ export function compareToken(id: string|null, token?: string | null) {
   if (id !== payload?.id) {
     return false;
   }
-  return true;
+  return false;
 }
