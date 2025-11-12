@@ -2,13 +2,19 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import Project from "@/app/models/ProjectModel";
 import { projectSchema } from "@/app/lib/validation";
-import { log } from "console";
+import { compareToken } from "@/app/lib/jwt";
 
 export async function POST(req: Request) {
     await dbConnect();
+    console.log("123456789");
+    
     try {
+        
         const body = await req.json();
-        console.log("Body received in createProject:", body);
+        const { userId } = body;
+        delete body.userId;
+        console.log(body);
+
         const { error } = projectSchema.validate(body);
         if (error) {
             return NextResponse.json(
@@ -16,11 +22,14 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
-        
+
         const authHeader = req.headers.get("authorization");
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        const compareTokenResult = compareToken(userId, authHeader!);
+        if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+
+
 
         const project = await Project.create({
             name: body.name,

@@ -13,11 +13,10 @@ export async function GET(req: Request) {
   try {
 
     const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")||!compareToken(userId, authHeader)) {
+    const compareTokenResult = compareToken(userId, authHeader!);
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
- 
 
     if (!userId) {
       return NextResponse.json(

@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 import User from "@/app/models/UserModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { hashPassword } from "@/app/lib/bcrypt";
+import { compareToken } from "@/app/lib/jwt";
 
 interface AddMemberBody {
   email?: string;
@@ -26,7 +27,8 @@ export async function POST(req: Request) {
     }
 
     const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const compareTokenResult = compareToken(userId!, authHeader!);
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -39,7 +41,8 @@ export async function POST(req: Request) {
       const managerUser = await User.findById(userId).select("_id name email");
       if (!managerUser) throw new Error("Manager user not found");
       user = managerUser;
-    } else {
+    } 
+    else {
       // Normal flow for adding members by email
       if (!email) {
         return NextResponse.json(

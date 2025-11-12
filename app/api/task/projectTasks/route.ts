@@ -4,6 +4,7 @@ import "@/app/models/ProjectModel";
 import "@/app/models/UserModel";
 import Task from "@/app/models/TaskModel";
 import mongoose from "mongoose";
+import { compareToken } from "@/app/lib/jwt";
 
 export async function GET(req: Request) {
     await dbConnect();
@@ -11,13 +12,9 @@ export async function GET(req: Request) {
 
     try {
 
-        const authHeader = req.headers.get("authorization");
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
         const { searchParams } = new URL(req.url);
         const projectId = searchParams.get("projectId");
+        const userId = searchParams.get("userId");
 
         if (!projectId) {
             return NextResponse.json(
@@ -26,6 +23,11 @@ export async function GET(req: Request) {
             );
         }
 
+        const authHeader = req.headers.get("authorization");
+        const compareTokenResult = compareToken(userId, authHeader!);
+        if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         const tasks = await Task.find({ projectId })
             .populate("userId", "name")
