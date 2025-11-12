@@ -1,165 +1,58 @@
-// // /app/api/users/addMembers/route.ts
-// import { sendExistMail, sendPasswordEmail } from "@/app/lib/mailer";
-// import { generatePassword } from "@/utils/generatePassword";
-// import { NextResponse } from "next/server";
-// import User from "@/app/models/UserModel";
-// import ProjectUser from "@/app/models/ProjectUserModel";
-// import { hashPassword } from "@/app/lib/bcrypt";
-// import { compareToken } from "@/app/lib/jwt";
-
-// interface AddMemberBody {
-//   email?: string;
-//   projectId: string;
-//   role?: "viewer" | "manager";
-//   userId?: string; // optional, used for manager
-// }
-
-// export async function POST(req: Request) {
-//   try {
-//     const body: AddMemberBody = (await req.json()) as AddMemberBody;
-//     const { email, projectId, role, userId } = body;
-
-//     if (!projectId) {
-//       return NextResponse.json(
-//         { error: "Project ID is required" },
-//         { status: 400 }
-//       );
-//     }
-
-//     const authHeader = req.headers.get("authorization");
-//     const compareTokenResult = compareToken(userId!, authHeader!);
-//     if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
-//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-//     }
-
-//     let user;
-//     let assignedRole: "viewer" | "manager" = role || "viewer";
-
-//     // If userId is provided (for manager), assign directly
-//     if (assignedRole === "manager" && userId) {
-//       await createProjectUser(userId, projectId, "manager");
-//       const managerUser = await User.findById(userId).select("_id name email");
-//       if (!managerUser) throw new Error("Manager user not found");
-//       user = managerUser;
-//     } 
-//     else {
-//       // Normal flow for adding members by email
-//       if (!email) {
-//         return NextResponse.json(
-//           { error: "Email is required" },
-//           { status: 400 }
-//         );
-//       }
-
-//       const existingUser = await User.findOne({ email });
-
-//       if (existingUser) {
-//         await sendExistMail(email, assignedRole);
-//         await createProjectUser(existingUser._id, projectId, "viewer");
-//         user = existingUser;
-//       } else {
-//         const tempPassword = generatePassword(8);
-//         const hashedPassword = await hashPassword(tempPassword);
-
-//         const newUser = await User.create({
-//           name: email.split("@")[0],
-//           email,
-//           password: hashedPassword,
-//         });
-
-//         await sendPasswordEmail(email, tempPassword, assignedRole);
-//         await createProjectUser(newUser._id, projectId, "viewer");
-//         user = newUser;
-//       }
-//     }
-
-//     return NextResponse.json({
-//       name: user.name,
-//       email: user.email,
-//       message: `User added successfully as ${assignedRole}`,
-//       _id: user._id,
-//     });
-
-//   } catch (err: any) {
-//     console.error("AddMembers Error:", err);
-//     return NextResponse.json(
-//       { success: false, error: err.message || "Server error" },
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// // helper to create ProjectUser
-// async function createProjectUser(
-//   userId: string | any,
-//   projectId: string,
-//   role: "viewer" | "manager"
-// ) {
-//   await ProjectUser.create({ userId, projectId, role });
-// }
 // /app/api/users/addMembers/route.ts
-// /app/api/users/addMembers/route.ts
-// /app/api/users/addMembers/route.ts
-import { NextResponse } from "next/server";
-import User, { IUserDoc } from "@/app/models/UserModel";
-import ProjectUser from "@/app/models/ProjectUserModel";
 import { sendExistMail, sendPasswordEmail } from "@/app/lib/mailer";
 import { generatePassword } from "@/utils/generatePassword";
+import { NextResponse } from "next/server";
+import User from "@/app/models/UserModel";
+import ProjectUser from "@/app/models/ProjectUserModel";
 import { hashPassword } from "@/app/lib/bcrypt";
 import { compareToken, getTokenPayload } from "@/app/lib/jwt";
-import { dbConnect } from "@/app/lib/DB";
 
 interface AddMemberBody {
   email?: string;
   projectId: string;
   role?: "viewer" | "manager";
-  userId?: string; // optional, used for manager addition
+  userId?: string; // optional, used for manager or caller
 }
 
 export async function POST(req: Request) {
-  await dbConnect();
-
   try {
-    const body: AddMemberBody = (await req.json()) as AddMemberBody;
-    const { email, projectId, role, userId } = body;
+    const body: AddMemberBody = await req.json();
+    const { email, projectId, role = "viewer", userId } = body;
 
     if (!projectId) {
       return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
     }
 
+    // Verify caller token
     const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const payload = getTokenPayload(authHeader || "");
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !payload?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const payload = getTokenPayload(authHeader);
-    if (!payload?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // Check if project already has managers
+    const existingManagers = await ProjectUser.find({ projectId, role: "manager" });
+
+    // If there are managers, caller must be a manager
+    if (existingManagers.length > 0) {
+      const caller = await ProjectUser.findOne({ userId: payload.id, projectId });
+      if (!caller || caller.role !== "manager") {
+        return NextResponse.json({ error: "You must be a manager to add members" }, { status: 403 });
+      }
     }
 
-    // ✅ Check that caller is a manager
-    const callerRole = await ProjectUser.findOne({
-      userId: payload.id,
-      projectId,
-    });
+    let user;
 
-    if (!callerRole || callerRole.role !== "manager") {
-      return NextResponse.json(
-        { error: "You must be a manager to add members" },
-        { status: 403 }
-      );
-    }
+    // Assign role for this new member
+    const assignedRole = role === "manager" ? "manager" : "viewer";
 
-    let newUser;
-    let assignedRole: "viewer" | "manager" = role || "viewer";
-
-    // If adding a manager by userId (direct assignment)
     if (assignedRole === "manager" && userId) {
+      // Adding a manager directly via userId (first manager or special case)
       await createProjectUser(userId, projectId, "manager");
-      newUser = await User.findById(userId).select("_id name email");
-      if (!newUser) throw new Error("Manager user not found");
+      user = await User.findById(userId).select("_id name email");
+      if (!user) throw new Error("Manager user not found");
     } else {
-      // Adding by email
+      // Adding a member by email
       if (!email) {
         return NextResponse.json({ error: "Email is required" }, { status: 400 });
       }
@@ -167,34 +60,33 @@ export async function POST(req: Request) {
       const existingUser = await User.findOne({ email });
 
       if (existingUser) {
-        // User exists
-        await sendExistMail(email, assignedRole);
+        // Existing user: assign to project and notify
         await createProjectUser(existingUser._id as string, projectId, "viewer");
-        newUser = existingUser;
+        await sendExistMail(email, assignedRole);
+        user = existingUser;
       } else {
-        // New user
+        // New user: create user, assign password, add to project
         const tempPassword = generatePassword(8);
         const hashedPassword = await hashPassword(tempPassword);
 
-        const createdUser = await User.create({
+        const newUser = await User.create({
           name: email.split("@")[0],
           email,
           password: hashedPassword,
         });
 
+        await createProjectUser(newUser._id as string, projectId, "viewer");
         await sendPasswordEmail(email, tempPassword, assignedRole);
-        await createProjectUser(createdUser._id as string, projectId, "viewer");
-        newUser = createdUser;
+        user = newUser;
       }
     }
 
     return NextResponse.json({
-      _id: newUser._id as string,
-      name: newUser.name,
-      email: newUser.email,
+      _id: user._id as string,
+      name: user.name,
+      email: user.email,
       message: `User added successfully as ${assignedRole}`,
     });
-
   } catch (err: any) {
     console.error("AddMembers Error:", err);
     return NextResponse.json(
@@ -204,11 +96,7 @@ export async function POST(req: Request) {
   }
 }
 
-// Helper: create ProjectUser record
-async function createProjectUser(
-  userId: string,
-  projectId: string,
-  role: "viewer" | "manager"
-) {
+// Helper to create ProjectUser
+async function createProjectUser(userId: string, projectId: string, role: "viewer" | "manager") {
   await ProjectUser.create({ userId, projectId, role });
 }
