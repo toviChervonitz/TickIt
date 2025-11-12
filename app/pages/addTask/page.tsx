@@ -31,7 +31,7 @@ export default function AddTaskPage() {
     try {
       await CreateTask({ ...task, projectId }); // <-- use Zustand projectId
       alert("Task added successfully!");
-      router.push("/dashboard");
+      router.push("/pages/projectTask");
     } catch (err: any) {
       alert(err.message || "Failed to add task.");
     }
