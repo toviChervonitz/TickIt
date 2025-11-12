@@ -83,7 +83,7 @@ export default function CreateProjectPage() {
     try {
       setLoading(true);
       setError("");
-      const addedUser = await AddUserToProject(projectIdLocal, newUserEmail.trim());
+      const addedUser = await AddUserToProject(user?._id!,projectIdLocal, newUserEmail.trim());
       const updatedUsers = [...users, addedUser];
       setUsers(updatedUsers);
       setProjectUsers(updatedUsers);
@@ -117,7 +117,7 @@ export default function CreateProjectPage() {
 
       // Save tasks to backend using CreateTask
       await Promise.all(
-        tasks.map((t) => CreateTask({ ...t, userId: t.userId, projectId: projectIdLocal }))
+        tasks.map((t) => CreateTask({ ...t, userId: user?._id!, projectId: projectIdLocal }))
       );
 
       alert("Project created successfully!");

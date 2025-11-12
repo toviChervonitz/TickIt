@@ -1,6 +1,6 @@
 import { getAuthToken } from "../jwt";
 
-export async function AddUserToProject(projectId: string, email: string) {
+export async function AddUserToProject(userId:string,projectId: string, email: string) {
   const token = getAuthToken();
   if (!token) {
     throw new Error("Missing authentication token. Please log in again.");
@@ -12,7 +12,7 @@ export async function AddUserToProject(projectId: string, email: string) {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`,
     },
-    body: JSON.stringify({ projectId, email }),
+    body: JSON.stringify({ userId,projectId, email, role: "viewer" }),
   });
 
   const data = await res.json();

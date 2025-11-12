@@ -49,6 +49,10 @@ export function getTokenPayloadFromHeader(token: string) {
 }
 export function compareToken(id: string|null, token?: string | null) {
   const payload = getTokenPayload(token);
+  console.log(payload);
+  console.log(id);
+  
+  
   if (id !== payload?.id) {
     return false;
   }
