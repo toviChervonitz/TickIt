@@ -31,35 +31,41 @@ export default function GetProjectTasks() {
   useEffect(() => {
     //check existing user, projectId
     async function loadTasks() {
-      if (!projectId && !user) {
-        setLoading(false);
-        return;
-      }
-      let data;
-      //check is manger
-      const role = await getUserRoleInProject(user?._id, projectId);
-      if (role !== "viewer") {
-        setIsManager(true);
-        //get from db all tasks by projects
-        data = await GetTasksByProjectId(projectId);
-        console.log("GetTasksByProjectId", data);
-        setFilteredTasks(data);
-      } else {
-        //:if !tasks
-        if (!tasks || tasks.length === 0) {
-          //get all tasks by userId and put it in store
-
-          data = await GetTasksByUserId(user?._id);
-          console.log("GetTasksByUserId", data);
-          setTasks(data);
+      try {
+        if (!projectId && !user) {
+          setLoading(false);
+          return;
         }
-        //filter tasks by projectId
-        const filtered = tasks.filter(
-          (task: any) => task.projectId._id === projectId
-        );
-        setFilteredTasks(filtered);
-      }
+        let data;
+        //check is manger
+        const role = await getUserRoleInProject(user?._id, projectId);
+        if (role !== "viewer") {
+          setIsManager(true);
+          //get from db all tasks by projects
+          data = await GetTasksByProjectId(projectId);
+          console.log("GetTasksByProjectId", data);
+          setFilteredTasks(data);
+        } else {
+          //:if !tasks
+          if (!tasks || tasks.length === 0) {
+            //get all tasks by userId and put it in store
 
+            data = await GetTasksByUserId(user?._id);
+            console.log("GetTasksByUserId", data);
+            setTasks(data);
+          }
+          //filter tasks by projectId
+          const filtered = tasks.filter(
+            (task: any) => task.projectId._id === projectId
+          );
+          setFilteredTasks(filtered);
+        }
+      } catch (err) {
+        console.error("Error loading tasks:", err);
+        setError("Failed to load tasks");
+      } finally {
+        setLoading(false); 
+      }
     }
 
     loadTasks();

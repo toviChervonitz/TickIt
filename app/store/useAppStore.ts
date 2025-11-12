@@ -1,19 +1,21 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ITask, IUserSafe } from "../models/types";
+import { IProject, ITask, IUserSafe } from "../models/types";
 
 interface AppState {
-  user: IUserSafe | null;       // frontend safe user
+  user: IUserSafe | null; // frontend safe user
   projectId: string | null;
-  projectUsers: IUserSafe[];    // must include _id
+  projectUsers: IUserSafe[]; // must include _id
   projectTasks: ITask[];
   tasks: ITask[];
+  projects: IProject[];
 
   setUser: (user: IUserSafe) => void;
   setProjectId: (projectId: string) => void;
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
+  setProjects: (projects: IProject[]) => void;
   logout: () => void;
 }
 
@@ -25,12 +27,14 @@ const useAppStore = create(
       projectUsers: [],
       projectTasks: [],
       tasks: [],
+      projects: [],
 
       setUser: (user) => set({ user }),
       setProjectId: (projectId) => set({ projectId }),
       setProjectUsers: (projectUsers) => set({ projectUsers }),
       setProjectTasks: (projectTasks) => set({ projectTasks }),
       setTasks: (tasks) => set({ tasks }),
+      setProjects: (projects) => set({ projects }),
       logout: () => {
         set({
           user: null,
@@ -40,8 +44,7 @@ const useAppStore = create(
           tasks: [],
         }),
           localStorage.removeItem("task-manager-storage");
-      }
-
+      },
     }),
     {
       name: "task-manager-storage", // key for localStorage
