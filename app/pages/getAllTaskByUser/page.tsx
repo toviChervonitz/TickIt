@@ -24,10 +24,7 @@ export default function UserTasks() {
 
     useEffect(() => {
         async function loadTasks() {            
-            if (tasks.length > 0) {
-                setLoading(false);
-                return;
-            }
+          
             if (!user?._id) return;
 
             try {

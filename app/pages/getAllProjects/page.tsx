@@ -14,8 +14,9 @@ export default function GetAllProjectsPage() {
 
     async function fetchProjects() {
       try {
-        console.log("Fetching projects for user:", userId);
-        const response = await GetAllProjectsByUserId(userId);
+        console.log("Fetching projects for user:", user?._id);
+
+        const response = await GetAllProjectsByUserId(user?._id!);
         console.log(response,"res");
 
         if (response?.status !== "success") {

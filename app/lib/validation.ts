@@ -40,7 +40,7 @@ export const registerSchema = Joi.object({
       otherwise: Joi.forbidden(), // disallow password for google users
     }),
 
-    image: Joi.string().uri().optional(),
+  image: Joi.string().uri().optional().allow(""),
 });
 
 export const loginSchema = Joi.object({
