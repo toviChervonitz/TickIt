@@ -8,6 +8,7 @@ import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
 import "../login.css";
 
+// Interface for API response
 interface RegisterResponse {
   status: "success" | "error";
   message?: string;
@@ -26,6 +27,7 @@ export default function RegisterPage() {
   const [image, setImage] = useState<string>("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false); // separate loading
 
   // ---- Image upload ----
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -51,11 +53,9 @@ export default function RegisterPage() {
 
       if (result.status !== "success" || !result.user) {
         setError(result.message || "Registration failed");
-        setLoading(false);
         return;
       }
 
-      // ✅ Save safe user to Zustand
       setUser(result.user);
       router.push("/pages/createProject");
     } catch (err: any) {
@@ -66,17 +66,18 @@ export default function RegisterPage() {
     }
   };
 
-  // ---- Google registration/sign-in ----
+  // ---- Google sign-in ----
   const handleGoogleSignIn = async () => {
     setError("");
-    setLoading(true);
+    setGoogleLoading(true);
+
     try {
       await signIn("google", { callbackUrl: "/pages/createProject" });
     } catch (err: any) {
       console.error(err);
       setError("Google sign-in failed");
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -139,24 +140,54 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        {/* Google button */}
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={loading}
-          style={{
-            marginTop: "1rem",
-            backgroundColor: "#4285F4",
-            color: "white",
-            border: "none",
-            padding: "10px 16px",
-            borderRadius: "5px",
-            fontWeight: "bold",
-            cursor: loading ? "not-allowed" : "pointer",
-            width: "100%",
-          }}
-        >
-          {loading ? "Signing in..." : "Sign up with Google"}
-        </button>
+        {/* Google sign-in button */}
+{/* Google Sign-In Button */}
+<button
+  onClick={handleGoogleSignIn}
+  disabled={loading}
+  style={{
+    marginTop: "1rem",
+    backgroundColor: "white",
+    color: "#555",
+    border: "1px solid #ddd",
+    padding: "10px 16px",
+    borderRadius: "5px",
+    fontWeight: "bold",
+    cursor: loading ? "not-allowed" : "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  }}
+>
+  {/* Google "G" Logo */}
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 533.5 544.3"
+    style={{ marginRight: "8px" }}
+  >
+    <path
+      fill="#4285F4"
+      d="M533.5 278.4c0-17.4-1.5-34.1-4.4-50.4H272v95.4h146.9c-6.4 34.7-25.5 64.1-54.4 83.9v69h87.8c51.3-47.3 80.2-116.9 80.2-198.9z"
+    />
+    <path
+      fill="#34A853"
+      d="M272 544.3c73.6 0 135.5-24.4 180.7-66.1l-87.8-69c-24.5 16.5-56 26.2-92.9 26.2-71.5 0-132-48.1-153.7-112.5H29.3v70.6C74.1 488 167.4 544.3 272 544.3z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M118.3 324.1c-4.9-14.5-7.7-29.9-7.7-45.6s2.8-31.1 7.7-45.6V162H29.3c-16.1 31.5-25.3 66.8-25.3 103s9.2 71.5 25.3 103l88.9-69z"
+    />
+    <path
+      fill="#EA4335"
+      d="M272 107.6c39.8 0 75.4 13.7 103.6 40.7l77.7-77.7C407.6 24.4 345.6 0 272 0 167.4 0 74.1 56.3 29.3 162l88.9 70.5C140 155.7 200.5 107.6 272 107.6z"
+    />
+  </svg>
+
+  {loading ? "Signing in..." : "Sign in with Google"}
+</button>
+
 
         <p style={{ marginTop: "1rem" }}>
           Already have an account? <a href="/pages/login" style={{ color: "#0070f3" }}>Log in</a>

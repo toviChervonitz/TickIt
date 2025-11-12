@@ -32,7 +32,13 @@ const UserSchema: Schema<IUserDoc> = new Schema(
   { timestamps: true }
 );
 
-const User: Model<IUserDoc> =
-  mongoose.models.User || mongoose.model<IUserDoc>("User", UserSchema);
+// ✅ Safe Mongoose model loading
+let User: Model<IUserDoc>;
+
+try {
+  User = mongoose.models.User as Model<IUserDoc>;
+} catch {
+  User = mongoose.model<IUserDoc>("User", UserSchema);
+}
 
 export default User;
