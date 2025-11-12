@@ -40,18 +40,22 @@ export default function GetProjectTasks() {
         const userId = user?._id;
         //check is manger
         const role = await getUserRoleInProject(userId, projectId);
+        console.log("get to this?1", role);
+        
         if (role !== "viewer") {
           setIsManager(true);
           //get from db all tasks by projects
           data = await GetTasksByProjectId(userId!, projectId);
+          console.log("get to this?2");
           console.log("GetTasksByProjectId", data);
           setFilteredTasks(data);
         } else {
           //:if !tasks
           if (!tasks || tasks.length === 0) {
             //get all tasks by userId and put it in store
-
+            
             data = await GetTasksByUserId(user?._id);
+            console.log("get to this?3");
             console.log("GetTasksByUserId", data);
             setTasks(data);
           }
@@ -59,6 +63,7 @@ export default function GetProjectTasks() {
           const filtered = tasks.filter(
             (task: any) => task.projectId._id === projectId
           );
+          console.log("get to this?4");
           setFilteredTasks(filtered);
         }
       } catch (err) {
