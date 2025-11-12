@@ -41,7 +41,8 @@ export async function POST(req: Request) {
       const managerUser = await User.findById(userId).select("_id name email");
       if (!managerUser) throw new Error("Manager user not found");
       user = managerUser;
-    } else {
+    } 
+    else {
       // Normal flow for adding members by email
       if (!email) {
         return NextResponse.json(

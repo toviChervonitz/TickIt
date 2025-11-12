@@ -37,6 +37,7 @@ export default function GetProjectTasks() {
       }
       let data;
       //check is manger
+      
       const role = await getUserRoleInProject(user?._id, projectId);
       if (role !== "viewer") {
         setIsManager(true);

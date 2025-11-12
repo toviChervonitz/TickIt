@@ -24,6 +24,7 @@ export async function CreateProject(form: any, userId: string) {
     },
     body: JSON.stringify(bodyData),
   });
+  
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.error || "Project creation failed");
@@ -79,6 +80,7 @@ export async function getUserRoleInProject(userId: string | undefined, projectId
         cache: "no-store",
       }
     );
+    
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.message || "Failed to fetch user role in project");

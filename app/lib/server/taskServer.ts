@@ -16,7 +16,10 @@ export async function CreateTask(form: any) {
     throw new Error("Missing authentication token. Please log in again.");
   }
 
+  console.log(form + " form ... CreateTask");
   const role = await getUserRoleInProject(form.userId, form.projectId);
+  console.log("role "+role);
+  
   if (role !== "manager") {
     throw new Error("You are not the manager of this project");
   }

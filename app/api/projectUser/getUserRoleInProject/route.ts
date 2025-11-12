@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   await dbConnect();
+  
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get("userId");
@@ -12,6 +13,7 @@ export async function GET(req: Request) {
 
     const authHeader = req.headers.get("authorization");
     const compareTokenResult = compareToken(userId, authHeader!);
+    console.log("compareTokenResult "+compareTokenResult);
     if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -22,6 +24,7 @@ export async function GET(req: Request) {
         { status: 400 }
       );
     }
+
     const res = await await ProjectUser.findOne({ userId, projectId });
     if (!res) {
       return NextResponse.json(
@@ -29,6 +32,7 @@ export async function GET(req: Request) {
         { status: 200 }
       );
     }
+
     return NextResponse.json(
       {
         status: "success",
