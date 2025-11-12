@@ -37,12 +37,13 @@ export default function GetProjectTasks() {
           return;
         }
         let data;
+        const userId = user?._id;
         //check is manger
-        const role = await getUserRoleInProject(user?._id, projectId);
+        const role = await getUserRoleInProject(userId, projectId);
         if (role !== "viewer") {
           setIsManager(true);
           //get from db all tasks by projects
-          data = await GetTasksByProjectId(user?._id!,projectId);
+          data = await GetTasksByProjectId(userId!, projectId);
           console.log("GetTasksByProjectId", data);
           setFilteredTasks(data);
         } else {
@@ -64,7 +65,7 @@ export default function GetProjectTasks() {
         console.error("Error loading tasks:", err);
         setError("Failed to load tasks");
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     }
 
