@@ -9,7 +9,7 @@ import "./addTask.css";
 
 export default function AddTaskPage() {
   const router = useRouter();
-  const { projectId } = useAppStore(); // <-- get projectId from Zustand
+  const { projectId, user } = useAppStore(); // <-- get projectId from Zustand
   const [task, setTask] = useState<TaskFormData>({
     title: "",
     content: "",
@@ -29,7 +29,7 @@ export default function AddTaskPage() {
     }
 
     try {
-      await CreateTask({ ...task, projectId }); // <-- use Zustand projectId
+      await CreateTask({ ...task, projectId, managerId: user?._id }); // <-- use Zustand projectId
       alert("Task added successfully!");
       router.push("/pages/projectTask");
     } catch (err: any) {
