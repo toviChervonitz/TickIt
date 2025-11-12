@@ -32,7 +32,7 @@ export async function CreateProject(form: any, userId: string) {
   return { status: res.status, ...data };
 }
 
-export async function GetAllProjectsByUserId(userId: string) {
+export async function GetAllProjectsByUserId(userId: string|null) {
   try {
 
     const token = getAuthToken();

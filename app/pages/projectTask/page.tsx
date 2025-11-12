@@ -31,39 +31,57 @@ export default function GetProjectTasks() {
   useEffect(() => {
     //check existing user, projectId
     async function loadTasks() {
-      if (!projectId && !user) {
+      try {
+        if (!projectId && !user) {
+          setLoading(false);
+          return;
+        }
+        let data;
+        const userId = user?._id;
+        //check is manger
+        const role = await getUserRoleInProject(userId, projectId);
+        if (role !== "viewer") {
+          setIsManager(true);
+          //get from db all tasks by projects
+          data = await GetTasksByProjectId(userId!, projectId);
+          console.log("GetTasksByProjectId", data);
+          setFilteredTasks(data);
+        } else {
+          //:if !tasks
+          if (!tasks || tasks.length === 0) {
+            //get all tasks by userId and put it in store
+
+            data = await GetTasksByUserId(user?._id);
+            console.log("GetTasksByUserId", data);
+            setTasks(data);
+          }
+          //filter tasks by projectId
+          const filtered = tasks.filter(
+            (task: any) => task.projectId._id === projectId
+          );
+          setFilteredTasks(filtered);
+        }
+      } catch (err) {
+        console.error("Error loading tasks:", err);
+        setError("Failed to load tasks");
+      } finally {
         setLoading(false);
-        return;
       }
-      let data;
-      //check is manger
-      
-      const role = await getUserRoleInProject(user?._id, projectId);
-      if (role !== "viewer") {
-        setIsManager(true);
-        //get from db all tasks by projects
-        data = await GetTasksByProjectId(user?._id!,projectId);
-        console.log("GetTasksByProjectId", data);
-        setFilteredTasks(data);
-      } else {
-        //:if !tasks
-          //get all tasks by userId and put it in store
-
-          data = await GetTasksByUserId(user?._id);
-          console.log("GetTasksByUserId", data);
-          setTasks(data);
-        
-        //filter tasks by projectId
-        const filtered = tasks.filter(
-          (task: any) => task.projectId._id === projectId
-        );
-        setFilteredTasks(filtered);
-      }
-
     }
 
     loadTasks();
   }, [projectId, user]);
+
+  const handleStatusChange = (
+    id: string,
+    newStatus: "todo" | "doing" | "done"
+  ) => {
+    const updated = tasks.map((t) =>
+      t._id === id ? { ...t, status: newStatus } : t
+    );
+
+    setTasks(updated);
+  };
 
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
@@ -76,12 +94,15 @@ export default function GetProjectTasks() {
         filteredTasks.map((task) => (
           <Task
             key={task._id}
+            _id={task._id!}
+            userId={(task.userId as IUser)?._id || ""}
             title={task.title}
             content={task.content}
             status={task.status}
             dueDate={task.dueDate ? new Date(task.dueDate) : undefined}
             userName={(task.userId as IUser)?.name || "Unknown"}
             projectName={(task.projectId as IProject)?.name || "No project"}
+            onStatusChange={handleStatusChange}
           />
         ))
       ) : (

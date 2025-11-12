@@ -5,10 +5,13 @@ import { useEffect } from "react";
 import Link from "next/link";
 
 export default function GetAllProjectsPage() {
-  const { user, projectUsers, setProjectUsers } = useAppStore();
+  const { user, projects, setProjects } = useAppStore();
 
   useEffect(() => {
+
     if (!user?._id) return;
+    const userId=user._id;
+
     async function fetchProjects() {
       try {
         console.log("Fetching projects for user:", user?._id);
@@ -18,11 +21,11 @@ export default function GetAllProjectsPage() {
 
         if (response?.status !== "success") {
           console.error("Error fetching projects:", response?.message);
-          setProjectUsers([]);
+          setProjects([]);
           return;
         }
 
-        setProjectUsers(response.projects || []);
+        setProjects(response.projects || []);
         console.log("Fetched projects:", response.projects);
       } catch (err) {
         console.error("Fetch error:", err);
@@ -35,9 +38,9 @@ export default function GetAllProjectsPage() {
     <div>
       <h1>All Projects</h1>
       <ul>
-        {projectUsers.map((project: any) => (
+        {projects.map((project: any) => (
           <li key={project._id}>
-            <Link href={`/pages/project/${project._id}`}>
+            <Link href={`/pages/projectTask`}>
               <h2>{project.name}</h2>
             </Link>
             <p>{project.description}</p>
