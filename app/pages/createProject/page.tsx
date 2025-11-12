@@ -29,7 +29,7 @@ export default function CreateProjectPage() {
     name: "",
     description: "",
   });
-  const {user} = useAppStore();
+  const { user } = useAppStore();
   const [users, setUsers] = useState<User[]>([]);
   const [newUserEmail, setNewUserEmail] = useState<string>("");
   const [projectIdLocal, setProjectIdLocal] = useState<string>("");
@@ -51,7 +51,7 @@ export default function CreateProjectPage() {
       setLoading(true);
       setError("");
 
-      const result = await CreateProject(projectDetails,user?._id!);
+      const result = await CreateProject(projectDetails, user?._id!);
       if (!result?.project?._id) throw new Error("Invalid project ID");
 
       const newProjectId = result.project._id;
@@ -60,7 +60,7 @@ export default function CreateProjectPage() {
       setProjectUsers([]);
 
       // Add current user as manager
-      const manager = await AddManagerToProject(user?._id!,newProjectId);
+      const manager = await AddManagerToProject(user?._id!, newProjectId);
       setProjectUsers([manager]);
       setUsers([manager]);
 
@@ -83,7 +83,7 @@ export default function CreateProjectPage() {
     try {
       setLoading(true);
       setError("");
-      const addedUser = await AddUserToProject(user?._id!,projectIdLocal, newUserEmail.trim());
+      const addedUser = await AddUserToProject(user?._id!, projectIdLocal, newUserEmail.trim());
       const updatedUsers = [...users, addedUser];
       setUsers(updatedUsers);
       setProjectUsers(updatedUsers);
@@ -95,38 +95,41 @@ export default function CreateProjectPage() {
     }
   };
 
-  // Step 3: Add task
-  const handleAddTask = () => {
+  // Step 3: Add and immediately create task
+  const handleAddTask = async () => {
     if (!task.title || !task.userId || !task.dueDate) {
       setError("Please fill all fields for the task.");
       return;
     }
 
-    setTasks([...tasks, task]);
-    setTask({ title: "", content: "", userId: "", dueDate: "" });
-    setError("");
-  };
-
-  // Step 4: Finish project and save tasks
-  const handleFinish = async () => {
-    if (loading) return;
-
     try {
       setLoading(true);
       setError("");
 
-      // Save tasks to backend using CreateTask
-      await Promise.all(
-        tasks.map((t) => CreateTask({ ...t, userId: user?._id!, projectId: projectIdLocal }))
-      );
+      // Send to backend immediately
+      const createdTask = await CreateTask({
+        ...task,
+        projectId: projectIdLocal,
+        userId: user?._id!,
+      });
 
-      alert("Project created successfully!");
-      router.push("/dashboard");
+      // Make sure to handle both shapes: { task: {...} } or plain {...}
+      const realTask = createdTask.task || createdTask;
+
+      // Update frontend display
+      setTasks((prev) => [...prev, realTask]);
+      setTask({ title: "", content: "", userId: "", dueDate: "" });
     } catch (err: any) {
-      setError(err.message || "Failed to finish project");
+      setError(err.message || "Failed to create task");
     } finally {
       setLoading(false);
     }
+  };
+
+  // Step 4: Finish project
+  const handleFinish = async () => {
+    alert("Project created successfully!");
+    router.push("/dashboard");
   };
 
   const handleProjectChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -208,7 +211,8 @@ export default function CreateProjectPage() {
             <ul style={{ marginTop: "1rem" }}>
               {tasks.map((t, idx) => (
                 <li key={idx}>
-                  {t.title} - {t.dueDate} - {projectUsers.find(u => u._id === t.userId)?.email}
+                  {t.title || "(No Title)"} -{" "}
+                  {projectUsers.find((u) => u._id === t.userId)?.email || "(Unknown User)"}
                 </li>
               ))}
             </ul>
