@@ -55,5 +55,5 @@ export function compareToken(id: string | null, token?: string | null) {
   if (id !== payload?.id) {
     return false;
   }
-  return false;
+  return true;
 }
