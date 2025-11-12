@@ -1,5 +1,6 @@
 import { taskSchema } from "../validation";
 import { getTokenPayload, getAuthToken } from "../jwt";
+import { getUserRoleInProject } from "./projectServer";
 
 export async function CreateTask(form: any) {
   // Validate form
@@ -14,21 +15,12 @@ export async function CreateTask(form: any) {
     throw new Error("Missing authentication token.");
   }
 
-  // Verify manager role on project
-  const res1 = await fetch("/api/projectUser/verifyManager", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId: payload.id,
-      projectId: form.projectId,
-      role: "manager",
-    }),
-  });
-  const data1 = await res1.json();
-  if (!res1.ok) {
-    throw new Error(data1.error || "You are not the manager of this project");
-  }
 
+   const role = await getUserRoleInProject(payload.id, form.projectId);
+      if (role !== "manager") {
+        throw new Error("You are not the manager of this project");
+      }
+  
   // Create task
   const res = await fetch("/api/task/createTask", {
     method: "POST",
@@ -124,20 +116,13 @@ export async function UpdateTask(taskId: string, updates: any) {
   }
 
   // Verify manager role
-  const res1 = await fetch("/api/projectUser/verifyManager", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      userId: payload.id,
-      projectId: updates.projectId,
-      role: "manager",
-    }),
-  });
+ 
 
-  const data1 = await res1.json();
-  if (!res1.ok) {
-    throw new Error(data1.error || "You are not authorized to edit this task.");
-  }
+const role = await getUserRoleInProject(payload.id, updates.projectId);
+      if (role !== "manager") {
+        throw new Error("You are not the manager of this project");
+      }
+  
 
   // Perform update
   const res = await fetch(`/api/task/updateTask/${taskId}`, {
