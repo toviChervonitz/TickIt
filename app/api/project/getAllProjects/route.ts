@@ -6,7 +6,7 @@ import useAppStore from "@/app/store/useAppStore";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
- 
+
 
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
@@ -14,12 +14,10 @@ export async function GET(req: Request) {
   try {
 
     const authHeader = req.headers.get("authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")||compareToken(userId, authHeader)) {
+    const compareTokenResult = compareToken(userId, authHeader!);
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
 
     if (!userId) {
       return NextResponse.json(

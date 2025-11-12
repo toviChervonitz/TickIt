@@ -29,6 +29,7 @@ export default function CreateProjectPage() {
     name: "",
     description: "",
   });
+  const {user} = useAppStore();
   const [users, setUsers] = useState<User[]>([]);
   const [newUserEmail, setNewUserEmail] = useState<string>("");
   const [projectIdLocal, setProjectIdLocal] = useState<string>("");
@@ -50,7 +51,7 @@ export default function CreateProjectPage() {
       setLoading(true);
       setError("");
 
-      const result = await CreateProject(projectDetails);
+      const result = await CreateProject(projectDetails,user?._id!);
       if (!result?.project?._id) throw new Error("Invalid project ID");
 
       const newProjectId = result.project._id;
@@ -59,7 +60,7 @@ export default function CreateProjectPage() {
       setProjectUsers([]);
 
       // Add current user as manager
-      const manager = await AddManagerToProject(newProjectId);
+      const manager = await AddManagerToProject(user?._id!,newProjectId);
       setProjectUsers([manager]);
       setUsers([manager]);
 
@@ -82,7 +83,7 @@ export default function CreateProjectPage() {
     try {
       setLoading(true);
       setError("");
-      const addedUser = await AddUserToProject(projectIdLocal, newUserEmail.trim());
+      const addedUser = await AddUserToProject(user?._id!,projectIdLocal, newUserEmail.trim());
       const updatedUsers = [...users, addedUser];
       setUsers(updatedUsers);
       setProjectUsers(updatedUsers);
@@ -116,7 +117,7 @@ export default function CreateProjectPage() {
 
       // Save tasks to backend using CreateTask
       await Promise.all(
-        tasks.map((t) => CreateTask({ ...t, projectId: projectIdLocal }))
+        tasks.map((t) => CreateTask({ ...t, userId: user?._id!, projectId: projectIdLocal }))
       );
 
       alert("Project created successfully!");

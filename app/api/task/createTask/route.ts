@@ -3,6 +3,7 @@ import { dbConnect } from "@/app/lib/DB";
 import Task from "@/app/models/TaskModel";
 import Project from "@/app/models/ProjectModel";
 import { taskSchema } from "@/app/lib/validation"; // adjust path if needed
+import { compareToken } from "@/app/lib/jwt";
 
 export async function POST(req: Request) {
   await dbConnect();
@@ -17,6 +18,12 @@ export async function POST(req: Request) {
     }
 
     const { title, content, dueDate, projectId, userId } = body;
+
+    const authHeader = req.headers.get("authorization");
+    const compareTokenResult = compareToken(userId, authHeader!);
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     // ✅ Ensure project exists
     const project = await Project.findById(projectId);

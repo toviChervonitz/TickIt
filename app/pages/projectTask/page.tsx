@@ -37,11 +37,12 @@ export default function GetProjectTasks() {
       }
       let data;
       //check is manger
+      
       const role = await getUserRoleInProject(user?._id, projectId);
       if (role !== "viewer") {
         setIsManager(true);
         //get from db all tasks by projects
-        data = await GetTasksByProjectId(projectId);
+        data = await GetTasksByProjectId(user?._id!,projectId);
         console.log("GetTasksByProjectId", data);
         setFilteredTasks(data);
       } else {
