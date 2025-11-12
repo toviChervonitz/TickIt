@@ -1,16 +1,15 @@
 import { dbConnect } from "@/app/lib/DB";
-import { compareToken, getTokenPayload, verifyToken } from "@/app/lib/jwt";
+import { compareToken } from "@/app/lib/jwt";
 import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
-import useAppStore from "@/app/store/useAppStore";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-
+ 
+  await dbConnect();
 
   const { searchParams } = new URL(req.url);
   const userId = searchParams.get("userId");
-  await dbConnect();
   try {
 
     const authHeader = req.headers.get("authorization");
@@ -36,7 +35,6 @@ export async function GET(req: Request) {
     }
 
     const projectIds = projectLinks.map((link) => link.projectId);
-
     const projects = await Project.find({ _id: { $in: projectIds } });
 
     return NextResponse.json(
