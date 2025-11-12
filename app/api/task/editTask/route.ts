@@ -3,7 +3,7 @@ import { dbConnect } from "@/app/lib/DB";
 import Task from "@/app/models/TaskModel";
 import Project from "@/app/models/ProjectModel";
 import { taskSchema } from "@/app/lib/validation"; // adjust path if needed
-import { getTokenPayload } from "@/app/lib/jwt"; // assuming you have JWT auth
+import { compareToken, getTokenPayload } from "@/app/lib/jwt"; // assuming you have JWT auth
 
 export async function PUT(req: Request, { params }: { params: { taskId: string } }) {
   await dbConnect();
@@ -17,6 +17,12 @@ export async function PUT(req: Request, { params }: { params: { taskId: string }
     const { error } = taskSchema.validate({ content, userId, dueDate }, { presence: "optional" });
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    const authHeader = req.headers.get("authorization");
+    const compareTokenResult = compareToken(userId, authHeader!);
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // ✅ Ensure task exists

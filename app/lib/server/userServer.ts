@@ -24,20 +24,23 @@ export async function AddUserToProject(projectId: string, email: string) {
 }
 
 
-export async function UpdateUser(email: string, updates: Record<string, any>) {
+export async function UpdateUser(userId:string,email: string, updates: Record<string, any>) {
+
   if (!email) throw new Error("User email is required");
 
-  const filteredUpdates: Record<string, any> = {};
-  Object.entries(updates).forEach(([key, value]) => {
-    if (value !== "" && value !== null && value !== undefined) {
-      filteredUpdates[key] = value;
-    }
-  });
+  const token = getAuthToken();
+
+  if (!token) {
+    throw new Error("Missing authentication token. Please log in again.");
+  }
 
   const res = await fetch("/api/users/user", {  // <-- use correct route
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, ...filteredUpdates }),
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({userId, email, ...updates }),
   });
 
   const text = await res.text();
@@ -54,18 +57,11 @@ export async function UpdateUser(email: string, updates: Record<string, any>) {
 
   return data;
 }
-import { getTokenPayload } from "../jwt";
 
-export async function AddManagerToProject(projectId: string) {
+export async function AddManagerToProject(userId:string,projectId: string) {
   const token = getAuthToken();
   if (!token) {
     throw new Error("Missing authentication token. Please log in again.");
-  }
-
-  // Get current user info from token
-  const payload = getTokenPayload(token);
-  if (!payload?.id) {
-    throw new Error("Invalid authentication token.");
   }
 
   const res = await fetch("/api/users/addMembers", {
@@ -76,7 +72,7 @@ export async function AddManagerToProject(projectId: string) {
     },
     body: JSON.stringify({
       projectId,
-      userId: payload.id, // send the manager's userId
+      userId: userId, // send the manager's userId
       role: "manager",    // force role to manager
     }),
   });

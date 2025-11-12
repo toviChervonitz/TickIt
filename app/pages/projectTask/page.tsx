@@ -41,7 +41,7 @@ export default function GetProjectTasks() {
       if (role !== "viewer") {
         setIsManager(true);
         //get from db all tasks by projects
-        data = await GetTasksByProjectId(projectId);
+        data = await GetTasksByProjectId(user?._id!,projectId);
         console.log("GetTasksByProjectId", data);
         setFilteredTasks(data);
       } else {

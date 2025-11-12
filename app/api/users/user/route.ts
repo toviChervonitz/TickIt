@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import User from "@/app/models/UserModel";
+import { compareToken } from "@/app/lib/jwt";
 
 // PUT: Update all user details by email
 export async function PUT(req: Request) {
@@ -9,13 +10,19 @@ export async function PUT(req: Request) {
 
   try {
     const data = await req.json();
-    const { email, ...updates } = data;
+    const { id, email, ...updates } = data;
 
     if (!email) {
       return NextResponse.json(
         { status: "error", message: "Email is required" },
         { status: 400 }
       );
+    }
+
+    const authHeader = req.headers.get("authorization");
+    const compareTokenResult = compareToken(id, authHeader!);
+    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Find user by email and update all other fields

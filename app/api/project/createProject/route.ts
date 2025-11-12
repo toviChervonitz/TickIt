@@ -3,11 +3,13 @@ import { dbConnect } from "@/app/lib/DB";
 import Project from "@/app/models/ProjectModel";
 import { projectSchema } from "@/app/lib/validation";
 import { log } from "console";
+import { compareToken } from "@/app/lib/jwt";
 
 export async function POST(req: Request) {
     await dbConnect();
     try {
         const body = await req.json();
+        const {id} = body;
         console.log("Body received in createProject:", body);
         const { error } = projectSchema.validate(body);
         if (error) {
@@ -16,11 +18,14 @@ export async function POST(req: Request) {
                 { status: 400 }
             );
         }
-        
+
         const authHeader = req.headers.get("authorization");
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        const compareTokenResult = compareToken(id, authHeader!);
+        if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
+
+
 
         const project = await Project.create({
             name: body.name,

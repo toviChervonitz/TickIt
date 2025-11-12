@@ -47,7 +47,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   console.log("Updating:", updates);
 
   try {
-    const result = await UpdateUser(user?.email || "", updates);
+    const result = await UpdateUser(user?._id!,user?.email || "", updates);
     console.log("Updating success:", result);
     router.push("/pages/dashboard");
   } catch (err: any) {

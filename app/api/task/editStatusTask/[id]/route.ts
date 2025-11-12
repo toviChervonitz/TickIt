@@ -1,5 +1,5 @@
 import { dbConnect } from "@/app/lib/DB";
-import { getTokenPayload, getTokenPayloadFromHeader } from "@/app/lib/jwt";
+import { compareToken, getTokenPayload, getTokenPayloadFromHeader } from "@/app/lib/jwt";
 import Task from "@/app/models/TaskModel";
 import { NextResponse } from "next/server";
 
@@ -10,7 +10,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     try {
         const { id: taskId } = await context.params;
         const body = await req.json();
-        const { status } = body;
+        const { id, status } = body;
 
         if (!status) {
             return NextResponse.json(
@@ -20,7 +20,8 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
         }
 
         const authHeader = req.headers.get("authorization");
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        const compareTokenResult = compareToken(id, authHeader!);
+        if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
