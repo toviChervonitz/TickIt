@@ -72,6 +72,17 @@ export default function GetProjectTasks() {
     loadTasks();
   }, [projectId, user]);
 
+  const handleStatusChange = (
+    id: string,
+    newStatus: "todo" | "doing" | "done"
+  ) => {
+    const updated = tasks.map((t) =>
+      t._id === id ? { ...t, status: newStatus } : t
+    );
+
+    setTasks(updated);
+  };
+
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   return (
@@ -83,12 +94,15 @@ export default function GetProjectTasks() {
         filteredTasks.map((task) => (
           <Task
             key={task._id}
+            _id={task._id!}
+            userId={(task.userId as IUser)?._id || ""}
             title={task.title}
             content={task.content}
             status={task.status}
             dueDate={task.dueDate ? new Date(task.dueDate) : undefined}
             userName={(task.userId as IUser)?.name || "Unknown"}
             projectName={(task.projectId as IProject)?.name || "No project"}
+            onStatusChange={handleStatusChange}
           />
         ))
       ) : (
