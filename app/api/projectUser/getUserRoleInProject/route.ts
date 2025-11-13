@@ -25,7 +25,7 @@ export async function GET(req: Request) {
       );
     }
 
-    const res = await await ProjectUser.findOne({ userId, projectId });
+    const res =  await ProjectUser.findOne({ userId, projectId });
     if (!res) {
       return NextResponse.json(
         { status: "success", message: "No role found", role: null },

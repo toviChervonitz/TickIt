@@ -26,7 +26,6 @@ export default function UserTasks() {
         async function loadTasks() {            
           
             if (!user?._id) return;
-
             try {
                 const data = await GetTasksByUserId(user._id);
                 setTasks(data);
