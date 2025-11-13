@@ -1,6 +1,10 @@
 import { getAuthToken } from "../jwt";
 
-export async function AddUserToProject(userId:string,projectId: string, email: string) {
+export async function AddUserToProject(
+  userId: string,
+  projectId: string,
+  email: string
+) {
   const token = getAuthToken();
   if (!token) {
     throw new Error("Missing authentication token. Please log in again.");
@@ -10,9 +14,9 @@ export async function AddUserToProject(userId:string,projectId: string, email: s
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ userId,projectId, email, role: "viewer" }),
+    body: JSON.stringify({ userId, projectId, email, role: "viewer" }),
   });
 
   const data = await res.json();
@@ -23,9 +27,11 @@ export async function AddUserToProject(userId:string,projectId: string, email: s
   return { status: res.status, ...data };
 }
 
-
-export async function UpdateUser(userId:string,email: string, updates: Record<string, any>) {
-
+export async function UpdateUser(
+  userId: string,
+  email: string,
+  updates: Record<string, any>
+) {
   if (!email) throw new Error("User email is required");
 
   const token = getAuthToken();
@@ -34,13 +40,14 @@ export async function UpdateUser(userId:string,email: string, updates: Record<st
     throw new Error("Missing authentication token. Please log in again.");
   }
 
-  const res = await fetch("/api/users/user", {  // <-- use correct route
+  const res = await fetch("/api/users/user", {
+    // <-- use correct route
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({userId, email, ...updates }),
+    body: JSON.stringify({ userId, email, ...updates }),
   });
 
   const text = await res.text();
@@ -58,7 +65,7 @@ export async function UpdateUser(userId:string,email: string, updates: Record<st
   return data;
 }
 
-export async function AddManagerToProject(userId:string,projectId: string) {
+export async function AddManagerToProject(userId: string, projectId: string) {
   const token = getAuthToken();
   if (!token) {
     throw new Error("Missing authentication token. Please log in again.");
@@ -68,12 +75,12 @@ export async function AddManagerToProject(userId:string,projectId: string) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       projectId,
       userId: userId, // send the manager's userId
-      role: "manager",    // force role to manager
+      role: "manager", // force role to manager
     }),
   });
 
@@ -85,4 +92,32 @@ export async function AddManagerToProject(userId:string,projectId: string) {
   return { status: res.status, ...data };
 }
 
+//get all user in project
+export async function getAllUsersByProjectId(projectId: string | null) {
+  try {
+    const token = getAuthToken();
 
+    if (!token) {
+      throw new Error("Missing authentication token. Please log in again.");
+    }
+    const res = await fetch(
+      `/api/projectUser/getAllUsers?projectId=${projectId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        cache: "no-store",
+      }
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || "Fetching users failed");
+    }
+    return data;
+  } catch (err: any) {
+    console.error("Get Users Error:", err);
+    return [];
+  }
+}
