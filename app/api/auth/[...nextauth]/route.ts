@@ -2,9 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { dbConnect } from "@/app/lib/DB";
 import User from "@/app/models/UserModel";
-import { createToken } from "@/app/lib/jwt"; // your JWT helper
-import { NextResponse } from "next/server";
-import { JWT } from "next-auth/jwt";
+import { createToken } from "@/app/lib/jwt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -23,23 +21,16 @@ export const authOptions: NextAuthOptions = {
         await dbConnect();
         if (!user?.email) return false;
 
-        let existingUser = await User.findOne({ email: user.email });
+        const existingUser = await User.findOne({ email: user.email });
 
-        if (!existingUser) {
-          existingUser = await User.create({
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            provider: "google",
-            password: "", // OAuth users don't have password
-          });
+        if (existingUser) {
+          (user as any).customToken = createToken({ id: existingUser._id, email: existingUser.email });
+          (user as any).isNewUser = false;
+        } else {
+          // Do NOT create user here; handled client-side in register flow
+          (user as any).customToken = null;
+          (user as any).isNewUser = true;
         }
-
-        // Create our own JWT for your API routes
-        const token = createToken({ id: existingUser._id, email: existingUser.email });
-
-        // Save the token in the session object (accessible client-side)
-        (user as any).customToken = token;
 
         return true;
       } catch (err) {
@@ -48,15 +39,17 @@ export const authOptions: NextAuthOptions = {
       }
     },
 
-    async jwt({ token, user, account }) {
-      if (user && (user as any).customToken) {
+    async jwt({ token, user }) {
+      if (user) {
         token.customToken = (user as any).customToken;
+        token.isNewUser = (user as any).isNewUser || false;
       }
       return token;
     },
 
     async session({ session, token }) {
       (session as any).token = (token as any).customToken;
+      (session as any).isNewUser = (token as any).isNewUser || false;
       return session;
     },
   },
