@@ -8,8 +8,8 @@ export async function GET(req: Request) {
   
   try {
     const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
     const projectId = searchParams.get("projectId");
+    const userId = searchParams.get("userId");
 
     const authHeader = req.headers.get("authorization");
     const compareTokenResult = compareToken(userId, authHeader!);

@@ -10,6 +10,7 @@ import {
 import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import Task from "@/app/components/Task";
 import { IProject, ITask, IUser } from "@/app/models/types";
+import { set } from "mongoose";
 
 interface ProjectType {
   _id: string;
@@ -27,10 +28,7 @@ export default function GetProjectTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
-
-  useEffect(() => {
-    //check existing user, projectId
-    async function loadTasks() {
+ async function loadTasks() {
       try {
         if (!projectId && !user) {
           setLoading(false);
@@ -40,10 +38,13 @@ export default function GetProjectTasks() {
         const userId = user?._id;
         //check is manger
         const role = await getUserRoleInProject(userId, projectId);
+        console.log("get to this?1", role);
+
         if (role !== "viewer") {
           setIsManager(true);
           //get from db all tasks by projects
           data = await GetTasksByProjectId(userId!, projectId);
+          console.log("get to this?2");
           console.log("GetTasksByProjectId", data);
           setFilteredTasks(data);
         } else {
@@ -52,6 +53,7 @@ export default function GetProjectTasks() {
             //get all tasks by userId and put it in store
 
             data = await GetTasksByUserId(user?._id);
+            console.log("get to this?3");
             console.log("GetTasksByUserId", data);
             setTasks(data);
           }
@@ -59,6 +61,7 @@ export default function GetProjectTasks() {
           const filtered = tasks.filter(
             (task: any) => task.projectId._id === projectId
           );
+          console.log("get to this?4");
           setFilteredTasks(filtered);
         }
       } catch (err) {
@@ -69,6 +72,10 @@ export default function GetProjectTasks() {
       }
     }
 
+
+  useEffect(() => {
+    //check existing user, projectId
+   
     loadTasks();
   }, [projectId, user]);
 
@@ -81,15 +88,23 @@ export default function GetProjectTasks() {
     );
 
     setTasks(updated);
+    loadTasks();
+    // setFilteredTasks(updated);
   };
+  const onAddTask = () => {
+    // Navigate to add task page
+    window.location.href = `/pages/addTask`;
+  }
 
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
   return (
     <div className="tasks-container">
       <h2>Project Tasks</h2>
-      {/* {isManager?
-<button>Add Task</button>} */}
+    {isManager ?( 
+    <button onClick={onAddTask}>Add Tasks</button> )
+    : (<p>You are a Viewer in this project.</p>)
+}
       {filteredTasks.length ? (
         filteredTasks.map((task) => (
           <Task
