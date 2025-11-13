@@ -110,7 +110,7 @@ export default function CreateProjectPage() {
       const createdTask = await CreateTask({
         ...task,
         projectId: projectIdLocal,
-        userId: user?._id!,
+        managerId: user?._id!,
       });
 
       // Make sure to handle both shapes: { task: {...} } or plain {...}
