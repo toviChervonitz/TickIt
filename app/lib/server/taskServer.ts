@@ -17,7 +17,7 @@ export async function CreateTask(form: any) {
   }
 
   console.log(form + " form ... CreateTask");
-  const role = await getUserRoleInProject(form.userId, form.projectId);
+  const role = await getUserRoleInProject(form.managerId, form.projectId);
   console.log("role "+role);
   
   if (role !== "manager") {

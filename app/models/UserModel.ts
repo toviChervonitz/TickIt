@@ -1,4 +1,3 @@
-// UserModel.ts
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUserDoc extends Document {
@@ -8,9 +7,11 @@ export interface IUserDoc extends Document {
   tel?: string;
   password?: string;
   image?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const UserSchema: Schema<IUserDoc> = new Schema(
+const UserSchema = new Schema<IUserDoc>(
   {
     provider: {
       type: String,
@@ -22,8 +23,7 @@ const UserSchema: Schema<IUserDoc> = new Schema(
     tel: { type: String },
     password: {
       type: String,
-      required: function () {
-        // required only if provider is credentials
+      required: function (this: IUserDoc) {
         return this.provider === "credentials";
       },
     },
@@ -32,6 +32,13 @@ const UserSchema: Schema<IUserDoc> = new Schema(
   { timestamps: true }
 );
 
+// ✅ Defensive fix for Turbopack / ESM environment
+// Sometimes mongoose.models is undefined initially
+if (!mongoose.models) {
+  (mongoose as any).models = {};
+}
+
+// ✅ Safe, re-usable model
 const User: Model<IUserDoc> =
   mongoose.models.User || mongoose.model<IUserDoc>("User", UserSchema);
 
