@@ -1,11 +1,13 @@
 "use client";
 import { GetAllProjectsByUserId } from "@/app/lib/server/projectServer";
+import { IProject } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function GetAllProjectsPage() {
-  const { user, projects, setProjects, setProjectId } = useAppStore();
+  const { user, projects, setProjects, setProjectId } =
+    useAppStore();
   const router = useRouter();
 
   useEffect(() => {
@@ -35,9 +37,10 @@ export default function GetAllProjectsPage() {
     fetchProjects();
   }, [user]);
 
-  const getIntoProject = (projectId: string) => {
+  const getIntoProject = async (project: IProject) => {
     console.log("Clicked on project");
-    setProjectId(projectId);
+    setProjectId(project._id!);
+
     router.push("/pages/projectTask");
   };
   return (
@@ -46,7 +49,7 @@ export default function GetAllProjectsPage() {
       <ul>
         {projects.map((project: any) => (
           <li key={project._id}>
-            <h2 onClick={() => getIntoProject(project._id)}>{project.name}</h2>
+            <h2 onClick={() => getIntoProject(project)}>{project.name}</h2>
             <p>{project.description}</p>
           </li>
         ))}
