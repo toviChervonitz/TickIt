@@ -72,7 +72,10 @@ export default function RegisterPage() {
     setGoogleLoading(true);
 
     try {
-      await signIn("google", { callbackUrl: "/pages/createProject" });
+localStorage.setItem("googleAuthMode", "register");
+
+// Register button
+await signIn("google", { callbackUrl: "/pages/postGoogleRedirect", state: "register" });
     } catch (err: any) {
       console.error(err);
       setError("Google sign-in failed");

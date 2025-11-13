@@ -65,7 +65,11 @@ export default function LoginPage() {
     setError("");
     setGoogleLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/pages/getAllTaskByUser" });
+// Login button
+localStorage.setItem("googleAuthMode", "login");
+
+await signIn("google", { callbackUrl: "/pages/postGoogleRedirect", state: "login" });
+
     } catch (err: any) {
       console.error(err);
       setError("Google sign-in failed");
