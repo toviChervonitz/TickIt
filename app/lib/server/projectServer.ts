@@ -24,7 +24,7 @@ export async function CreateProject(form: any, userId: string) {
     },
     body: JSON.stringify(bodyData),
   });
-
+  
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.error || "Project creation failed");
@@ -32,7 +32,7 @@ export async function CreateProject(form: any, userId: string) {
   return { status: res.status, ...data };
 }
 
-export async function GetAllProjectsByUserId(userId: string | null) {
+export async function GetAllProjectsByUserId(userId: string|null) {
   try {
 
     const token = getAuthToken();
@@ -61,15 +61,10 @@ export async function GetAllProjectsByUserId(userId: string | null) {
   }
 }
 
-export async function getUserRoleInProject(userId: string | undefined, projectId: string | null, tokenFromServer?: string) {
+export async function getUserRoleInProject(userId: string | undefined, projectId: string | null) {
   try {
 
-    let token: string | null = null;
-    if (typeof window !== "undefined") {
-      token = localStorage.getItem("authToken");
-    } else {
-      token = tokenFromServer || null;
-    }
+    const token = getAuthToken();
     if (!token) {
       throw new Error("Missing authentication token. Please log in again.");
     }
@@ -85,7 +80,7 @@ export async function getUserRoleInProject(userId: string | undefined, projectId
         cache: "no-store",
       }
     );
-
+    
     const data = await res.json();
     if (!res.ok) {
       throw new Error(data.message || "Failed to fetch user role in project");
