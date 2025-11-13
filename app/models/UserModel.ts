@@ -13,11 +13,12 @@ export interface IUserDoc extends Document {
 
 const UserSchema = new Schema<IUserDoc>(
   {
-    provider: {
-      type: String,
-      enum: ["credentials", "google"],
-      required: true,
-    },
+provider: {
+  type: String,
+  enum: ["credentials", "google"],
+  required: true,
+  default: "credentials", // ✅
+},
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     tel: { type: String },
