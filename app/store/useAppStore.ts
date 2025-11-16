@@ -23,11 +23,11 @@ const useAppStore = create(
   persist<AppState>(
     (set) => ({
       user: null,
-      projectId: null,
-      projectUsers: [],
-      projectTasks: [],
-      tasks: [],
-      projects: [],
+      projectId: null,//current project id
+      projectUsers: [],//user of current project
+      projectTasks: [],//tasks of current project
+      tasks: [],//all tasks
+      projects: [],//all projects
 
       setUser: (user) => set({ user }),
       setProjectId: (projectId) => set({ projectId }),

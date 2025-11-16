@@ -3,12 +3,15 @@
 import React, { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CreateProject } from "@/app/lib/server/projectServer";
-import { AddUserToProject, AddManagerToProject } from "@/app/lib/server/userServer";
+import {
+  AddUserToProject,
+  AddManagerToProject,
+} from "@/app/lib/server/userServer";
 import { CreateTask } from "@/app/lib/server/taskServer";
 import useAppStore from "@/app/store/useAppStore";
 import "./createProject.css";
 import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
-
+import AddMember from "@/app/components/AddMember";
 interface ProjectDetails {
   name: string;
   description: string;
@@ -83,7 +86,11 @@ export default function CreateProjectPage() {
     try {
       setLoading(true);
       setError("");
-      const addedUser = await AddUserToProject(user?._id!, projectIdLocal, newUserEmail.trim());
+      const addedUser = await AddUserToProject(
+        user?._id!,
+        projectIdLocal,
+        newUserEmail.trim()
+      );
       const updatedUsers = [...users, addedUser];
       setUsers(updatedUsers);
       setProjectUsers(updatedUsers);
@@ -132,7 +139,9 @@ export default function CreateProjectPage() {
     router.push("/dashboard");
   };
 
-  const handleProjectChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleProjectChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setProjectDetails((prev) => ({ ...prev, [name]: value }));
   };
@@ -143,7 +152,10 @@ export default function CreateProjectPage() {
       {step === 1 && (
         <div className="create-project-section">
           <h2>Project Details</h2>
-          <form className="create-project-form" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="create-project-form"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <input
               type="text"
               name="name"
@@ -169,35 +181,15 @@ export default function CreateProjectPage() {
 
       {/* Step 2: Add Users */}
       {step === 2 && (
-        <div className="create-project-section">
-          <h2>Add Users</h2>
-          <input
-            type="text"
-            placeholder="User Email"
-            value={newUserEmail}
-            onChange={(e) => setNewUserEmail(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddUser()}
-          />
-          <button onClick={handleAddUser} disabled={loading}>
-            {loading ? "Adding..." : "Add User"}
-          </button>
-          {error && <p style={{ color: "red" }}>{error}</p>}
-
-          <ul>
-            {users.map((u) => (
-              <li key={u._id}>
-                {u.name} ({u.email}) {u._id === users[0]._id && "(Manager)"}
-              </li>
-            ))}
-          </ul>
-
-          <div style={{ marginTop: "1rem" }}>
-            <button onClick={() => setStep(1)} disabled={loading}>Back</button>
-            <button onClick={() => setStep(3)} disabled={loading || users.length === 0}>
-              Next
-            </button>
-          </div>
-        </div>
+        <AddMember
+          projectId={projectIdLocal}
+          onUserAdded={(user) => {
+            const updated = [...users, user];
+            setUsers(updated);
+            setProjectUsers(updated);
+          }}
+          label="Add User"
+        />
       )}
 
       {/* Step 3: Add Tasks */}
@@ -212,14 +204,17 @@ export default function CreateProjectPage() {
               {tasks.map((t, idx) => (
                 <li key={idx}>
                   {t.title || "(No Title)"} -{" "}
-                  {projectUsers.find((u) => u._id === t.userId)?.email || "(Unknown User)"}
+                  {projectUsers.find((u) => u._id === t.userId)?.email ||
+                    "(Unknown User)"}
                 </li>
               ))}
             </ul>
           )}
 
           <div style={{ marginTop: "1rem" }}>
-            <button onClick={() => setStep(2)} disabled={loading}>Back</button>
+            <button onClick={() => setStep(2)} disabled={loading}>
+              Back
+            </button>
             <button onClick={handleFinish} disabled={loading}>
               {loading ? "Finishing..." : "Finish Project"}
             </button>

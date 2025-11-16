@@ -10,9 +10,10 @@ import {
 import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import Task from "@/app/components/Task";
 import { IProject, ITask, IUser } from "@/app/models/types";
-import { set } from "mongoose";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import { useRouter } from "next/navigation";
+import AddMember from "@/app/components/AddMember";
+import AddTaskPage from "../addTask/page";
 
 interface ProjectType {
   _id: string;
@@ -25,12 +26,15 @@ interface ProjectType {
 }
 
 export default function GetProjectTasks() {
-  const { projectId, tasks, setTasks, user, setProjectUsers } = useAppStore();
+  const { projectId, tasks, setTasks, user, setProjectUsers, setProjectTasks } =
+    useAppStore();
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
-  const router =useRouter();
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [showAddTask, setShowAddTask] = useState(false);
+  const router = useRouter();
   async function loadTasks() {
     try {
       if (!projectId && !user) {
@@ -43,12 +47,12 @@ export default function GetProjectTasks() {
       const role = await getUserRoleInProject(userId, projectId);
       console.log("get to this?1", role);
 
-      if (role !== "viewer") {
+      if (role === "manager") {
         setIsManager(true);
         //get from db all tasks by projects
         data = await GetTasksByProjectId(userId!, projectId);
         console.log("get to this?2");
-        console.log("GetTasksByProjectId", data);
+        setProjectTasks(data);
         setFilteredTasks(data);
       } else {
         //:if !tasks
@@ -67,8 +71,6 @@ export default function GetProjectTasks() {
         console.log("get to this?4");
         setFilteredTasks(filtered);
       }
-
-  
     } catch (err) {
       console.error("Error loading tasks:", err);
       setError("Failed to load tasks");
@@ -99,7 +101,7 @@ export default function GetProjectTasks() {
   const fetchUsersInProject = async () => {
     try {
       console.log("im in fetchUsersInProject");
-      
+
       const response = await getAllUsersByProjectId(projectId!);
       console.log(response, "res");
 
@@ -116,8 +118,14 @@ export default function GetProjectTasks() {
   };
   const onAddTask = () => {
     // Navigate to add task page
+
     fetchUsersInProject();
-   router.push(`/pages/addTask`);
+    setShowAddTask(true);
+  };
+  const onAddUser = () => {
+    // Navigate to add user page
+    console.log("in add user");
+    setShowAddUser(!showAddUser);
   };
 
   if (loading) return <p>Loading tasks...</p>;
@@ -126,7 +134,24 @@ export default function GetProjectTasks() {
     <div className="tasks-container">
       <h2>Project Tasks</h2>
       {isManager ? (
-        <button onClick={onAddTask}>Add Tasks</button>
+        <>
+          <button onClick={onAddTask}>Add Tasks</button>
+          <button onClick={onAddUser}>Add User</button>
+
+          {showAddUser && (
+            <AddMember
+              projectId={projectId!}
+              onUserAdded={(newUser) => {
+                setProjectUsers((prev: any) => [...prev, newUser]);
+                setShowAddUser(false);
+              }}
+            />
+          )}
+          {showAddTask && (
+            <AddTaskPage
+            />
+          )}
+        </>
       ) : (
         <p>You are a Viewer in this project.</p>
       )}
