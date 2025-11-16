@@ -25,6 +25,7 @@ export interface ITask {
   status: "todo" | "doing" | "done";
   createdAt?: Date;
   dueDate?: Date;
+  completedDate?: Date;
   userId?: mongoose.Types.ObjectId | IUser;
   projectId?: mongoose.Types.ObjectId | IProject;
 }
