@@ -25,9 +25,10 @@ export default function PostGoogleRedirect() {
       if (mode === "login") {
         if (!checkData.exists) {
           alert("User does not exist. Please register first.");
-          router.push("/pages/login");
+          router.push("/pages/register");
           return;
         }
+        
         router.push("/pages/getAllTaskByUser");
         return;
       }
