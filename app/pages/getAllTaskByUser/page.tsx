@@ -6,6 +6,7 @@ import Task from "@/app/components/Task";
 import useAppStore from "@/app/store/useAppStore";
 import { GetTasksByUserId } from "@/app/lib/server/taskServer";
 import { IProject, IUser, ITask } from "@/app/models/types";
+import Navbar from "../navbar/page";
 
 interface TaskType {
     _id: string;
@@ -53,6 +54,8 @@ export default function UserTasks() {
     if (loading) return <p>Loading tasks...</p>;
     if (error) return <p style={{ color: "red" }}>{error}</p>;
     return (
+    
+    
         <div className="tasks-container">
             <h2>My Tasks</h2>
 
