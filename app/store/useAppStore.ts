@@ -10,7 +10,7 @@ interface AppState {
   tasks: ITask[];
   projects: IProject[];
 
-  setUser: (user: IUserSafe) => void;
+  setUser: (user: IUserSafe|null) => void;
   setProjectId: (projectId: string) => void;
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
