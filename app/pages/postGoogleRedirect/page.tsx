@@ -3,9 +3,11 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
+import useAppStore from "@/app/store/useAppStore";
 
 export default function PostGoogleRedirect() {
   const router = useRouter();
+  const { setUser } = useAppStore();
 
   useEffect(() => {
     (async () => {
@@ -28,14 +30,57 @@ export default function PostGoogleRedirect() {
           router.push("/pages/register");
           return;
         }
-        
+
+        // Login with Google - get token and user info
+        const loginRes = await fetch("/api/auth/googleLogin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        });
+
+        if (!loginRes.ok) {
+          alert("Login failed");
+          router.push("/pages/login");
+          return;
+        }
+
+        const loginData = await loginRes.json();
+
+        // Store token in localStorage
+        if (loginData.token) {
+          localStorage.setItem("token", loginData.token);
+        }
+
+        // Store user in Zustand
+        if (loginData.user) {
+          setUser(loginData.user);
+        }
+
         router.push("/pages/getAllTaskByUser");
         return;
       }
 
       if (mode === "register") {
         if (checkData.exists) {
-          // User already exists → redirect to tasks
+          // User already exists → login instead
+          const loginRes = await fetch("/api/auth/googleLogin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+
+          if (loginRes.ok) {
+            const loginData = await loginRes.json();
+            
+            if (loginData.token) {
+              localStorage.setItem("token", loginData.token);
+            }
+            
+            if (loginData.user) {
+              setUser(loginData.user);
+            }
+          }
+
           router.push("/pages/getAllTaskByUser");
           return;
         }
@@ -57,10 +102,22 @@ export default function PostGoogleRedirect() {
           return;
         }
 
+        const createData = await createRes.json();
+
+        // Store token in localStorage
+        if (createData.token) {
+          localStorage.setItem("token", createData.token);
+        }
+
+        // Store user in Zustand
+        if (createData.user) {
+          setUser(createData.user);
+        }
+
         router.push("/pages/createProject");
       }
     })();
-  }, [router]);
+  }, [router, setUser]);
 
   return <p>Loading...</p>;
 }
