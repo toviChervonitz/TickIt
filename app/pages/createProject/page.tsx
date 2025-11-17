@@ -1,18 +1,15 @@
-"use client";
+"use client"
 
 import React, { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CreateProject } from "@/app/lib/server/projectServer";
-import {
-  AddUserToProject,
-  AddManagerToProject,
-} from "@/app/lib/server/userServer";
+import { AddUserToProject, AddManagerToProject } from "@/app/lib/server/userServer";
 import { CreateTask } from "@/app/lib/server/taskServer";
 import useAppStore from "@/app/store/useAppStore";
 import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
-import AddMember from "@/app/components/AddMember";
 import {
-  Box, Container, Typography, TextField, Button, Card, Stepper, Step, StepLabel, Alert, Stack, List, ListItem, ListItemText, Chip, IconButton, Paper,
+  Box, Container, Typography, TextField, Button, Card, Stepper, Step, StepLabel, Alert, Stack,
+  List, ListItem, ListItemText, Chip, IconButton, Paper,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
@@ -20,6 +17,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FolderIcon from "@mui/icons-material/Folder";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import AddMember from "@/app/components/AddMember";
 
 interface ProjectDetails {
   name: string;
@@ -44,7 +42,6 @@ export default function CreateProjectPage() {
     description: "",
   });
   const [users, setUsers] = useState<User[]>([]);
-  const [newUserEmail, setNewUserEmail] = useState<string>("");
   const [projectIdLocal, setProjectIdLocal] = useState<string>("");
   const [tasks, setTasks] = useState<TaskFormData[]>([]);
   const [task, setTask] = useState<TaskFormData>({
@@ -83,32 +80,6 @@ export default function CreateProjectPage() {
     }
   };
 
-  const handleAddUser = async () => {
-    if (!newUserEmail.trim() || !projectIdLocal) return;
-    if (users.some((u) => u.email === newUserEmail.trim())) {
-      setError("User already added.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError("");
-      const addedUser = await AddUserToProject(
-        user?._id!,
-        projectIdLocal,
-        newUserEmail.trim()
-      );
-      const updatedUsers = [...users, addedUser];
-      setUsers(updatedUsers);
-      setProjectUsers(updatedUsers);
-      setNewUserEmail("");
-    } catch (err: any) {
-      setError(err.message || "Failed to add user");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleAddTask = async () => {
     if (!task.title || !task.userId || !task.dueDate) {
       setError("Please fill all fields for the task.");
@@ -137,12 +108,10 @@ export default function CreateProjectPage() {
 
   const handleFinish = async () => {
     alert("Project created successfully!");
-    router.push("/dashboard");
+    router.push("/pages/getAllTaskByUser");
   };
 
-  const handleProjectChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleProjectChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setProjectDetails((prev) => ({ ...prev, [name]: value }));
   };
@@ -315,36 +284,16 @@ export default function CreateProjectPage() {
               </Stack>
 
               <Stack spacing={3}>
-                <Box sx={{ display: "flex", gap: 2 }}>
-                  <TextField
-                    fullWidth
-                    label="User Email"
-                    value={newUserEmail}
-                    onChange={(e) => setNewUserEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAddUser()}
-                    placeholder="colleague@example.com"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: "#fafaf9",
-                      },
-                    }}
-                  />
-                  <Button
-                    variant="contained"
-                    onClick={handleAddUser}
-                    disabled={loading || !newUserEmail.trim()}
-                    sx={{
-                      minWidth: 120,
-                      fontWeight: 700,
-                      background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
-                      "&:hover": {
-                        background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
-                      },
-                    }}
-                  >
-                    {loading ? "Adding..." : "Add"}
-                  </Button>
-                </Box>
+                {/* AddMember Component */}
+                <AddMember
+                  projectId={projectIdLocal}
+                  onUserAdded={(addedUser) => {
+                    const updated = [...users, addedUser];
+                    setUsers(updated);
+                    setProjectUsers(updated);
+                  }}
+                  label="Add User"
+                />
 
                 {users.length > 0 && (
                   <Paper sx={{ p: 2, backgroundColor: "#fafaf9" }}>
@@ -382,22 +331,6 @@ export default function CreateProjectPage() {
                 )}
 
                 <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => setStep(0)}
-                    disabled={loading}
-                    sx={{
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 600,
-                      borderWidth: 2,
-                      "&:hover": { borderWidth: 2 },
-                    }}
-                  >
-                    Back
-                  </Button>
                   <Button
                     variant="contained"
                     size="large"
@@ -482,22 +415,6 @@ export default function CreateProjectPage() {
                 )}
 
                 <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    startIcon={<ArrowBackIcon />}
-                    onClick={() => setStep(1)}
-                    disabled={loading}
-                    sx={{
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 600,
-                      borderWidth: 2,
-                      "&:hover": { borderWidth: 2 },
-                    }}
-                  >
-                    Back
-                  </Button>
                   <Button
                     variant="contained"
                     size="large"
