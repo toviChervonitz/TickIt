@@ -25,6 +25,8 @@ export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
     setTask({ ...task, [name]: value });
   };
 
+  console.log(projectUsers,"in form to add task");
+  
   return (
     <form
       className="create-project-form"
@@ -54,11 +56,12 @@ export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
         required
       >
         <option value="">-- Assign to user --</option>
+        (projectUsers)(
         {projectUsers.map((user) => (
           <option key={user._id} value={user._id}>
             {user.email}
           </option>
-        ))}
+        ))})
       </select>
       <input
         type="date"
