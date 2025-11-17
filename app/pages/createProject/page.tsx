@@ -234,10 +234,14 @@
 import React, { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { CreateProject } from "@/app/lib/server/projectServer";
-import { AddUserToProject, AddManagerToProject } from "@/app/lib/server/userServer";
+import {
+  AddUserToProject,
+  AddManagerToProject,
+} from "@/app/lib/server/userServer";
 import { CreateTask } from "@/app/lib/server/taskServer";
 import useAppStore from "@/app/store/useAppStore";
 import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
+import AddMember from "@/app/components/AddMember";
 import {
   Box,
   Container,
@@ -336,7 +340,11 @@ export default function CreateProjectPage() {
     try {
       setLoading(true);
       setError("");
-      const addedUser = await AddUserToProject(user?._id!, projectIdLocal, newUserEmail.trim());
+      const addedUser = await AddUserToProject(
+        user?._id!,
+        projectIdLocal,
+        newUserEmail.trim()
+      );
       const updatedUsers = [...users, addedUser];
       setUsers(updatedUsers);
       setProjectUsers(updatedUsers);
@@ -379,7 +387,9 @@ export default function CreateProjectPage() {
     router.push("/dashboard");
   };
 
-  const handleProjectChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleProjectChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     setProjectDetails((prev) => ({ ...prev, [name]: value }));
   };
