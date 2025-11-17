@@ -6,7 +6,12 @@ import { signIn } from "next-auth/react";
 import { Login } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
-import "../login.css";
+import {
+  Box, Container, Typography, TextField, Button, Card, Divider, Alert, Link as MuiLink, Stack
+} from "@mui/material";
+import Link from "next/link";
+import GoogleIcon from '@mui/icons-material/Google';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
 interface LoginResponse {
   status: "success" | "error";
@@ -22,16 +27,15 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // manual login
-  const [googleLoading, setGoogleLoading] = useState(false); // Google login
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-    };
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setter(e.target.value);
+      };
 
-  // ---- Manual login ----
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !password) {
@@ -49,7 +53,6 @@ export default function LoginPage() {
         setError(result.message || "Login failed");
         return;
       }
-
       setUser(result.user);
       router.push("/pages/getAllTaskByUser");
     } catch (err: any) {
@@ -60,16 +63,15 @@ export default function LoginPage() {
     }
   };
 
-  // ---- Google login ----
   const handleGoogleSignIn = async () => {
     setError("");
     setGoogleLoading(true);
     try {
-// Login button
-localStorage.setItem("googleAuthMode", "login");
-
-await signIn("google", { callbackUrl: "/pages/postGoogleRedirect", state: "login" });
-
+      localStorage.setItem("googleAuthMode", "login");
+      await signIn("google", {
+        callbackUrl: "/pages/postGoogleRedirect",
+        state: "login"
+      });
     } catch (err: any) {
       console.error(err);
       setError("Google sign-in failed");
@@ -79,79 +81,195 @@ await signIn("google", { callbackUrl: "/pages/postGoogleRedirect", state: "login
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <h1>Log In</h1>
-        <p>Enter your credentials or use Google</p>
-
-        {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
-
-        {/* Manual login form */}
-        <form className="login-form" onSubmit={handleSubmit}>
-          <input type="email" placeholder="Email" value={email} onChange={handleChange(setEmail)} required />
-          <input type="password" placeholder="Password" value={password} onChange={handleChange(setPassword)} required />
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              opacity: loading ? 0.6 : 1,
-              cursor: loading ? "not-allowed" : "pointer",
-            }}
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
-
-        {/* Google Login Button with "G" Logo */}
-        <button
-          onClick={handleGoogleSignIn}
-          disabled={googleLoading}
-          style={{
-            marginTop: "1rem",
-            backgroundColor: "white",
-            color: "#555",
-            border: "1px solid #ddd",
-            padding: "10px 16px",
-            borderRadius: "5px",
-            fontWeight: "bold",
-            cursor: googleLoading ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: "100%",
+    <Box
+      sx={{
+        minHeight: "50vh",
+        background: "linear-gradient(135deg, #f0ebe3 0%, #e8e2d9 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        py: 2.5,
+        position: "relative",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: "radial-gradient(circle at 80% 20%, rgba(61,210,204,0.08) 0%, transparent 50%)",
+        }
+      }}
+    >
+      <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
+        <Card
+          sx={{
+            p: { xs: 3, sm: 5 },
+            borderRadius: 4,
+            boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+            background: "linear-gradient(180deg, #ffffff 0%, #fdfcfa 100%)",
           }}
         >
-          {/* Google "G" Logo */}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 533.5 544.3"
-            style={{ marginRight: "8px" }}
-          >
-            <path
-              fill="#4285F4"
-              d="M533.5 278.4c0-17.4-1.5-34.1-4.4-50.4H272v95.4h146.9c-6.4 34.7-25.5 64.1-54.4 83.9v69h87.8c51.3-47.3 80.2-116.9 80.2-198.9z"
-            />
-            <path
-              fill="#34A853"
-              d="M272 544.3c73.6 0 135.5-24.4 180.7-66.1l-87.8-69c-24.5 16.5-56 26.2-92.9 26.2-71.5 0-132-48.1-153.7-112.5H29.3v70.6C74.1 488 167.4 544.3 272 544.3z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M118.3 324.1c-4.9-14.5-7.7-29.9-7.7-45.6s2.8-31.1 7.7-45.6V162H29.3c-16.1 31.5-25.3 66.8-25.3 103s9.2 71.5 25.3 103l88.9-69z"
-            />
-            <path
-              fill="#EA4335"
-              d="M272 107.6c39.8 0 75.4 13.7 103.6 40.7l77.7-77.7C407.6 24.4 345.6 0 272 0 167.4 0 74.1 56.3 29.3 162l88.9 70.5C140 155.7 200.5 107.6 272 107.6z"
-            />
-          </svg>
-          Sign in with Google
-        </button>
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            <Box
+              sx={{
+                width: 64,
+                height: 64,
+                borderRadius: "50%",
+                background: "linear-gradient(135deg, #3dd2cc 0%, #2dbfb9 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto",
+                mb: 2,
+                boxShadow: "0 4px 16px rgba(29,72,106,0.2)",
+              }}
+            >
+              <LockOutlinedIcon sx={{ color: "white", fontSize: 32 }} />
+            </Box>
 
-        <p style={{ marginTop: "1rem" }}>
-          Don’t have an account? <a href="/pages/register" style={{ color: "#0070f3" }}>Register</a>
-        </p>
-      </div>
-    </div>
+            <Typography
+              variant="h4"
+              fontWeight={800}
+              color="primary.main"
+              sx={{ mb: 1 }}
+            >
+              Welcome Back
+            </Typography>
+
+            <Typography variant="body1" color="text.secondary">
+              Sign in to continue to your account
+            </Typography>
+          </Box>
+
+          {error && (
+            <Alert
+              severity="error"
+              sx={{ mb: 3, borderRadius: 2 }}
+              onClose={() => setError("")}
+            >
+              {error}
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit}>
+            <Stack spacing={3}>
+              <TextField
+                fullWidth
+                label="Email Address"
+                type="email"
+                value={email}
+                onChange={handleChange(setEmail)}
+                required
+                autoComplete="email"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#fafaf9",
+                  }
+                }}
+              />
+
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                value={password}
+                onChange={handleChange(setPassword)}
+                required
+                autoComplete="current-password"
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    backgroundColor: "#fafaf9",
+                  }
+                }}
+              />
+
+              <Button
+                type="submit"
+                variant="contained"
+                size="large"
+                fullWidth
+                disabled={loading}
+                sx={{
+                  py: 1.5,
+                  fontSize: "1rem",
+                  fontWeight: 700,
+                  textTransform: "none",
+                  background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
+                  "&:hover": {
+                    background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 6px 20px rgba(61,210,204,0.4)",
+                  },
+                  transition: "all 0.3s ease",
+                  "&:disabled": {
+                    background: "#9ca3af",
+                    color: "white",
+                  }
+                }}
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </Button>
+            </Stack>
+          </Box>
+
+          <Divider sx={{ my: 3 }}>
+            <Typography variant="body2" color="text.secondary" fontWeight={600}>
+              OR
+            </Typography>
+          </Divider>
+
+          <Button
+            variant="outlined"
+            size="large"
+            fullWidth
+            onClick={handleGoogleSignIn}
+            disabled={googleLoading}
+            startIcon={<GoogleIcon />}
+            sx={{
+              py: 1.5,
+              fontSize: "1rem",
+              fontWeight: 600,
+              textTransform: "none",
+              borderColor: "#e0e0e0",
+              color: "#555",
+              backgroundColor: "white",
+              borderWidth: 2,
+              "&:hover": {
+                borderColor: "#1d486a",
+                backgroundColor: "#fafaf9",
+                borderWidth: 2,
+              },
+              "&:disabled": {
+                borderColor: "#e0e0e0",
+                color: "#9ca3af",
+              }
+            }}
+          >
+            {googleLoading ? "Connecting..." : "Continue with Google"}
+          </Button>
+
+          <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Typography variant="body2" color="text.secondary">
+              Don't have an account?{" "}
+              <MuiLink
+                component={Link}
+                href="/pages/register"
+                sx={{
+                  color: "primary.main",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration: "underline",
+                  }
+                }}
+              >
+                Create Account
+              </MuiLink>
+            </Typography>
+          </Box>
+        </Card>
+      </Container>
+    </Box>
   );
 }

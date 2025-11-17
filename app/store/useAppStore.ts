@@ -1,11 +1,12 @@
+"use client";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, PersistOptions } from "zustand/middleware";
 import { IProject, ITask, IUserSafe } from "../models/types";
 
 interface AppState {
-  user: IUserSafe | null; // frontend safe user
+  user: IUserSafe | null;
   projectId: string | null;
-  projectUsers: IUserSafe[]; // must include _id
+  projectUsers: IUserSafe[];
   projectTasks: ITask[];
   tasks: ITask[];
   projects: IProject[];
@@ -19,6 +20,8 @@ interface AppState {
   logout: () => void;
 }
 
+type MyPersist = PersistOptions<AppState, AppState>;
+
 const useAppStore = create(
   persist<AppState>(
     (set) => ({
@@ -29,26 +32,44 @@ const useAppStore = create(
       tasks: [],//all tasks
       projects: [],//all projects
 
-      setUser: (user) => set({ user }),
-      setProjectId: (projectId) => set({ projectId }),
-      setProjectUsers: (projectUsers) => set({ projectUsers }),
-      setProjectTasks: (projectTasks) => set({ projectTasks }),
-      setTasks: (tasks) => set({ tasks }),
-      setProjects: (projects) => set({ projects }),
-      logout: () => {
-        set({
-          user: null,
-          projectId: null,
-          projectUsers: [],
-          projectTasks: [],
-          tasks: [],
-        }),
-          localStorage.removeItem("task-manager-storage");
-      },
+      setUser: (user) =>
+        set((state) => ({ ...state, user })),
+
+      setProjectId: (projectId) =>
+        set((state) => ({ ...state, projectId })),
+
+      setProjectUsers: (projectUsers) =>
+        set((state) => ({ ...state, projectUsers })),
+
+      setProjectTasks: (projectTasks) =>
+        set((state) => ({ ...state, projectTasks })),
+
+      setTasks: (tasks) =>
+        set((state) => ({ ...state, tasks })),
+
+      setProjects: (projects) =>
+        set((state) => ({ ...state, projects })),
+
+      logout: () => set({
+        user: null,
+        projectId: null,
+        projectUsers: [],
+        projectTasks: [],
+        tasks: [],
+        projects: [],
+      }),
     }),
     {
-      name: "task-manager-storage", // key for localStorage
-    }
+      name: "task-manager-storage",
+      partialize: (state) => ({
+        user: state.user,
+        projectId: state.projectId,
+        projectUsers: state.projectUsers,
+        projectTasks: state.projectTasks,
+        tasks: state.tasks,
+        projects: state.projects,
+      }),
+    } as MyPersist
   )
 );
 
