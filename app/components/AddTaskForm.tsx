@@ -13,7 +13,7 @@ export interface TaskFormData {
 interface TaskFormProps {
   task: TaskFormData;
   setTask: (t: TaskFormData) => void;
-  onSubmit: () => void; // callback when user clicks Add Task
+  onSubmit: () => void; 
 }
 
 export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
