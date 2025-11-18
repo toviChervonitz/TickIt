@@ -114,9 +114,9 @@ export async function UpdateTask(taskId: string, updates: any) {
   const res = await fetch(`/api/task/editTask/${taskId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updates), // only content, userId, dueDate, projectId
+    body: JSON.stringify(updates),
   });
- 
+
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Failed to update task");
 
