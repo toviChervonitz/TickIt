@@ -14,6 +14,7 @@ export async function CreateProject(form: any, userId: string) {
   if (!token) {
     throw new Error("Missing authentication token. Please log in again.");
   }
+
   const bodyData = { ...form, userId };
 
   const res = await fetch("/api/project/createProject", {
