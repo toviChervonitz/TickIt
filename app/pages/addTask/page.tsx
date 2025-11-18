@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import { CreateTask } from "@/app/lib/server/taskServer";
 import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
 import useAppStore from "@/app/store/useAppStore";
-import "./addTask.css";
 
 export default function AddTaskPage({ onClose }: { onClose?: () => void }) {
   const router = useRouter();
-  const { projectId, user,setTasks, tasks } = useAppStore(); // <-- get projectId from Zustand
+  const { projectId, user, setTasks, tasks } = useAppStore(); // <-- get projectId from Zustand
   const [task, setTask] = useState<TaskFormData>({
     title: "",
     content: "",
@@ -30,12 +29,16 @@ export default function AddTaskPage({ onClose }: { onClose?: () => void }) {
     }
 
     try {
-      await CreateTask({ ...task, projectId, managerId: user?._id }); // <-- use Zustand projectId
-      alert("Task added successfully!");
-      setTasks([...tasks, task]);
+      const createdTask = await CreateTask({
+        ...task,
+        projectId,
+        managerId: user?._id,
+      });
+
+      setTasks([...tasks, createdTask]);
       if (onClose) {
         onClose();
-       
+
       }
       router.push("/pages/projectTask");
     } catch (err: any) {

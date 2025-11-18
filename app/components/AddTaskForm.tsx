@@ -8,7 +8,7 @@ export interface TaskFormData {
   content: string;
   userId: string;
   dueDate: string;
-  // status: "todo" | "doing" | "done";
+  status: "todo" | "doing" | "done";
 }
 
 interface TaskFormProps {

@@ -1,7 +1,6 @@
 import { getAuthToken } from "../jwt";
 
 export async function AddUserToProject(
-  userId: string,
   projectId: string,
   email: string
 ) {
@@ -16,7 +15,7 @@ export async function AddUserToProject(
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ userId, projectId, email, role: "viewer" }),
+    body: JSON.stringify({ projectId, email, role: "viewer" }),
   });
 
   const data = await res.json();
