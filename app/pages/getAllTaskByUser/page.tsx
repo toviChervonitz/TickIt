@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import "../getAllTaskByUser/getAllTaskByUser.css";
 import useAppStore from "@/app/store/useAppStore";
 import { GetTasksByUserId } from "@/app/lib/server/taskServer";
 import { ITask, IUser, IProject } from "@/app/models/types";
