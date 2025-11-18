@@ -18,11 +18,11 @@ export default function GetProjectTasks() {
   const [editingTask, setEditingTask] = useState<TaskForm | null>(null);
   const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
 
-  // Load tasks & determine manager status
+  // Load tasks & manager status
   useEffect(() => {
-    async function load() {
-      if (!projectId || !user) return;
+    if (!projectId || !user) return;
 
+    const loadTasks = async () => {
       setLoading(true);
       try {
         const role = await getUserRoleInProject(user._id, projectId);
@@ -44,9 +44,9 @@ export default function GetProjectTasks() {
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    load();
+    loadTasks();
   }, [projectId, user, tasks]);
 
   // Fetch project users
@@ -56,16 +56,17 @@ export default function GetProjectTasks() {
     const users = res.users || [];
     setLocalProjectUsers(users);
     setProjectUsers(users);
+    return users;
   };
 
   // Open edit modal
   const handleEdit = async (taskId: string) => {
-    if (!isManager) return; // only managers can edit
+    if (!isManager) return;
 
     const t = filteredTasks.find((t) => t._id?.toString() === taskId);
-    if (!t || !t._id) return;
+    if (!t || !t._id) return alert("Task ID missing locally!");
 
-    await fetchProjectUsers();
+    const users = await fetchProjectUsers();
 
     setEditingTask({
       _id: t._id.toString(),
@@ -74,7 +75,7 @@ export default function GetProjectTasks() {
       userId:
         typeof t.userId === "string"
           ? t.userId
-          : (t.userId as IUser)?._id?.toString() || (projectUsers[0]?._id || ""),
+          : (t.userId as IUser)?._id?.toString() || (users[0]?._id || ""),
       dueDate: t.dueDate
         ? new Date(t.dueDate).toISOString().split("T")[0]
         : "",
@@ -137,7 +138,7 @@ export default function GetProjectTasks() {
             dueDate={dueDate}
             userName={userName}
             projectName={projectName}
-            showButtons={isManager} // only show buttons if manager
+            showButtons={isManager}
             onEdit={handleEdit}
             onStatusChange={handleStatusChange}
           />
