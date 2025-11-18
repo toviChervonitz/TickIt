@@ -6,7 +6,6 @@ import Task from "@/app/components/Task";
 import useAppStore from "@/app/store/useAppStore";
 import { GetTasksByUserId } from "@/app/lib/server/taskServer";
 import { IProject, IUser, ITask } from "@/app/models/types";
-import Navbar from "../navbar/page";
 
 interface TaskType {
     _id: string;

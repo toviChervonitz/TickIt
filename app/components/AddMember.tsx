@@ -32,7 +32,6 @@ export default function AddUserToProjectForm({
       setError("");
 
       const addedUser = await AddUserToProject(
-        undefined,
         projectId,
         email.trim()
       );
