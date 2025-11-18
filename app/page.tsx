@@ -99,8 +99,8 @@ export default function Home() {
                     px: 4,
                     py: 1.5,
                     fontSize: "1.1rem",
-                    backgroundColor: "#3dd2cc",
-                    color: "#07121a",
+                    color: "#3dd2cc",
+                    border: "1px solid rgba(61,210,204,0.3)",
                     fontWeight: 700,
                     "&:hover": {
                       transform: "translateY(-2px)",
@@ -301,8 +301,8 @@ export default function Home() {
               px: 6,
               py: 2,
               fontSize: "1.2rem",
-              backgroundColor: "#8eeeee",
-              color: "#07121a",
+              color: "#3dd2cc",
+              border: "1px solid rgba(61,210,204,0.3)",
               fontWeight: 700,
               "&:hover": {
                 transform: "translateY(-3px)",

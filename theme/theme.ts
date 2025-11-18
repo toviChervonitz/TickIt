@@ -37,7 +37,8 @@ export const theme = createTheme({
                 root: {
                     borderRadius: 14,
                     padding: "18px",
-                    background: "linear-gradient(180deg, #ffffff 0%, #faf8f4 100%)",
+                    backgroundColor:"#FBFAF7",
+                    // background: "linear-gradient(180deg, #ffffff 0%, #faf8f4 100%)",
                     boxShadow: "0 4px 14px rgba(0,0,0,0.06)",
                     border: "1px solid rgba(0,0,0,0.04)"
                 },

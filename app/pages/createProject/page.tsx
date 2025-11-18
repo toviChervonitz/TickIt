@@ -330,7 +330,7 @@ export default function CreateProjectPage() {
                   </Paper>
                 )}
 
-                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
                   <Button
                     variant="contained"
                     size="large"
@@ -414,7 +414,7 @@ export default function CreateProjectPage() {
                   </Paper>
                 )}
 
-                <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
                   <Button
                     variant="contained"
                     size="large"
@@ -425,9 +425,9 @@ export default function CreateProjectPage() {
                       px: 4,
                       py: 1.5,
                       fontWeight: 700,
-                      background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
+                      background: "linear-gradient(to bottom, #1d486a, #163957)",
                       "&:hover": {
-                        background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
+                        background: "linear-gradient(to bottom, #163957, #122d42)",
                       },
                     }}
                   >

@@ -6,7 +6,6 @@ import { compareToken } from "@/app/lib/jwt";
 
 export async function POST(req: Request) {
     await dbConnect();
-    console.log("123456789");
     
     try {
         
