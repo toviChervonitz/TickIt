@@ -143,7 +143,6 @@ export default function GetProjectTasks() {
               projectId={projectId!}
               onUserAdded={(newUser) => {
                 setProjectUsers((prev: any) => [...prev, newUser]);
-                
               }}
               onClose={() => setShowAddUser(false)}
             />
