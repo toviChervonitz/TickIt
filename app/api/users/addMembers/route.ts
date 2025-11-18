@@ -20,7 +20,10 @@ export async function POST(req: Request) {
     const { email, projectId, role = "viewer", userId } = body;
 
     if (!projectId) {
-      return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Project ID is required" },
+        { status: 400 }
+      );
     }
 
     // Verify caller token
@@ -31,13 +34,37 @@ export async function POST(req: Request) {
     }
 
     // Check if project already has managers
-    const existingManagers = await ProjectUser.find({ projectId, role: "manager" });
+    const existingManagers = await ProjectUser.find({
+      projectId,
+      role: "manager",
+    });
 
     // If there are managers, caller must be a manager
     if (existingManagers.length > 0) {
-      const caller = await ProjectUser.findOne({ userId: payload.id, projectId });
+      const caller = await ProjectUser.findOne({
+        userId: payload.id,
+        projectId,
+      });
       if (!caller || caller.role !== "manager") {
-        return NextResponse.json({ error: "You must be a manager to add members" }, { status: 403 });
+        return NextResponse.json(
+          { error: "You must be a manager to add members" },
+          { status: 403 }
+        );
+      }
+    }
+    if (email) {
+      console.log("check if user exist in this project");
+      
+      const userInProject = await ProjectUser.findOne({ projectId}).populate("userId");
+      console.log("usr in project", userInProject);
+      
+      if (userInProject) {
+        console.log("user isssssssssss");
+        
+        return NextResponse.json(
+          { error: "UserAlreadyExists" },
+          { status: 409 }
+        );
       }
     }
 
@@ -54,14 +81,21 @@ export async function POST(req: Request) {
     } else {
       // Adding a member by email
       if (!email) {
-        return NextResponse.json({ error: "Email is required" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Email is required" },
+          { status: 400 }
+        );
       }
 
       const existingUser = await User.findOne({ email });
 
       if (existingUser) {
         // Existing user: assign to project and notify
-        await createProjectUser(existingUser._id as string, projectId, "viewer");
+        await createProjectUser(
+          existingUser._id as string,
+          projectId,
+          "viewer"
+        );
         await sendExistMail(email, assignedRole);
         user = existingUser;
       } else {
@@ -97,6 +131,10 @@ export async function POST(req: Request) {
 }
 
 // Helper to create ProjectUser
-async function createProjectUser(userId: string, projectId: string, role: "viewer" | "manager") {
+async function createProjectUser(
+  userId: string,
+  projectId: string,
+  role: "viewer" | "manager"
+) {
   await ProjectUser.create({ userId, projectId, role });
 }

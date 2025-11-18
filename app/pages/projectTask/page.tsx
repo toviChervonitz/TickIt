@@ -120,7 +120,7 @@ export default function GetProjectTasks() {
     // Navigate to add task page
 
     fetchUsersInProject();
-    setShowAddTask(true);
+    setShowAddTask(!showAddTask);
   };
   const onAddUser = () => {
     // Navigate to add user page
@@ -143,14 +143,12 @@ export default function GetProjectTasks() {
               projectId={projectId!}
               onUserAdded={(newUser) => {
                 setProjectUsers((prev: any) => [...prev, newUser]);
-                setShowAddUser(false);
+                
               }}
+              onClose={() => setShowAddUser(false)}
             />
           )}
-          {showAddTask && (
-            <AddTaskPage
-            />
-          )}
+          {showAddTask && <AddTaskPage onClose={() =>{ setShowAddTask(false); loadTasks()}} />}
         </>
       ) : (
         <p>You are a Viewer in this project.</p>

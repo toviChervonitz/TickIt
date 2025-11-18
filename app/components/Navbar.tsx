@@ -20,9 +20,7 @@ export default function Navbar() {
   const { user, logout } = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  const hiddenRoutes = ["/pages/login", "/pages/register", "/"];
+  const hiddenRoutes = ["/pages/login", "/pages/register", "/", "/pages/createProject"];
 
   if (hiddenRoutes.includes(pathname)) {
     return null;
