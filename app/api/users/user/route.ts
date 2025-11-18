@@ -2,7 +2,9 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import User from "@/app/models/UserModel";
+import bcrypt from "bcryptjs";
 import { compareToken } from "@/app/lib/jwt";
+import { hashPassword } from "@/app/lib/bcrypt";
 
 // PUT: Update all user details by email
 export async function PUT(req: Request) {
@@ -10,8 +12,8 @@ export async function PUT(req: Request) {
 
   try {
     const data = await req.json();
-    const { userId, email, ...updates } = data;
-    
+    const { userId, email, oldPassword, newPassword, ...updates } = data;
+
 
     if (!email) {
       return NextResponse.json(
@@ -26,14 +28,41 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    if (oldPassword || newPassword) {
+      if (!oldPassword || !newPassword) {
+        return NextResponse.json(
+          { status: "error", message: "Both old and new password are required" },
+          { status: 400 }
+        );
+      }
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        return NextResponse.json(
+          { status: "error", message: "User not found" },
+          { status: 404 }
+        );
+      }
+
+      const isMatch = await bcrypt.compare(oldPassword, user.password!);
+      if (!isMatch) {
+        return NextResponse.json(
+          { status: "error", message: "Current password is incorrect" },
+          { status: 400 }
+        );
+      }
+
+      const hashed = await hashPassword(newPassword);
+      updates.password = hashed;
+    }
+
     // Find user by email and update all other fields
     const updatedUser = await User.findOneAndUpdate(
       { email },
       { $set: updates },
       {
-        new: true, // Return updated document
-        runValidators: true, // Apply schema validation
-        // upsert: true, // Uncomment if you want to create if not exists
+        new: true,
+        runValidators: true,
       }
     );
 

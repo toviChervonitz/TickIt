@@ -19,7 +19,7 @@ export async function AddUserToProject(
   });
 
   const data = await res.json();
-   if (res.status === 409) {
+  if (res.status === 409) {
     throw new Error("UserAlreadyExists");
   }
   if (!res.ok) {
@@ -42,8 +42,8 @@ export async function UpdateUser(
     throw new Error("Missing authentication token. Please log in again.");
   }
 
-  console.log("userId: ",userId);
-  
+  console.log("userId: ", userId);
+
   const res = await fetch("/api/users/user", {
     // <-- use correct route
     method: "PUT",

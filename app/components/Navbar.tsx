@@ -22,7 +22,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const hiddenRoutes = ["/pages/login", "/pages/register", "/","/pages/createProject"];
+  const hiddenRoutes = ["/pages/login", "/pages/register", "/","/pages/createProject","/pages/forgotPassword"];
 
   if (hiddenRoutes.includes(pathname)) {
     return null;
