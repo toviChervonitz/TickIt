@@ -84,7 +84,7 @@ export default function LoginPage() {
     <Box
       sx={{
         minHeight: "50vh",
-        background: "linear-gradient(135deg, #f0ebe3 0%, #e8e2d9 100%)",
+        backgroundColor: "#F0EBE3",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -97,7 +97,6 @@ export default function LoginPage() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: "radial-gradient(circle at 80% 20%, rgba(61,210,204,0.08) 0%, transparent 50%)",
         }
       }}
     >
@@ -107,7 +106,6 @@ export default function LoginPage() {
             p: { xs: 3, sm: 5 },
             borderRadius: 4,
             boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
-            background: "linear-gradient(180deg, #ffffff 0%, #fdfcfa 100%)",
           }}
         >
           <Box sx={{ textAlign: "center", mb: 4 }}>
