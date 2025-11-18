@@ -2,7 +2,6 @@
 
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import "../addTask/addTask.css";
 import { UpdateTask } from "@/app/lib/server/taskServer";
 import useAppStore from "@/app/store/useAppStore";
 
