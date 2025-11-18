@@ -2,7 +2,6 @@
 
 import React, { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import "../login.css";
 import { Register } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { UpdateUser } from "@/app/lib/server/userServer";
