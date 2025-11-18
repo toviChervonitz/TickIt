@@ -1,175 +1,132 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import "../getAllTaskByUser/getAllTaskByUser.css";
-import useAppStore from "@/app/store/useAppStore";
-import {
-  GetTasksByUserId,
-  GetTasksByProjectId,
-} from "@/app/lib/server/taskServer";
-import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import Task from "@/app/components/Task";
-import { IProject, ITask, IUser } from "@/app/models/types";
+import EditTask from "@/app/components/editTask";
+import useAppStore from "@/app/store/useAppStore";
+import { GetTasksByProjectId } from "@/app/lib/server/taskServer";
+import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
-import { useRouter } from "next/navigation";
-import AddMember from "@/app/components/AddMember";
-import AddTaskPage from "../addTask/page";
-
-interface ProjectType {
-  _id: string;
-  title: string;
-  content?: string;
-  status: "todo" | "doing" | "done";
-  duedate?: string;
-  userId?: { name: string };
-  projectId?: { name: string };
-}
+import { ITask, IUser } from "@/app/models/types";
 
 export default function GetProjectTasks() {
-  const { projectId, tasks, setTasks, user, setProjectUsers, setProjectTasks } =
-    useAppStore();
+  const { projectId, tasks, setTasks, user, setProjectUsers } = useAppStore();
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
-  const [showAddUser, setShowAddUser] = useState(false);
-  const [showAddTask, setShowAddTask] = useState(false);
-  const router = useRouter();
-  async function loadTasks() {
-    try {
-      if (!projectId && !user) {
-        setLoading(false);
-        return;
-      }
-      let data;
-      const userId = user?._id;
-      //check is manger
-      const role = await getUserRoleInProject(userId, projectId);
-      console.log("get to this?1", role);
-
-      if (role === "manager") {
-        setIsManager(true);
-        //get from db all tasks by projects
-        data = await GetTasksByProjectId(userId!, projectId);
-        console.log("get to this?2");
-        setProjectTasks(data);
-        setFilteredTasks(data);
-      } else {
-        //:if !tasks
-        if (!tasks || tasks.length === 0) {
-          //get all tasks by userId and put it in store
-
-          data = await GetTasksByUserId(user?._id);
-          console.log("get to this?3");
-          console.log("GetTasksByUserId", data);
-          setTasks(data);
-        }
-        //filter tasks by projectId
-        const filtered = tasks.filter(
-          (task: any) => task.projectId._id === projectId
-        );
-        console.log("get to this?4");
-        setFilteredTasks(filtered);
-      }
-    } catch (err) {
-      console.error("Error loading tasks:", err);
-      setError("Failed to load tasks");
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [editingTask, setEditingTask] = useState<ITask | null>(null);
+  const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
 
   useEffect(() => {
-    //check existing user, projectId
+    async function load() {
+      if (!projectId || !user) return;
 
-    loadTasks();
-  }, [projectId, user]);
+      try {
+        const role = await getUserRoleInProject(user._id, projectId);
+        setIsManager(role === "manager");
 
-  const handleStatusChange = (
-    id: string,
-    newStatus: "todo" | "doing" | "done"
-  ) => {
+        let data: ITask[] = [];
+        if (role === "manager") {
+          data = await GetTasksByProjectId(user._id, projectId);
+        } else {
+          data = tasks.filter(
+            (t) => (t.projectId as { _id: string })._id === projectId
+          );
+        }
+        setFilteredTasks(data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load tasks");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [projectId, user, tasks]);
+
+  const handleStatusChange = (id: string, newStatus: "todo" | "doing" | "done") => {
     const updated = tasks.map((t) =>
       t._id === id ? { ...t, status: newStatus } : t
     );
-
     setTasks(updated);
-    loadTasks();
-    // setFilteredTasks(updated);
+    setFilteredTasks(updated);
   };
 
-  const fetchUsersInProject = async () => {
-    try {
-      console.log("im in fetchUsersInProject");
+  const fetchProjectUsers = async () => {
+    if (!projectId) return;
+    const res = await getAllUsersByProjectId(projectId);
+    setLocalProjectUsers(res.users || []);
+    setProjectUsers(res.users || []);
+  };
 
-      const response = await getAllUsersByProjectId(projectId!);
-      console.log(response, "res");
+  const handleEdit = async (taskId: string) => {
+    const t = filteredTasks.find((t) => t._id === taskId);
+    if (!t) return;
+    await fetchProjectUsers();
+    setEditingTask(t);
+  };
 
-      if (response?.status !== "success") {
-        console.error("Error fetching projects:", response?.message);
-        setProjectUsers([]);
-        return;
-      }
-      setProjectUsers(response.users || []);
-    } catch (err) {
-      console.error("Error loading tasks:", err);
-      setError("Failed to load tasks");
+  const handleSaved = async () => {
+    setEditingTask(null);
+    if (user) {
+      const updatedTasks = await GetTasksByProjectId(user._id, projectId!);
+      setTasks(updatedTasks);
+      setFilteredTasks(updatedTasks);
     }
-  };
-  const onAddTask = () => {
-    // Navigate to add task page
-
-    fetchUsersInProject();
-    setShowAddTask(!showAddTask);
-  };
-  const onAddUser = () => {
-    // Navigate to add user page
-    console.log("in add user");
-    setShowAddUser(!showAddUser);
   };
 
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
-  return (
-    <div className="tasks-container">
-      <h2>Project Tasks</h2>
-      {isManager ? (
-        <>
-          <button onClick={onAddTask}>Add Tasks</button>
-          <button onClick={onAddUser}>Add User</button>
 
-          {showAddUser && (
-            <AddMember
-              projectId={projectId!}
-              onUserAdded={(newUser) => {
-                setProjectUsers((prev: any) => [...prev, newUser]);
-                
-              }}
-              onClose={() => setShowAddUser(false)}
-            />
-          )}
-          {showAddTask && <AddTaskPage onClose={() =>{ setShowAddTask(false); loadTasks()}} />}
-        </>
-      ) : (
-        <p>You are a Viewer in this project.</p>
-      )}
-      {filteredTasks.length ? (
-        filteredTasks.map((task) => (
+  return (
+    <div>
+      {filteredTasks.map((task) => {
+        const userId = (task.userId as IUser)?._id || "";
+        const userName = (task.userId as IUser)?.name || "Unknown";
+        const projectName = (task.projectId as { name: string })?.name || "No project";
+        const dueDate =
+          task.dueDate instanceof Date
+            ? task.dueDate
+            : task.dueDate
+            ? new Date(task.dueDate)
+            : undefined;
+
+        return (
           <Task
             key={task._id}
             _id={task._id!}
-            userId={(task.userId as IUser)?._id || ""}
+            userId={userId}
             title={task.title}
             content={task.content}
             status={task.status}
-            dueDate={task.dueDate ? new Date(task.dueDate) : undefined}
-            userName={(task.userId as IUser)?.name || "Unknown"}
-            projectName={(task.projectId as IProject)?.name || "No project"}
+            dueDate={dueDate}
+            userName={userName}
+            projectName={projectName}
             onStatusChange={handleStatusChange}
+            canEdit={isManager}
+            onEdit={handleEdit}
           />
-        ))
-      ) : (
-        <p>No tasks found.</p>
+        );
+      })}
+
+      {editingTask && (
+        <div className="modal">
+          <EditTask
+            task={{
+              _id: editingTask._id!,
+              title: editingTask.title,
+              content: editingTask.content || "",
+              userId: (editingTask.userId as IUser)._id!,
+              dueDate: editingTask.dueDate
+                ? new Date(editingTask.dueDate).toISOString().split("T")[0]
+                : "",
+            }}
+            projectUsers={projectUsers}
+            projectId={projectId!}
+            onSaved={handleSaved}
+          />
+        </div>
       )}
     </div>
   );
