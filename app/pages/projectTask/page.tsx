@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Task from "@/app/components/Task";
-import EditTask from "@/app/components/editTask";
+import EditTask, { TaskForm } from "@/app/components/editTask";
 import useAppStore from "@/app/store/useAppStore";
 import { GetTasksByProjectId } from "@/app/lib/server/taskServer";
 import { getUserRoleInProject } from "@/app/lib/server/projectServer";
@@ -15,13 +15,15 @@ export default function GetProjectTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
-  const [editingTask, setEditingTask] = useState<ITask | null>(null);
+  const [editingTask, setEditingTask] = useState<TaskForm | null>(null);
   const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
 
+  // Load tasks & determine manager status
   useEffect(() => {
     async function load() {
       if (!projectId || !user) return;
 
+      setLoading(true);
       try {
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
@@ -31,9 +33,10 @@ export default function GetProjectTasks() {
           data = await GetTasksByProjectId(user._id, projectId);
         } else {
           data = tasks.filter(
-            (t) => (t.projectId as { _id: string })._id === projectId
+            (t) => (t.projectId as { _id?: string })._id === projectId
           );
         }
+
         setFilteredTasks(data);
       } catch (err) {
         console.error(err);
@@ -42,38 +45,62 @@ export default function GetProjectTasks() {
         setLoading(false);
       }
     }
+
     load();
   }, [projectId, user, tasks]);
 
-  const handleStatusChange = (id: string, newStatus: "todo" | "doing" | "done") => {
-    const updated = tasks.map((t) =>
-      t._id === id ? { ...t, status: newStatus } : t
-    );
-    setTasks(updated);
-    setFilteredTasks(updated);
-  };
-
+  // Fetch project users
   const fetchProjectUsers = async () => {
     if (!projectId) return;
     const res = await getAllUsersByProjectId(projectId);
-    setLocalProjectUsers(res.users || []);
-    setProjectUsers(res.users || []);
+    const users = res.users || [];
+    setLocalProjectUsers(users);
+    setProjectUsers(users);
   };
 
+  // Open edit modal
   const handleEdit = async (taskId: string) => {
-    const t = filteredTasks.find((t) => t._id === taskId);
-    if (!t) return;
+    if (!isManager) return; // only managers can edit
+
+    const t = filteredTasks.find((t) => t._id?.toString() === taskId);
+    if (!t || !t._id) return;
+
     await fetchProjectUsers();
-    setEditingTask(t);
+
+    setEditingTask({
+      _id: t._id.toString(),
+      title: t.title,
+      content: t.content || "",
+      userId:
+        typeof t.userId === "string"
+          ? t.userId
+          : (t.userId as IUser)?._id?.toString() || (projectUsers[0]?._id || ""),
+      dueDate: t.dueDate
+        ? new Date(t.dueDate).toISOString().split("T")[0]
+        : "",
+    });
   };
 
+  // After saving, refresh tasks
   const handleSaved = async () => {
     setEditingTask(null);
-    if (user) {
-      const updatedTasks = await GetTasksByProjectId(user._id, projectId!);
-      setTasks(updatedTasks);
-      setFilteredTasks(updatedTasks);
-    }
+    if (!user || !projectId) return;
+
+    const updatedTasks = await GetTasksByProjectId(user._id, projectId);
+    setTasks(updatedTasks);
+    setFilteredTasks(updatedTasks);
+  };
+
+  // Update status locally
+  const handleStatusChange = (
+    id: string,
+    newStatus: "todo" | "doing" | "done"
+  ) => {
+    const updated = tasks.map((t) =>
+      t._id?.toString() === id ? { ...t, status: newStatus } : t
+    );
+    setTasks(updated);
+    setFilteredTasks(updated);
   };
 
   if (loading) return <p>Loading tasks...</p>;
@@ -82,9 +109,16 @@ export default function GetProjectTasks() {
   return (
     <div>
       {filteredTasks.map((task) => {
-        const userId = (task.userId as IUser)?._id || "";
-        const userName = (task.userId as IUser)?.name || "Unknown";
-        const projectName = (task.projectId as { name: string })?.name || "No project";
+        const taskId = task._id?.toString() || "";
+        const userId =
+          typeof task.userId === "string"
+            ? task.userId
+            : (task.userId as IUser)?._id?.toString() || "";
+        const userName =
+          typeof task.userId === "string"
+            ? "Unknown"
+            : (task.userId as IUser)?.name || "Unknown";
+        const projectName = (task.projectId as { name?: string })?.name || "No project";
         const dueDate =
           task.dueDate instanceof Date
             ? task.dueDate
@@ -94,8 +128,8 @@ export default function GetProjectTasks() {
 
         return (
           <Task
-            key={task._id}
-            _id={task._id!}
+            key={taskId}
+            _id={taskId}
             userId={userId}
             title={task.title}
             content={task.content}
@@ -103,30 +137,21 @@ export default function GetProjectTasks() {
             dueDate={dueDate}
             userName={userName}
             projectName={projectName}
-            onStatusChange={handleStatusChange}
-            canEdit={isManager}
+            showButtons={isManager} // only show buttons if manager
             onEdit={handleEdit}
+            onStatusChange={handleStatusChange}
           />
         );
       })}
 
       {editingTask && (
-        <div className="modal">
-          <EditTask
-            task={{
-              _id: editingTask._id!,
-              title: editingTask.title,
-              content: editingTask.content || "",
-              userId: (editingTask.userId as IUser)._id!,
-              dueDate: editingTask.dueDate
-                ? new Date(editingTask.dueDate).toISOString().split("T")[0]
-                : "",
-            }}
-            projectUsers={projectUsers}
-            projectId={projectId!}
-            onSaved={handleSaved}
-          />
-        </div>
+        <EditTask
+          task={editingTask}
+          projectUsers={projectUsers}
+          projectId={projectId!}
+          onSaved={handleSaved}
+          onCancel={() => setEditingTask(null)}
+        />
       )}
     </div>
   );

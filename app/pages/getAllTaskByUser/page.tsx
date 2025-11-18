@@ -52,19 +52,20 @@ export default function UserTasks() {
           const typedProject = task.projectId as IProject | undefined;
 
           return (
-            <Task
-              key={task._id!}
-              _id={task._id!}
-              userId={typedUser?._id || ""}
-              title={task.title}
-              content={task.content}
-              status={task.status}
-              dueDate={task.dueDate ? new Date(task.dueDate) : undefined}
-              userName={typedUser?.name || "Unknown"}
-              projectName={typedProject?.name || "No project"}
-              onStatusChange={handleStatusChange}
-              canEdit={false} // always false here
-            />
+<Task
+  key={task._id!}
+  _id={task._id!}
+  userId={typedUser?._id || ""}
+  title={task.title}
+  content={task.content}
+  status={task.status}
+  dueDate={task.dueDate ? new Date(task.dueDate) : undefined}
+  userName={typedUser?.name || "Unknown"}
+  projectName={typedProject?.name || "No project"}
+  onStatusChange={handleStatusChange}
+  showButtons={false} // never show buttons for regular users
+/>
+
           );
         })
       ) : (

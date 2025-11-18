@@ -116,7 +116,7 @@ export async function UpdateTask(taskId: string, updates: any) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(updates), // only content, userId, dueDate, projectId
   });
-
+ 
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Failed to update task");
 

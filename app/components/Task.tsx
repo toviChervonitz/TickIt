@@ -12,7 +12,7 @@ interface TaskProps {
   dueDate?: Date;
   userName: string;
   projectName: string;
-  canEdit?: boolean;
+  showButtons?: boolean; // NEW: only show edit button if true
   onEdit?: (taskId: string) => void;
   onStatusChange?: (id: string, newStatus: "todo" | "doing" | "done") => void;
 }
@@ -26,7 +26,7 @@ const Task: React.FC<TaskProps> = ({
   dueDate,
   userName,
   projectName,
-  canEdit,
+  showButtons = false,
   onEdit,
   onStatusChange,
 }) => {
@@ -64,8 +64,14 @@ const Task: React.FC<TaskProps> = ({
   };
 
   return (
-    <div className={`task-card ${status}`} style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}>
-      <div className="task-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div
+      className={`task-card ${status}`}
+      style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}
+    >
+      <div
+        className="task-header"
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+      >
         <h3>{title}</h3>
         {editingStatus ? (
           <select value={newStatus} onChange={handleSelectChange}>
@@ -92,10 +98,11 @@ const Task: React.FC<TaskProps> = ({
       {content && <p>{content}</p>}
 
       <p>
-        <strong>Due:</strong> {formattedDate} | <strong>User:</strong> {userName} | <strong>Project:</strong> {projectName}
+        <strong>Due:</strong> {formattedDate} | <strong>User:</strong> {userName} |{" "}
+        <strong>Project:</strong> {projectName}
       </p>
 
-      {canEdit && onEdit && (
+      {showButtons && onEdit && (
         <button onClick={() => onEdit(_id)} style={{ marginTop: "5px" }}>
           Edit
         </button>

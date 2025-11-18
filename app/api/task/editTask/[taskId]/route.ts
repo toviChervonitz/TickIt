@@ -3,12 +3,16 @@ import { dbConnect } from "@/app/lib/DB";
 import Task from "@/app/models/TaskModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 
-export async function PUT(req: NextRequest, { params }: { params: any }) {
+export async function PUT(req: NextRequest, context: { params: any }) {
   await dbConnect();
 
-  const { taskId } = await params; // ✅ unwrap the promise
+  // Unwrap params first
+  const params = await context.params;
+  const { taskId } = params;
 
-  if (!taskId) return NextResponse.json({ error: "Missing taskId" }, { status: 400 });
+  if (!taskId) {
+    return NextResponse.json({ error: "Missing taskId" }, { status: 400 });
+  }
 
   try {
     const body = await req.json();
@@ -18,13 +22,13 @@ export async function PUT(req: NextRequest, { params }: { params: any }) {
       return NextResponse.json({ error: "Missing userId or projectId" }, { status: 400 });
     }
 
-    const projectUser = await ProjectUser.findOne({ userId, projectId });
-    if (!projectUser || projectUser.role !== "manager") {
-      return NextResponse.json({ error: "You are not authorized to edit this task" }, { status: 403 });
-    }
-
     const task = await Task.findById(taskId);
     if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+
+    const projectUser = await ProjectUser.findOne({ userId, projectId });
+    if (!projectUser || (projectUser.role !== "manager" && task.userId.toString() !== userId)) {
+      return NextResponse.json({ error: "You are not authorized to edit this task" }, { status: 403 });
+    }
 
     if (content !== undefined) task.content = content;
     if (dueDate !== undefined) task.dueDate = new Date(dueDate);
