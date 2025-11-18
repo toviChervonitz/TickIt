@@ -56,6 +56,7 @@ export interface IUserSafe {
   _id: string;                // include _id for TS safety
   name: string;
   email: string;
+  tel?: string;
   provider: "credentials" | "google";
   image?: string;
 }

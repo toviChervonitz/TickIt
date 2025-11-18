@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import "../getAllTaskByUser/getAllTaskByUser.css";
 import useAppStore from "@/app/store/useAppStore";
 import {
   GetTasksByUserId,
@@ -26,8 +25,7 @@ interface ProjectType {
 }
 
 export default function GetProjectTasks() {
-  const { projectId, tasks, setTasks, user, setProjectUsers, setProjectTasks } =
-    useAppStore();
+  const { projectId, tasks, setTasks, user, setProjectUsers, setProjectTasks } = useAppStore();
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -142,12 +140,13 @@ export default function GetProjectTasks() {
             <AddMember
               projectId={projectId!}
               onUserAdded={(newUser) => {
-                setProjectUsers((prev: any) => [...prev, newUser]);
+                const prevUsers = useAppStore.getState().projectUsers;
+                setProjectUsers([...prevUsers, newUser]);
               }}
               onClose={() => setShowAddUser(false)}
             />
           )}
-          {showAddTask && <AddTaskPage onClose={() =>{ setShowAddTask(false); loadTasks()}} />}
+          {showAddTask && <AddTaskPage onClose={() => { setShowAddTask(false); loadTasks() }} />}
         </>
       ) : (
         <p>You are a Viewer in this project.</p>

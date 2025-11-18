@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import "../login.css";
 import { Register } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { UpdateUser } from "@/app/lib/server/userServer";
@@ -11,12 +10,22 @@ export default function RegisterPage() {
   const router = useRouter();
 
   const [name, setName] = useState("");
-//   const [email, setEmail] = useState("");
+  //   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [image, setImage] = useState<string>(""); // will hold object URL
   const [error, setError] = useState("");
-  const { user } = useAppStore(); // assuming you also store projectId
+  const { user, setUser } = useAppStore(); // assuming you also store projectId
+
+  useEffect(() => {
+    if (!user) return;
+
+    console.log(user);
+
+    setName(user.name || "");
+    setPhone(user.tel || "");
+    setImage(user.image || "");
+  }, [user]);
 
   // Handle file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,39 +37,41 @@ export default function RegisterPage() {
     setImage(url);
   };
 
-const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  // Prepare updates only for filled fields
-  const updates: Record<string, any> = {};
-  if (name) updates.name = name;
-  if (phone) updates.phone = phone;
-  if (password) updates.password = password;
-  if (image) updates.image = image;
+    // Prepare updates only for filled fields
+    const updates: Record<string, any> = {};
+    if (name) updates.name = name;
+    if (phone) updates.phone = phone;
+    if (password) updates.password = password;
+    if (image) updates.image = image;
 
-  if (Object.keys(updates).length === 0) {
-    setError("Please fill in at least one field to update.");
-    return;
-  }
+    if (Object.keys(updates).length === 0) {
+      setError("Please fill in at least one field to update.");
+      return;
+    }
 
-  setError("");
-  console.log("Updating:", updates);
+    setError("");
+    console.log("Updating:", updates);
 
-  try {
-    const result = await UpdateUser(user?._id!,user?.email || "", updates);
-    console.log("Updating success:", result);
-    router.push("/pages/dashboard");
-  } catch (err: any) {
-    console.error("Updating error:", err);
-    setError(err.message || "Updating failed");
-  }
-};
+    try {
+      console.log("user: ", user);
+
+      const result = await UpdateUser(user?._id!, user?.email || "", updates);
+      setUser(result.user);
+      router.push("/pages/dashboard");
+    } catch (err: any) {
+      console.error("Updating error:", err);
+      setError(err.message || "Updating failed");
+    }
+  };
 
 
   return (
     <div className="login-page">
       <div className="login-container">
-        
+
         <p>Please fill in the details for your account</p>
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
@@ -107,7 +118,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
             onChange={(e) => setName(e.target.value)}
             required
           />
-         
+
           <input
             type="tel"
             placeholder="Phone"
@@ -126,7 +137,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
           <button type="submit">Update</button>
         </form>
 
-      
+
       </div>
     </div>
   );

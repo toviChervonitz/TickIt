@@ -56,15 +56,15 @@ export default function RegisterPage() {
 
       if (result.status !== "success" || !result.user) {
         setError(result.message || "Registration failed");
+        setLoading(false);
         return;
       }
 
       setUser(result.user);
-      router.push("/pages/createProject");
+      router.replace("/pages/createProject");
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Registration failed");
-    } finally {
       setLoading(false);
     }
   };

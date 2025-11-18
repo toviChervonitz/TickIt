@@ -10,7 +10,8 @@ export async function PUT(req: Request) {
 
   try {
     const data = await req.json();
-    const { id, email, ...updates } = data;
+    const { userId, email, ...updates } = data;
+    
 
     if (!email) {
       return NextResponse.json(
@@ -20,7 +21,7 @@ export async function PUT(req: Request) {
     }
 
     const authHeader = req.headers.get("authorization");
-    const compareTokenResult = compareToken(id, authHeader!);
+    const compareTokenResult = compareToken(userId, authHeader!);
     if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

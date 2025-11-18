@@ -51,16 +51,16 @@ export default function LoginPage() {
 
       if (result.status === "error" || !result.user) {
         setError(result.message || "Login failed");
+        setLoading(false);
         return;
       }
       setUser(result.user);
-      router.push("/pages/getAllTaskByUser");
+      router.replace("/pages/getAllTaskByUser");
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Login failed");
-    } finally {
       setLoading(false);
-    }
+    } 
   };
 
   const handleGoogleSignIn = async () => {
