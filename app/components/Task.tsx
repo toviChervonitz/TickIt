@@ -12,6 +12,8 @@ interface TaskProps {
   dueDate?: Date;
   userName: string;
   projectName: string;
+  showButtons?: boolean; // NEW: only show edit button if true
+  onEdit?: (taskId: string) => void;
   onStatusChange?: (id: string, newStatus: "todo" | "doing" | "done") => void;
 }
 
@@ -24,10 +26,13 @@ const Task: React.FC<TaskProps> = ({
   dueDate,
   userName,
   projectName,
+  showButtons = false,
+  onEdit,
   onStatusChange,
 }) => {
-  const [editing, setEditing] = useState(false);
+  const [editingStatus, setEditingStatus] = useState(false);
   const [newStatus, setNewStatus] = useState(status);
+
   const formattedDate = dueDate
     ? new Date(dueDate).toLocaleDateString("en-GB")
     : "Not set";
@@ -40,7 +45,7 @@ const Task: React.FC<TaskProps> = ({
 
   const handleStatusClick = () => {
     if (status === "done") return;
-    setEditing(true);
+    setEditingStatus(true);
   };
 
   const handleSelectChange = async (
@@ -48,10 +53,10 @@ const Task: React.FC<TaskProps> = ({
   ) => {
     const selected = e.target.value as "todo" | "doing" | "done";
     setNewStatus(selected);
-    setEditing(false);
+    setEditingStatus(false);
 
     try {
-      await UpdateTaskStatus(_id,userId, selected);
+      await UpdateTaskStatus(_id, userId, selected);
       onStatusChange?.(_id, selected);
     } catch (err) {
       console.error("Failed to update task:", err);
@@ -59,48 +64,49 @@ const Task: React.FC<TaskProps> = ({
   };
 
   return (
-    <div className={`task-card ${status}`}>
-      <div className="task-header">
-        <h3 className="task-title">{title}</h3>
-
-        {editing ? (
-          <select
-            value={newStatus}
-            onChange={handleSelectChange}
-            className="task-select"
-          >
+    <div
+      className={`task-card ${status}`}
+      style={{ border: "1px solid #ccc", padding: "10px", marginBottom: "10px" }}
+    >
+      <div
+        className="task-header"
+        style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+      >
+        <h3>{title}</h3>
+        {editingStatus ? (
+          <select value={newStatus} onChange={handleSelectChange}>
             {getAllowedStatuses().map((s) => (
               <option key={s} value={s}>
-                {s === "todo"
-                  ? "To Do"
-                  : s === "doing"
-                    ? "In Progress"
-                    : "Completed"}
+                {s === "todo" ? "To Do" : s === "doing" ? "In Progress" : "Completed"}
               </option>
             ))}
           </select>
         ) : (
           <span
-            className={`task-status ${status}`}
-            onClick={handleStatusClick}
             style={{ cursor: status !== "done" ? "pointer" : "default" }}
+            onClick={handleStatusClick}
           >
             {status === "todo"
               ? "To Do"
               : status === "doing"
-                ? "In Progress"
-                : "Completed"}
+              ? "In Progress"
+              : "Completed"}
           </span>
         )}
       </div>
 
-      {content && <p className="task-content">{content}</p>}
+      {content && <p>{content}</p>}
 
-      <div className="task-footer">
-        <p><strong>Due Date:</strong> {formattedDate}</p>
-        <p><strong>User:</strong> {userName}</p>
-        <p><strong>Project:</strong> {projectName}</p>
-      </div>
+      <p>
+        <strong>Due:</strong> {formattedDate} | <strong>User:</strong> {userName} |{" "}
+        <strong>Project:</strong> {projectName}
+      </p>
+
+      {showButtons && onEdit && (
+        <button onClick={() => onEdit(_id)} style={{ marginTop: "5px" }}>
+          Edit
+        </button>
+      )}
     </div>
   );
 };

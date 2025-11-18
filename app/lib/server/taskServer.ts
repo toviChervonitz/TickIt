@@ -109,41 +109,19 @@ export async function GetTasksByProjectId(id:string,projectId: string | null) {
 }
 
 export async function UpdateTask(taskId: string, updates: any) {
-  // Get token and payload
-  const token = getAuthToken();
+  console.log("Updating taskId:", taskId, "with updates:", updates);
 
-  if (!token) {
-    throw new Error("Missing authentication token. Please log in again.");
-  }
-
-  // Require projectId in updates for manager verification
-  if (!updates.projectId) {
-    throw new Error("Missing projectId for permission verification.");
-  }
-
-  const role = await getUserRoleInProject(updates.userId, updates.projectId);
-  if (role !== "manager") {
-    throw new Error("You are not the manager of this project");
-  }
-
-  const res = await fetch(`/api/task/updateTask/${taskId}`, {
+  const res = await fetch(`/api/task/editTask/${taskId}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(updates),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updates), // only content, userId, dueDate, projectId
   });
-
+ 
   const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data.error || "Failed to update task.");
-  }
+  if (!res.ok) throw new Error(data.error || "Failed to update task");
 
-  return { status: res.status, ...data };
+  return data;
 }
-
-
 export async function UpdateTaskStatus(taskId: string, userId: string, newStatus: "todo" | "doing" | "done") {
 
   const token = getAuthToken();
