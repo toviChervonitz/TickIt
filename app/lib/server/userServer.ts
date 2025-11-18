@@ -20,6 +20,9 @@ export async function AddUserToProject(
   });
 
   const data = await res.json();
+   if (res.status === 409) {
+    throw new Error("UserAlreadyExists");
+  }
   if (!res.ok) {
     throw new Error(data.error || "Adding users to project failed");
   }

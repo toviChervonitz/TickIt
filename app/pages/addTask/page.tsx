@@ -7,7 +7,7 @@ import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
 import useAppStore from "@/app/store/useAppStore";
 import "./addTask.css";
 
-export default function AddTaskPage() {
+export default function AddTaskPage({ onClose }: { onClose?: () => void }) {
   const router = useRouter();
   const { projectId, user,setTasks, tasks } = useAppStore(); // <-- get projectId from Zustand
   const [task, setTask] = useState<TaskFormData>({
@@ -33,6 +33,10 @@ export default function AddTaskPage() {
       await CreateTask({ ...task, projectId, managerId: user?._id }); // <-- use Zustand projectId
       alert("Task added successfully!");
       setTasks([...tasks, task]);
+      if (onClose) {
+        onClose();
+       
+      }
       router.push("/pages/projectTask");
     } catch (err: any) {
       alert(err.message || "Failed to add task.");
