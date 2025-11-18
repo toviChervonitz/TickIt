@@ -42,6 +42,8 @@ export async function UpdateUser(
     throw new Error("Missing authentication token. Please log in again.");
   }
 
+  console.log("userId: ",userId);
+  
   const res = await fetch("/api/users/user", {
     // <-- use correct route
     method: "PUT",
