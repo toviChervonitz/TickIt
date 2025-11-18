@@ -24,7 +24,7 @@ export const registerSchema = Joi.object({
     "string.email": "Please enter a valid email address.",
   }),
 
-  tel: Joi.string().optional().min(9).max(10).allow("").messages({
+  tel: Joi.string().optional().min(9).max(20).allow("").messages({
     "string.base": "Phone number must be a text string.",
   }),
 
@@ -41,7 +41,7 @@ export const registerSchema = Joi.object({
     }),
 
   image: Joi.string().uri().optional().allow(""),
-});
+}).unknown(false);
 
 export const loginSchema = Joi.object({
     email: Joi.string().email().required().messages({

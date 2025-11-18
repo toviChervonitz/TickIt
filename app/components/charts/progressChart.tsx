@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import {  ITask } from "../models/types";
+import {  ITask } from "../../models/types";
 
 interface Props {
   tasks: ITask[];
