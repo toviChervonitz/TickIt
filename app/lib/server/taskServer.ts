@@ -144,3 +144,12 @@ export async function UpdateTaskStatus(taskId: string, userId: string, newStatus
   }
   return { status: res.status, ...data };
 }
+export async function DeleteTask(taskId: string) {
+  const res = await fetch(`/api/task/deleteTask/${taskId}`, {
+    method: "DELETE",
+  });
+
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to delete task");
+  return data;
+}

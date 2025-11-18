@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Task from "@/app/components/Task";
 import EditTask, { TaskForm } from "@/app/components/editTask";
 import useAppStore from "@/app/store/useAppStore";
-import { GetTasksByProjectId } from "@/app/lib/server/taskServer";
+import { DeleteTask, GetTasksByProjectId } from "@/app/lib/server/taskServer";
 import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import { ITask, IUser } from "@/app/models/types";
@@ -91,6 +91,29 @@ export default function GetProjectTasks() {
     setTasks(updatedTasks);
     setFilteredTasks(updatedTasks);
   };
+const handleDelete = async (taskId: string) => {
+  console.log("Delete task:", taskId);
+
+  try {
+    await DeleteTask(taskId);
+
+    // Remove task locally
+    const updatedTasks = tasks.filter(
+      (t) => t._id?.toString() !== taskId
+    );
+
+    const updatedFiltered = filteredTasks.filter(
+      (t) => t._id?.toString() !== taskId
+    );
+
+    setTasks(updatedTasks);
+    setFilteredTasks(updatedFiltered);
+
+    console.log("Task deleted successfully");
+  } catch (err) {
+    console.error("Failed to delete task:", err);
+  }
+};
 
   // Update status locally
   const handleStatusChange = (
@@ -128,20 +151,21 @@ export default function GetProjectTasks() {
             : undefined;
 
         return (
-          <Task
-            key={taskId}
-            _id={taskId}
-            userId={userId}
-            title={task.title}
-            content={task.content}
-            status={task.status}
-            dueDate={dueDate}
-            userName={userName}
-            projectName={projectName}
-            showButtons={isManager}
-            onEdit={handleEdit}
-            onStatusChange={handleStatusChange}
-          />
+<Task
+  key={taskId}
+  _id={taskId}
+  userId={userId}
+  title={task.title}
+  content={task.content}
+  status={task.status}
+  dueDate={dueDate}
+  userName={userName}
+  projectName={projectName}
+  showButtons={isManager}
+  onEdit={handleEdit}
+  onStatusChange={handleStatusChange}
+  onDelete={() => handleDelete(taskId)}   // ⭐ NEW
+/>
         );
       })}
 

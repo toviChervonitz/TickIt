@@ -12,8 +12,9 @@ interface TaskProps {
   dueDate?: Date;
   userName: string;
   projectName: string;
-  showButtons?: boolean; // NEW: only show edit button if true
+  showButtons?: boolean; 
   onEdit?: (taskId: string) => void;
+  onDelete?: (taskId: string) => void; // ⭐ NEW
   onStatusChange?: (id: string, newStatus: "todo" | "doing" | "done") => void;
 }
 
@@ -28,6 +29,7 @@ const Task: React.FC<TaskProps> = ({
   projectName,
   showButtons = false,
   onEdit,
+  onDelete,
   onStatusChange,
 }) => {
   const [editingStatus, setEditingStatus] = useState(false);
@@ -73,6 +75,7 @@ const Task: React.FC<TaskProps> = ({
         style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
       >
         <h3>{title}</h3>
+
         {editingStatus ? (
           <select value={newStatus} onChange={handleSelectChange}>
             {getAllowedStatuses().map((s) => (
@@ -102,10 +105,23 @@ const Task: React.FC<TaskProps> = ({
         <strong>Project:</strong> {projectName}
       </p>
 
-      {showButtons && onEdit && (
-        <button onClick={() => onEdit(_id)} style={{ marginTop: "5px" }}>
-          Edit
-        </button>
+      {showButtons && (
+        <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+          {onEdit && (
+            <button onClick={() => onEdit(_id)}>
+              Edit
+            </button>
+          )}
+
+          {onDelete && (
+            <button
+              onClick={() => onDelete(_id)}
+              style={{ backgroundColor: "red", color: "white" }}
+            >
+              Delete
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
