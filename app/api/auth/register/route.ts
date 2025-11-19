@@ -11,6 +11,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { error } = registerSchema.validate(body);
+
     if (error) {
       return NextResponse.json(
         { status: "error", message: error.message },
@@ -40,7 +41,7 @@ export async function POST(req: Request) {
       password: hashedPassword,
     });
 
-    const token = createToken({ id: newUser._id, email: newUser.email });
+    const token = createToken({ id: newUser._id!.toString(), email: newUser.email });
 
     const userObj = newUser.toObject();
     delete userObj.password;
@@ -55,8 +56,7 @@ export async function POST(req: Request) {
       { status: 201 }
     );
 
-    // Set cookie
-    response.cookies.set("token", token, {
+    response.cookies.set("authToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
@@ -65,6 +65,7 @@ export async function POST(req: Request) {
     });
 
     return response;
+
   } catch (err: any) {
     console.error("Register Error:", err);
     return NextResponse.json(

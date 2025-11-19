@@ -4,7 +4,8 @@ import "@/app/models/ProjectModel";
 import "@/app/models/UserModel";
 import Task from "@/app/models/TaskModel";
 import mongoose from "mongoose";
-import { compareToken } from "@/app/lib/jwt";
+import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
+import ProjectUserModel from "@/app/models/ProjectUserModel";
 
 export async function GET(req: Request) {
     await dbConnect();
@@ -23,10 +24,21 @@ export async function GET(req: Request) {
             );
         }
 
-        const authHeader = req.headers.get("authorization");
-        const compareTokenResult = compareToken(userId, authHeader!);
-        if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
+        const currentUser = await getAuthenticatedUser();
+        if (!currentUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+//לבדוק שזה טוב
+        const isMember = await ProjectUserModel.findOne({
+            userId: currentUser.id,
+            projectId
+        });
+
+        if (!isMember) {
+            return NextResponse.json(
+                { error: "Forbidden - You are not part of this project" },
+                { status: 403 }
+            );
         }
 
         const tasks = await Task.find({ projectId })

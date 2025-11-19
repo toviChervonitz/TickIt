@@ -10,60 +10,89 @@ export default function ProfilePage() {
   const router = useRouter();
 
   const [name, setName] = useState("");
-  //   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [image, setImage] = useState<string>(""); // will hold object URL
+  const [image, setImage] = useState<string>("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
-  const { user, setUser } = useAppStore(); // assuming you also store projectId
+  const [loading, setLoading] = useState(false);
+
+  const { user, setUser } = useAppStore();
 
   useEffect(() => {
     if (!user) return;
-
-    console.log(user);
 
     setName(user.name || "");
     setPhone(user.tel || "");
     setImage(user.image || "");
   }, [user]);
 
-  // Handle file selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Convert to object URL for preview
-    const url = URL.createObjectURL(file);
-    setImage(url);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!user) {
+      setError("No user in session. Please log in again.");
+      return;
+    }
 
-    // Prepare updates only for filled fields
     const updates: Record<string, any> = {};
-    if (name) updates.name = name;
-    if (phone) updates.phone = phone;
-    if (password) updates.password = password;
-    if (image) updates.image = image;
+
+    if (name && name !== user.name) updates.name = name;
+    if (phone && phone !== user.tel) {
+      updates.tel = phone;
+    }
+    if (image && image !== user.image) updates.image = image;
+
+    const anyPasswordField = currentPassword || newPassword || confirmPassword;
+
+    if (anyPasswordField) {
+      if (!currentPassword || !newPassword || !confirmPassword) {
+        setError("To change password, fill current, new and confirm password.");
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setError("New password and confirmation do not match.");
+        return;
+      }
+
+      updates.oldPassword = currentPassword;
+      updates.newPassword = newPassword;
+    }
 
     if (Object.keys(updates).length === 0) {
-      setError("Please fill in at least one field to update.");
+      setError("No changes to update.");
       return;
     }
 
     setError("");
-    console.log("Updating:", updates);
+    setLoading(true);
 
     try {
-      console.log("user: ", user);
+      const result = await UpdateUser(user._id, user.email, updates);
+      if (result.status !== "success" || !result.user) {
+        setError(result.message || "Updating failed");
+        setLoading(false);
+        return;
+      }
 
-      const result = await UpdateUser(user?._id!, user?.email || "", updates);
       setUser(result.user);
-      router.push("/pages/dashboard");
+      router.push("/pages/getAllTaskByUser");
     } catch (err: any) {
       console.error("Updating error:", err);
       setError(err.message || "Updating failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,7 +103,6 @@ export default function ProfilePage() {
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
 
-        {/* Profile picture picker */}
         <div
           style={{
             width: "100px",
@@ -102,13 +130,13 @@ export default function ProfilePage() {
         </div>
    
         <ImageUpload onUpload={setImage} />
+        
         <form className="login-form" onSubmit={handleSubmit}>
           <input
             type="text"
             placeholder="Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            required
           />
 
           <input
@@ -116,17 +144,36 @@ export default function ProfilePage() {
             placeholder="Phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
           />
 
-          <button type="submit">Update</button>
+          <hr style={{ margin: "1rem 0" }} />
+
+          <p>Change password (optional):</p>
+
+          <input
+            type="password"
+            placeholder="Current password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
+
+          <input
+            type="password"
+            placeholder="New password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
+
+          <input
+            type="password"
+            placeholder="Confirm new password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Updating..." : "Update"}
+          </button>
         </form>
       </div>
     </div>

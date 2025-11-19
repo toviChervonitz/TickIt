@@ -42,7 +42,6 @@ export async function sendExistMail(to: string, manager: string) {
   await sgMail.send(msg);
 }
 
-/** NEW: Send 6-digit password reset code */
 export async function sendResetCodeEmail(to: string, code: string) {
   try {
     const msg = {
@@ -55,6 +54,27 @@ export async function sendResetCodeEmail(to: string, code: string) {
           <p>Your password reset code is:</p>
           <p style="font-weight:bold;font-size:24px;">${code}</p>
           <p>This code will expire in 10 minutes.</p>
+        </div>
+      `,
+    };
+
+    const res = await sgMail.send(msg);
+    console.log("Email sent:", res);
+  } catch (err: any) {
+    console.error("SendGrid error:", err.response?.body || err);
+  }
+}
+export async function sendReminderEmail(to: string, title: string) {
+  try {
+    const msg = {
+      to,
+      from: process.env.FROM_EMAIL!,
+      subject: "Task Reminder",
+      html: `
+        <div style="font-family:Arial;direction:rtl;">
+          <p>Hello,</p>
+          <p>This is a reminder for your to complete your upcoming task: <strong>${title}</strong></p>
+          <p>It's due tomorrow. Please make sure to complete it on time.</p>
         </div>
       `,
     };
