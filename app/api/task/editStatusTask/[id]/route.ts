@@ -1,5 +1,5 @@
 import { dbConnect } from "@/app/lib/DB";
-import { compareToken, getTokenPayload } from "@/app/lib/jwt";
+import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import Task from "@/app/models/TaskModel";
 import { NextResponse } from "next/server";
@@ -11,41 +11,34 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
 
   try {
     const { id: taskId } = await context.params;
-    const body = await req.json();
-    const { id, status } = body;
+    const { status } = await req.json();
 
     if (!status) return NextResponse.json({ error: "Missing status field" }, { status: 400 });
+
+    const currentUser = await getAuthenticatedUser();
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const task = await Task.findById(taskId);
     if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
 
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const logId = getTokenPayload(authHeader);
-
-    const projectUser = await ProjectUser.findOne({ userId: logId.id, projectId: task.projectId });
+    const projectUser = await ProjectUser.findOne({ userId: currentUser.id, projectId: task.projectId });
     if (!projectUser) {
-      return NextResponse.json({ status: "success", message: "No role found", role: null }, { status: 200 });
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const role = projectUser.role;
-    const compareTokenResult = compareToken(id, authHeader);
+    const isOwner = task.userId.toString() === currentUser.id;
 
-    if (!authHeader.startsWith("Bearer ") || !compareTokenResult) {
-      // Only allow managers
-      if (role !== "manager") {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
+    if (!isOwner && role !== "manager") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // ✅ At this point:
-    // Managers can do anything
-    // Viewers will be allowed to update status (completedDate)
+
     if (status.toLowerCase() === "done") {
       task.completedDate = new Date();
     } else if (role === "manager") {
-      // Only managers can clear completedDate if they want
       task.completedDate = undefined;
     }
 

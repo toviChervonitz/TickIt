@@ -1,5 +1,5 @@
+import { getAuthenticatedUser } from "../jwt";
 import { taskSchema } from "../validation";
-import { getTokenPayload, getAuthToken } from "../jwt";
 import { getUserRoleInProject } from "./projectServer";
 
 export async function CreateTask(form: any) {
@@ -9,17 +9,8 @@ export async function CreateTask(form: any) {
     throw new Error(error.message);
   }
 
-  // Get payload from token
-  const token = getAuthToken();
-
-  if (!token) {
-    throw new Error("Missing authentication token. Please log in again.");
-  }
-
-  console.log(form + " form ... CreateTask");
   const role = await getUserRoleInProject(form.managerId, form.projectId);
-  console.log("role "+role);
-  
+
   if (role !== "manager") {
     throw new Error("You are not the manager of this project");
   }
@@ -29,7 +20,6 @@ export async function CreateTask(form: any) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(form),
   });
@@ -47,17 +37,11 @@ export async function CreateTask(form: any) {
 
 export async function GetTasksByUserId(userId: string | undefined) {
   try {
-    const token = getAuthToken();
-
-    if (!token) {
-      throw new Error("Missing authentication token. Please log in again.");
-    }
 
     const res = await fetch(`/api/task/tasks?userId=${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       cache: "no-store",
     });
@@ -75,22 +59,16 @@ export async function GetTasksByUserId(userId: string | undefined) {
   }
 }
 
-export async function GetTasksByProjectId(id:string,projectId: string | null) {
+export async function GetTasksByProjectId(id: string, projectId: string | null) {
   if (!projectId) {
     throw new Error("Missing projectdId.");
   }
   try {
-    const token = getAuthToken();
-
-    if (!token) {
-      throw new Error("Missing authentication token. Please log in again.");
-    }
 
     const res = await fetch(`/api/task/projectTasks?projectId=${projectId}&&userId=${id}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       cache: "no-store",
     });
@@ -109,7 +87,6 @@ export async function GetTasksByProjectId(id:string,projectId: string | null) {
 }
 
 export async function UpdateTask(taskId: string, updates: any) {
-  console.log("Updating taskId:", taskId, "with updates:", updates);
 
   const res = await fetch(`/api/task/editTask/${taskId}`, {
     method: "PUT",
@@ -122,21 +99,17 @@ export async function UpdateTask(taskId: string, updates: any) {
 
   return data;
 }
+
+
 export async function UpdateTaskStatus(taskId: string, userId: string, newStatus: "todo" | "doing" | "done") {
 
-  const token = getAuthToken();
-
-  if (!token) {
-    throw new Error("Missing authentication token. Please log in again.");
-  }
 
   const res = await fetch(`/api/task/editStatusTask/${taskId}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ status: newStatus , id: userId }),
+    body: JSON.stringify({ status: newStatus, id: userId }),
   });
   const data = await res.json();
   if (!res.ok) {

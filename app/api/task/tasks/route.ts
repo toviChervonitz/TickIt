@@ -4,7 +4,7 @@ import "@/app/models/ProjectModel";
 import "@/app/models/UserModel";
 import Task from "@/app/models/TaskModel";
 import mongoose from "mongoose";
-import { compareToken } from "@/app/lib/jwt";
+import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
 
 export async function GET(req: Request) {
     await dbConnect();
@@ -21,11 +21,12 @@ export async function GET(req: Request) {
             );
         }
 
-        const authHeader = req.headers.get("authorization");
-        const compareTokenResult = compareToken(userId, authHeader!);
-        if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        const isSameUser = await compareToken(userId);
+
+        if (!isSameUser) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }
+        
 
         const tasks = await Task.find({ userId })
             .populate("userId", "name")

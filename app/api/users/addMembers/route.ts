@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import User from "@/app/models/UserModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { hashPassword } from "@/app/lib/bcrypt";
-import { getTokenPayload } from "@/app/lib/jwt";
+import { getAuthenticatedUser, verifyToken } from "@/app/lib/jwt";
 
 interface AddMemberBody {
   email?: string;
@@ -22,13 +22,12 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
     }
 
-    const authHeader = req.headers.get("authorization");
-    const payload = getTokenPayload(authHeader || "");
-    const callerId = payload?.id;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ") || !callerId) {
+    const currentUser = await getAuthenticatedUser();
+    if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const callerId = currentUser.id;
 
     const existingManagers = await ProjectUser.find({ projectId, role: "manager" });
     if (existingManagers.length > 0) {

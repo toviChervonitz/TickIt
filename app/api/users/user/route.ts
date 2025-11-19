@@ -3,8 +3,9 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import User from "@/app/models/UserModel";
 import bcrypt from "bcryptjs";
-import { compareToken } from "@/app/lib/jwt";
+import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
 import { hashPassword } from "@/app/lib/bcrypt";
+import { unauthorized } from "next/navigation";
 
 // PUT: Update all user details by email
 export async function PUT(req: Request) {
@@ -22,10 +23,10 @@ export async function PUT(req: Request) {
       );
     }
 
-    const authHeader = req.headers.get("authorization");
-    const compareTokenResult = compareToken(userId, authHeader!);
-    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const userComper = await compareToken(userId)
+    if (!userComper) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     if (oldPassword || newPassword) {
@@ -36,7 +37,7 @@ export async function PUT(req: Request) {
         );
       }
 
-      const user = await User.findOne({ email });
+      const user = await User.findById(userId);
       if (!user) {
         return NextResponse.json(
           { status: "error", message: "User not found" },

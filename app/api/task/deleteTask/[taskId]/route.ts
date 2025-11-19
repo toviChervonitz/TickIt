@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import Task from "@/app/models/TaskModel";
+import { getAuthenticatedUser } from "@/app/lib/jwt";
+import ProjectUser from "@/app/models/ProjectUserModel";
 
 export async function DELETE(
   req: NextRequest,
@@ -8,7 +10,6 @@ export async function DELETE(
 ) {
   await dbConnect();
 
-  // ⚡ Unwrap params
   const params = await context.params;
   const taskId = params.taskId;
 
@@ -20,11 +21,32 @@ export async function DELETE(
   }
 
   try {
+
+    const currentUser = await getAuthenticatedUser();
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const task = await Task.findById(taskId);
     if (!task) {
       return NextResponse.json(
         { error: "Task not found" },
         { status: 404 }
+      );
+    }
+
+    const projectUser = await ProjectUser.findOne({
+      projectId: task.projectId,
+      userId: currentUser.id,
+      role: "manager"
+    });
+
+    const isManager = !!projectUser;
+
+    if (!isManager) {
+      return NextResponse.json(
+        { error: "Forbidden - You cannot delete this task" },
+        { status: 403 }
       );
     }
 
