@@ -2,11 +2,11 @@
 
 import React, { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Register } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { UpdateUser } from "@/app/lib/server/userServer";
+import ImageUpload from "@/app/components/ImageUpload";
 
-export default function RegisterPage() {
+export default function ProfilePage() {
   const router = useRouter();
 
   const [name, setName] = useState("");
@@ -67,11 +67,9 @@ export default function RegisterPage() {
     }
   };
 
-
   return (
     <div className="login-page">
       <div className="login-container">
-
         <p>Please fill in the details for your account</p>
 
         {error && <p style={{ color: "red", marginBottom: "1rem" }}>{error}</p>}
@@ -102,14 +100,8 @@ export default function RegisterPage() {
             <span>+</span>
           )}
         </div>
-        <input
-          id="imageInput"
-          type="file"
-          accept="image/*"
-          style={{ display: "none" }}
-          onChange={handleImageChange}
-        />
-
+   
+        <ImageUpload onUpload={setImage} />
         <form className="login-form" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -136,8 +128,6 @@ export default function RegisterPage() {
 
           <button type="submit">Update</button>
         </form>
-
-
       </div>
     </div>
   );

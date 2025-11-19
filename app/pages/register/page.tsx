@@ -7,12 +7,26 @@ import { Register } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
 import {
-  Box, Container, Typography, TextField, Button, Card, Divider, Alert, Link as MuiLink, Stack, Avatar, IconButton
+  Box,
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Card,
+  Divider,
+  Alert,
+  Link as MuiLink,
+  Stack,
+  Avatar,
+  IconButton,
 } from "@mui/material";
 import Link from "next/link";
-import GoogleIcon from '@mui/icons-material/Google';
-import PersonAddOutlinedIcon from '@mui/icons-material/PersonAddOutlined';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import GoogleIcon from "@mui/icons-material/Google";
+import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import { UploadButton } from "@uploadthing/react";
+import { ourFileRouter } from "@/app/api/uploadthing/core";
+import ImageUpload from "@/app/components/ImageUpload";
 
 interface RegisterResponse {
   status: "success" | "error";
@@ -51,7 +65,14 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const payload = { name, email, tel: phone, password, provider: "credentials", image };
+      const payload = {
+        name,
+        email,
+        tel: phone,
+        password,
+        provider: "credentials",
+        image,
+      };
       const result: RegisterResponse = await Register(payload);
 
       if (result.status !== "success" || !result.user) {
@@ -77,7 +98,7 @@ export default function RegisterPage() {
       localStorage.setItem("googleAuthMode", "register");
       await signIn("google", {
         callbackUrl: "/pages/postGoogleRedirect",
-        state: "register"
+        state: "register",
       });
     } catch (err: any) {
       console.error(err);
@@ -89,9 +110,9 @@ export default function RegisterPage() {
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-      (e: ChangeEvent<HTMLInputElement>) => {
-        setter(e.target.value);
-      };
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+    };
 
   return (
     <Box
@@ -110,7 +131,7 @@ export default function RegisterPage() {
           left: 0,
           right: 0,
           bottom: 0,
-        }
+        },
       }}
     >
       <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
@@ -163,15 +184,10 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-          <Box sx={{ textAlign: "center", mb: 3 }}>
-            <input
-              id="imageInput"
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleImageChange}
-            />
-
+           <Box sx={{ textAlign: "center", mb: 3 }}>
+         
+            <ImageUpload onUpload={setImage}/>
+         
             <Box
               sx={{
                 position: "relative",
@@ -229,7 +245,14 @@ export default function RegisterPage() {
           </Box>
 
           <Box component="form" onSubmit={handleSubmit}>
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 2.5, mb: 3 }}>
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: 2.5,
+                mb: 3,
+              }}
+            >
               <TextField
                 fullWidth
                 label="Full Name"
@@ -241,7 +264,7 @@ export default function RegisterPage() {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#fafaf9",
-                  }
+                  },
                 }}
               />
 
@@ -256,7 +279,7 @@ export default function RegisterPage() {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#fafaf9",
-                  }
+                  },
                 }}
               />
 
@@ -271,7 +294,7 @@ export default function RegisterPage() {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#fafaf9",
-                  }
+                  },
                 }}
               />
 
@@ -286,7 +309,7 @@ export default function RegisterPage() {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#fafaf9",
-                  }
+                  },
                 }}
               />
             </Box>
@@ -313,7 +336,7 @@ export default function RegisterPage() {
                   "&:disabled": {
                     background: "#9ca3af",
                     color: "white",
-                  }
+                  },
                 }}
               >
                 {loading ? "Creating Account..." : "Create Account"}
@@ -351,7 +374,7 @@ export default function RegisterPage() {
               "&:disabled": {
                 borderColor: "#e0e0e0",
                 color: "#9ca3af",
-              }
+              },
             }}
           >
             {googleLoading ? "Connecting..." : "Sign up with Google"}
@@ -369,7 +392,7 @@ export default function RegisterPage() {
                   textDecoration: "none",
                   "&:hover": {
                     textDecoration: "underline",
-                  }
+                  },
                 }}
               >
                 Sign In
