@@ -1,29 +1,22 @@
 import { dbConnect } from "@/app/lib/DB";
-import { compareToken } from "@/app/lib/jwt";
+import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
 import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
- 
+
   await dbConnect();
 
-  const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
   try {
 
-    const authHeader = req.headers.get("authorization");
-    const compareTokenResult = compareToken(userId, authHeader!);
-    if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
+    const currentUser = await getAuthenticatedUser();
+    if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    
+    const userId = currentUser.id;
 
-    if (!userId) {
-      return NextResponse.json(
-        { status: "error", message: "userId is required" },
-        { status: 400 }
-      );
-    }
 
     const projectLinks = await ProjectUser.find({ userId }).select("projectId");
 

@@ -1,27 +1,20 @@
 
 import ProjectModel from "@/app/models/ProjectModel";
-import { getAuthToken } from "../jwt";
 import { projectSchema } from "../validation";
+import { getAuthenticatedUser } from "../jwt";
 
-export async function CreateProject(form: any, userId: string) {
+export async function CreateProject(form: any) {
   const { error } = projectSchema.validate(form);
   if (error) {
     throw new Error(error.message);
   }
 
-  const token = getAuthToken();
-
-  if (!token) {
-    throw new Error("Missing authentication token. Please log in again.");
-  }
-
-  const bodyData = { ...form, userId };
+  const bodyData = { ...form};
 
   const res = await fetch("/api/project/createProject", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(bodyData),
   });
@@ -36,17 +29,10 @@ export async function CreateProject(form: any, userId: string) {
 export async function GetAllProjectsByUserId(userId: string|null) {
   try {
 
-    const token = getAuthToken();
-
-    if (!token) {
-      throw new Error("Missing authentication token. Please log in again.");
-    }
-
     const res = await fetch(`/api/project/getAllProjects?userId=${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       cache: "no-store",
     });
@@ -65,18 +51,12 @@ export async function GetAllProjectsByUserId(userId: string|null) {
 export async function getUserRoleInProject(userId: string | undefined, projectId: string | null) {
   try {
 
-    const token = getAuthToken();
-    if (!token) {
-      throw new Error("Missing authentication token. Please log in again.");
-    }
-
     const res = await fetch(
       `/api/projectUser/getUserRoleInProject?userId=${userId}&projectId=${projectId}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         cache: "no-store",
       }

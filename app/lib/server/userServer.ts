@@ -1,25 +1,20 @@
-import { getAuthToken } from "../jwt";
+import { getAuthenticatedUser } from "../jwt";
 
 export async function AddUserToProject(
   projectId: string,
   email: string
 ) {
-  const token = getAuthToken();
-  if (!token) {
-    throw new Error("Missing authentication token. Please log in again.");
-  }
 
   const res = await fetch("/api/users/addMembers", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ projectId, email, role: "viewer" }),
   });
 
   const data = await res.json();
-   if (res.status === 409) {
+  if (res.status === 409) {
     throw new Error("UserAlreadyExists");
   }
   if (!res.ok) {
@@ -36,20 +31,12 @@ export async function UpdateUser(
 ) {
   if (!email) throw new Error("User email is required");
 
-  const token = getAuthToken();
+  console.log("userId: ", userId);
 
-  if (!token) {
-    throw new Error("Missing authentication token. Please log in again.");
-  }
-
-  console.log("userId: ",userId);
-  
   const res = await fetch("/api/users/user", {
-    // <-- use correct route
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ userId, email, ...updates }),
   });
@@ -70,16 +57,11 @@ export async function UpdateUser(
 }
 
 export async function AddManagerToProject(userId: string, projectId: string) {
-  const token = getAuthToken();
-  if (!token) {
-    throw new Error("Missing authentication token. Please log in again.");
-  }
 
   const res = await fetch("/api/users/addMembers", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({
       projectId,
@@ -99,18 +81,13 @@ export async function AddManagerToProject(userId: string, projectId: string) {
 //get all user in project
 export async function getAllUsersByProjectId(projectId: string | null) {
   try {
-    const token = getAuthToken();
 
-    if (!token) {
-      throw new Error("Missing authentication token. Please log in again.");
-    }
     const res = await fetch(
       `/api/projectUser/getAllUsers?projectId=${projectId}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         cache: "no-store",
       }

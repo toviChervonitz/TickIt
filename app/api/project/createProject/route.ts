@@ -2,17 +2,21 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import Project from "@/app/models/ProjectModel";
 import { projectSchema } from "@/app/lib/validation";
-import { compareToken } from "@/app/lib/jwt";
+import { getAuthenticatedUser } from "@/app/lib/jwt";
+import ProjectUser from "@/app/models/ProjectUserModel";
 
 export async function POST(req: Request) {
     await dbConnect();
-    
+
     try {
-        
+
         const body = await req.json();
-        const { userId } = body;
         delete body.userId;
-        console.log(body);
+
+        const currentUser = await getAuthenticatedUser();
+        if (!currentUser) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         const { error } = projectSchema.validate(body);
         if (error) {
@@ -22,20 +26,17 @@ export async function POST(req: Request) {
             );
         }
 
-        const authHeader = req.headers.get("authorization");
-        const compareTokenResult = compareToken(userId, authHeader!);
-        if (!authHeader || !authHeader.startsWith("Bearer ") || !compareTokenResult) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-
-
         const project = await Project.create({
             name: body.name,
             description: body.description,
         });
 
-        console.log("Project created with ID:", project);
+        await ProjectUser.create({
+            userId: currentUser.id,
+            projectId: project._id,
+            role: "manager",
+        });
+
         return NextResponse.json(
             {
                 status: "success",

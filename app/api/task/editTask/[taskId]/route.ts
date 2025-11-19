@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import Task from "@/app/models/TaskModel";
+import { getAuthenticatedUser } from "@/app/lib/jwt";
+import ProjectUser from "@/app/models/ProjectUserModel";
 
 export async function PUT(
   req: Request,
@@ -8,7 +10,11 @@ export async function PUT(
 ) {
   await dbConnect();
 
-  // ✅ FIX: params is a Promise in Next.js 15 — MUST await it
+  const currentUser = await getAuthenticatedUser();
+  if (!currentUser) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { taskId } = await context.params;
 
   if (!taskId) {
@@ -17,6 +23,32 @@ export async function PUT(
       { status: 400 }
     );
   }
+
+  const task = await Task.findById(taskId).select("projectId");
+
+  if (!task) {
+    return NextResponse.json(
+      { error: "Task not found" },
+      { status: 404 }
+    );
+  }
+
+  const projectId = task.projectId.toString();
+
+  const isManager = await ProjectUser.findOne({
+    userId: currentUser.id,
+    projectId,
+    role: "manager",
+  });
+
+  if (!isManager) {
+    return NextResponse.json(
+      { error: "Forbidden - Only managers can edit tasks" },
+      { status: 403 }
+    );
+  }
+
+
 
   const updates = await req.json();
 

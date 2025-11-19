@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     
     // If user exists, treat as login
     if (existingUser) {
-      const token = createToken({ id: existingUser._id, email: existingUser.email });
+      const token = createToken({ id: existingUser._id!.toString(), email: existingUser.email });
       const userObj = existingUser.toObject();
       delete userObj.password;
 
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       );
 
       // Set cookie
-      response.cookies.set("token", token, {
+      response.cookies.set("authToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       password: "",
     });
 
-    const token = createToken({ id: user._id, email: user.email });
+    const token = createToken({ id: user._id!.toString(), email: user.email });
     const userObj = user.toObject();
     delete userObj.password;
 
@@ -61,7 +61,7 @@ export async function POST(req: Request) {
     );
 
     // Set cookie
-    response.cookies.set("token", token, {
+    response.cookies.set("authToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",

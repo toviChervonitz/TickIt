@@ -49,7 +49,9 @@ export default function CreateProjectPage() {
     content: "",
     userId: "",
     dueDate: "",
+    status: "todo"
   });
+
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -60,7 +62,7 @@ export default function CreateProjectPage() {
       setLoading(true);
       setError("");
 
-      const result = await CreateProject(projectDetails, user?._id!);
+      const result = await CreateProject(projectDetails);
       if (!result?.project?._id) throw new Error("Invalid project ID");
 
       const newProjectId = result.project._id;
@@ -98,7 +100,7 @@ export default function CreateProjectPage() {
 
       const realTask = createdTask.task || createdTask;
       setTasks((prev) => [...prev, realTask]);
-      setTask({ title: "", content: "", userId: "", dueDate: "" });
+      setTask({ title: "", content: "", userId: "", dueDate: "" , status: "todo"});
     } catch (err: any) {
       setError(err.message || "Failed to create task");
     } finally {

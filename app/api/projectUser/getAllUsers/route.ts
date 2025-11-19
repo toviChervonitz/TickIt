@@ -1,12 +1,13 @@
 import { dbConnect } from "@/app/lib/DB";
+import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
-import { use } from "react";
 
 export async function GET(req: Request) {
   await dbConnect();
   try {
     const { searchParams } = new URL(req.url);
+
     const projectId = searchParams.get("projectId");
     if (!projectId) {
       return NextResponse.json(
@@ -15,18 +16,26 @@ export async function GET(req: Request) {
       );
     }
 
-    const authHeader = req.headers.get("authorization");
-    // const compareTokenResult = compareToken(userId, authHeader!);
-    // console.log("compareTokenResult " + compareTokenResult);
-    if (
-      !authHeader ||
-      !authHeader.startsWith("Bearer ") 
-    //   ||      !compareTokenResult
-    ) {
+    const currentUser = await getAuthenticatedUser();
+    if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const mamageship = await ProjectUser.findOne({
+      projectId,
+      userId: currentUser.id,
+      role: "manager",
+    });
+
+    if (!mamageship) {
+      return NextResponse.json(
+        { error: "Forbidden - Only managers can view this list" },
+        { status: 403 }
+      );
+    }
+
     const res = await ProjectUser.find({ projectId }).
-    populate("userId", "name email");
+      populate("userId", "name email");
     if (!res) {
       return NextResponse.json(
         { status: "success", message: "No users found", users: [] },
