@@ -24,7 +24,7 @@ export const authOptions: NextAuthOptions = {
         const existingUser = await User.findOne({ email: user.email });
 
         if (existingUser) {
-          (user as any).customToken = createToken({ id: existingUser._id, email: existingUser.email });
+          (user as any).customToken = createToken({ id: existingUser._id!.toString(), email: existingUser.email });
           (user as any).isNewUser = false;
         } else {
           // Do NOT create user here; handled client-side in register flow

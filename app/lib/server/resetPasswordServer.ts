@@ -1,5 +1,6 @@
 // lib/resetServer.ts
 export async function sendResetCode(email: string) {
+  
   if (!email) throw new Error("Email is required");
 
   const res = await fetch("/api/auth/reset/sendCode", {

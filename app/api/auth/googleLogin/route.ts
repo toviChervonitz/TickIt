@@ -26,7 +26,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const token = createToken({ id: user._id, email: user.email });
+    const token = createToken({ id: user._id!.toString(), email: user.email });
     const userObj = user.toObject();
     delete userObj.password;
 
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
     );
 
     // Set cookie
-    response.cookies.set("token", token, {
+    response.cookies.set("authToken", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
