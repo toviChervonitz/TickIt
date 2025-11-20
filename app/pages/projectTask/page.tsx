@@ -25,6 +25,7 @@ import {
 } from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { useRouter } from "next/navigation";
@@ -84,8 +85,9 @@ export default function GetProjectTasks() {
     };
 
     loadProjectData();
-  }, [projectId, user, tasks]);
+  }, [projectId, user]);
 
+  // Fetch project users
   const fetchProjectUsers = async () => {
     if (!projectId) return [];
     const res = await getAllUsersByProjectId(projectId);
@@ -177,16 +179,37 @@ export default function GetProjectTasks() {
     { title: "Completed", tasks: doneTasks, color: "#3dd2cc", bgColor: "rgba(61,210,204,0.08)" },
   ];
 
-  if (loading) return <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}><Typography>Loading tasks...</Typography></Box>;
-  if (error) return <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}><Typography color="error">{error}</Typography></Box>;
+  if (error) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <Typography variant="h6" color="error">{error}</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 4 }}>
       <Container maxWidth="xl">
         <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Box>
-            <Typography variant="h4" fontWeight={800} color="primary.main" mb={1}>Project Tasks</Typography>
-            <Typography variant="body1" color="text.secondary">Manage and track tasks for this project</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton
+              onClick={goBack}
+              sx={{
+                color: "primary.main",
+                "&:hover": { backgroundColor: "rgba(29,72,106,0.1)" }
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+
+            <Box>
+              <Typography variant="h4" fontWeight={800} color="primary.main">
+                Project Tasks
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Manage and track tasks for this project
+              </Typography>
+            </Box>
           </Box>
           {isManager && (
             <Stack direction="row" spacing={2}>
@@ -215,49 +238,126 @@ export default function GetProjectTasks() {
         </Box>
 
         <Grid container spacing={3}>
+
           {columns.map((column) => (
             <Grid item xs={12} md={4} key={column.title}>
-              <Paper sx={{ backgroundColor: column.bgColor, borderRadius: 3, p: 2, minHeight: "70vh", border: "1px solid #e8eaed" }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  backgroundColor: column.bgColor,
+                  borderRadius: 3,
+                  p: 2,
+                  minHeight: "70vh",
+                  border: "1px solid #e8eaed",
+                }}
+              >
+
+                {/* Column Header */}
                 <Box sx={{ mb: 3, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <CircleIcon sx={{ fontSize: 12, color: column.color }} />
                     <Typography variant="h6" fontWeight={700}>{column.title}</Typography>
                   </Box>
-                  <Chip label={column.tasks.length} size="small" sx={{ backgroundColor: column.color, color: "white", fontWeight: 600 }} />
-                </Box>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {column.tasks.length > 0 ? column.tasks.map((task) => {
-                    const taskId = task._id?.toString() || "";
-                    const userId = typeof task.userId === "string" ? task.userId : (task.userId as IUser)?._id?.toString() || "";
-                    const userName = typeof task.userId === "string" ? "Unknown" : (task.userId as IUser)?.name || "Unknown";
-                    const projectName = (task.projectId as { name?: string })?.name || "No project";
-                    const dueDate = task.dueDate ? new Date(task.dueDate) : undefined;
 
-                    return <Task
-                      key={taskId}
-                      _id={taskId}
-                      userId={userId}
-                      title={task.title}
-                      content={task.content}
-                      status={task.status}
-                      dueDate={dueDate}
-                      userName={userName}
-                      projectName={projectName}
-                      showButtons={isManager}
-                      onEdit={handleEdit}
-                      onDelete={() => handleDelete(taskId)}
-                      onStatusChange={handleStatusChange}
-                    />;
-                  }) : (
-                    <Paper elevation={0} sx={{ p: 3, textAlign: "center", backgroundColor: "white", borderRadius: 2, border: "1px dashed #e0e0e0" }}>
-                      <Typography variant="body2" color="text.secondary">No tasks in this stage</Typography>
-                    </Paper>
-                  )}
+                  <Chip
+                    label={loading ? "…" : column.tasks.length}
+                    size="small"
+                    sx={{
+                      backgroundColor: column.color,
+                      color: "white",
+                      fontWeight: 600,
+                    }}
+                  />
                 </Box>
+
+                {/* Tasks OR Loading */}
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+
+                  {loading ? (
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        backgroundColor: "white",
+                        border: "1px dashed #d0d0d0"
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ opacity: 0.6 }}
+                      >
+                        Loading task…
+                      </Typography>
+                    </Paper>
+
+                  ) : (
+                    // 🔵 מצב רגיל – מציג משימות
+                    column.tasks.length > 0 ? (
+                      column.tasks.map((task) => {
+                        const taskId = task._id?.toString() || "";
+                        const userId =
+                          typeof task.userId === "string"
+                            ? task.userId
+                            : (task.userId as IUser)?._id?.toString() || "";
+                        const userName =
+                          typeof task.userId === "string"
+                            ? "Unknown"
+                            : (task.userId as IUser)?.name || "Unknown";
+                        const projectName = (task.projectId as { name?: string })?.name || "No project";
+                        const dueDate =
+                          task.dueDate instanceof Date
+                            ? task.dueDate
+                            : task.dueDate
+                              ? new Date(task.dueDate)
+                              : undefined;
+
+                        return (
+                          <Task
+                            key={taskId}
+                            _id={taskId}
+                            userId={userId}
+                            title={task.title}
+                            content={task.content}
+                            status={task.status}
+                            dueDate={dueDate}
+                            userName={userName}
+                            projectName={projectName}
+                            showButtons={isManager}
+                            onEdit={handleEdit}
+                            onDelete={() => handleDelete(taskId)}
+                            onStatusChange={handleStatusChange}
+                          />
+                        );
+                      })
+                    ) : (
+                      // אין משימות
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          p: 3,
+                          textAlign: "center",
+                          backgroundColor: "white",
+                          borderRadius: 2,
+                          border: "1px dashed #e0e0e0",
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          No tasks in this stage
+                        </Typography>
+                      </Paper>
+                    )
+                  )}
+
+                </Box>
+
               </Paper>
             </Grid>
           ))}
+
         </Grid>
+
       </Container>
 
       {/* Add Task Dialog */}
