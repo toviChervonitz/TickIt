@@ -4,6 +4,7 @@ import React, { useState, FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useAppStore from "@/app/store/useAppStore";
 import { UpdateUser } from "@/app/lib/server/userServer";
+import ImageUpload from "@/app/components/ImageUpload";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -127,15 +128,9 @@ export default function ProfilePage() {
             <span>+</span>
           )}
         </div>
-
-        <input
-          id="imageInput"
-          type="file"
-          accept="image/*"
-          style={{ display: "none" }}
-          onChange={handleImageChange}
-        />
-
+   
+        <ImageUpload onUpload={setImage} />
+        
         <form className="login-form" onSubmit={handleSubmit}>
           <input
             type="text"

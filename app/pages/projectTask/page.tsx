@@ -243,12 +243,15 @@ import {
   Stack,
 } from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
+import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import CloseIcon from "@mui/icons-material/Close";
+import ConfirmDelete from "@/app/components/DeletePopup";
+import { useRouter } from "next/navigation";
 
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers } = useAppStore();
+
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -258,7 +261,15 @@ export default function GetProjectTasks() {
   const [showAddUser, setShowAddUser] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
 
-  // Load tasks & manager status
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmDeleteTitle, setConfirmDeleteTitle] = useState<string>("");
+const router = useRouter();
+
+const goBack = () => {
+  router.push("/pages/getAllProjects"); 
+};
+
+  // Load tasks & manager role
   useEffect(() => {
     if (!projectId || !user) return;
 
@@ -273,7 +284,7 @@ export default function GetProjectTasks() {
           data = await GetTasksByProjectId(user._id, projectId);
         } else {
           data = tasks.filter(
-            (t) => (t.projectId as { _id?: string })._id === projectId
+            (t) => (t.projectId as { _id?: string })?._id === projectId
           );
         }
 
@@ -299,12 +310,12 @@ export default function GetProjectTasks() {
     return users;
   };
 
-  // Handle edit modal
+  // Open edit dialog
   const handleEdit = async (taskId: string) => {
     if (!isManager) return;
 
     const t = filteredTasks.find((t) => t._id?.toString() === taskId);
-    if (!t || !t._id) return alert("Task ID missing locally!");
+    if (!t?._id) return alert("Task not found");
 
     const users = await fetchProjectUsers();
 
@@ -315,43 +326,34 @@ export default function GetProjectTasks() {
       userId:
         typeof t.userId === "string"
           ? t.userId
-          : (t.userId as IUser)?._id?.toString() || (users[0]?._id || ""),
+          : (t.userId as IUser)?._id?.toString() || users[0]?._id || "",
       dueDate: t.dueDate
         ? new Date(t.dueDate).toISOString().split("T")[0]
         : "",
     });
   };
 
-  // Handle delete
+  // Delete logic
   const handleDelete = async (taskId: string) => {
-    console.log("Delete task:", taskId);
     try {
       await DeleteTask(taskId);
 
-      const updatedTasks = tasks.filter((t) => t._id?.toString() !== taskId);
-      const updatedFiltered = filteredTasks.filter(
-        (t) => t._id?.toString() !== taskId
-      );
-
-      setTasks(updatedTasks);
-      setFilteredTasks(updatedFiltered);
-      console.log("Task deleted successfully");
+      setTasks(tasks.filter((t) => t._id?.toString() !== taskId));
+      setFilteredTasks(filteredTasks.filter((t) => t._id?.toString() !== taskId));
     } catch (err) {
-      console.error("Failed to delete task:", err);
+      console.error("Delete failed:", err);
     }
   };
 
-  // After saving
   const handleSaved = async () => {
     setEditingTask(null);
     if (!user || !projectId) return;
 
-    const updatedTasks = await GetTasksByProjectId(user._id, projectId);
-    setTasks(updatedTasks);
-    setFilteredTasks(updatedTasks);
+    const updated = await GetTasksByProjectId(user._id, projectId);
+    setTasks(updated);
+    setFilteredTasks(updated);
   };
 
-  // Update status locally
   const handleStatusChange = (
     id: string,
     newStatus: "todo" | "doing" | "done"
@@ -363,7 +365,6 @@ export default function GetProjectTasks() {
     setFilteredTasks(updated);
   };
 
-  // Add Task / Add User buttons
   const onAddTask = () => setShowAddTask(true);
   const onAddUser = () => setShowAddUser(true);
 

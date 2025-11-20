@@ -65,7 +65,12 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      authorization: { params: { scope: "openid email profile" } },
+      authorization: {
+        params: {
+          scope:
+            "openid email profile https://www.googleapis.com/auth/calendar",
+        },
+      },
     }),
   ],
 
@@ -84,7 +89,10 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      // session.user יכיל name, email, image מגוגל
+      (session as any).token = (token as any).customToken;
+      (session as any).isNewUser = (token as any).isNewUser || false;
+      (session as any).accessToken = (token as any).accessToken;
+
       return session;
     },
   },
