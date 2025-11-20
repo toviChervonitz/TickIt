@@ -34,6 +34,7 @@ export default function Home() {
   ];
 
   return (
+    
     <Box sx={{ overflow: "hidden" }}>
       <Box
         sx={{
@@ -54,6 +55,7 @@ export default function Home() {
         <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 }, position: "relative", zIndex: 1 }}>
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
+              
               <Chip
                 label="✨ Leading Task Management Platform"
                 sx={{
@@ -212,7 +214,7 @@ export default function Home() {
               Why Choose Us?
             </Typography>
             <Typography variant="h6" color="text.secondary" mb={4} lineHeight={1.8}>
-              Our system offers excellent user experience, high performance, and full support for all your organization's management needs.
+              Our system offers excellent user experience, high performance, and full support for all your organization&lsquo;s management needs.
             </Typography>
 
             <Stack spacing={2.5}>
