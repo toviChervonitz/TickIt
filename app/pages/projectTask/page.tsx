@@ -26,6 +26,7 @@ import {
 } from "@mui/material";
 import CircleIcon from "@mui/icons-material/Circle";
 import CloseIcon from "@mui/icons-material/Close";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import ConfirmDelete from "@/app/components/DeletePopup";
@@ -45,79 +46,49 @@ export default function GetProjectTasks() {
 
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [confirmDeleteTitle, setConfirmDeleteTitle] = useState<string>("");
-const router = useRouter();
+  const router = useRouter();
 
-const goBack = () => {
-  router.push("/pages/getAllProjects"); 
-};
-
-  // Load tasks & manager role
-  // useEffect(() => {
-  //   if (!projectId || !user) return;
-
-  //   const loadTasks = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const role = await getUserRoleInProject(user._id, projectId);
-  //       setIsManager(role === "manager");
-
-  //       let data: ITask[] = [];
-  //       if (role === "manager") {
-  //         data = await GetTasksByProjectId(user._id, projectId);
-  //       } else {
-  //         data = tasks.filter(
-  //           (t) => (t.projectId as { _id?: string })?._id === projectId
-  //         );
-  //       }
-
-  //       setFilteredTasks(data);
-  //     } catch (err) {
-  //       console.error(err);
-  //       setError("Failed to load tasks");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   loadTasks();
-  // }, [projectId, user, tasks]);
-useEffect(() => {
-  if (!projectId || !user) return;
-
-  const loadProjectData = async () => {
-    setLoading(true);
-    try {
-      // 1. Get user role
-      const role = await getUserRoleInProject(user._id, projectId);
-      setIsManager(role === "manager");
-
-      // 2. Load tasks
-      let data: ITask[] = [];
-      if (role === "manager") {
-        data = await GetTasksByProjectId(user._id, projectId);
-      } else {
-        data = tasks.filter(
-          (t) => (t.projectId as { _id?: string })?._id === projectId
-        );
-      }
-      setFilteredTasks(data);
-
-      // 3. Load project users
-      const res = await getAllUsersByProjectId(projectId);
-      const users = res.users || [];
-      setLocalProjectUsers(users);
-      setProjectUsers(users);
-
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load project data");
-    } finally {
-      setLoading(false);
-    }
+  const goBack = () => {
+    router.push("/pages/getAllProjects");
   };
 
-  loadProjectData();
-}, [projectId, user, tasks]);
+  useEffect(() => {
+    if (!projectId || !user) return;
+
+    const loadProjectData = async () => {
+      setLoading(true);
+      try {
+        // 1. Get user role
+        const role = await getUserRoleInProject(user._id, projectId);
+        setIsManager(role === "manager");
+
+        // 2. Load tasks
+        let data: ITask[] = [];
+        if (role === "manager") {
+          data = await GetTasksByProjectId(user._id, projectId);
+        } else {
+          data = tasks.filter(
+            (t) => (t.projectId as { _id?: string })?._id === projectId
+          );
+        }
+        setFilteredTasks(data);
+
+        // 3. Load project users
+        const res = await getAllUsersByProjectId(projectId);
+        const users = res.users || [];
+        setLocalProjectUsers(users);
+        setProjectUsers(users);
+
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load project data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProjectData();
+  }, [projectId, user]);
 
   // Fetch project users
   const fetchProjectUsers = async () => {
@@ -197,14 +168,6 @@ useEffect(() => {
     { title: "Completed", tasks: doneTasks, color: "#3dd2cc", bgColor: "rgba(61,210,204,0.08)" },
   ];
 
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <Typography variant="h6" color="text.secondary">Loading tasks...</Typography>
-      </Box>
-    );
-  }
-
   if (error) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
@@ -218,13 +181,25 @@ useEffect(() => {
       <Container maxWidth="xl">
         {/* Header */}
         <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Box>
-            <Typography variant="h4" fontWeight={800} color="primary.main" mb={1}>
-              Project Tasks
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Manage and track tasks for this project
-            </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <IconButton
+              onClick={goBack}
+              sx={{
+                color: "primary.main",
+                "&:hover": { backgroundColor: "rgba(29,72,106,0.1)" }
+              }}
+            >
+              <ArrowBackIcon />
+            </IconButton>
+
+            <Box>
+              <Typography variant="h4" fontWeight={800} color="primary.main">
+                Project Tasks
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Manage and track tasks for this project
+              </Typography>
+            </Box>
           </Box>
 
           {/* Manager Actions */}
@@ -264,6 +239,7 @@ useEffect(() => {
 
         {/* Kanban Board */}
         <Grid container spacing={3}>
+
           {columns.map((column) => (
             <Grid item xs={12} md={4} key={column.title}>
               <Paper
@@ -276,6 +252,7 @@ useEffect(() => {
                   border: "1px solid #e8eaed",
                 }}
               >
+
                 {/* Column Header */}
                 <Box sx={{ mb: 3, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -284,8 +261,9 @@ useEffect(() => {
                       {column.title}
                     </Typography>
                   </Box>
+
                   <Chip
-                    label={column.tasks.length}
+                    label={loading ? "…" : column.tasks.length}
                     size="small"
                     sx={{
                       backgroundColor: column.color,
@@ -295,66 +273,94 @@ useEffect(() => {
                   />
                 </Box>
 
-                {/* Tasks */}
+                {/* Tasks OR Loading */}
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {column.tasks.length > 0 ? (
-                    column.tasks.map((task) => {
-                      const taskId = task._id?.toString() || "";
-                      const userId =
-                        typeof task.userId === "string"
-                          ? task.userId
-                          : (task.userId as IUser)?._id?.toString() || "";
-                      const userName =
-                        typeof task.userId === "string"
-                          ? "Unknown"
-                          : (task.userId as IUser)?.name || "Unknown";
-                      const projectName = (task.projectId as { name?: string })?.name || "No project";
-                      const dueDate =
-                        task.dueDate instanceof Date
-                          ? task.dueDate
-                          : task.dueDate
-                          ? new Date(task.dueDate)
-                          : undefined;
 
-                      return (
-                        <Task
-                          key={taskId}
-                          _id={taskId}
-                          userId={userId}
-                          title={task.title}
-                          content={task.content}
-                          status={task.status}
-                          dueDate={dueDate}
-                          userName={userName}
-                          projectName={projectName}
-                          showButtons={isManager}
-                          onEdit={handleEdit}
-                          onDelete={() => handleDelete(taskId)}
-                          onStatusChange={handleStatusChange}
-                        />
-                      );
-                    })
-                  ) : (
+                  {loading ? (
                     <Paper
                       elevation={0}
                       sx={{
-                        p: 3,
-                        textAlign: "center",
-                        backgroundColor: "white",
+                        p: 2,
                         borderRadius: 2,
-                        border: "1px dashed #e0e0e0",
+                        backgroundColor: "white",
+                        border: "1px dashed #d0d0d0"
                       }}
                     >
-                      <Typography variant="body2" color="text.secondary">
-                        No tasks in this stage
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ opacity: 0.6 }}
+                      >
+                        Loading task…
                       </Typography>
                     </Paper>
+
+                  ) : (
+                    // 🔵 מצב רגיל – מציג משימות
+                    column.tasks.length > 0 ? (
+                      column.tasks.map((task) => {
+                        const taskId = task._id?.toString() || "";
+                        const userId =
+                          typeof task.userId === "string"
+                            ? task.userId
+                            : (task.userId as IUser)?._id?.toString() || "";
+                        const userName =
+                          typeof task.userId === "string"
+                            ? "Unknown"
+                            : (task.userId as IUser)?.name || "Unknown";
+                        const projectName = (task.projectId as { name?: string })?.name || "No project";
+                        const dueDate =
+                          task.dueDate instanceof Date
+                            ? task.dueDate
+                            : task.dueDate
+                              ? new Date(task.dueDate)
+                              : undefined;
+
+                        return (
+                          <Task
+                            key={taskId}
+                            _id={taskId}
+                            userId={userId}
+                            title={task.title}
+                            content={task.content}
+                            status={task.status}
+                            dueDate={dueDate}
+                            userName={userName}
+                            projectName={projectName}
+                            showButtons={isManager}
+                            onEdit={handleEdit}
+                            onDelete={() => handleDelete(taskId)}
+                            onStatusChange={handleStatusChange}
+                          />
+                        );
+                      })
+                    ) : (
+                      // אין משימות
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          p: 3,
+                          textAlign: "center",
+                          backgroundColor: "white",
+                          borderRadius: 2,
+                          border: "1px dashed #e0e0e0",
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          No tasks in this stage
+                        </Typography>
+                      </Paper>
+                    )
                   )}
+
                 </Box>
+
               </Paper>
             </Grid>
           ))}
+
         </Grid>
+
       </Container>
 
       {/* Add Task Dialog */}
