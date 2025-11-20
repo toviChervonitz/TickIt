@@ -13,6 +13,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { useState } from "react";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import InsertChartIcon from "@mui/icons-material/InsertChart";
 
 const DRAWER_WIDTH = 260;
 
@@ -47,6 +49,9 @@ export default function Navbar() {
     { text: "Dashboard", icon: <HomeIcon />, path: "/pages/dashboard" },
     { text: "Projects", icon: <FolderIcon />, path: "/pages/getAllProjects" },
     { text: "Tasks", icon: <AssignmentIcon />, path: "/pages/getAllTaskByUser" },
+    { text: "Calendar", icon: <CalendarTodayIcon />, path: "/pages/calendar" },
+    { text: "Charts", icon: <InsertChartIcon />, path: "/pages/charts" },
+
   ];
 
   const drawerContent = (

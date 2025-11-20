@@ -1,186 +1,3 @@
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import Task from "@/app/components/Task";
-// import EditTask, { TaskForm } from "@/app/components/editTask";
-// import useAppStore from "@/app/store/useAppStore";
-// import { DeleteTask, GetTasksByProjectId } from "@/app/lib/server/taskServer";
-// import { getUserRoleInProject } from "@/app/lib/server/projectServer";
-// import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
-// import { ITask, IUser } from "@/app/models/types";
-
-// export default function GetProjectTasks() {
-//   const { projectId, tasks, setTasks, user, setProjectUsers } = useAppStore();
-//   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-//   const [isManager, setIsManager] = useState(false);
-//   const [editingTask, setEditingTask] = useState<TaskForm | null>(null);
-//   const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
-
-//   // Load tasks & manager status
-//   useEffect(() => {
-//     if (!projectId || !user) return;
-
-//     const loadTasks = async () => {
-//       setLoading(true);
-//       try {
-//         const role = await getUserRoleInProject(user._id, projectId);
-//         setIsManager(role === "manager");
-
-//         let data: ITask[] = [];
-//         if (role === "manager") {
-//           data = await GetTasksByProjectId(user._id, projectId);
-//         } else {
-//           data = tasks.filter(
-//             (t) => (t.projectId as { _id?: string })._id === projectId
-//           );
-//         }
-
-//         setFilteredTasks(data);
-//       } catch (err) {
-//         console.error(err);
-//         setError("Failed to load tasks");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     loadTasks();
-//   }, [projectId, user, tasks]);
-
-//   // Fetch project users
-//   const fetchProjectUsers = async () => {
-//     if (!projectId) return;
-//     const res = await getAllUsersByProjectId(projectId);
-//     const users = res.users || [];
-//     setLocalProjectUsers(users);
-//     setProjectUsers(users);
-//     return users;
-//   };
-
-//   // Open edit modal
-//   const handleEdit = async (taskId: string) => {
-//     if (!isManager) return;
-
-//     const t = filteredTasks.find((t) => t._id?.toString() === taskId);
-//     if (!t || !t._id) return alert("Task ID missing locally!");
-
-//     const users = await fetchProjectUsers();
-
-//     setEditingTask({
-//       _id: t._id.toString(),
-//       title: t.title,
-//       content: t.content || "",
-//       userId:
-//         typeof t.userId === "string"
-//           ? t.userId
-//           : (t.userId as IUser)?._id?.toString() || (users[0]?._id || ""),
-//       dueDate: t.dueDate
-//         ? new Date(t.dueDate).toISOString().split("T")[0]
-//         : "",
-//     });
-//   };
-
-//   // After saving, refresh tasks
-//   const handleSaved = async () => {
-//     setEditingTask(null);
-//     if (!user || !projectId) return;
-
-//     const updatedTasks = await GetTasksByProjectId(user._id, projectId);
-//     setTasks(updatedTasks);
-//     setFilteredTasks(updatedTasks);
-//   };
-// const handleDelete = async (taskId: string) => {
-//   console.log("Delete task:", taskId);
-
-//   try {
-//     await DeleteTask(taskId);
-
-//     // Remove task locally
-//     const updatedTasks = tasks.filter(
-//       (t) => t._id?.toString() !== taskId
-//     );
-
-//     const updatedFiltered = filteredTasks.filter(
-//       (t) => t._id?.toString() !== taskId
-//     );
-
-//     setTasks(updatedTasks);
-//     setFilteredTasks(updatedFiltered);
-
-//     console.log("Task deleted successfully");
-//   } catch (err) {
-//     console.error("Failed to delete task:", err);
-//   }
-// };
-
-//   // Update status locally
-//   const handleStatusChange = (
-//     id: string,
-//     newStatus: "todo" | "doing" | "done"
-//   ) => {
-//     const updated = tasks.map((t) =>
-//       t._id?.toString() === id ? { ...t, status: newStatus } : t
-//     );
-//     setTasks(updated);
-//     setFilteredTasks(updated);
-//   };
-
-//   if (loading) return <p>Loading tasks...</p>;
-//   if (error) return <p style={{ color: "red" }}>{error}</p>;
-
-//   return (
-//     <div>
-//       {filteredTasks.map((task) => {
-//         const taskId = task._id?.toString() || "";
-//         const userId =
-//           typeof task.userId === "string"
-//             ? task.userId
-//             : (task.userId as IUser)?._id?.toString() || "";
-//         const userName =
-//           typeof task.userId === "string"
-//             ? "Unknown"
-//             : (task.userId as IUser)?.name || "Unknown";
-//         const projectName = (task.projectId as { name?: string })?.name || "No project";
-//         const dueDate =
-//           task.dueDate instanceof Date
-//             ? task.dueDate
-//             : task.dueDate
-//             ? new Date(task.dueDate)
-//             : undefined;
-
-//         return (
-// <Task
-//   key={taskId}
-//   _id={taskId}
-//   userId={userId}
-//   title={task.title}
-//   content={task.content}
-//   status={task.status}
-//   dueDate={dueDate}
-//   userName={userName}
-//   projectName={projectName}
-//   showButtons={isManager}
-//   onEdit={handleEdit}
-//   onStatusChange={handleStatusChange}
-//   onDelete={() => handleDelete(taskId)}   // ⭐ NEW
-// />
-//         );
-//       })}
-
-//       {editingTask && (
-//         <EditTask
-//           task={editingTask}
-//           projectUsers={projectUsers}
-//           projectId={projectId!}
-//           onSaved={handleSaved}
-//           onCancel={() => setEditingTask(null)}
-//         />
-//       )}
-//     </div>
-//   );
-// }
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -193,9 +10,12 @@ import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
 import AddTaskPage from "../addTask/page";
 import { ITask, IUser } from "@/app/models/types";
+import ConfirmDelete from "@/app/components/DeletePopup";
+import { useRouter } from "next/navigation";
 
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers } = useAppStore();
+
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -205,7 +25,15 @@ export default function GetProjectTasks() {
   const [showAddUser, setShowAddUser] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
 
-  // Load tasks & manager status
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmDeleteTitle, setConfirmDeleteTitle] = useState<string>("");
+const router = useRouter();
+
+const goBack = () => {
+  router.push("/pages/getAllProjects"); 
+};
+
+  // Load tasks & manager role
   useEffect(() => {
     if (!projectId || !user) return;
 
@@ -220,7 +48,7 @@ export default function GetProjectTasks() {
           data = await GetTasksByProjectId(user._id, projectId);
         } else {
           data = tasks.filter(
-            (t) => (t.projectId as { _id?: string })._id === projectId
+            (t) => (t.projectId as { _id?: string })?._id === projectId
           );
         }
 
@@ -246,12 +74,12 @@ export default function GetProjectTasks() {
     return users;
   };
 
-  // Handle edit modal
+  // Open edit dialog
   const handleEdit = async (taskId: string) => {
     if (!isManager) return;
 
     const t = filteredTasks.find((t) => t._id?.toString() === taskId);
-    if (!t || !t._id) return alert("Task ID missing locally!");
+    if (!t?._id) return alert("Task not found");
 
     const users = await fetchProjectUsers();
 
@@ -262,43 +90,34 @@ export default function GetProjectTasks() {
       userId:
         typeof t.userId === "string"
           ? t.userId
-          : (t.userId as IUser)?._id?.toString() || (users[0]?._id || ""),
+          : (t.userId as IUser)?._id?.toString() || users[0]?._id || "",
       dueDate: t.dueDate
         ? new Date(t.dueDate).toISOString().split("T")[0]
         : "",
     });
   };
 
-  // Handle delete
+  // Delete logic
   const handleDelete = async (taskId: string) => {
-    console.log("Delete task:", taskId);
     try {
       await DeleteTask(taskId);
 
-      const updatedTasks = tasks.filter((t) => t._id?.toString() !== taskId);
-      const updatedFiltered = filteredTasks.filter(
-        (t) => t._id?.toString() !== taskId
-      );
-
-      setTasks(updatedTasks);
-      setFilteredTasks(updatedFiltered);
-      console.log("Task deleted successfully");
+      setTasks(tasks.filter((t) => t._id?.toString() !== taskId));
+      setFilteredTasks(filteredTasks.filter((t) => t._id?.toString() !== taskId));
     } catch (err) {
-      console.error("Failed to delete task:", err);
+      console.error("Delete failed:", err);
     }
   };
 
-  // After saving
   const handleSaved = async () => {
     setEditingTask(null);
     if (!user || !projectId) return;
 
-    const updatedTasks = await GetTasksByProjectId(user._id, projectId);
-    setTasks(updatedTasks);
-    setFilteredTasks(updatedTasks);
+    const updated = await GetTasksByProjectId(user._id, projectId);
+    setTasks(updated);
+    setFilteredTasks(updated);
   };
 
-  // Update status locally
   const handleStatusChange = (
     id: string,
     newStatus: "todo" | "doing" | "done"
@@ -310,60 +129,84 @@ export default function GetProjectTasks() {
     setFilteredTasks(updated);
   };
 
-  // Add Task / Add User buttons
-  const onAddTask = () => setShowAddTask(!showAddTask);
-  const onAddUser = () => setShowAddUser(!showAddUser);
+  const onAddTask = () => setShowAddTask(true);
+  const onAddUser = () => setShowAddUser(true);
 
   if (loading) return <p>Loading tasks...</p>;
   if (error) return <p style={{ color: "red" }}>{error}</p>;
 
   return (
     <div>
+      <button
+  onClick={goBack}
+  style={{
+    marginBottom: "15px",
+    marginRight: "10px",
+    background: "#eee",
+    padding: "6px 12px",
+    borderRadius: "6px",
+    border: "1px solid #ccc",
+    cursor: "pointer",
+  }}
+>
+  ← Back to Projects
+</button>
+
+
+      {/* ⭐ ALWAYS SHOW MANAGER BUTTONS HERE */}
       {isManager && (
         <div style={{ marginBottom: "15px" }}>
           <button onClick={onAddTask} style={{ marginRight: "10px" }}>
             Add Task
           </button>
           <button onClick={onAddUser}>Add User</button>
-
-          {showAddUser && (
-            <AddMember
-              projectId={projectId!}
-              onUserAdded={(newUser) => {
-                const prevUsers = useAppStore.getState().projectUsers;
-                setProjectUsers([...prevUsers, newUser]);
-              }}
-              onClose={() => setShowAddUser(false)}
-            />
-          )}
-          {showAddTask && (
-            <AddTaskPage
-              onClose={() => {
-                setShowAddTask(false);
-              }}
-            />
-          )}
         </div>
       )}
 
-      {filteredTasks.length ? (
+      {/* ADD USER POPUP */}
+      {showAddUser && (
+        <AddMember
+          projectId={projectId!}
+          onUserAdded={(newUser) => {
+            const prev = useAppStore.getState().projectUsers;
+            setProjectUsers([...prev, newUser]);
+          }}
+          onClose={() => setShowAddUser(false)}
+        />
+      )}
+
+      {/* ADD TASK POPUP */}
+      {showAddTask && (
+        <AddTaskPage
+          onClose={() => {
+            setShowAddTask(false);
+          }}
+        />
+      )}
+
+      {/* ⭐ TASK LIST */}
+      {filteredTasks.length > 0 ? (
         filteredTasks.map((task) => {
           const taskId = task._id?.toString() || "";
+
           const userId =
             typeof task.userId === "string"
               ? task.userId
-              : (task.userId as IUser)?._id?.toString() || "";
+              : (task.userId as IUser)?._id || "";
+
           const userName =
             typeof task.userId === "string"
               ? "Unknown"
               : (task.userId as IUser)?.name || "Unknown";
-          const projectName = (task.projectId as { name?: string })?.name || "No project";
-          const dueDate =
-            task.dueDate instanceof Date
+
+          const projectName =
+            (task.projectId as { name?: string })?.name || "No project";
+
+          const dueDate = task.dueDate
+            ? task.dueDate instanceof Date
               ? task.dueDate
-              : task.dueDate
-              ? new Date(task.dueDate)
-              : undefined;
+              : new Date(task.dueDate)
+            : undefined;
 
           return (
             <Task
@@ -378,7 +221,10 @@ export default function GetProjectTasks() {
               projectName={projectName}
               showButtons={isManager}
               onEdit={handleEdit}
-              onDelete={() => handleDelete(taskId)}
+              onDelete={() => {
+                setConfirmDeleteId(taskId);
+                setConfirmDeleteTitle(task.title);
+              }}
               onStatusChange={handleStatusChange}
             />
           );
@@ -387,6 +233,19 @@ export default function GetProjectTasks() {
         <p>No tasks found.</p>
       )}
 
+      {/* CONFIRM DELETE POPUP */}
+      {confirmDeleteId && (
+        <ConfirmDelete
+          taskTitle={confirmDeleteTitle}
+          onCancel={() => setConfirmDeleteId(null)}
+          onConfirm={() => {
+            handleDelete(confirmDeleteId);
+            setConfirmDeleteId(null);
+          }}
+        />
+      )}
+
+      {/* EDIT TASK MODAL */}
       {editingTask && (
         <EditTask
           task={editingTask}
