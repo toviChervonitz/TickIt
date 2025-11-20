@@ -261,7 +261,7 @@ export default function GetProjectTasks() {
       </Container>
 
       {/* Add Task Dialog */}
-      <Dialog open={showAddTask} onClose={() => setShowAddTask(false)} maxWidth="md" fullWidth>
+      {/* <Dialog open={showAddTask} onClose={() => setShowAddTask(false)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Typography variant="h6" fontWeight={700}>Add New Task</Typography>
           <IconButton onClick={() => setShowAddTask(false)}><CloseIcon /></IconButton>
@@ -269,7 +269,31 @@ export default function GetProjectTasks() {
         <DialogContent>
           <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} />
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+<Dialog
+  open={showAddTask}
+  onClose={() => setShowAddTask(false)}
+  maxWidth="md"
+  fullWidth
+  container={typeof document !== 'undefined' ? document.body : undefined} // ensures top-level portal
+>
+  <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Typography component="div" variant="h6" fontWeight={700}>
+      Add New Task
+    </Typography>
+    <IconButton onClick={() => setShowAddTask(false)}>
+      <CloseIcon />
+    </IconButton>
+  </DialogTitle>
+
+  <DialogContent>
+    <TaskForm
+      task={newTask}
+      setTask={setNewTask}
+      onSubmit={handleAddTaskSubmit}
+    />
+  </DialogContent>
+</Dialog>
 
       {/* Add Member Dialog */}
       <Dialog open={showAddUser} onClose={() => setShowAddUser(false)} maxWidth="sm" fullWidth>
