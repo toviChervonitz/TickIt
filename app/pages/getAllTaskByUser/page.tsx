@@ -1,79 +1,3 @@
-// "use client";
-
-// import React, { useEffect, useState } from "react";
-// import useAppStore from "@/app/store/useAppStore";
-// import { GetTasksByUserId } from "@/app/lib/server/taskServer";
-// import { ITask, IUser, IProject } from "@/app/models/types";
-// import Task from "@/app/components/Task";
-
-// export default function UserTasks() {
-//   const { user, tasks, setTasks } = useAppStore();
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-
-//   useEffect(() => {
-//     async function loadTasks() {
-//       if (!user?._id) return;
-
-//       try {
-//         const data = await GetTasksByUserId(user._id);
-//         setTasks(data);
-//       } catch (err: any) {
-//         console.error(err);
-//         setError("Failed to fetch tasks");
-//       } finally {
-//         setLoading(false);
-//       }
-//     }
-
-//     loadTasks();
-//   }, [user?._id]);
-
-//   const handleStatusChange = (
-//     id: string,
-//     newStatus: "todo" | "doing" | "done"
-//   ) => {
-//     const updated = tasks.map((t) =>
-//       t._id === id ? { ...t, status: newStatus } : t
-//     );
-//     setTasks(updated);
-//   };
-
-//   if (loading) return <p>Loading tasks...</p>;
-//   if (error) return <p style={{ color: "red" }}>{error}</p>;
-
-//   return (
-//     <div className="tasks-container">
-//       <h2>My Tasks</h2>
-
-//       {tasks.length ? (
-//         tasks.map((task) => {
-//           const typedUser = task.userId as IUser | undefined;
-//           const typedProject = task.projectId as IProject | undefined;
-
-//           return (
-// <Task
-//   key={task._id!}
-//   _id={task._id!}
-//   userId={typedUser?._id || ""}
-//   title={task.title}
-//   content={task.content}
-//   status={task.status}
-//   dueDate={task.dueDate ? new Date(task.dueDate) : undefined}
-//   userName={typedUser?.name || "Unknown"}
-//   projectName={typedProject?.name || "No project"}
-//   onStatusChange={handleStatusChange}
-//   showButtons={false} // never show buttons for regular users
-// />
-
-//           );
-//         })
-//       ) : (
-//         <p>No tasks found.</p>
-//       )}
-//     </div>
-//   );
-// }
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -127,14 +51,6 @@ export default function UserTasks() {
     { title: "Completed", tasks: doneTasks, color: "#3dd2cc", bgColor: "rgba(61,210,204,0.08)" },
   ];
 
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <Typography variant="h6" color="text.secondary">Loading tasks...</Typography>
-      </Box>
-    );
-  }
-
   if (error) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
@@ -171,7 +87,14 @@ export default function UserTasks() {
                 }}
               >
                 {/* Column Header */}
-                <Box sx={{ mb: 3, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <Box
+                  sx={{
+                    mb: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <CircleIcon sx={{ fontSize: 12, color: column.color }} />
                     <Typography variant="h6" fontWeight={700} color="text.primary">
@@ -179,7 +102,7 @@ export default function UserTasks() {
                     </Typography>
                   </Box>
                   <Chip
-                    label={column.tasks.length}
+                    label={loading ? "…" : column.tasks.length}
                     size="small"
                     sx={{
                       backgroundColor: column.color,
@@ -189,9 +112,27 @@ export default function UserTasks() {
                   />
                 </Box>
 
-                {/* Tasks */}
+                {/* Tasks or Loading */}
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {column.tasks.length > 0 ? (
+                  {loading ? (
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        backgroundColor: "white",
+                        border: "1px dashed #d0d0d0",
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{ opacity: 0.6 }}
+                      >
+                        Loading task…
+                      </Typography>
+                    </Paper>
+                  ) : column.tasks.length > 0 ? (
                     column.tasks.map((task) => {
                       const typedUser = task.userId as IUser | undefined;
                       const typedProject = task.projectId as IProject | undefined;
@@ -204,7 +145,9 @@ export default function UserTasks() {
                           title={task.title}
                           content={task.content}
                           status={task.status}
-                          dueDate={task.dueDate ? new Date(task.dueDate) : undefined}
+                          dueDate={
+                            task.dueDate ? new Date(task.dueDate) : undefined
+                          }
                           userName={typedUser?.name || "Unknown"}
                           projectName={typedProject?.name || "No project"}
                           onStatusChange={handleStatusChange}

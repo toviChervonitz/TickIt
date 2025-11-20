@@ -16,7 +16,6 @@ import { useEffect, useState } from "react";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import InsertChartIcon from "@mui/icons-material/InsertChart";
 import { logoutService } from "../lib/server/authServer";
-import { useLayoutStore } from "../store/useLayoutStore";
 
 const DRAWER_WIDTH = 260;
 
@@ -24,22 +23,14 @@ export default function Navbar() {
   const { user, logout } = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
-  const setNavbarVisible = useLayoutStore((state) => state.setNavbarVisible);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const hiddenRoutes = ["/pages/login", "/pages/register", "/", "/pages/createProject", "/pages/forgotPassword"];
 
-  
-  const isHidden = hiddenRoutes.includes(pathname);
-  
-  useEffect(() => {
-    setNavbarVisible(!isHidden);
-  }, [isHidden, setNavbarVisible]);
-  
   if (hiddenRoutes.includes(pathname)) {
     return null;
   }
-  
+
   const handleLogout = () => {
     console.log("in logout");
     logout();
@@ -75,7 +66,9 @@ export default function Navbar() {
     >
       <List sx={{ flex: 1, px: 1, py: 2 }}>
         {menuItems.map((item) => {
-          const isActive = pathname === item.path;
+          const isActive =
+            pathname === item.path ||
+            (item.text === "Projects" && pathname === "/pages/projectTask");
           return (
             <ListItem key={item.text} disablePadding>
               <ListItemButton
