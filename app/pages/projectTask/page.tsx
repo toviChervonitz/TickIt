@@ -1,14 +1,13 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import Task from "@/app/components/Task";
-import EditTask, { TaskForm } from "@/app/components/editTask";
+import EditTask, { TaskForm as EditTaskForm } from "@/app/components/editTask";
+import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
 import useAppStore from "@/app/store/useAppStore";
-import { DeleteTask, GetTasksByProjectId } from "@/app/lib/server/taskServer";
+import { DeleteTask, GetTasksByProjectId, CreateTask } from "@/app/lib/server/taskServer";
 import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
-import AddTaskPage from "../addTask/page";
 import { ITask, IUser } from "@/app/models/types";
 import {
   Box,
@@ -28,7 +27,6 @@ import CircleIcon from "@mui/icons-material/Circle";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import ConfirmDelete from "@/app/components/DeletePopup";
 import { useRouter } from "next/navigation";
 
 export default function GetProjectTasks() {
@@ -38,88 +36,56 @@ export default function GetProjectTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
-  const [editingTask, setEditingTask] = useState<TaskForm | null>(null);
+  const [editingTask, setEditingTask] = useState<EditTaskForm | null>(null);
   const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
   const [showAddUser, setShowAddUser] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
 
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [confirmDeleteTitle, setConfirmDeleteTitle] = useState<string>("");
-const router = useRouter();
+  const [newTask, setNewTask] = useState<TaskFormData>({
+    title: "",
+    content: "",
+    userId: "",
+    dueDate: "",
+    status: "todo",
+  });
 
-const goBack = () => {
-  router.push("/pages/getAllProjects"); 
-};
+  const router = useRouter();
+  const goBack = () => router.push("/pages/getAllProjects");
 
-  // Load tasks & manager role
-  // useEffect(() => {
-  //   if (!projectId || !user) return;
+  useEffect(() => {
+    if (!projectId || !user) return;
 
-  //   const loadTasks = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const role = await getUserRoleInProject(user._id, projectId);
-  //       setIsManager(role === "manager");
+    const loadProjectData = async () => {
+      setLoading(true);
+      try {
+        const role = await getUserRoleInProject(user._id, projectId);
+        setIsManager(role === "manager");
 
-  //       let data: ITask[] = [];
-  //       if (role === "manager") {
-  //         data = await GetTasksByProjectId(user._id, projectId);
-  //       } else {
-  //         data = tasks.filter(
-  //           (t) => (t.projectId as { _id?: string })?._id === projectId
-  //         );
-  //       }
+        let data: ITask[] = [];
+        if (role === "manager") {
+          data = await GetTasksByProjectId(user._id, projectId);
+        } else {
+          data = tasks.filter(
+            (t) => (t.projectId as { _id?: string })?._id === projectId
+          );
+        }
+        setFilteredTasks(data);
 
-  //       setFilteredTasks(data);
-  //     } catch (err) {
-  //       console.error(err);
-  //       setError("Failed to load tasks");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   loadTasks();
-  // }, [projectId, user, tasks]);
-useEffect(() => {
-  if (!projectId || !user) return;
-
-  const loadProjectData = async () => {
-    setLoading(true);
-    try {
-      // 1. Get user role
-      const role = await getUserRoleInProject(user._id, projectId);
-      setIsManager(role === "manager");
-
-      // 2. Load tasks
-      let data: ITask[] = [];
-      if (role === "manager") {
-        data = await GetTasksByProjectId(user._id, projectId);
-      } else {
-        data = tasks.filter(
-          (t) => (t.projectId as { _id?: string })?._id === projectId
-        );
+        const res = await getAllUsersByProjectId(projectId);
+        const users = res.users || [];
+        setLocalProjectUsers(users);
+        setProjectUsers(users);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load project data");
+      } finally {
+        setLoading(false);
       }
-      setFilteredTasks(data);
+    };
 
-      // 3. Load project users
-      const res = await getAllUsersByProjectId(projectId);
-      const users = res.users || [];
-      setLocalProjectUsers(users);
-      setProjectUsers(users);
+    loadProjectData();
+  }, [projectId, user, tasks]);
 
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load project data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  loadProjectData();
-}, [projectId, user, tasks]);
-
-  // Fetch project users
   const fetchProjectUsers = async () => {
     if (!projectId) return [];
     const res = await getAllUsersByProjectId(projectId);
@@ -129,15 +95,12 @@ useEffect(() => {
     return users;
   };
 
-  // Open edit dialog
   const handleEdit = async (taskId: string) => {
     if (!isManager) return;
-
     const t = filteredTasks.find((t) => t._id?.toString() === taskId);
     if (!t?._id) return alert("Task not found");
 
     const users = await fetchProjectUsers();
-
     setEditingTask({
       _id: t._id.toString(),
       title: t.title,
@@ -152,11 +115,9 @@ useEffect(() => {
     });
   };
 
-  // Delete logic
   const handleDelete = async (taskId: string) => {
     try {
       await DeleteTask(taskId);
-
       setTasks(tasks.filter((t) => t._id?.toString() !== taskId));
       setFilteredTasks(filteredTasks.filter((t) => t._id?.toString() !== taskId));
     } catch (err) {
@@ -184,8 +145,27 @@ useEffect(() => {
     setFilteredTasks(updated);
   };
 
-  const onAddTask = () => setShowAddTask(true);
-  const onAddUser = () => setShowAddUser(true);
+  const handleAddTaskSubmit = async () => {
+    if (!projectId) return;
+    try {
+      await CreateTask({ ...newTask, projectId });
+      setShowAddTask(false);
+      setNewTask({
+        title: "",
+        content: "",
+        userId: "",
+        dueDate: "",
+        status: "todo",
+      });
+      // reload tasks
+      if (!user) return;
+      const updated = await GetTasksByProjectId(user._id, projectId);
+      setTasks(updated);
+      setFilteredTasks(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const todoTasks = filteredTasks.filter((t) => t.status === "todo");
   const doingTasks = filteredTasks.filter((t) => t.status === "doing");
@@ -197,49 +177,27 @@ useEffect(() => {
     { title: "Completed", tasks: doneTasks, color: "#3dd2cc", bgColor: "rgba(61,210,204,0.08)" },
   ];
 
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <Typography variant="h6" color="text.secondary">Loading tasks...</Typography>
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <Typography variant="h6" color="error">{error}</Typography>
-      </Box>
-    );
-  }
+  if (loading) return <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}><Typography>Loading tasks...</Typography></Box>;
+  if (error) return <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}><Typography color="error">{error}</Typography></Box>;
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 4 }}>
       <Container maxWidth="xl">
-        {/* Header */}
         <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
-            <Typography variant="h4" fontWeight={800} color="primary.main" mb={1}>
-              Project Tasks
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Manage and track tasks for this project
-            </Typography>
+            <Typography variant="h4" fontWeight={800} color="primary.main" mb={1}>Project Tasks</Typography>
+            <Typography variant="body1" color="text.secondary">Manage and track tasks for this project</Typography>
           </Box>
-
-          {/* Manager Actions */}
           {isManager && (
             <Stack direction="row" spacing={2}>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={onAddTask}
+                onClick={() => setShowAddTask(true)}
                 sx={{
                   fontWeight: 600,
                   background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
-                  "&:hover": {
-                    background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
-                  },
+                  "&:hover": { background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)" },
                 }}
               >
                 Add Task
@@ -247,14 +205,8 @@ useEffect(() => {
               <Button
                 variant="outlined"
                 startIcon={<PersonAddIcon />}
-                onClick={onAddUser}
-                sx={{
-                  fontWeight: 600,
-                  borderWidth: 2,
-                  "&:hover": {
-                    borderWidth: 2,
-                  },
-                }}
+                onClick={() => setShowAddUser(true)}
+                sx={{ fontWeight: 600, borderWidth: 2, "&:hover": { borderWidth: 2 } }}
               >
                 Add Member
               </Button>
@@ -262,92 +214,43 @@ useEffect(() => {
           )}
         </Box>
 
-        {/* Kanban Board */}
         <Grid container spacing={3}>
           {columns.map((column) => (
             <Grid item xs={12} md={4} key={column.title}>
-              <Paper
-                elevation={0}
-                sx={{
-                  backgroundColor: column.bgColor,
-                  borderRadius: 3,
-                  p: 2,
-                  minHeight: "70vh",
-                  border: "1px solid #e8eaed",
-                }}
-              >
-                {/* Column Header */}
+              <Paper sx={{ backgroundColor: column.bgColor, borderRadius: 3, p: 2, minHeight: "70vh", border: "1px solid #e8eaed" }}>
                 <Box sx={{ mb: 3, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <CircleIcon sx={{ fontSize: 12, color: column.color }} />
-                    <Typography variant="h6" fontWeight={700} color="text.primary">
-                      {column.title}
-                    </Typography>
+                    <Typography variant="h6" fontWeight={700}>{column.title}</Typography>
                   </Box>
-                  <Chip
-                    label={column.tasks.length}
-                    size="small"
-                    sx={{
-                      backgroundColor: column.color,
-                      color: "white",
-                      fontWeight: 600,
-                    }}
-                  />
+                  <Chip label={column.tasks.length} size="small" sx={{ backgroundColor: column.color, color: "white", fontWeight: 600 }} />
                 </Box>
-
-                {/* Tasks */}
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {column.tasks.length > 0 ? (
-                    column.tasks.map((task) => {
-                      const taskId = task._id?.toString() || "";
-                      const userId =
-                        typeof task.userId === "string"
-                          ? task.userId
-                          : (task.userId as IUser)?._id?.toString() || "";
-                      const userName =
-                        typeof task.userId === "string"
-                          ? "Unknown"
-                          : (task.userId as IUser)?.name || "Unknown";
-                      const projectName = (task.projectId as { name?: string })?.name || "No project";
-                      const dueDate =
-                        task.dueDate instanceof Date
-                          ? task.dueDate
-                          : task.dueDate
-                          ? new Date(task.dueDate)
-                          : undefined;
+                  {column.tasks.length > 0 ? column.tasks.map((task) => {
+                    const taskId = task._id?.toString() || "";
+                    const userId = typeof task.userId === "string" ? task.userId : (task.userId as IUser)?._id?.toString() || "";
+                    const userName = typeof task.userId === "string" ? "Unknown" : (task.userId as IUser)?.name || "Unknown";
+                    const projectName = (task.projectId as { name?: string })?.name || "No project";
+                    const dueDate = task.dueDate ? new Date(task.dueDate) : undefined;
 
-                      return (
-                        <Task
-                          key={taskId}
-                          _id={taskId}
-                          userId={userId}
-                          title={task.title}
-                          content={task.content}
-                          status={task.status}
-                          dueDate={dueDate}
-                          userName={userName}
-                          projectName={projectName}
-                          showButtons={isManager}
-                          onEdit={handleEdit}
-                          onDelete={() => handleDelete(taskId)}
-                          onStatusChange={handleStatusChange}
-                        />
-                      );
-                    })
-                  ) : (
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        textAlign: "center",
-                        backgroundColor: "white",
-                        borderRadius: 2,
-                        border: "1px dashed #e0e0e0",
-                      }}
-                    >
-                      <Typography variant="body2" color="text.secondary">
-                        No tasks in this stage
-                      </Typography>
+                    return <Task
+                      key={taskId}
+                      _id={taskId}
+                      userId={userId}
+                      title={task.title}
+                      content={task.content}
+                      status={task.status}
+                      dueDate={dueDate}
+                      userName={userName}
+                      projectName={projectName}
+                      showButtons={isManager}
+                      onEdit={handleEdit}
+                      onDelete={() => handleDelete(taskId)}
+                      onStatusChange={handleStatusChange}
+                    />;
+                  }) : (
+                    <Paper elevation={0} sx={{ p: 3, textAlign: "center", backgroundColor: "white", borderRadius: 2, border: "1px dashed #e0e0e0" }}>
+                      <Typography variant="body2" color="text.secondary">No tasks in this stage</Typography>
                     </Paper>
                   )}
                 </Box>
@@ -358,43 +261,21 @@ useEffect(() => {
       </Container>
 
       {/* Add Task Dialog */}
-      <Dialog
-        open={showAddTask}
-        onClose={() => setShowAddTask(false)}
-        maxWidth="md"
-        fullWidth
-      >
+      <Dialog open={showAddTask} onClose={() => setShowAddTask(false)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" fontWeight={700}>
-            Add New Task
-          </Typography>
-          <IconButton onClick={() => setShowAddTask(false)}>
-            <CloseIcon />
-          </IconButton>
+          <Typography variant="h6" fontWeight={700}>Add New Task</Typography>
+          <IconButton onClick={() => setShowAddTask(false)}><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
-          <AddTaskPage
-            onClose={() => {
-              setShowAddTask(false);
-            }}
-          />
+          <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} />
         </DialogContent>
       </Dialog>
 
       {/* Add Member Dialog */}
-      <Dialog
-        open={showAddUser}
-        onClose={() => setShowAddUser(false)}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={showAddUser} onClose={() => setShowAddUser(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" fontWeight={700}>
-            Add Team Member
-          </Typography>
-          <IconButton onClick={() => setShowAddUser(false)}>
-            <CloseIcon />
-          </IconButton>
+          <Typography variant="h6" fontWeight={700}>Add Team Member</Typography>
+          <IconButton onClick={() => setShowAddUser(false)}><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
           <AddMember
