@@ -17,7 +17,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                         flexGrow: 1,
                         minHeight: "100vh",
                         width: "100%",
-                        p: 3,
+                        // p: 3,
                     }}
                 >
                     {children}
