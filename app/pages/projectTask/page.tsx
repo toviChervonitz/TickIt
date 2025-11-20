@@ -261,15 +261,6 @@ export default function GetProjectTasks() {
       </Container>
 
       {/* Add Task Dialog */}
-      {/* <Dialog open={showAddTask} onClose={() => setShowAddTask(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" fontWeight={700}>Add New Task</Typography>
-          <IconButton onClick={() => setShowAddTask(false)}><CloseIcon /></IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} />
-        </DialogContent>
-      </Dialog> */}
 <Dialog
   open={showAddTask}
   onClose={() => setShowAddTask(false)}
