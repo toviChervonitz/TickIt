@@ -120,3 +120,10 @@ export async function GoogleSignIn(callbackUrl = "/pages/createProject") {
 
   return session;
 }
+
+
+export async function logoutService() {
+  await fetch("/api/auth/logout", { method: "POST" });
+  localStorage.removeItem("task-manager-storage");
+  return true;
+}

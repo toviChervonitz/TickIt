@@ -12,7 +12,11 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import InsertChartIcon from "@mui/icons-material/InsertChart";
+import { logoutService } from "../lib/server/authServer";
+import { useLayoutStore } from "../store/useLayoutStore";
 
 const DRAWER_WIDTH = 260;
 
@@ -20,17 +24,26 @@ export default function Navbar() {
   const { user, logout } = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
+  const setNavbarVisible = useLayoutStore((state) => state.setNavbarVisible);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const hiddenRoutes = ["/pages/login", "/pages/register", "/","/pages/createProject","/pages/forgotPassword"];
+  const hiddenRoutes = ["/pages/login", "/pages/register", "/", "/pages/createProject", "/pages/forgotPassword"];
 
+  
+  const isHidden = hiddenRoutes.includes(pathname);
+  
+  useEffect(() => {
+    setNavbarVisible(!isHidden);
+  }, [isHidden, setNavbarVisible]);
+  
   if (hiddenRoutes.includes(pathname)) {
     return null;
   }
-
+  
   const handleLogout = () => {
     console.log("in logout");
     logout();
+    logoutService();
     router.push("/");
   };
 
@@ -47,6 +60,8 @@ export default function Navbar() {
     { text: "Dashboard", icon: <HomeIcon />, path: "/pages/dashboard" },
     { text: "Projects", icon: <FolderIcon />, path: "/pages/getAllProjects" },
     { text: "Tasks", icon: <AssignmentIcon />, path: "/pages/getAllTaskByUser" },
+    { text: "Calendar", icon: <CalendarTodayIcon />, path: "/pages/calendar" },
+    { text: "Charts", icon: <InsertChartIcon />, path: "/pages/charts" },
   ];
 
   const drawerContent = (
@@ -243,14 +258,6 @@ export default function Navbar() {
       >
         {drawerContent}
       </Drawer>
-
-      <Box
-        sx={{
-          display: { xs: "none", md: "block" },
-          width: DRAWER_WIDTH,
-          flexShrink: 0,
-        }}
-      />
     </>
   );
 }
