@@ -1,14 +1,13 @@
 "use client";
-
 import React, { useEffect, useState } from "react";
 import Task from "@/app/components/Task";
-import EditTask, { TaskForm } from "@/app/components/editTask";
+import EditTask, { TaskForm as EditTaskForm } from "@/app/components/editTask";
+import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
 import useAppStore from "@/app/store/useAppStore";
-import { DeleteTask, GetTasksByProjectId } from "@/app/lib/server/taskServer";
+import { DeleteTask, GetTasksByProjectId, CreateTask } from "@/app/lib/server/taskServer";
 import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
-import AddTaskPage from "../addTask/page";
 import { ITask, IUser } from "@/app/models/types";
 import {
   Box,
@@ -29,7 +28,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import AddIcon from "@mui/icons-material/Add";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import ConfirmDelete from "@/app/components/DeletePopup";
 import { useRouter } from "next/navigation";
 
 export default function GetProjectTasks() {
@@ -39,18 +37,21 @@ export default function GetProjectTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
-  const [editingTask, setEditingTask] = useState<TaskForm | null>(null);
+  const [editingTask, setEditingTask] = useState<EditTaskForm | null>(null);
   const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
   const [showAddUser, setShowAddUser] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
 
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [confirmDeleteTitle, setConfirmDeleteTitle] = useState<string>("");
-  const router = useRouter();
+  const [newTask, setNewTask] = useState<TaskFormData>({
+    title: "",
+    content: "",
+    userId: "",
+    dueDate: "",
+    status: "todo",
+  });
 
-  const goBack = () => {
-    router.push("/pages/getAllProjects");
-  };
+  const router = useRouter();
+  const goBack = () => router.push("/pages/getAllProjects");
 
   useEffect(() => {
     if (!projectId || !user) return;
@@ -58,11 +59,9 @@ export default function GetProjectTasks() {
     const loadProjectData = async () => {
       setLoading(true);
       try {
-        // 1. Get user role
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
 
-        // 2. Load tasks
         let data: ITask[] = [];
         if (role === "manager") {
           data = await GetTasksByProjectId(user._id, projectId);
@@ -73,12 +72,10 @@ export default function GetProjectTasks() {
         }
         setFilteredTasks(data);
 
-        // 3. Load project users
         const res = await getAllUsersByProjectId(projectId);
         const users = res.users || [];
         setLocalProjectUsers(users);
         setProjectUsers(users);
-
       } catch (err) {
         console.error(err);
         setError("Failed to load project data");
@@ -100,15 +97,12 @@ export default function GetProjectTasks() {
     return users;
   };
 
-  // Open edit dialog
   const handleEdit = async (taskId: string) => {
     if (!isManager) return;
-
     const t = filteredTasks.find((t) => t._id?.toString() === taskId);
     if (!t?._id) return alert("Task not found");
 
     const users = await fetchProjectUsers();
-
     setEditingTask({
       _id: t._id.toString(),
       title: t.title,
@@ -123,11 +117,9 @@ export default function GetProjectTasks() {
     });
   };
 
-  // Delete logic
   const handleDelete = async (taskId: string) => {
     try {
       await DeleteTask(taskId);
-
       setTasks(tasks.filter((t) => t._id?.toString() !== taskId));
       setFilteredTasks(filteredTasks.filter((t) => t._id?.toString() !== taskId));
     } catch (err) {
@@ -155,8 +147,27 @@ export default function GetProjectTasks() {
     setFilteredTasks(updated);
   };
 
-  const onAddTask = () => setShowAddTask(true);
-  const onAddUser = () => setShowAddUser(true);
+  const handleAddTaskSubmit = async () => {
+    if (!projectId) return;
+    try {
+      await CreateTask({ ...newTask, projectId });
+      setShowAddTask(false);
+      setNewTask({
+        title: "",
+        content: "",
+        userId: "",
+        dueDate: "",
+        status: "todo",
+      });
+      // reload tasks
+      if (!user) return;
+      const updated = await GetTasksByProjectId(user._id, projectId);
+      setTasks(updated);
+      setFilteredTasks(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const todoTasks = filteredTasks.filter((t) => t.status === "todo");
   const doingTasks = filteredTasks.filter((t) => t.status === "doing");
@@ -177,9 +188,8 @@ export default function GetProjectTasks() {
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 4 }}>
       <Container maxWidth="xl">
-        {/* Header */}
         <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <IconButton
@@ -201,20 +211,16 @@ export default function GetProjectTasks() {
               </Typography>
             </Box>
           </Box>
-
-          {/* Manager Actions */}
           {isManager && (
             <Stack direction="row" spacing={2}>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
-                onClick={onAddTask}
+                onClick={() => setShowAddTask(true)}
                 sx={{
                   fontWeight: 600,
                   background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
-                  "&:hover": {
-                    background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
-                  },
+                  "&:hover": { background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)" },
                 }}
               >
                 Add Task
@@ -222,14 +228,8 @@ export default function GetProjectTasks() {
               <Button
                 variant="outlined"
                 startIcon={<PersonAddIcon />}
-                onClick={onAddUser}
-                sx={{
-                  fontWeight: 600,
-                  borderWidth: 2,
-                  "&:hover": {
-                    borderWidth: 2,
-                  },
-                }}
+                onClick={() => setShowAddUser(true)}
+                sx={{ fontWeight: 600, borderWidth: 2, "&:hover": { borderWidth: 2 } }}
               >
                 Add Member
               </Button>
@@ -237,7 +237,6 @@ export default function GetProjectTasks() {
           )}
         </Box>
 
-        {/* Kanban Board */}
         <Grid container spacing={3}>
 
           {columns.map((column) => (
@@ -257,9 +256,7 @@ export default function GetProjectTasks() {
                 <Box sx={{ mb: 3, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <CircleIcon sx={{ fontSize: 12, color: column.color }} />
-                    <Typography variant="h6" fontWeight={700} color="text.primary">
-                      {column.title}
-                    </Typography>
+                    <Typography variant="h6" fontWeight={700}>{column.title}</Typography>
                   </Box>
 
                   <Chip
@@ -364,43 +361,36 @@ export default function GetProjectTasks() {
       </Container>
 
       {/* Add Task Dialog */}
-      <Dialog
-        open={showAddTask}
-        onClose={() => setShowAddTask(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" fontWeight={700}>
-            Add New Task
-          </Typography>
-          <IconButton onClick={() => setShowAddTask(false)}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <AddTaskPage
-            onClose={() => {
-              setShowAddTask(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
+<Dialog
+  open={showAddTask}
+  onClose={() => setShowAddTask(false)}
+  maxWidth="md"
+  fullWidth
+  container={typeof document !== 'undefined' ? document.body : undefined} // ensures top-level portal
+>
+  <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Typography component="div" variant="h6" fontWeight={700}>
+      Add New Task
+    </Typography>
+    <IconButton onClick={() => setShowAddTask(false)}>
+      <CloseIcon />
+    </IconButton>
+  </DialogTitle>
+
+  <DialogContent>
+    <TaskForm
+      task={newTask}
+      setTask={setNewTask}
+      onSubmit={handleAddTaskSubmit}
+    />
+  </DialogContent>
+</Dialog>
 
       {/* Add Member Dialog */}
-      <Dialog
-        open={showAddUser}
-        onClose={() => setShowAddUser(false)}
-        maxWidth="sm"
-        fullWidth
-      >
+      <Dialog open={showAddUser} onClose={() => setShowAddUser(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Typography variant="h6" fontWeight={700}>
-            Add Team Member
-          </Typography>
-          <IconButton onClick={() => setShowAddUser(false)}>
-            <CloseIcon />
-          </IconButton>
+          <Typography variant="h6" fontWeight={700}>Add Team Member</Typography>
+          <IconButton onClick={() => setShowAddUser(false)}><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent>
           <AddMember
