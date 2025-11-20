@@ -3,7 +3,7 @@ import { dbConnect } from "@/app/lib/DB";
 import User from "@/app/models/UserModel";
 import { registerSchema } from "@/app/lib/validation";
 import { hashPassword } from "@/app/lib/bcrypt";
-import { createToken } from "@/app/lib/jwt";
+import { createAuthResponse, createToken } from "@/app/lib/jwt";
 
 export async function POST(req: Request) {
   await dbConnect();
@@ -41,30 +41,11 @@ export async function POST(req: Request) {
       password: hashedPassword,
     });
 
-    const token = createToken({ id: newUser._id!.toString(), email: newUser.email });
 
     const userObj = newUser.toObject();
     delete userObj.password;
 
-    const response = NextResponse.json(
-      {
-        status: "success",
-        message: "Registration successful",
-        user: userObj,
-        token,
-      },
-      { status: 201 }
-    );
-
-    response.cookies.set("authToken", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 60 * 60 * 24 * 30, // 30 days
-      path: "/",
-    });
-
-    return response;
+    return createAuthResponse(userObj, "Login successful");
 
   } catch (err: any) {
     console.error("Register Error:", err);

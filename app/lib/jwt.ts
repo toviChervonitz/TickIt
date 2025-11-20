@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 const SECRET = process.env.JWT_SECRET!;
 
@@ -10,19 +11,24 @@ export interface TokenPayload {
   exp: number;
 }
 
+interface TokenUser {
+  [key: string]: any;
+  _id: string;
+  email: string;
+  name?: string;
+}
+
 export function createToken(payload: Omit<TokenPayload, "iat" | "exp">) {
   return jwt.sign(payload, SECRET, { expiresIn: "30d" });
 }
 
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, SECRET) as TokenPayload;   
+    return jwt.verify(token, SECRET) as TokenPayload;
   } catch {
     return null;
   }
 }
-
-
 
 export async function getAuthTokenFromCookies(): Promise<string | null> {
   const cookieStore = await cookies();
@@ -43,47 +49,31 @@ export async function compareToken(id: string) {
   return user?.id === id;
 }
 
-// export async function getUserFromCookies() {
-//   const cookieStore = await cookies();
-//   const token = cookieStore.get("authToken")?.value;
-//   if (!token) return null;
-//   return verifyToken(token);
-// }
-// export function getTokenPayloadFromHeader(token: string) {
-//   try {
-//     return jwt.verify(token, process.env.JWT_SECRET!);
-//   } catch {
-//     return null;
-//   }
-// }
+export function createAuthResponse(user: any, message?: string) {
 
-// export async function compareToken(id: string) {
-//   const cookieStore = await cookies();
-//   const token = cookieStore.get("authToken")?.value;
+  const token = createToken({
+    id: user._id,
+    email: user.email
+  });
 
-//   if (!token) return false;
+  const response = NextResponse.json(
+    {
+      status: "success",
+      message: message || `Welcome back ${user.name}!`,
+      user: user,
+      token,
+    },
+    { status: 200 }
+  );
 
-//   const payload = verifyToken(token);
-//   if (!payload) return false;
+  response.cookies.set("authToken", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 60 * 60 * 24 * 30, // 30 days
+    path: "/",
+  });
 
-//   return payload.id === id;
-// }
-
-// export function getAuthToken(): string | null {
-//   if (typeof window === "undefined") return null;
-//   return localStorage.getItem("token");
-// }
-
-// // Decode token payload without verifying (safe on client)
-// export function getTokenPayload(token?: string | null): any | null {
-//   const jwtToken = token || getAuthToken();
-//   if (!jwtToken) return null;
-
-//   try {
-//     const payload = jwtDecode(jwtToken);
-//     return payload;
-//   } catch {
-//     return null;
-//   }
-// }
+  return response;
+}
 
