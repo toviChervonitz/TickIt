@@ -43,19 +43,33 @@ const getDotColor = (id: string) => {
   const index = Math.abs(hash % DOT_COLORS.length);
   return DOT_COLORS[index];
 };
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import EditProject, { ProjectForm } from "@/app/components/EditProject";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function GetAllProjectsPage() {
   const { user, projects, setProjects, setProjectId } = useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [editingProject, setEditingProject] = useState<ProjectForm | null>(
+    null
+  );
+  const [isManager, setIsManager]=useState(false)
+
 
   useEffect(() => {
     if (!user?._id) return;
     async function fetchProjects() {
       try {
-        const response = await GetAllProjectsByUserId(user?._id!);
-        if (response?.status === "success") {
-          setProjects(response.projects || []);
+        const response = await GetAllProjectsByUserId(userId!);
+console.log("response in get all projects", response);
+
+        if (response?.status !== "success") {
+          console.error("Error fetching projects:", response?.message);
+          setProjects([]);
+          return;
         }
       } catch (err) {
         console.error("Fetch error:", err);
@@ -70,6 +84,48 @@ export default function GetAllProjectsPage() {
     setProjectId(project._id!);
     router.push("/pages/projectTask");
   };
+
+  const toggleExpand = (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(projectId)) newSet.delete(projectId);
+      else newSet.add(projectId);
+      return newSet;
+    });
+  };
+
+  const shouldShowSeeMore = (text: string) => !!text && text.length > 80;
+  const handleSaved = async () => {
+    setEditingProject(null);
+    if (!user) return;
+
+    const updated = await GetAllProjectsByUserId(user._id);
+    setProjects(updated.projects || []);
+  };
+
+  const handleEdit = async (id: string, name: string, description: string) => {
+    setEditingProject({ _id: id, name: name, description: description });
+    <EditProject
+      project={editingProject}
+      onSaved={handleSaved}
+      onCancel={() => setEditingProject(null)}
+    />;
+  };
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "backgroun.default", py: 5 }}>
@@ -170,6 +226,48 @@ export default function GetAllProjectsPage() {
                           }}
                         >
                            <FolderIcon sx={{ color: MAIN_COLOR, fontSize: 28 }} />
+                          <Typography
+                            variant="h6"
+                            fontWeight={700}
+                            color="text.primary"
+                            sx={{ mr: 2 }}
+                          >
+                            {project.name}
+                          </Typography>
+
+                          {/* החץ בשורה העליונה */}
+                          <IconButton
+                            onClick={() => getIntoProject(project)}
+                            size="small"
+                            sx={{
+                              color: "#3dd2cc",
+                              "&:hover": {
+                                backgroundColor: "rgba(61,210,204,0.1)",
+                              },
+                            }}
+                          >
+                            <ArrowForwardIcon fontSize="small" />
+                          </IconButton>
+                          {project.role=="manager"&&(
+                          <button
+                            onClick={() =>
+                              handleEdit(
+                                project._id!,
+                                project.name,
+                                project.description!
+                              )
+                            }
+                          >
+                            Edit Project
+                          </button>)}
+                          {editingProject && (
+                            <EditProject
+                              project={editingProject}
+                              onSaved={handleSaved}
+                              onCancel={() => setEditingProject(null)}
+                            />
+                          
+                          )}
                         </Box>
                         
                         {/* הנקודה הצבעונית המשתנה */}
@@ -233,8 +331,38 @@ export default function GetAllProjectsPage() {
             })}
           </Grid>
         ) : (
-          <Box sx={{ textAlign: 'center', py: 10 }}>
-             <Typography color="text.secondary">No projects yet.</Typography>
+          <Box
+            sx={{
+              textAlign: "center",
+              py: 8,
+            }}
+          >
+            <Box
+              sx={{
+                width: 120,
+                height: 120,
+                borderRadius: "50%",
+                backgroundColor: "rgba(61,210,204,0.1)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto",
+                mb: 3,
+              }}
+            >
+              <FolderIcon sx={{ fontSize: 60, color: "#3dd2cc" }} />
+            </Box>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color="text.primary"
+              mb={1}
+            >
+              No Projects Yet
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              You haven't created or joined any projects yet.
+            </Typography>
           </Box>
         )}
       </Container>

@@ -72,3 +72,18 @@ export async function getUserRoleInProject(userId: string | undefined, projectId
     return null;
   }
 }
+
+export async function UpdateProject(projectId: string, updates: Partial<{name: string; description: string;}>) {
+  const res = await fetch(`/api/project/editProject/${projectId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(updates),
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || "Project update failed");
+  }
+  return data;
+}
