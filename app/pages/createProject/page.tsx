@@ -122,7 +122,7 @@ export default function CreateProjectPage() {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#ffffff",
+        background: "linear-gradient(135deg, #f0ebe3 0%, #e8e2d9 100%)",
         py: 6,
       }}
     >
@@ -138,7 +138,7 @@ export default function CreateProjectPage() {
         </Box>
 
         {/* Stepper */}
-        <Card sx={{ mb: 4, p: 4, backgroundColor: "#f9f7f4", border: "1px solid #e8eaed" }}>
+        <Card sx={{ mb: 4, p: 4 }}>
           <Stepper activeStep={step} alternativeLabel>
             {steps.map((label, index) => (
               <Step key={label}>
@@ -173,7 +173,7 @@ export default function CreateProjectPage() {
         )}
 
         {/* Step Content */}
-        <Card sx={{ p: 5, backgroundColor: "#f9f7f4", border: "1px solid #e8eaed" }}>
+        <Card sx={{ p: 5 }}>
           {/* Step 1: Project Details */}
           {step === 0 && (
             <Box>
@@ -212,7 +212,7 @@ export default function CreateProjectPage() {
                   placeholder="e.g., Website Redesign"
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "#ffffff",
+                      backgroundColor: "#fafaf9",
                     },
                   }}
                 />
@@ -229,7 +229,7 @@ export default function CreateProjectPage() {
                   placeholder="Describe what this project is about..."
                   sx={{
                     "& .MuiOutlinedInput-root": {
-                      backgroundColor: "#ffffff",
+                      backgroundColor: "#fafaf9",
                     },
                   }}
                 />
@@ -298,7 +298,7 @@ export default function CreateProjectPage() {
                 />
 
                 {users.length > 0 && (
-                  <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
+                  <Paper sx={{ p: 2, backgroundColor: "#fafaf9" }}>
                     <Typography variant="subtitle1" fontWeight={600} mb={2}>
                       Team Members ({users.length})
                     </Typography>
@@ -309,7 +309,7 @@ export default function CreateProjectPage() {
                           sx={{
                             borderRadius: 2,
                             mb: 1,
-                            backgroundColor: "#fafaf9",
+                            backgroundColor: "white",
                             "&:hover": { backgroundColor: "#f5f5f5" },
                           }}
                         >
@@ -387,7 +387,7 @@ export default function CreateProjectPage() {
                 <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} />
 
                 {tasks.length > 0 && (
-                  <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
+                  <Paper sx={{ p: 2, backgroundColor: "#fafaf9" }}>
                     <Typography variant="subtitle1" fontWeight={600} mb={2}>
                       Tasks Created ({tasks.length})
                     </Typography>
@@ -398,7 +398,7 @@ export default function CreateProjectPage() {
                           sx={{
                             borderRadius: 2,
                             mb: 1,
-                            backgroundColor: "#fafaf9",
+                            backgroundColor: "white",
                             "&:hover": { backgroundColor: "#f5f5f5" },
                           }}
                         >
