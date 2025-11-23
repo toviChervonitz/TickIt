@@ -60,7 +60,7 @@ export default function LoginPage() {
       console.error(err);
       setError(err.message || "Login failed");
       setLoading(false);
-    } 
+    }
   };
 
   const handleGoogleSignIn = async () => {
@@ -247,6 +247,25 @@ export default function LoginPage() {
             {googleLoading ? "Connecting..." : "Continue with Google"}
           </Button>
 
+          {/* <Box sx={{ textAlign: "center", mt: 4 }}>
+            <Typography variant="body2" color="text.secondary">
+              Don't have an account?{" "}
+              <MuiLink
+                component={Link}
+                href="/pages/register"
+                sx={{
+                  color: "primary.main",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration: "underline",
+                  }
+                }}
+              >
+                Create Account
+              </MuiLink>
+            </Typography>
+          </Box> */}
           <Box sx={{ textAlign: "center", mt: 4 }}>
             <Typography variant="body2" color="text.secondary">
               Don't have an account?{" "}
@@ -265,7 +284,26 @@ export default function LoginPage() {
                 Create Account
               </MuiLink>
             </Typography>
+
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Forgot your password?{" "}
+              <MuiLink
+                component={Link}
+                href="/pages/forgotPassword"
+                sx={{
+                  color: "primary.main",
+                  fontWeight: 700,
+                  textDecoration: "none",
+                  "&:hover": {
+                    textDecoration: "underline",
+                  }
+                }}
+              >
+                Reset it here
+              </MuiLink>
+            </Typography>
           </Box>
+
         </Card>
       </Container>
     </Box>
