@@ -10,6 +10,7 @@ import CompletedTasksLineChart from "@/app/components/charts/ProgressByTimeChart
 
 export default function Charts() {
   const { tasks, projects } = useAppStore();
+  console.log("tasks in Charts page:", tasks);
 
   return (
     <div>
@@ -25,13 +26,9 @@ export default function Charts() {
   );
 }
 
-//charts for user:
-//- pie chart of task status with hole in the middle (todo, doing, done)
-//- line chart of tasks completed over time
-//- bar chart of tasks by project
-
-
-
-//charts for manager:
-//- bar chart of tasks per user
-//- pie chart of task status across the project
+//to do:
+/*
+1. figure out why some of the names arent displaying in the tasks by project chart
+2. fix buttons not working
+3. why are there errors in the charts page
+*/
