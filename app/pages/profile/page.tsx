@@ -87,7 +87,7 @@ export default function ProfilePage() {
       }
 
       setUser(result.user);
-      router.push("/pages/getAllTaskByUser");
+      router.push("/pages/dashboard");
     } catch (err: any) {
       console.error("Updating error:", err);
       setError(err.message || "Updating failed");
