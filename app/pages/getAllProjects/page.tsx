@@ -70,14 +70,6 @@ export default function GetAllProjectsPage() {
 
   const shouldShowSeeMore = (text: string) => !!text && text.length > 80;
 
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
       <Container maxWidth="lg">
