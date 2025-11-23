@@ -12,37 +12,12 @@ import {
   Card,
   CardContent,
   Button,
-  GridLegacy as Grid,
-  Skeleton,
+  Stack,
+  CircularProgress,
+  IconButton,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import CircleIcon from "@mui/icons-material/Circle";
-
-// הצבע הראשי של המערכת (טורקיז) - נשאר עבור האלמנטים האחרים
-const MAIN_COLOR = "#3dd2cc";
-
-// רשימת צבעים רק עבור הנקודה הקטנה
-const DOT_COLORS = [
-  "#ff9f43", // כתום
-  "#5f27cd", // סגול
-  "#ff6b6b", // אדום עדין
-  "#48dbfb", // תכלת
-  "#1dd1a1", // ירוק
-  "#f368e0", // ורוד
-  "#fab1a0", // קורל
-];
-
-// פונקציה שבוחרת צבע לנקודה לפי ה-ID
-const getDotColor = (id: string) => {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const index = Math.abs(hash % DOT_COLORS.length);
-  return DOT_COLORS[index];
-};
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
@@ -61,6 +36,8 @@ export default function GetAllProjectsPage() {
 
   useEffect(() => {
     if (!user?._id) return;
+    const userId = user._id;
+
     async function fetchProjects() {
       try {
         const response = await GetAllProjectsByUserId(userId!);
@@ -71,12 +48,15 @@ console.log("response in get all projects", response);
           setProjects([]);
           return;
         }
+
+        setProjects(response.projects || []);
       } catch (err) {
         console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
     }
+
     fetchProjects();
   }, [user, setProjects]);
 
@@ -128,46 +108,31 @@ console.log("response in get all projects", response);
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "backgroun.default", py: 5 }}>
-      <Container maxWidth="xl">
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
+      <Container maxWidth="lg">
         {/* Header */}
-        <Box
-          sx={{
-            mb: 5,
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "space-between",
-            alignItems: { xs: "flex-start", sm: "center" },
-            gap: 2,
-          }}
-        >
+        <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
-            <Typography variant="h4" fontWeight={800} color="primary.main">
-              Projects
+            <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
+              All Projects
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography variant="h6" color="text.secondary">
               Select a project to view tasks and details
             </Typography>
           </Box>
 
-          {/* הכפתור החדש בעיצוב Outlined */}
           <Button
-            variant="outlined" 
+            variant="contained"
+            size="large"
             startIcon={<AddIcon />}
             onClick={() => router.push("/pages/createProject")}
             sx={{
-              color: "#0f3460", // צבע טקסט כחול כהה
-              borderColor: "#0f3460", // צבע מסגרת כחול כהה
-              backgroundColor: "white",
-              borderWidth: "1.5px", // מסגרת קצת יותר עבה שיראה טוב
+              px: 4,
+              py: 1.5,
               fontWeight: 700,
-              px: 3,
-              py: 1,
-              borderRadius: "10px", // פינות מעוגלות כמו בתמונה
-              "&:hover": { 
-                backgroundColor: "#f0f2f5", // רקע אפרפר בהיר במעבר עכבר
-                borderColor: "#0f3460",
-                borderWidth: "1.5px"
+              background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
+              "&:hover": {
+                background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
               },
             }}
           >
@@ -175,57 +140,58 @@ console.log("response in get all projects", response);
           </Button>
         </Box>
 
-        {/* Grid Layout */}
-        {loading ? (
-          <Grid container spacing={3}>
-            {[1, 2, 3, 4].map((n) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={n}>
-                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 3 }} />
-              </Grid>
-            ))}
-          </Grid>
-        ) : projects.length > 0 ? (
-          <Grid container spacing={3} alignItems="stretch">
+        {projects.length > 0 ? (
+          <Stack spacing={2}>
             {projects.map((project: IProject) => {
-              // רק הנקודה מקבלת צבע ייחודי
-              const dotColor = getDotColor(project._id || "default");
+              const isExpanded = expandedItems.has(project._id!);
+              const description =
+                project.description || "No description available";
+              const showSeeMore = shouldShowSeeMore(description);
 
               return (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={project._id} sx={{ display: 'flex' }}>
-                  <Card
-                    elevation={0}
-                    onClick={() => getIntoProject(project)}
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-                      borderRadius: 4,
-                      border: "1px solid #edf2f7",
-                      transition: "all 0.2s ease-in-out",
-                      cursor: "pointer",
-                      "&:hover": {
-                        transform: "translateY(-4px)",
-                        boxShadow: "0 12px 20px rgba(0,0,0,0.05)",
-                        borderColor: MAIN_COLOR, // Border בטורקיז
-                      },
-                    }}
-                  >
-                    <CardContent sx={{ p: 3, flexGrow: 1 }}>
-                      {/* Top Row: Folder Icon (Turquoise) & Unique Dot */}
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, alignItems: "center" }}>
+                <Card
+                  key={project._id}
+                  elevation={0}
+                  sx={{
+                    border: "1px solid #e8eaed",
+                    borderRadius: 3,
+                    transition: "all 0.2s ease",
+                    "&:hover": {
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                      borderColor: "#3dd2cc",
+                    },
+                  }}
+                >
+                  <CardContent sx={{ p: 3 }}>
+                    <Box sx={{ display: "flex", gap: 2.5 }}>
+                      {/* אייקון תיקיה */}
+                      <Box
+                        sx={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: 2,
+                          background:
+                            "linear-gradient(135deg, #3dd2cc 0%, #2dbfb9 100%)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <FolderIcon sx={{ color: "white", fontSize: 24 }} />
+                      </Box>
+
+                      {/* טקסטים */}
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        {/* כותרת + חץ בשורה אחת */}
                         <Box
                           sx={{
-                            width: 48,
-                            height: 48,
-                            borderRadius: "12px",
-                            backgroundColor: "rgba(61, 210, 204, 0.1)", // רקע טורקיז בהיר מאוד
                             display: "flex",
+                            justifyContent: "space-between",
                             alignItems: "center",
-                            justifyContent: "center",
+                            mb: 1,
                           }}
                         >
-                           <FolderIcon sx={{ color: MAIN_COLOR, fontSize: 28 }} />
                           <Typography
                             variant="h6"
                             fontWeight={700}
@@ -269,67 +235,72 @@ console.log("response in get all projects", response);
                           
                           )}
                         </Box>
-                        
-                        {/* הנקודה הצבעונית המשתנה */}
-                        <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
-                      </Box>
 
-                      {/* Title */}
-                      <Typography
-                        variant="h6"
-                        fontWeight={700}
-                        gutterBottom
-                        sx={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {project.name}
-                      </Typography>
+                        {/* תיאור – 2 שורות + See More */}
+                        <Typography
+                          variant="body2"
+                          color="text.secondary"
+                          sx={{
+                            mb: showSeeMore ? 1 : 2,
+                            lineHeight: 1.6,
+                            wordBreak: "break-word",
+                            ...(showSeeMore && !isExpanded
+                              ? {
+                                  display: "-webkit-box",
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  WebkitLineClamp: 2,
+                                }
+                              : {
+                                  display: "block",
+                                  overflow: "visible",
+                                }),
+                          }}
+                        >
+                          {description}
+                        </Typography>
 
-                      {/* Description */}
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          display: "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                          wordBreak: "break-word",
-                          minHeight: "4.5em", // שומר על גובה אחיד
-                          lineHeight: 1.5,
-                        }}
-                      >
-                        {project.description || "No description available."}
-                      </Typography>
-                    </CardContent>
-
-                    {/* Footer: View Project (Turquoise) */}
-                    <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-end' }}>
-                      <Box 
-                        sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          color: MAIN_COLOR, 
-                          fontWeight: 700, 
-                          fontSize: '0.875rem',
-                          gap: 0.5,
-                          transition: 'gap 0.2s',
-                          "&:hover": {
-                             gap: 1 // אפקט קטן שהחץ זז הצידה
-                          }
-                        }}
-                      >
-                        View Project <ArrowForwardIcon sx={{ fontSize: 18 }} />
+                        {showSeeMore && (
+                          <Box
+                            onClick={(e) => toggleExpand(project._id!, e)}
+                            sx={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              color: "#3dd2cc",
+                              cursor: "pointer",
+                              fontWeight: 600,
+                              fontSize: "0.875rem",
+                              mb: 2,
+                              "&:hover": {
+                                color: "#2dbfb9",
+                              },
+                            }}
+                          >
+                            {isExpanded ? (
+                              <>
+                                See less{" "}
+                                <ExpandLessIcon
+                                  sx={{ fontSize: 18, ml: 0.5 }}
+                                />
+                              </>
+                            ) : (
+                              <>
+                                See more{" "}
+                                <ExpandMoreIcon
+                                  sx={{ fontSize: 18, ml: 0.5 }}
+                                />
+                              </>
+                            )}
+                          </Box>
+                        )}
                       </Box>
                     </Box>
-                  </Card>
-                </Grid>
+                  </CardContent>
+                </Card>
               );
             })}
-          </Grid>
+          </Stack>
         ) : (
           <Box
             sx={{
