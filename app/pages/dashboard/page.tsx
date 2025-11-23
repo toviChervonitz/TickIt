@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -7,9 +6,34 @@ import { GetTasksByUserId } from "@/app/lib/server/taskServer";
 import { GetRecentAssignedTasks, getRecentProjects } from "@/app/lib/server/notificationsServer";
 import { ITask } from "@/app/models/types";
 import ProgressChart from "@/app/components/charts/progressChart";
+import { useRouter } from "next/navigation";
+import {
+  Box,
+  Container,
+  Typography,
+  GridLegacy as Grid,
+  Card,
+  CardContent,
+  Button,
+  Alert,
+  Stack,
+  Chip,
+  List,
+  ListItem,
+  ListItemText,
+  CircularProgress,
+  Paper,
+} from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import FolderIcon from "@mui/icons-material/Folder";
+import AssignmentIcon from "@mui/icons-material/Assignment";
 
 const Dashboard: React.FC = () => {
   const user = useAppStore((state) => state.user);
+  const router = useRouter();
 
   const [allTasks, setAllTasks] = useState<ITask[]>([]);
   const [upcomingTasks, setUpcomingTasks] = useState<ITask[]>([]);
@@ -24,30 +48,29 @@ const Dashboard: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // 1️⃣ Fetch all tasks for progress chart
         const fetchedTasks: ITask[] = await GetTasksByUserId(user._id);
         setAllTasks(fetchedTasks);
 
-        // 2️⃣ Filter incomplete tasks due in next 7 days (client-side, hydration-safe)
         const now = new Date();
+        now.setHours(0, 0, 0, 0);
         const sevenDaysLater = new Date();
         sevenDaysLater.setDate(now.getDate() + 7);
+        sevenDaysLater.setHours(23, 59, 59, 999);
 
-        setUpcomingTasks(
-          fetchedTasks.filter(
-            (task) =>
-              task.status !== "done" &&
-              task.dueDate &&
-              new Date(task.dueDate) >= now &&
-              new Date(task.dueDate) <= sevenDaysLater
-          )
-        );
+        const filtered = fetchedTasks.filter((task) => {
+          if (task.status === "done") return false;
+          if (!task.dueDate) return false;
 
-        // 3️⃣ Fetch recently assigned tasks (last 2 days)
+          const taskDate = new Date(task.dueDate);
+          return taskDate >= now && taskDate <= sevenDaysLater;
+        });
+
+        console.log("Upcoming tasks filtered:", filtered.length, "tasks");
+        setUpcomingTasks(filtered);
+
         const recentTasks = await GetRecentAssignedTasks(user._id.toString(), 2);
         setRecentAssignedTasks(recentTasks);
 
-        // 4️⃣ Fetch recently added projects
         const recentProj = await getRecentProjects();
         setRecentProjects(recentProj);
       } catch (err: any) {
@@ -59,74 +82,403 @@ const Dashboard: React.FC = () => {
     };
 
     fetchData();
-  }, [user]);
+  }, []);
 
-  // 🚨 Hydration-safe: render nothing until client data is loaded
-  if (!user) return <p>Please log in to see your dashboard.</p>;
-  if (loading) return <p>Loading dashboard...</p>;
-  if (error) return <p>{error}</p>;
+  if (error) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <Typography variant="h6" color="error">
+          {error}
+        </Typography>
+      </Box>
+    );
+  }
+
+  const todoCount = allTasks.filter((t) => t.status === "todo").length;
+  const doingCount = allTasks.filter((t) => t.status === "doing").length;
+  const doneCount = allTasks.filter((t) => t.status === "done").length;
 
   return (
-    <div className="p-6">
-      {/* Notifications */}
-      {(recentAssignedTasks.length > 0 || recentProjects.length > 0) && (
-        <div className="mb-4">
-          {/* Recent Projects */}
-          {recentProjects.length > 0 && (
-            <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-2">
-              <p className="font-bold">You were added to new projects!</p>
-              <ul className="list-disc list-inside">
-                {recentProjects.map((p) => (
-                  <li key={p._id}>{p.name}</li>
-                ))}
-              </ul>
-            </div>
-          )}
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
+      <Container maxWidth="xl">
+        {/* Header */}
+        <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box>
+            <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
+              Welcome back, {user?.name}!
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Here's what's happening with your projects today
+            </Typography>
+          </Box>
 
-          {/* Recently Assigned Tasks */}
-          {recentAssignedTasks.length > 0 && (
-            <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4">
-              <p className="font-bold">Newly Assigned Tasks!</p>
-              <ul className="list-disc list-inside">
-                {recentAssignedTasks.map((task) => (
-                  <li key={task._id}>
-                    {task.title}{" "}
-                    {task.projectId &&
-                      "_in_ " +
-                        ("name" in task.projectId ? task.projectId.name : "")}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )}
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<AddIcon />}
+            onClick={() => router.push("/pages/createProject")}
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontWeight: 700,
+              background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
+              "&:hover": {
+                background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
+              },
+            }}
+          >
+            Create New Project
+          </Button>
+        </Box>
 
-      {/* Progress chart */}
-      <ProgressChart tasks={allTasks} />
+        {/* Notifications */}
+        {(recentAssignedTasks.length > 0 || recentProjects.length > 0) && (
+          <Box sx={{ mb: 4 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <NotificationsActiveIcon sx={{ color: "#3dd2cc", fontSize: 28 }} />
+              <Typography variant="h5" fontWeight={700} color="primary.main">
+                Recent Updates
+              </Typography>
+            </Box>
 
-      {/* Incomplete tasks due in 7 days */}
-      <h1 className="text-2xl font-bold mb-4 mt-6">Incomplete Tasks Due Within 7 Days</h1>
-      {upcomingTasks.length === 0 ? (
-        <p>No incomplete tasks due in the next 7 days.</p>
-      ) : (
-        <ul className="space-y-3">
-          {upcomingTasks.map((task) => (
-            <li key={task._id} className="border p-3 rounded shadow-sm">
-              <h2 className="font-semibold">{task.title}</h2>
-              <p>
-                Due:{" "}
-                {typeof window !== "undefined" && task.dueDate
-                  ? new Date(task.dueDate).toLocaleDateString()
-                  : "No due date"}
-              </p>
-              {task.content && <p>{task.content}</p>}
-              <p>Status: {task.status}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+            <Stack spacing={2}>
+              {recentProjects.length > 0 && (
+                <Alert
+                  severity="info"
+                  icon={<FolderIcon />}
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: "rgba(29,72,106,0.08)",
+                    border: "1px solid #1d486a",
+                    "& .MuiAlert-icon": {
+                      color: "#1d486a",
+                    },
+                  }}
+                >
+                  <Typography variant="subtitle1" fontWeight={700} mb={1}>
+                    You were added to new projects!
+                  </Typography>
+                  <List dense>
+                    {recentProjects.map((p) => (
+                      <ListItem key={p._id} sx={{ py: 0 }}>
+                        <ListItemText primary={`• ${p.name}`} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Alert>
+              )}
+
+              {recentAssignedTasks.length > 0 && (
+                <Alert
+                  severity="success"
+                  icon={<AssignmentIcon />}
+                  sx={{
+                    borderRadius: 2,
+                    backgroundColor: "rgba(61,210,204,0.08)",
+                    border: "1px solid #3dd2cc",
+                    "& .MuiAlert-icon": {
+                      color: "#3dd2cc",
+                    },
+                  }}
+                >
+                  <Typography variant="subtitle1" fontWeight={700} mb={1}>
+                    Newly Assigned Tasks!
+                  </Typography>
+                  <List dense>
+                    {recentAssignedTasks.map((task) => (
+                      <ListItem key={task._id} sx={{ py: 0 }}>
+                        <ListItemText
+                          primary={`• ${task.title}${task.projectId && "name" in task.projectId
+                            ? ` in ${task.projectId.name}`
+                            : ""
+                            }`}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Alert>
+              )}
+            </Stack>
+          </Box>
+        )}
+
+        {/* Stats Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                border: "1px solid #e8eaed",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              }}
+            >
+              <CardContent>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box>
+                    <Typography variant="h3" fontWeight={800} color="primary.main">
+                      {allTasks.length}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                      Total Tasks
+                    </Typography>
+                  </Box>
+                  <Box
+                    sx={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 2,
+                      backgroundColor: "rgba(29,72,106,0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <AssignmentIcon sx={{ fontSize: 28, color: "#1d486a" }} />
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                border: "1px solid #e8eaed",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              }}
+            >
+              <CardContent>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box>
+                    <Typography variant="h3" fontWeight={800} color="#1d486a">
+                      {todoCount}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                      To Do
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label="TODO"
+                    sx={{
+                      backgroundColor: "rgba(29,72,106,0.15)",
+                      color: "#1d486a",
+                      fontWeight: 700,
+                    }}
+                  />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                border: "1px solid #e8eaed",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              }}
+            >
+              <CardContent>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box>
+                    <Typography variant="h3" fontWeight={800} color="#66dcd7">
+                      {doingCount}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                      In Progress
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label="DOING"
+                    sx={{
+                      backgroundColor: "rgba(102,220,215,0.15)",
+                      color: "#66dcd7",
+                      fontWeight: 700,
+                    }}
+                  />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                border: "1px solid #e8eaed",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              }}
+            >
+              <CardContent>
+                <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <Box>
+                    <Typography variant="h3" fontWeight={800} color="#3dd2cc">
+                      {doneCount}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                      Completed
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label="DONE"
+                    sx={{
+                      backgroundColor: "rgba(61,210,204,0.15)",
+                      color: "#3dd2cc",
+                      fontWeight: 700,
+                    }}
+                  />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Progress Chart & Upcoming Tasks - Side by Side */}
+        <Grid container spacing={3}>
+          {/* Progress Chart */}
+          <Grid item xs={12} md={6}>
+            <Card
+              sx={{
+                height: "500px",
+                borderRadius: 3,
+                border: "1px solid #e8eaed",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <CardContent sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column" }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2, pb: 0 }}>
+                  <TrendingUpIcon sx={{ color: "#3dd2cc", fontSize: 28 }} />
+                  <Typography variant="h5" fontWeight={700} color="primary.main">
+                    Progress Overview
+                  </Typography>
+                </Box>
+                <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <ProgressChart tasks={allTasks} />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Upcoming Tasks */}
+          <Grid item xs={12} md={6}>
+            <Card
+              sx={{
+                height: "500px",
+                borderRadius: 3,
+                border: "1px solid #e8eaed",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <CardContent sx={{ p: 3, pb: 0 }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+                  <CalendarTodayIcon sx={{ color: "#3dd2cc", fontSize: 28 }} />
+                  <Typography variant="h5" fontWeight={700} color="primary.main">
+                    Upcoming Tasks (Next 7 Days)
+                  </Typography>
+                </Box>
+              </CardContent>
+
+              <Box
+                sx={{
+                  flex: 1,
+                  overflowY: "auto",
+                  px: 3,
+                  pb: 3,
+                  "&::-webkit-scrollbar": {
+                    width: "8px",
+                  },
+                  "&::-webkit-scrollbar-track": {
+                    backgroundColor: "#f5f5f5",
+                    borderRadius: "4px",
+                  },
+                  "&::-webkit-scrollbar-thumb": {
+                    backgroundColor: "#3dd2cc",
+                    borderRadius: "4px",
+                    "&:hover": {
+                      backgroundColor: "#2dbfb9",
+                    },
+                  },
+                }}
+              >
+                {upcomingTasks.length === 0 ? (
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 4,
+                      textAlign: "center",
+                      backgroundColor: "#fafaf9",
+                      borderRadius: 2,
+                      border: "1px dashed #e0e0e0",
+                    }}
+                  >
+                    <Typography variant="body1" color="text.secondary">
+                      No incomplete tasks due in the next 7 days. Great job!
+                    </Typography>
+                  </Paper>
+                ) : (
+                  <Stack spacing={2}>
+                    {upcomingTasks.map((task) => (
+                      <Paper
+                        key={task._id}
+                        elevation={0}
+                        sx={{
+                          p: 2.5,
+                          border: "1px solid #e8eaed",
+                          borderRadius: 2,
+                          "&:hover": {
+                            boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+                          },
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                          <Typography variant="h6" fontWeight={700} color="text.primary">
+                            {task.title}
+                          </Typography>
+                          <Chip
+                            label={task.status.toUpperCase()}
+                            size="small"
+                            sx={{
+                              backgroundColor:
+                                task.status === "todo"
+                                  ? "rgba(29,72,106,0.15)"
+                                  : "rgba(102,220,215,0.15)",
+                              color: task.status === "todo" ? "#1d486a" : "#66dcd7",
+                              fontWeight: 600,
+                            }}
+                          />
+                        </Box>
+
+                        {task.content && (
+                          <Typography variant="body2" color="text.secondary" mb={1}>
+                            {task.content}
+                          </Typography>
+                        )}
+
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <CalendarTodayIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+                          <Typography variant="caption" color="text.secondary">
+                            Due:{" "}
+                            {typeof window !== "undefined" && task.dueDate
+                              ? new Date(task.dueDate).toLocaleDateString()
+                              : "No due date"}
+                          </Typography>
+                        </Box>
+                      </Paper>
+                    ))}
+                  </Stack>
+                )}
+              </Box>
+            </Card>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
