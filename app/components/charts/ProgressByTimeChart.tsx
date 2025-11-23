@@ -167,38 +167,48 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
   }, [tasks, range]);
 
   return (
-    <div
-      className="w-full p-4 bg-white rounded-xl shadow"
-      style={{ pointerEvents: "auto" }}      // 🟢 FIX HERE
-    >
+    <div className="w-full p-4 bg-white rounded-xl shadow">
+      {/* Range toggle buttons */}
       <div className="flex gap-4 mb-4">
         <button
           onClick={() => setRange("day")}
-          className={`px-3 py-1 rounded ${range === "day" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`px-3 py-1 rounded ${
+            range === "day" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
         >
           Daily
         </button>
         <button
           onClick={() => setRange("week")}
-          className={`px-3 py-1 rounded ${range === "week" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`px-3 py-1 rounded ${
+            range === "week" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
         >
           Weekly
         </button>
         <button
           onClick={() => setRange("month")}
-          className={`px-3 py-1 rounded ${range === "month" ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`px-3 py-1 rounded ${
+            range === "month" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
         >
           Monthly
         </button>
       </div>
 
-      <ResponsiveContainer width="100%" height={300} style={{ pointerEvents: "auto" }}>
+      {/* Chart */}
+      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={groupedData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
           <YAxis allowDecimals={false} />
           <Tooltip />
-          <Line type="monotone" dataKey="count" stroke="#8884d8" strokeWidth={3} />
+          <Line
+            type="monotone"
+            dataKey="count"
+            stroke="#8884d8"
+            strokeWidth={3}
+          />
         </LineChart>
       </ResponsiveContainer>
     </div>
