@@ -6,7 +6,7 @@ export function middleware(req: NextRequest) {
 
     const { pathname } = req.nextUrl;
 
-    const publicPaths = ["/pages/login", "/pages/register"];
+    const publicPaths = ["/pages/login", "/pages/register","/pages/forgotPassword", "/pages/resetPassword"];
 
     if (publicPaths.includes(pathname)) {
         return NextResponse.next();
