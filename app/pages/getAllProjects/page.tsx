@@ -11,7 +11,7 @@ import {
   Typography,
   Card,
   CardContent,
-  Chip,
+  Button,
   Stack,
   CircularProgress,
   IconButton,
@@ -21,6 +21,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function GetAllProjectsPage() {
   const { user, projects, setProjects, setProjectId } = useAppStore();
@@ -107,16 +108,36 @@ console.log("response in get all projects", response);
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#fafafa", py: 4 }}>
-      <Container maxWidth="md" disableGutters>
-        <Box sx={{ mb: 4 }}>
-          <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
-            All Projects
-          </Typography>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
+      <Container maxWidth="lg">
+        {/* Header */}
+        <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Box>
+            <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
+              All Projects
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Select a project to view tasks and details
+            </Typography>
+          </Box>
 
-          <Typography variant="h6" color="text.secondary">
-            Select a project to view tasks and details
-          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<AddIcon />}
+            onClick={() => router.push("/pages/createProject")}
+            sx={{
+              px: 4,
+              py: 1.5,
+              fontWeight: 700,
+              background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
+              "&:hover": {
+                background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
+              },
+            }}
+          >
+            Create New Project
+          </Button>
         </Box>
 
         {projects.length > 0 ? (
@@ -162,7 +183,7 @@ console.log("response in get all projects", response);
 
                       {/* טקסטים */}
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        {/* 🔥 כותרת + חץ בשורה אחת */}
+                        {/* כותרת + חץ בשורה אחת */}
                         <Box
                           sx={{
                             display: "flex",
