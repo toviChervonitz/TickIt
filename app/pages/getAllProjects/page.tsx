@@ -20,6 +20,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import EditProject, { ProjectForm } from "@/app/components/EditProject";
 import AddIcon from "@mui/icons-material/Add";
 
 export default function GetAllProjectsPage() {
@@ -27,6 +28,11 @@ export default function GetAllProjectsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [editingProject, setEditingProject] = useState<ProjectForm | null>(
+    null
+  );
+  const [isManager, setIsManager]=useState(false)
+
 
   useEffect(() => {
     if (!user?._id) return;
@@ -35,6 +41,7 @@ export default function GetAllProjectsPage() {
     async function fetchProjects() {
       try {
         const response = await GetAllProjectsByUserId(userId!);
+console.log("response in get all projects", response);
 
         if (response?.status !== "success") {
           console.error("Error fetching projects:", response?.message);
@@ -69,6 +76,36 @@ export default function GetAllProjectsPage() {
   };
 
   const shouldShowSeeMore = (text: string) => !!text && text.length > 80;
+  const handleSaved = async () => {
+    setEditingProject(null);
+    if (!user) return;
+
+    const updated = await GetAllProjectsByUserId(user._id);
+    setProjects(updated.projects || []);
+  };
+
+  const handleEdit = async (id: string, name: string, description: string) => {
+    setEditingProject({ _id: id, name: name, description: description });
+    <EditProject
+      project={editingProject}
+      onSaved={handleSaved}
+      onCancel={() => setEditingProject(null)}
+    />;
+  };
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "60vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
@@ -133,7 +170,8 @@ export default function GetAllProjectsPage() {
                           width: 48,
                           height: 48,
                           borderRadius: 2,
-                          background: "linear-gradient(135deg, #3dd2cc 0%, #2dbfb9 100%)",
+                          background:
+                            "linear-gradient(135deg, #3dd2cc 0%, #2dbfb9 100%)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -176,6 +214,26 @@ export default function GetAllProjectsPage() {
                           >
                             <ArrowForwardIcon fontSize="small" />
                           </IconButton>
+                          {project.role=="manager"&&(
+                          <button
+                            onClick={() =>
+                              handleEdit(
+                                project._id!,
+                                project.name,
+                                project.description!
+                              )
+                            }
+                          >
+                            Edit Project
+                          </button>)}
+                          {editingProject && (
+                            <EditProject
+                              project={editingProject}
+                              onSaved={handleSaved}
+                              onCancel={() => setEditingProject(null)}
+                            />
+                          
+                          )}
                         </Box>
 
                         {/* תיאור – 2 שורות + See More */}
@@ -188,16 +246,16 @@ export default function GetAllProjectsPage() {
                             wordBreak: "break-word",
                             ...(showSeeMore && !isExpanded
                               ? {
-                                display: "-webkit-box",
-                                WebkitBoxOrient: "vertical",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                WebkitLineClamp: 2,
-                              }
+                                  display: "-webkit-box",
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                  textOverflow: "ellipsis",
+                                  WebkitLineClamp: 2,
+                                }
                               : {
-                                display: "block",
-                                overflow: "visible",
-                              }),
+                                  display: "block",
+                                  overflow: "visible",
+                                }),
                           }}
                         >
                           {description}
@@ -221,11 +279,17 @@ export default function GetAllProjectsPage() {
                           >
                             {isExpanded ? (
                               <>
-                                See less <ExpandLessIcon sx={{ fontSize: 18, ml: 0.5 }} />
+                                See less{" "}
+                                <ExpandLessIcon
+                                  sx={{ fontSize: 18, ml: 0.5 }}
+                                />
                               </>
                             ) : (
                               <>
-                                See more <ExpandMoreIcon sx={{ fontSize: 18, ml: 0.5 }} />
+                                See more{" "}
+                                <ExpandMoreIcon
+                                  sx={{ fontSize: 18, ml: 0.5 }}
+                                />
                               </>
                             )}
                           </Box>
@@ -259,7 +323,12 @@ export default function GetAllProjectsPage() {
             >
               <FolderIcon sx={{ fontSize: 60, color: "#3dd2cc" }} />
             </Box>
-            <Typography variant="h5" fontWeight={700} color="text.primary" mb={1}>
+            <Typography
+              variant="h5"
+              fontWeight={700}
+              color="text.primary"
+              mb={1}
+            >
               No Projects Yet
             </Typography>
             <Typography variant="body1" color="text.secondary">

@@ -118,9 +118,7 @@ export default function GetProjectTasks() {
         typeof t.userId === "string"
           ? t.userId
           : (t.userId as IUser)?._id?.toString() || users[0]?._id || "",
-      dueDate: t.dueDate
-        ? new Date(t.dueDate).toISOString().split("T")[0]
-        : "",
+      dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : "",
     });
   };
 
