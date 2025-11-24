@@ -1,7 +1,7 @@
 "use client";
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
-import { IProject, ITask, IUserSafe } from "../models/types";
+import { IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
 
 interface AppState {
   user: IUserSafe | null;
@@ -9,14 +9,14 @@ interface AppState {
   projectUsers: IUserSafe[];
   projectTasks: ITask[];
   tasks: ITask[];
-  projects: IProject[];
+  projects: IProjectRole[];
 
   setUser: (user: IUserSafe|null) => void;
   setProjectId: (projectId: string) => void;
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
-  setProjects: (projects: IProject[]) => void;
+  setProjects: (projects: IProjectRole[]) => void;
   logout: () => void;
 }
 

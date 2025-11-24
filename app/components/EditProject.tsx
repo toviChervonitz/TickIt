@@ -18,7 +18,7 @@ const EditProject =({
     onSaved,
     onCancel,
 }: EditProjectProps) => {
-    const [project, setProject]=useState<ProjectForm>(initialProject);
+    const [project, setProject]=useState<ProjectForm>(initialProject!);
     const [mounted, setMounted] = useState(false);
     
       useEffect(() => {

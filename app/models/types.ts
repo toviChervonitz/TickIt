@@ -9,6 +9,11 @@ export interface IProject {
   role: "manager" | "viewer";
 }
 
+export interface IProjectRole {
+  project: IProject;
+  role: "manager" | "viewer";
+}
+
 export interface IProjectUser {
   _id?: string;
   userId: mongoose.Types.ObjectId;
@@ -34,23 +39,23 @@ export interface ITask {
 // User types
 export type IUser =
   | {
-      _id?: string;           // include _id
-      provider: "credentials";
-      name: string;
-      email: string;
-      tel?: string;
-      password: string;        // required for manual users
-      image?: string;
-    }
+    _id?: string;           // include _id
+    provider: "credentials";
+    name: string;
+    email: string;
+    tel?: string;
+    password: string;        // required for manual users
+    image?: string;
+  }
   | {
-      _id?: string;           // include _id
-      provider: "google";
-      name: string;
-      email: string;
-      tel?: string;
-      password?: undefined;    // optional/undefined for Google users
-      image?: string;
-    };
+    _id?: string;           // include _id
+    provider: "google";
+    name: string;
+    email: string;
+    tel?: string;
+    password?: undefined;    // optional/undefined for Google users
+    image?: string;
+  };
 
 // Safe user for frontend (no password)
 export interface IUserSafe {
