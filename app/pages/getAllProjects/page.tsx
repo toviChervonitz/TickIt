@@ -34,7 +34,6 @@ const DOT_COLORS = [
   "#fab1a0", // קורל
 ];
 
-// פונקציה שבוחרת צבע לנקודה לפי ה-ID
 const getDotColor = (id: string) => {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
