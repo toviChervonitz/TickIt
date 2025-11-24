@@ -1,7 +1,7 @@
 "use client";
 
 import { GetAllProjectsByUserId } from "@/app/lib/server/projectServer";
-import { IProject } from "@/app/models/types";
+import { IProject, IProjectRole } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,16 +12,42 @@ import {
   Card,
   CardContent,
   Button,
-  Stack,
-  CircularProgress,
+  GridLegacy as Grid,
+  Skeleton,
   IconButton,
+  Dialog, // הוספתי דיאלוג לפופ-אפ
+  DialogContent, // תוכן הדיאלוג
 } from "@mui/material";
+
+import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import CircleIcon from "@mui/icons-material/Circle";
+import EditIcon from "@mui/icons-material/Edit";
+
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
-import AddIcon from "@mui/icons-material/Add";
+
+// טורקיז
+const MAIN_COLOR = "#3dd2cc";
+
+// נקודה
+const DOT_COLORS = [
+  "#ff9f43",
+  "#5f27cd",
+  "#ff6b6b",
+  "#48dbfb",
+  "#1dd1a1",
+  "#f368e0",
+  "#fab1a0",
+];
+
+const getDotColor = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return DOT_COLORS[Math.abs(hash % DOT_COLORS.length)];
+};
 
 export default function GetAllProjectsPage() {
   const { user, projects, setProjects, setProjectId } = useAppStore();
@@ -34,6 +60,25 @@ export default function GetAllProjectsPage() {
   const [isManager, setIsManager]=useState(false)
 
 
+  // ==== עריכה ====
+  const [editingProject, setEditingProject] = useState<ProjectForm | null>(null);
+
+  const handleEdit = (p: IProjectRole) => {
+    setEditingProject({
+      _id: p.project._id!,
+      name: p.project.name,
+      description: p.project.description || "",
+    });
+  };
+
+  const handleSaved = async () => {
+    setEditingProject(null);
+    if (!user) return;
+    const refreshed = await GetAllProjectsByUserId(user._id!);
+    setProjects(refreshed.projects || []);
+  };
+
+  // ========= Fetch =========
   useEffect(() => {
     if (!user?._id) return;
     const userId = user._id;
@@ -108,8 +153,8 @@ console.log("response in get all projects", response);
   }
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
-      <Container maxWidth="lg">
+    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", py: 5 }}>
+      <Container maxWidth="xl">
         {/* Header */}
         <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
@@ -122,17 +167,22 @@ console.log("response in get all projects", response);
           </Box>
 
           <Button
-            variant="contained"
-            size="large"
+            variant="outlined"
             startIcon={<AddIcon />}
             onClick={() => router.push("/pages/createProject")}
             sx={{
-              px: 4,
-              py: 1.5,
+              color: "#0f3460",
+              borderColor: "#0f3460",
+              backgroundColor: "white",
+              borderWidth: "1.5px",
               fontWeight: 700,
-              background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
+              px: 3,
+              py: 1,
+              borderRadius: "10px",
               "&:hover": {
-                background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
+                backgroundColor: "#f0f2f5",
+                borderColor: "#0f3460",
+                borderWidth: "1.5px",
               },
             }}
           >
@@ -140,160 +190,129 @@ console.log("response in get all projects", response);
           </Button>
         </Box>
 
-        {projects.length > 0 ? (
-          <Stack spacing={2}>
-            {projects.map((project: IProject) => {
-              const isExpanded = expandedItems.has(project._id!);
-              const description =
-                project.description || "No description available";
-              const showSeeMore = shouldShowSeeMore(description);
+        {/* Projects Grid */}
+        {loading ? (
+          <Grid container spacing={3}>
+            {[1, 2, 3, 4].map((n) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} key={n}>
+                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 3 }} />
+              </Grid>
+            ))}
+          </Grid>
+        ) : projects.length > 0 ? (
+          <Grid container spacing={3} alignItems="stretch">
+            {projects.map((wrapper: IProjectRole) => {
+              const p = wrapper.project;
+              console.log("p : ", p);
+              
+              const dotColor = getDotColor(p._id || "default");
 
               return (
-                <Card
-                  key={project._id}
-                  elevation={0}
-                  sx={{
-                    border: "1px solid #e8eaed",
-                    borderRadius: 3,
-                    transition: "all 0.2s ease",
-                    "&:hover": {
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
-                      borderColor: "#3dd2cc",
-                    },
-                  }}
-                >
-                  <CardContent sx={{ p: 3 }}>
-                    <Box sx={{ display: "flex", gap: 2.5 }}>
-                      {/* אייקון תיקיה */}
-                      <Box
-                        sx={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: 2,
-                          background:
-                            "linear-gradient(135deg, #3dd2cc 0%, #2dbfb9 100%)",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
-                        }}
-                      >
-                        <FolderIcon sx={{ color: "white", fontSize: 24 }} />
-                      </Box>
-
-                      {/* טקסטים */}
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        {/* כותרת + חץ בשורה אחת */}
+                <Grid item xs={12} sm={6} md={4} lg={3} key={p._id} sx={{ display: "flex" }}>
+                  <Card
+                    elevation={0}
+                    onClick={() => getIntoProject(p)}
+                    sx={{
+                      width: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      justifyContent: "space-between",
+                      borderRadius: 4,
+                      border: "1px solid #edf2f7",
+                      cursor: "pointer",
+                      transition: "0.2s",
+                      "&:hover": {
+                        boxShadow: "0 12px 20px rgba(0,0,0,0.05)",
+                        borderColor: MAIN_COLOR,
+                      },
+                    }}
+                  >
+                    <CardContent sx={{ p: 3, flexGrow: 1 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
                         <Box
                           sx={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: "12px",
+                            backgroundColor: "rgba(61,210,204,0.1)",
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
                             mb: 1,
                           }}
                         >
-                          <Typography
-                            variant="h6"
-                            fontWeight={700}
-                            color="text.primary"
-                            sx={{ mr: 2 }}
-                          >
-                            {project.name}
-                          </Typography>
-
-                          {/* החץ בשורה העליונה */}
-                          <IconButton
-                            onClick={() => getIntoProject(project)}
-                            size="small"
-                            sx={{
-                              color: "#3dd2cc",
-                              "&:hover": {
-                                backgroundColor: "rgba(61,210,204,0.1)",
-                              },
-                            }}
-                          >
-                            <ArrowForwardIcon fontSize="small" />
-                          </IconButton>
-                          {project.role=="manager"&&(
-                          <button
-                            onClick={() =>
-                              handleEdit(
-                                project._id!,
-                                project.name,
-                                project.description!
-                              )
-                            }
-                          >
-                            Edit Project
-                          </button>)}
-                          {editingProject && (
-                            <EditProject
-                              project={editingProject}
-                              onSaved={handleSaved}
-                              onCancel={() => setEditingProject(null)}
-                            />
-                          
-                          )}
+                          <FolderIcon sx={{ color: MAIN_COLOR, fontSize: 28 }} />
                         </Box>
 
-                        {/* תיאור – 2 שורות + See More */}
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{
-                            mb: showSeeMore ? 1 : 2,
-                            lineHeight: 1.6,
-                            wordBreak: "break-word",
-                            ...(showSeeMore && !isExpanded
-                              ? {
-                                  display: "-webkit-box",
-                                  WebkitBoxOrient: "vertical",
-                                  overflow: "hidden",
-                                  textOverflow: "ellipsis",
-                                  WebkitLineClamp: 2,
-                                }
-                              : {
-                                  display: "block",
-                                  overflow: "visible",
-                                }),
-                          }}
-                        >
-                          {description}
-                        </Typography>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
 
-                        {showSeeMore && (
-                          <Box
-                            onClick={(e) => toggleExpand(project._id!, e)}
-                            sx={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              color: "#3dd2cc",
-                              cursor: "pointer",
-                              fontWeight: 600,
-                              fontSize: "0.875rem",
-                              mb: 2,
-                              "&:hover": {
-                                color: "#2dbfb9",
-                              },
-                            }}
-                          >
-                            {isExpanded ? (
-                              <>
-                                See less{" "}
-                                <ExpandLessIcon
-                                  sx={{ fontSize: 18, ml: 0.5 }}
-                                />
-                              </>
-                            ) : (
-                              <>
-                                See more{" "}
-                                <ExpandMoreIcon
-                                  sx={{ fontSize: 18, ml: 0.5 }}
-                                />
-                              </>
+                            {wrapper.role === "manager" && (
+                            <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                e.stopPropagation(); 
+                                handleEdit(wrapper);
+                                }}
+                                sx={{
+                                color: "primary.main",
+                                transition: "all 0.2s",
+                                "&:hover": { 
+                                    color: MAIN_COLOR, 
+                                    backgroundColor: "rgba(61,210,204,0.1)" 
+                                },
+                                }}
+                            >
+                                <EditIcon fontSize="small" />
+                            </IconButton>
                             )}
-                          </Box>
-                        )}
+                        </Box>
+                      </Box>
+
+                      {/* Name */}
+                      <Typography
+                        variant="h6"
+                        fontWeight={700}
+                        sx={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {p.name}
+                      </Typography>
+
+                      {/* Description */}
+                      <Typography
+                        variant="body2"
+                        color="text.secondary"
+                        sx={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          wordBreak: "break-word",
+                          minHeight: "4.5em",
+                          lineHeight: 1.5,
+                        }}
+                      >
+                        {p.description || "No description available."}
+                      </Typography>
+                    </CardContent>
+
+                    <Box sx={{ p: 3, pt: 0, display: "flex", justifyContent: "flex-end" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          color: MAIN_COLOR,
+                          fontWeight: 700,
+                          fontSize: "0.875rem",
+                          gap: 0.5,
+                          "&:hover": { gap: 1 },
+                        }}
+                      >
+                        View Project <ArrowForwardIcon sx={{ fontSize: 18 }} />
                       </Box>
                     </Box>
                   </CardContent>
@@ -302,41 +321,33 @@ console.log("response in get all projects", response);
             })}
           </Stack>
         ) : (
-          <Box
-            sx={{
-              textAlign: "center",
-              py: 8,
-            }}
-          >
-            <Box
-              sx={{
-                width: 120,
-                height: 120,
-                borderRadius: "50%",
-                backgroundColor: "rgba(61,210,204,0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto",
-                mb: 3,
-              }}
-            >
-              <FolderIcon sx={{ fontSize: 60, color: "#3dd2cc" }} />
-            </Box>
-            <Typography
-              variant="h5"
-              fontWeight={700}
-              color="text.primary"
-              mb={1}
-            >
-              No Projects Yet
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              You haven't created or joined any projects yet.
-            </Typography>
+          <Box sx={{ textAlign: "center", py: 10 }}>
+            <Typography color="text.secondary">No projects yet.</Typography>
           </Box>
         )}
       </Container>
+
+      {/* === מודל עריכה (Popup) === */}
+      <Dialog 
+        open={!!editingProject} 
+        onClose={() => setEditingProject(null)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+            sx: { borderRadius: 3, p: 1 }
+        }}
+      >
+        <DialogContent>
+            {editingProject && (
+                <EditProject
+                    project={editingProject}
+                    onSaved={handleSaved}
+                    onCancel={() => setEditingProject(null)}
+                />
+            )}
+        </DialogContent>
+      </Dialog>
+
     </Box>
   );
 }

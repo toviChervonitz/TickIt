@@ -1,11 +1,11 @@
 // /app/api/users/addMembers/route.ts
-import { sendExistMail, sendPasswordEmail } from "@/app/lib/mailer";
 import { generatePassword } from "@/utils/generatePassword";
 import { NextResponse } from "next/server";
 import User from "@/app/models/UserModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { hashPassword } from "@/app/lib/bcrypt";
 import { getAuthenticatedUser, verifyToken } from "@/app/lib/jwt";
+import { sendExistMail, sendPasswordEmail } from "@/app/lib/mailer";
 
 interface AddMemberBody {
   email?: string;
@@ -38,12 +38,24 @@ export async function POST(req: Request) {
     }
 
     if (role === "manager" && !email) {
-      const user = await assignUserToProject(callerId, projectId, "manager");
+
+      const exists = await ProjectUser.findOne({
+        userId: callerId,
+        projectId,
+        role: "manager"
+      });
+
+      if (!exists) {
+        await assignUserToProject(callerId, projectId, "manager");
+      }
+
+      const user = await User.findById(callerId).select("_id name email");
+
       return NextResponse.json({
         _id: user!._id,
         name: user!.name,
         email: user!.email,
-        message: "Manager added successfully",
+        message: "Manager added successfully (or already existed)",
       });
     }
 
