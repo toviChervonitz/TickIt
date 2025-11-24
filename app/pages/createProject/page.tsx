@@ -18,6 +18,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AddMember from "@/app/components/AddMember";
+import GenerateTasks from "@/app/components/generatedTasks";
 
 interface ProjectDetails {
   name: string;
@@ -357,88 +358,83 @@ export default function CreateProjectPage() {
           )}
 
           {/* Step 3: Add Tasks */}
-          {step === 2 && (
-            <Box>
-              <Stack direction="row" alignItems="center" spacing={2} mb={4}>
-                <Box
-                  sx={{
-                    width: 56,
-                    height: 56,
-                    borderRadius: "50%",
-                    background: "linear-gradient(135deg, #1d486a 0%, #122d42 100%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <AssignmentIcon sx={{ color: "white", fontSize: 28 }} />
-                </Box>
-                <Box>
-                  <Typography variant="h5" fontWeight={700} color="primary.main">
-                    Create Tasks
-                  </Typography>
-                  <Typography color="text.secondary">
-                    Add tasks to get your project started
-                  </Typography>
-                </Box>
-              </Stack>
+{step === 2 && (
+  <Box>
+    <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
+      {/* Left: Manual Task Form */}
+      <Box sx={{ flex: 1 }}>
+        <Stack spacing={3}>
+          <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} />
 
-              <Stack spacing={3}>
-                <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} />
-
-                {tasks.length > 0 && (
-                  <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
-                    <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                      Tasks Created ({tasks.length})
-                    </Typography>
-                    <List>
-                      {tasks.map((t, idx) => (
-                        <ListItem
-                          key={idx}
-                          sx={{
-                            borderRadius: 2,
-                            mb: 1,
-                            backgroundColor: "#fafaf9",
-                            "&:hover": { backgroundColor: "#f5f5f5" },
-                          }}
-                        >
-                          <ListItemText
-                            primary={t.title || "(No Title)"}
-                            secondary={
-                              projectUsers.find((u) => u._id === t.userId)?.email ||
-                              "(Unknown User)"
-                            }
-                            primaryTypographyProps={{ fontWeight: 600 }}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Paper>
-                )}
-
-                <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    endIcon={<CheckCircleIcon />}
-                    onClick={handleFinish}
-                    disabled={loading}
+          {tasks.length > 0 && (
+            <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
+              <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                Tasks Created ({tasks.length})
+              </Typography>
+              <List>
+                {tasks.map((t, idx) => (
+                  <ListItem
+                    key={idx}
                     sx={{
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 700,
-                      background: "linear-gradient(to bottom, #1d486a, #163957)",
-                      "&:hover": {
-                        background: "linear-gradient(to bottom, #163957, #122d42)",
-                      },
+                      borderRadius: 2,
+                      mb: 1,
+                      backgroundColor: "#fafaf9",
+                      "&:hover": { backgroundColor: "#f5f5f5" },
                     }}
                   >
-                    {loading ? "Finishing..." : "Finish Project"}
-                  </Button>
-                </Box>
-              </Stack>
-            </Box>
+                    <ListItemText
+                      primary={t.title || "(No Title)"}
+                      secondary={
+                        projectUsers.find((u) => u._id === t.userId)?.email ||
+                        "(Unassigned)"
+                      }
+                      primaryTypographyProps={{ fontWeight: 600 }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
           )}
+        </Stack>
+      </Box>
+
+      {/* Right: Generate Tasks */}
+      <Box sx={{ flex: 1 }}>
+        <GenerateTasks
+          projectName={projectDetails.name}
+          projectDescription={projectDetails.description}
+          projectId={projectIdLocal}
+          onAddTask={(generatedTask) => {
+            setTasks((prev) => [...prev, generatedTask]);
+          }}
+          projectUsers={projectUsers}
+        />
+      </Box>
+    </Box>
+
+    {/* Finish Button */}
+    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+      <Button
+        variant="contained"
+        size="large"
+        endIcon={<CheckCircleIcon />}
+        onClick={handleFinish}
+        disabled={loading}
+        sx={{
+          px: 4,
+          py: 1.5,
+          fontWeight: 700,
+          background: "linear-gradient(to bottom, #1d486a, #163957)",
+          "&:hover": {
+            background: "linear-gradient(to bottom, #163957, #122d42)",
+          },
+        }}
+      >
+        {loading ? "Finishing..." : "Finish Project"}
+      </Button>
+    </Box>
+  </Box>
+)}
         </Card>
       </Container>
     </Box>
