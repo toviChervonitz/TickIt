@@ -1,7 +1,7 @@
 "use client";
 
 import { GetAllProjectsByUserId } from "@/app/lib/server/projectServer";
-import { IProject } from "@/app/models/types";
+import { IProject, IProjectRole } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -121,15 +121,15 @@ console.log("response in get all projects", response);
 
         {projects.length > 0 ? (
           <Stack spacing={2}>
-            {projects.map((project: IProject) => {
+            {projects.map((project: IProjectRole) => {
               const isExpanded = expandedItems.has(project._id!);
               const description =
-                project.description || "No description available";
+                project.project.description || "No description available";
               const showSeeMore = shouldShowSeeMore(description);
 
               return (
                 <Card
-                  key={project._id}
+                  key={project.project._id}
                   elevation={0}
                   sx={{
                     border: "1px solid #e8eaed",
@@ -177,12 +177,12 @@ console.log("response in get all projects", response);
                             color="text.primary"
                             sx={{ mr: 2 }}
                           >
-                            {project.name}
+                            {project.project.name}
                           </Typography>
 
                           {/* החץ בשורה העליונה */}
                           <IconButton
-                            onClick={() => getIntoProject(project)}
+                            onClick={() => getIntoProject(project.project)}
                             size="small"
                             sx={{
                               color: "#3dd2cc",
@@ -197,9 +197,9 @@ console.log("response in get all projects", response);
                           <button
                             onClick={() =>
                               handleEdit(
-                                project._id!,
-                                project.name,
-                                project.description!
+                                project.project._id!,
+                                project.project.name,
+                                project.project.description!
                               )
                             }
                           >
@@ -242,7 +242,7 @@ console.log("response in get all projects", response);
 
                         {showSeeMore && (
                           <Box
-                            onClick={(e) => toggleExpand(project._id!, e)}
+                            onClick={(e) => toggleExpand(project.project._id!, e)}
                             sx={{
                               display: "inline-flex",
                               alignItems: "center",
