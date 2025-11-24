@@ -400,15 +400,23 @@ export default function CreateProjectPage() {
 
       {/* Right: Generate Tasks */}
       <Box sx={{ flex: 1 }}>
-        <GenerateTasks
-          projectName={projectDetails.name}
-          projectDescription={projectDetails.description}
-          projectId={projectIdLocal}
-          onAddTask={(generatedTask) => {
-            setTasks((prev) => [...prev, generatedTask]);
-          }}
-          projectUsers={projectUsers}
-        />
+<GenerateTasks
+  projectName={projectDetails.name}
+  projectDescription={projectDetails.description}
+  projectId={projectIdLocal}
+  projectUsers={projectUsers}
+  onAddTask={async (generatedTask) => {
+    const savedTask = await CreateTask({
+      ...generatedTask,
+      projectId: projectIdLocal,
+      managerId: user?._id!,
+    });
+
+    const realTask = savedTask.task || savedTask;
+
+    setTasks((prev) => [...prev, realTask]);
+  }}
+/>
       </Box>
     </Box>
 
