@@ -1,7 +1,7 @@
 "use client";
 
 import { GetAllProjectsByUserId } from "@/app/lib/server/projectServer";
-import { IProject } from "@/app/models/types";
+import { IProject, IProjectRole } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -14,24 +14,31 @@ import {
   Button,
   GridLegacy as Grid,
   Skeleton,
+  IconButton,
+  Dialog, // הוספתי דיאלוג לפופ-אפ
+  DialogContent, // תוכן הדיאלוג
 } from "@mui/material";
+
 import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CircleIcon from "@mui/icons-material/Circle";
+import EditIcon from "@mui/icons-material/Edit";
 
-// הצבע הראשי של המערכת (טורקיז) - נשאר עבור האלמנטים האחרים
+import EditProject, { ProjectForm } from "@/app/components/EditProject";
+
+// טורקיז
 const MAIN_COLOR = "#3dd2cc";
 
-// רשימת צבעים רק עבור הנקודה הקטנה
+// נקודה
 const DOT_COLORS = [
-  "#ff9f43", // כתום
-  "#5f27cd", // סגול
-  "#ff6b6b", // אדום עדין
-  "#48dbfb", // תכלת
-  "#1dd1a1", // ירוק
-  "#f368e0", // ורוד
-  "#fab1a0", // קורל
+  "#ff9f43",
+  "#5f27cd",
+  "#ff6b6b",
+  "#48dbfb",
+  "#1dd1a1",
+  "#f368e0",
+  "#fab1a0",
 ];
 
 const getDotColor = (id: string) => {
@@ -39,8 +46,7 @@ const getDotColor = (id: string) => {
   for (let i = 0; i < id.length; i++) {
     hash = id.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const index = Math.abs(hash % DOT_COLORS.length);
-  return DOT_COLORS[index];
+  return DOT_COLORS[Math.abs(hash % DOT_COLORS.length)];
 };
 
 export default function GetAllProjectsPage() {
@@ -48,6 +54,25 @@ export default function GetAllProjectsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
+  // ==== עריכה ====
+  const [editingProject, setEditingProject] = useState<ProjectForm | null>(null);
+
+  const handleEdit = (p: IProjectRole) => {
+    setEditingProject({
+      _id: p.project._id!,
+      name: p.project.name,
+      description: p.project.description || "",
+    });
+  };
+
+  const handleSaved = async () => {
+    setEditingProject(null);
+    if (!user) return;
+    const refreshed = await GetAllProjectsByUserId(user._id!);
+    setProjects(refreshed.projects || []);
+  };
+
+  // ========= Fetch =========
   useEffect(() => {
     if (!user?._id) return;
     async function fetchProjects() {
@@ -71,7 +96,7 @@ export default function GetAllProjectsPage() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "backgroun.default", py: 5 }}>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", py: 5 }}>
       <Container maxWidth="xl">
         {/* Header */}
         <Box
@@ -93,24 +118,23 @@ export default function GetAllProjectsPage() {
             </Typography>
           </Box>
 
-          {/* הכפתור החדש בעיצוב Outlined */}
           <Button
-            variant="outlined" 
+            variant="outlined"
             startIcon={<AddIcon />}
             onClick={() => router.push("/pages/createProject")}
             sx={{
-              color: "#0f3460", // צבע טקסט כחול כהה
-              borderColor: "#0f3460", // צבע מסגרת כחול כהה
+              color: "#0f3460",
+              borderColor: "#0f3460",
               backgroundColor: "white",
-              borderWidth: "1.5px", // מסגרת קצת יותר עבה שיראה טוב
+              borderWidth: "1.5px",
               fontWeight: 700,
               px: 3,
               py: 1,
-              borderRadius: "10px", // פינות מעוגלות כמו בתמונה
-              "&:hover": { 
-                backgroundColor: "#f0f2f5", // רקע אפרפר בהיר במעבר עכבר
+              borderRadius: "10px",
+              "&:hover": {
+                backgroundColor: "#f0f2f5",
                 borderColor: "#0f3460",
-                borderWidth: "1.5px"
+                borderWidth: "1.5px",
               },
             }}
           >
@@ -118,7 +142,7 @@ export default function GetAllProjectsPage() {
           </Button>
         </Box>
 
-        {/* Grid Layout */}
+        {/* Projects Grid */}
         {loading ? (
           <Grid container spacing={3}>
             {[1, 2, 3, 4].map((n) => (
@@ -129,15 +153,17 @@ export default function GetAllProjectsPage() {
           </Grid>
         ) : projects.length > 0 ? (
           <Grid container spacing={3} alignItems="stretch">
-            {projects.map((project: IProject) => {
-              // רק הנקודה מקבלת צבע ייחודי
-              const dotColor = getDotColor(project._id || "default");
+            {projects.map((wrapper: IProjectRole) => {
+              const p = wrapper.project;
+              console.log("p : ", p);
+              
+              const dotColor = getDotColor(p._id || "default");
 
               return (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={project._id} sx={{ display: 'flex' }}>
+                <Grid item xs={12} sm={6} md={4} lg={3} key={p._id} sx={{ display: "flex" }}>
                   <Card
                     elevation={0}
-                    onClick={() => getIntoProject(project)}
+                    onClick={() => getIntoProject(p)}
                     sx={{
                       width: "100%",
                       display: "flex",
@@ -145,48 +171,66 @@ export default function GetAllProjectsPage() {
                       justifyContent: "space-between",
                       borderRadius: 4,
                       border: "1px solid #edf2f7",
-                      transition: "all 0.2s ease-in-out",
                       cursor: "pointer",
+                      transition: "0.2s",
                       "&:hover": {
-                        transform: "translateY(-4px)",
                         boxShadow: "0 12px 20px rgba(0,0,0,0.05)",
-                        borderColor: MAIN_COLOR, // Border בטורקיז
+                        borderColor: MAIN_COLOR,
                       },
                     }}
                   >
                     <CardContent sx={{ p: 3, flexGrow: 1 }}>
-                      {/* Top Row: Folder Icon (Turquoise) & Unique Dot */}
-                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, alignItems: "center" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
                         <Box
                           sx={{
                             width: 48,
                             height: 48,
                             borderRadius: "12px",
-                            backgroundColor: "rgba(61, 210, 204, 0.1)", // רקע טורקיז בהיר מאוד
+                            backgroundColor: "rgba(61,210,204,0.1)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                           }}
                         >
-                           <FolderIcon sx={{ color: MAIN_COLOR, fontSize: 28 }} />
+                          <FolderIcon sx={{ color: MAIN_COLOR, fontSize: 28 }} />
                         </Box>
-                        
-                        {/* הנקודה הצבעונית המשתנה */}
-                        <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
+
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
+
+                            {wrapper.role === "manager" && (
+                            <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                e.stopPropagation(); 
+                                handleEdit(wrapper);
+                                }}
+                                sx={{
+                                color: "primary.main",
+                                transition: "all 0.2s",
+                                "&:hover": { 
+                                    color: MAIN_COLOR, 
+                                    backgroundColor: "rgba(61,210,204,0.1)" 
+                                },
+                                }}
+                            >
+                                <EditIcon fontSize="small" />
+                            </IconButton>
+                            )}
+                        </Box>
                       </Box>
 
-                      {/* Title */}
+                      {/* Name */}
                       <Typography
                         variant="h6"
                         fontWeight={700}
-                        gutterBottom
                         sx={{
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {project.name}
+                        {p.name}
                       </Typography>
 
                       {/* Description */}
@@ -195,32 +239,28 @@ export default function GetAllProjectsPage() {
                         color="text.secondary"
                         sx={{
                           display: "-webkit-box",
-                          WebkitLineClamp: 3,
+                          WebkitLineClamp: 2,
                           WebkitBoxOrient: "vertical",
                           overflow: "hidden",
                           wordBreak: "break-word",
-                          minHeight: "4.5em", // שומר על גובה אחיד
+                          minHeight: "4.5em",
                           lineHeight: 1.5,
                         }}
                       >
-                        {project.description || "No description available."}
+                        {p.description || "No description available."}
                       </Typography>
                     </CardContent>
 
-                    {/* Footer: View Project (Turquoise) */}
-                    <Box sx={{ p: 3, pt: 0, display: 'flex', justifyContent: 'flex-end' }}>
-                      <Box 
-                        sx={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          color: MAIN_COLOR, 
-                          fontWeight: 700, 
-                          fontSize: '0.875rem',
+                    <Box sx={{ p: 3, pt: 0, display: "flex", justifyContent: "flex-end" }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          color: MAIN_COLOR,
+                          fontWeight: 700,
+                          fontSize: "0.875rem",
                           gap: 0.5,
-                          transition: 'gap 0.2s',
-                          "&:hover": {
-                             gap: 1 // אפקט קטן שהחץ זז הצידה
-                          }
+                          "&:hover": { gap: 1 },
                         }}
                       >
                         View Project <ArrowForwardIcon sx={{ fontSize: 18 }} />
@@ -232,11 +272,33 @@ export default function GetAllProjectsPage() {
             })}
           </Grid>
         ) : (
-          <Box sx={{ textAlign: 'center', py: 10 }}>
-             <Typography color="text.secondary">No projects yet.</Typography>
+          <Box sx={{ textAlign: "center", py: 10 }}>
+            <Typography color="text.secondary">No projects yet.</Typography>
           </Box>
         )}
       </Container>
+
+      {/* === מודל עריכה (Popup) === */}
+      <Dialog 
+        open={!!editingProject} 
+        onClose={() => setEditingProject(null)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+            sx: { borderRadius: 3, p: 1 }
+        }}
+      >
+        <DialogContent>
+            {editingProject && (
+                <EditProject
+                    project={editingProject}
+                    onSaved={handleSaved}
+                    onCancel={() => setEditingProject(null)}
+                />
+            )}
+        </DialogContent>
+      </Dialog>
+
     </Box>
   );
 }
