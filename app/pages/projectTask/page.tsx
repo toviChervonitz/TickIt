@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Task from "@/app/components/Task";
 import EditTask, { TaskForm as EditTaskForm } from "@/app/components/editTask";
 import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
@@ -8,11 +9,13 @@ import {
   DeleteTask,
   GetTasksByProjectId,
   CreateTask,
+  UpdateTaskStatus,
 } from "@/app/lib/server/taskServer";
 import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
 import { ITask, IUser } from "@/app/models/types";
+
 import {
   Box,
   Container,
@@ -27,6 +30,7 @@ import {
   IconButton,
   Stack,
 } from "@mui/material";
+
 import CircleIcon from "@mui/icons-material/Circle";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -91,7 +95,6 @@ export default function GetProjectTasks() {
     loadProjectData();
   }, [projectId, user]);
 
-  // Fetch project users
   const fetchProjectUsers = async () => {
     if (!projectId) return [];
     const res = await getAllUsersByProjectId(projectId);
@@ -140,21 +143,60 @@ export default function GetProjectTasks() {
     setFilteredTasks(updated);
   };
 
-  const handleStatusChange = (
+  const handleStatusChange = async (
     id: string,
-    newStatus: "todo" | "doing" | "done"
+    newStatus: "todo" | "doing" | "done",
+    userId: string
   ) => {
-    const updated = tasks.map((t) =>
-      t._id?.toString() === id ? { ...t, status: newStatus } : t
-    );
-    setTasks(updated);
-    setFilteredTasks(updated);
+    try {
+      const updated = tasks.map((t) =>
+        t._id === id ? { ...t, status: newStatus } : t
+      );
+      setTasks(updated);
+      setFilteredTasks((prev) =>
+        prev.map((t) =>
+          t._id?.toString() === id ? { ...t, status: newStatus } : t
+        )
+      );
+
+      await UpdateTaskStatus(id, userId, newStatus);
+    } catch (err) {
+      console.error("Failed to update task status:", err);
+    }
+  };
+
+  const handleDragEnd = (result: any) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) return;
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const newStatus = destination.droppableId as
+      | "todo"
+      | "doing"
+      | "done";
+
+    const task = filteredTasks.find((t) => t._id?.toString() === draggableId);
+    if (!task) return;
+
+    const userId =
+      typeof task.userId === "string"
+        ? task.userId
+        : (task.userId as IUser)?._id?.toString() || "";
+
+    handleStatusChange(draggableId, newStatus, userId);
   };
 
   const handleAddTaskSubmit = async () => {
     if (!projectId) return;
     try {
-      await CreateTask({ ...newTask, projectId });
+      const created = await CreateTask({ ...newTask, projectId });
       setShowAddTask(false);
       setNewTask({
         title: "",
@@ -163,11 +205,13 @@ export default function GetProjectTasks() {
         dueDate: "",
         status: "todo",
       });
-      // reload tasks
+
       if (!user) return;
-      const updated = await GetTasksByProjectId(user._id, projectId);
-      setTasks(updated);
-      setFilteredTasks(updated);
+
+      if (created && created.task) {
+        setTasks([...tasks, created.task]);
+        setFilteredTasks((prev) => [...prev, created.task]);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -177,47 +221,10 @@ export default function GetProjectTasks() {
   const doingTasks = filteredTasks.filter((t) => t.status === "doing");
   const doneTasks = filteredTasks.filter((t) => t.status === "done");
 
-  const columns = [
-    {
-      title: "To Do",
-      tasks: todoTasks,
-      color: "#1d486a",
-      bgColor: "rgba(29,72,106,0.08)",
-    },
-    {
-      title: "In Progress",
-      tasks: doingTasks,
-      color: "#66dcd7",
-      bgColor: "rgba(102,220,215,0.08)",
-    },
-    {
-      title: "Completed",
-      tasks: doneTasks,
-      color: "#3dd2cc",
-      bgColor: "rgba(61,210,204,0.08)",
-    },
-  ];
-
-  if (error) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <Typography variant="h6" color="error">
-          {error}
-        </Typography>
-      </Box>
-    );
-  }
-
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 4 }}>
       <Container maxWidth="xl">
+        {/* Header */}
         <Box
           sx={{
             mb: 4,
@@ -246,6 +253,7 @@ export default function GetProjectTasks() {
               </Typography>
             </Box>
           </Box>
+
           {isManager && (
             <Stack direction="row" spacing={2}>
               <Button
@@ -262,7 +270,6 @@ export default function GetProjectTasks() {
               >
                 Add Task
               </Button>
-           
 
               <Button
                 variant="outlined"
@@ -280,206 +287,210 @@ export default function GetProjectTasks() {
           )}
         </Box>
 
-        <Grid container spacing={3}>
-          {columns.map((column) => (
-            <Grid item xs={12} md={4} key={column.title}>
-              <Paper
-                elevation={0}
-                sx={{
-                  backgroundColor: column.bgColor,
-                  borderRadius: 3,
-                  p: 2,
-                  minHeight: "70vh",
-                  border: "1px solid #e8eaed",
-                }}
-              >
-                {/* Column Header */}
-                <Box
-                  sx={{
-                    mb: 3,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <CircleIcon sx={{ fontSize: 12, color: column.color }} />
-                    <Typography variant="h6" fontWeight={700}>
-                      {column.title}
-                    </Typography>
-                  </Box>
-
-                  <Chip
-                    label={loading ? "…" : column.tasks.length}
-                    size="small"
-                    sx={{
-                      backgroundColor: column.color,
-                      color: "white",
-                      fontWeight: 600,
-                    }}
-                  />
-                </Box>
-
-                {/* Tasks OR Loading */}
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                  {loading ? (
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 2,
-                        borderRadius: 2,
-                        backgroundColor: "white",
-                        border: "1px dashed #d0d0d0",
-                      }}
-                    >
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{ opacity: 0.6 }}
+        {/* Drag & Drop */}
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Grid container spacing={3}>
+            {[{ id: "todo", title: "To Do", tasks: todoTasks, color: "#1d486a", bgColor: "rgba(29,72,106,0.08)" },
+            { id: "doing", title: "In Progress", tasks: doingTasks, color: "#66dcd7", bgColor: "rgba(102,220,215,0.08)" },
+            { id: "done", title: "Completed", tasks: doneTasks, color: "#3dd2cc", bgColor: "rgba(61,210,204,0.08)" },
+            ].map((column) => (
+              <Grid item xs={12} md={4} key={column.id}>
+                <Box sx={{ height: "100%" }}>
+                  <Droppable droppableId={column.id}>
+                    {(provided) => (
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        sx={{ height: "100%" }}
                       >
-                        Loading task…
-                      </Typography>
-                    </Paper>
-                  ) : // 🔵 מצב רגיל – מציג משימות
-                  column.tasks.length > 0 ? (
-                    column.tasks.map((task) => {
-                      const taskId = task._id?.toString() || "";
-                      const userId =
-                        typeof task.userId === "string"
-                          ? task.userId
-                          : (task.userId as IUser)?._id?.toString() || "";
-                      const userName =
-                        typeof task.userId === "string"
-                          ? "Unknown"
-                          : (task.userId as IUser)?.name || "Unknown";
-                      const projectName =
-                        (task.projectId as { name?: string })?.name ||
-                        "No project";
-                      const dueDate =
-                        task.dueDate instanceof Date
-                          ? task.dueDate
-                          : task.dueDate
-                          ? new Date(task.dueDate)
-                          : undefined;
+                        <Paper
+                          elevation={0}
+                          sx={{
+                            backgroundColor: column.bgColor,
+                            borderRadius: 3,
+                            p: 2,
+                            minHeight: "70vh",
+                            border: "1px solid #e8eaed",
+                          }}
+                        >
+                          {/* Column Header */}
+                          <Box
+                            sx={{
+                              mb: 3,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                              <CircleIcon sx={{ fontSize: 12, color: column.color }} />
+                              <Typography variant="h6" fontWeight={700}>
+                                {column.title}
+                              </Typography>
+                            </Box>
 
-                      return (
-                        <Task
-                          key={taskId}
-                          _id={taskId}
-                          userId={userId}
-                          title={task.title}
-                          content={task.content}
-                          status={task.status}
-                          dueDate={dueDate}
-                          userName={userName}
-                          projectName={projectName}
-                          showButtons={isManager}
-                          onEdit={handleEdit}
-                          onDelete={() => handleDelete(taskId)}
-                          onStatusChange={handleStatusChange}
-                        />
-                      );
-                    })
-                  ) : (
-                    // אין משימות
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 3,
-                        textAlign: "center",
-                        backgroundColor: "white",
-                        borderRadius: 2,
-                        border: "1px dashed #e0e0e0",
-                      }}
-                    >
-                      <Typography variant="body2" color="text.secondary">
-                        No tasks in this stage
-                      </Typography>
-                    </Paper>
-                  )}
+                            <Chip
+                              label={loading ? "…" : column.tasks.length}
+                              size="small"
+                              sx={{
+                                backgroundColor: column.color,
+                                color: "white",
+                                fontWeight: 600,
+                              }}
+                            />
+                          </Box>
+
+                          {/* Tasks */}
+                          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            {loading ? (
+                              <Paper
+                                elevation={0}
+                                sx={{
+                                  p: 2,
+                                  borderRadius: 2,
+                                  backgroundColor: "white",
+                                  border: "1px dashed #d0d0d0",
+                                }}
+                              >
+                                <Typography variant="body2" color="text.secondary">
+                                  Loading task…
+                                </Typography>
+                              </Paper>
+                            ) : column.tasks.length > 0 ? (
+                              column.tasks.map((task, index) => {
+                                const taskId = task._id?.toString() || "";
+                                const userId =
+                                  typeof task.userId === "string"
+                                    ? task.userId
+                                    : (task.userId as IUser)?._id?.toString() || "";
+                                const userName =
+                                  typeof task.userId === "string"
+                                    ? "Unknown"
+                                    : (task.userId as IUser)?.name || "Unknown";
+
+                                const projectName =
+                                  (task.projectId as { name?: string })?.name || "No project";
+
+                                const dueDate =
+                                  task.dueDate instanceof Date
+                                    ? task.dueDate
+                                    : task.dueDate
+                                      ? new Date(task.dueDate)
+                                      : undefined;
+
+                                return (
+                                  <Draggable key={taskId} draggableId={taskId} index={index}>
+                                    {(provided) => (
+                                      <Box
+                                        ref={provided.innerRef}
+                                        {...provided.draggableProps}
+                                        {...provided.dragHandleProps}
+                                        sx={{ mb: 2 }}
+                                      >
+                                        <Task
+                                          key={taskId}
+                                          _id={taskId}
+                                          userId={userId}
+                                          title={task.title}
+                                          content={task.content}
+                                          status={task.status}
+                                          dueDate={dueDate}
+                                          userName={userName}
+                                          projectName={projectName}
+                                          showButtons={isManager}
+                                          onEdit={handleEdit}
+                                          onDelete={() => handleDelete(taskId)}
+                                          onStatusChange={handleStatusChange}
+                                        />
+                                      </Box>
+                                    )}
+                                  </Draggable>
+                                );
+                              })
+                            ) : (
+                              <Paper
+                                elevation={0}
+                                sx={{
+                                  p: 3,
+                                  textAlign: "center",
+                                  backgroundColor: "white",
+                                  borderRadius: 2,
+                                  border: "1px dashed #e0e0e0",
+                                }}
+                              >
+                                <Typography variant="body2" color="text.secondary">
+                                  No tasks in this stage
+                                </Typography>
+                              </Paper>
+                            )}
+                          </Box>
+                        </Paper>
+
+                        {provided.placeholder}
+                      </Box>
+                    )}
+                  </Droppable>
                 </Box>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
+              </Grid>
+            ))}
+          </Grid>
+        </DragDropContext>
 
-      {/* Add Task Dialog */}
-      <Dialog
-        open={showAddTask}
-        onClose={() => setShowAddTask(false)}
-        maxWidth="md"
-        fullWidth
-        container={typeof document !== "undefined" ? document.body : undefined} // ensures top-level portal
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Typography component="div" variant="h6" fontWeight={700}>
-            Add New Task
-          </Typography>
-          <IconButton onClick={() => setShowAddTask(false)}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
+        {/* Add Task Dialog */}
+        <Dialog open={showAddTask} onClose={() => setShowAddTask(false)} maxWidth="md" fullWidth>
+          <DialogTitle
+            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+          >
+            <Typography component="div" variant="h6" fontWeight={700}>
+              Add New Task
+            </Typography>
+            <IconButton onClick={() => setShowAddTask(false)}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
 
-        <DialogContent>
-          <TaskForm
-            task={newTask}
-            setTask={setNewTask}
-            onSubmit={handleAddTaskSubmit}
-          />
-        </DialogContent>
-      </Dialog>
+          <DialogContent>
+            <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} />
+          </DialogContent>
+        </Dialog>
 
-      {/* Add Member Dialog */}
-      <Dialog
-        open={showAddUser}
-        onClose={() => setShowAddUser(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogTitle
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <Typography variant="h6" fontWeight={700}>
-            Add Team Member
-          </Typography>
-          <IconButton onClick={() => setShowAddUser(false)}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          <AddMember
+        {/* Add Member Dialog */}
+        <Dialog open={showAddUser} onClose={() => setShowAddUser(false)} maxWidth="sm" fullWidth>
+          <DialogTitle
+            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+          >
+            <Typography variant="h6" fontWeight={700}>
+              Add Team Member
+            </Typography>
+            <IconButton onClick={() => setShowAddUser(false)}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent>
+            <AddMember
+              projectId={projectId!}
+              onUserAdded={(newUser) => {
+                const prevUsers = useAppStore.getState().projectUsers;
+                setProjectUsers([...prevUsers, newUser]);
+                setShowAddUser(false);
+              }}
+              onClose={() => setShowAddUser(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Task Dialog */}
+        {editingTask && (
+          <EditTask
+            task={editingTask}
+            projectUsers={projectUsers}
             projectId={projectId!}
-            onUserAdded={(newUser) => {
-              const prevUsers = useAppStore.getState().projectUsers;
-              setProjectUsers([...prevUsers, newUser]);
-              setShowAddUser(false);
-            }}
-            onClose={() => setShowAddUser(false)}
+            onSaved={handleSaved}
+            onCancel={() => setEditingTask(null)}
           />
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Task Dialog */}
-      {editingTask && (
-        <EditTask
-          task={editingTask}
-          projectUsers={projectUsers}
-          projectId={projectId!}
-          onSaved={handleSaved}
-          onCancel={() => setEditingTask(null)}
-        />
-      )}
+        )}
+      </Container>
     </Box>
   );
 }

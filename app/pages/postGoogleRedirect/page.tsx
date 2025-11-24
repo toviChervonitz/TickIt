@@ -184,7 +184,7 @@ export default function PostGoogleRedirect() {
           setUser(loginData.user);
         }
 
-        router.push("/pages/getAllTaskByUser");
+        router.push("/pages/dashboard");
         return;
       }
 
@@ -211,7 +211,7 @@ export default function PostGoogleRedirect() {
             }
           }
 
-          router.push("/pages/getAllTaskByUser");
+          router.push("/pages/dashboard");
           return;
         }
 
