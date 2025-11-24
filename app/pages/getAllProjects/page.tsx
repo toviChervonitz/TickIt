@@ -53,12 +53,6 @@ export default function GetAllProjectsPage() {
   const { user, projects, setProjects, setProjectId } = useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-  const [editingProject, setEditingProject] = useState<ProjectForm | null>(
-    null
-  );
-  const [isManager, setIsManager]=useState(false)
-
 
   // ==== עריכה ====
   const [editingProject, setEditingProject] = useState<ProjectForm | null>(null);
@@ -81,27 +75,18 @@ export default function GetAllProjectsPage() {
   // ========= Fetch =========
   useEffect(() => {
     if (!user?._id) return;
-    const userId = user._id;
-
     async function fetchProjects() {
       try {
-        const response = await GetAllProjectsByUserId(userId!);
-console.log("response in get all projects", response);
-
-        if (response?.status !== "success") {
-          console.error("Error fetching projects:", response?.message);
-          setProjects([]);
-          return;
+        const response = await GetAllProjectsByUserId(user?._id!);
+        if (response?.status === "success") {
+          setProjects(response.projects || []);
         }
-
-        setProjects(response.projects || []);
       } catch (err) {
         console.error("Fetch error:", err);
       } finally {
         setLoading(false);
       }
     }
-
     fetchProjects();
   }, [user, setProjects]);
 
@@ -110,58 +95,25 @@ console.log("response in get all projects", response);
     router.push("/pages/projectTask");
   };
 
-  const toggleExpand = (projectId: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedItems((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(projectId)) newSet.delete(projectId);
-      else newSet.add(projectId);
-      return newSet;
-    });
-  };
-
-  const shouldShowSeeMore = (text: string) => !!text && text.length > 80;
-  const handleSaved = async () => {
-    setEditingProject(null);
-    if (!user) return;
-
-    const updated = await GetAllProjectsByUserId(user._id);
-    setProjects(updated.projects || []);
-  };
-
-  const handleEdit = async (id: string, name: string, description: string) => {
-    setEditingProject({ _id: id, name: name, description: description });
-    <EditProject
-      project={editingProject}
-      onSaved={handleSaved}
-      onCancel={() => setEditingProject(null)}
-    />;
-  };
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "60vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", py: 5 }}>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 5 }}>
       <Container maxWidth="xl">
         {/* Header */}
-        <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <Box
+          sx={{
+            mb: 5,
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            justifyContent: "space-between",
+            alignItems: { xs: "flex-start", sm: "center" },
+            gap: 2,
+          }}
+        >
           <Box>
-            <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
-              All Projects
+            <Typography variant="h4" fontWeight={800} color="primary.main">
+              Projects
             </Typography>
-            <Typography variant="h6" color="text.secondary">
+            <Typography variant="body1" color="text.secondary">
               Select a project to view tasks and details
             </Typography>
           </Box>
@@ -204,7 +156,7 @@ console.log("response in get all projects", response);
             {projects.map((wrapper: IProjectRole) => {
               const p = wrapper.project;
               console.log("p : ", p);
-              
+
               const dotColor = getDotColor(p._id || "default");
 
               return (
@@ -218,7 +170,8 @@ console.log("response in get all projects", response);
                       flexDirection: "column",
                       justifyContent: "space-between",
                       borderRadius: 4,
-                      border: "1px solid #edf2f7",
+                      backgroundColor: "background.default",
+                      border: "1px solid #e0e0e0",
                       cursor: "pointer",
                       transition: "0.2s",
                       "&:hover": {
@@ -236,36 +189,35 @@ console.log("response in get all projects", response);
                             borderRadius: "12px",
                             backgroundColor: "rgba(61,210,204,0.1)",
                             display: "flex",
-                            justifyContent: "space-between",
                             alignItems: "center",
-                            mb: 1,
+                            justifyContent: "center",
                           }}
                         >
                           <FolderIcon sx={{ color: MAIN_COLOR, fontSize: 28 }} />
                         </Box>
 
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
+                          <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
 
-                            {wrapper.role === "manager" && (
+                          {wrapper.role === "manager" && (
                             <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                e.stopPropagation(); 
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 handleEdit(wrapper);
-                                }}
-                                sx={{
+                              }}
+                              sx={{
                                 color: "primary.main",
                                 transition: "all 0.2s",
-                                "&:hover": { 
-                                    color: MAIN_COLOR, 
-                                    backgroundColor: "rgba(61,210,204,0.1)" 
+                                "&:hover": {
+                                  color: MAIN_COLOR,
+                                  backgroundColor: "rgba(61,210,204,0.1)"
                                 },
-                                }}
+                              }}
                             >
-                                <EditIcon fontSize="small" />
+                              <EditIcon fontSize="small" />
                             </IconButton>
-                            )}
+                          )}
                         </Box>
                       </Box>
 
@@ -315,11 +267,11 @@ console.log("response in get all projects", response);
                         View Project <ArrowForwardIcon sx={{ fontSize: 18 }} />
                       </Box>
                     </Box>
-                  </CardContent>
-                </Card>
+                  </Card>
+                </Grid>
               );
             })}
-          </Stack>
+          </Grid>
         ) : (
           <Box sx={{ textAlign: "center", py: 10 }}>
             <Typography color="text.secondary">No projects yet.</Typography>
@@ -328,23 +280,23 @@ console.log("response in get all projects", response);
       </Container>
 
       {/* === מודל עריכה (Popup) === */}
-      <Dialog 
-        open={!!editingProject} 
+      <Dialog
+        open={!!editingProject}
         onClose={() => setEditingProject(null)}
         maxWidth="sm"
         fullWidth
         PaperProps={{
-            sx: { borderRadius: 3, p: 1 }
+          sx: { borderRadius: 3, p: 1 }
         }}
       >
         <DialogContent>
-            {editingProject && (
-                <EditProject
-                    project={editingProject}
-                    onSaved={handleSaved}
-                    onCancel={() => setEditingProject(null)}
-                />
-            )}
+          {editingProject && (
+            <EditProject
+              project={editingProject}
+              onSaved={handleSaved}
+              onCancel={() => setEditingProject(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
