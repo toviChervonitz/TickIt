@@ -61,9 +61,3 @@ export default function Charts() {
     </div>
   );
 }
-//to do:
-/*
-1. figure out why some of the names arent displaying in the tasks by project chart
-2. fix buttons not working
-3. why are there errors in the charts page
-*/
