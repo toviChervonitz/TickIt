@@ -1,40 +1,49 @@
 "use client";
 
-import { Box, Button, Container, Typography, Card, GridLegacy as Grid, Stack, Chip } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Typography,
+  Card,
+  GridLegacy as Grid,
+  Stack,
+  Chip,
+} from "@mui/material";
 import Link from "next/link";
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import GroupsIcon from '@mui/icons-material/Groups';
-import InsightsIcon from '@mui/icons-material/Insights';
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import GroupsIcon from "@mui/icons-material/Groups";
+import InsightsIcon from "@mui/icons-material/Insights";
+import { sendTestEmail } from "./lib/mailer";
 
 export default function Home() {
   const features = [
     {
       icon: <TrendingUpIcon sx={{ fontSize: 40, color: "primary.main" }} />,
       title: "Project Management",
-      text: "Create, plan, and track tasks transparently and accurately for all team members."
+      text: "Create, plan, and track tasks transparently and accurately for all team members.",
     },
     {
       icon: <GroupsIcon sx={{ fontSize: 40, color: "secondary.main" }} />,
       title: "Real-Time Collaboration",
-      text: "Work together on tasks, comment, and stay synchronized — anytime, anywhere."
+      text: "Work together on tasks, comment, and stay synchronized — anytime, anywhere.",
     },
     {
       icon: <InsightsIcon sx={{ fontSize: 40, color: "primary.main" }} />,
       title: "Advanced Analytics & Reporting",
-      text: "Gain insights into performance, productivity, and process efficiency."
-    }
+      text: "Gain insights into performance, productivity, and process efficiency.",
+    },
   ];
 
   const benefits = [
     "AI Agent that understands natural language commands",
     "Effortless management of tasks, users, and projects",
     "Built-in permission system for Admins & Users",
-    "Reminders, email actions & calendar sync"
+    "Reminders, email actions & calendar sync",
   ];
-
+  
   return (
-    
     <Box sx={{ overflow: "hidden" }}>
       <Box
         sx={{
@@ -48,14 +57,17 @@ export default function Home() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "radial-gradient(circle at 20% 50%, rgba(61,210,204,0.15) 0%, transparent 50%)",
-          }
+            background:
+              "radial-gradient(circle at 20% 50%, rgba(61,210,204,0.15) 0%, transparent 50%)",
+          },
         }}
       >
-        <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 }, position: "relative", zIndex: 1 }}>
+        <Container
+          maxWidth="lg"
+          sx={{ py: { xs: 8, md: 12 }, position: "relative", zIndex: 1 }}
+        >
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
-              
               <Chip
                 label="✨ Leading Task Management Platform"
                 sx={{
@@ -63,7 +75,7 @@ export default function Home() {
                   backgroundColor: "rgba(61,210,204,0.2)",
                   color: "#3dd2cc",
                   fontWeight: 600,
-                  border: "1px solid rgba(61,210,204,0.3)"
+                  border: "1px solid rgba(61,210,204,0.3)",
                 }}
               />
 
@@ -74,11 +86,14 @@ export default function Home() {
                 sx={{
                   fontSize: { xs: "2.5rem", md: "3.5rem" },
                   lineHeight: 1.2,
-                  mb: 3
+                  mb: 3,
                 }}
               >
                 Smart Task
-                <Box component="span" sx={{ color: "#3dd2cc", display: "block" }}>
+                <Box
+                  component="span"
+                  sx={{ color: "#3dd2cc", display: "block" }}
+                >
                   Management System
                 </Box>
               </Typography>
@@ -88,7 +103,8 @@ export default function Home() {
                 color="rgba(255,255,255,0.85)"
                 sx={{ mb: 4, lineHeight: 1.7, fontWeight: 400 }}
               >
-                Manage projects, prioritize tasks, and collaborate seamlessly — all in one efficient and beautifully organized platform.
+                Manage projects, prioritize tasks, and collaborate seamlessly —
+                all in one efficient and beautifully organized platform.
               </Typography>
 
               <Stack direction="row" spacing={2} sx={{ mb: 4 }}>
@@ -107,12 +123,11 @@ export default function Home() {
                     "&:hover": {
                       transform: "translateY(-2px)",
                     },
-                    transition: "all 0.3s ease"
+                    transition: "all 0.3s ease",
                   }}
                 >
                   login
                 </Button>
-
               </Stack>
             </Grid>
 
@@ -127,7 +142,7 @@ export default function Home() {
                   transition: "transform 0.3s ease",
                   "&:hover": {
                     transform: "perspective(1000px) rotateY(0deg)",
-                  }
+                  },
                 }}
               >
                 <Box
@@ -147,7 +162,6 @@ export default function Home() {
         </Container>
       </Box>
 
-
       <Box sx={{ backgroundColor: "#f7f5f0", py: 10 }}>
         <Container maxWidth="lg">
           <Box sx={{ textAlign: "center", mb: 8 }}>
@@ -157,7 +171,7 @@ export default function Home() {
                 mb: 2,
                 backgroundColor: "white",
                 fontWeight: 600,
-                px: 2
+                px: 2,
               }}
             />
             <Typography
@@ -174,7 +188,8 @@ export default function Home() {
               maxWidth="700px"
               mx="auto"
             >
-              Advanced tools for project management, collaboration, and progress tracking
+              Advanced tools for project management, collaboration, and progress
+              tracking
             </Typography>
           </Box>
 
@@ -187,14 +202,17 @@ export default function Home() {
                     transition: "all 0.3s ease",
                     "&:hover": {
                       transform: "translateY(-8px)",
-                      boxShadow: "0 12px 30px rgba(0,0,0,0.12)"
-                    }
+                      boxShadow: "0 12px 30px rgba(0,0,0,0.12)",
+                    },
                   }}
                 >
-                  <Box sx={{ mb: 2 }}>
-                    {feature.icon}
-                  </Box>
-                  <Typography variant="h6" fontWeight={700} mb={2} color="primary.main">
+                  <Box sx={{ mb: 2 }}>{feature.icon}</Box>
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    mb={2}
+                    color="primary.main"
+                  >
                     {feature.title}
                   </Typography>
                   <Typography color="text.secondary" lineHeight={1.7}>
@@ -210,11 +228,22 @@ export default function Home() {
       <Container maxWidth="lg" sx={{ py: 10 }}>
         <Grid container spacing={6} alignItems="center">
           <Grid item xs={12} md={6}>
-            <Typography variant="h3" fontWeight={800} color="primary.main" mb={3}>
+            <Typography
+              variant="h3"
+              fontWeight={800}
+              color="primary.main"
+              mb={3}
+            >
               Why Choose Us?
             </Typography>
-            <Typography variant="h6" color="text.secondary" mb={4} lineHeight={1.8}>
-              Our system offers excellent user experience, high performance, and full support for all your organization&lsquo;s management needs.
+            <Typography
+              variant="h6"
+              color="text.secondary"
+              mb={4}
+              lineHeight={1.8}
+            >
+              Our system offers excellent user experience, high performance, and
+              full support for all your organization&lsquo;s management needs.
             </Typography>
 
             <Stack spacing={2.5}>
@@ -228,12 +257,16 @@ export default function Home() {
                       backgroundColor: "rgba(61,210,204,0.15)",
                       display: "flex",
                       alignItems: "center",
-                      justifyContent: "center"
+                      justifyContent: "center",
                     }}
                   >
                     <CheckCircleIcon sx={{ color: "#3dd2cc", fontSize: 24 }} />
                   </Box>
-                  <Typography fontSize="1.1rem" fontWeight={600} color="text.primary">
+                  <Typography
+                    fontSize="1.1rem"
+                    fontWeight={600}
+                    color="text.primary"
+                  >
                     {benefit}
                   </Typography>
                 </Stack>
@@ -276,11 +309,15 @@ export default function Home() {
             left: 0,
             right: 0,
             bottom: 0,
-            background: "radial-gradient(circle at 80% 50%, rgba(61,210,204,0.1) 0%, transparent 50%)",
-          }
+            background:
+              "radial-gradient(circle at 80% 50%, rgba(61,210,204,0.1) 0%, transparent 50%)",
+          },
         }}
       >
-        <Container maxWidth="md" sx={{ textAlign: "center", position: "relative", zIndex: 1 }}>
+        <Container
+          maxWidth="md"
+          sx={{ textAlign: "center", position: "relative", zIndex: 1 }}
+        >
           <Typography variant="h3" fontWeight={800} color="white" mb={3}>
             Lead Your Team to Success
           </Typography>
@@ -291,7 +328,8 @@ export default function Home() {
             mb={5}
             lineHeight={1.8}
           >
-            Join now and empower your organization with a smarter, faster way to manage work. Start your free trial with no commitment.
+            Join now and empower your organization with a smarter, faster way to
+            manage work. Start your free trial with no commitment.
           </Typography>
 
           <Button
@@ -309,7 +347,7 @@ export default function Home() {
               "&:hover": {
                 transform: "translateY(-3px)",
               },
-              transition: "all 0.3s ease"
+              transition: "all 0.3s ease",
             }}
           >
             Create an Account
@@ -321,7 +359,11 @@ export default function Home() {
             justifyContent="center"
             sx={{ mt: 5 }}
           >
-            {["No credit card required", "Start in minutes", "Cancel anytime"].map((text, i) => (
+            {[
+              "No credit card required",
+              "Start in minutes",
+              "Cancel anytime",
+            ].map((text, i) => (
               <Typography
                 key={i}
                 color="rgba(255,255,255,0.7)"

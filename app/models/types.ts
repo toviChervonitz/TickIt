@@ -6,6 +6,9 @@ export interface IProject {
   name: string;
   description?: string;
   tasks?: mongoose.Types.ObjectId[];
+}
+export interface IProjectRole {
+  project: IProject;
   role: "manager" | "viewer";
 }
 
@@ -59,7 +62,7 @@ export type IUser =
 
 // Safe user for frontend (no password)
 export interface IUserSafe {
-  _id: string;                // include _id for TS safety
+  _id: string; // include _id for TS safety
   name: string;
   email: string;
   tel?: string;
