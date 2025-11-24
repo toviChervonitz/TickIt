@@ -1,19 +1,17 @@
+import { TaskFormData } from "@/app/components/AddTaskForm";
 
 export const handleGenerateContent = async (
   projectSummary: string,
   projectId: string
-) => {
-  if (!projectSummary.trim() || !projectId.trim()) return;
+): Promise<TaskFormData[] | null> => {
+  if (!projectSummary.trim() || !projectId.trim()) return null;
 
   try {
-    // Use fetch to call your API route
     const response = await fetch("/api/agent", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-project-id": projectId, // pass project ID in header
-        // Optionally include your auth token here if needed:
-        // "Authorization": `Bearer ${userToken}`,
+        "x-project-id": projectId,
       },
       body: JSON.stringify({ userPrompt: projectSummary }),
     });
@@ -24,10 +22,18 @@ export const handleGenerateContent = async (
       throw new Error(data.error || "Generating tasks failed");
     }
 
-    return data;
+    // Ensure each task has title, content, dueDate
+    const tasks: TaskFormData[] = (data || []).map((task: any) => ({
+      title: task.title || "",
+      content: task.content || "",
+      dueDate: task.dueDate || "",
+      userId: "",        // initially unassigned
+      status: "todo",
+    }));
+
+    return tasks;
   } catch (err: any) {
     console.error("Generate Content Error:", err);
     return null;
   }
 };
-

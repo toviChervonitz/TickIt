@@ -200,11 +200,11 @@ export default function GenerateTasks({
     );
 
     if (Array.isArray(result)) {
-      const tasksWithDefaults = result.map((t: any) => ({
-        ...t,
-        userId: "",
-        dueDate: new Date().toISOString().split("T")[0],
-      }));
+const tasksWithDefaults = result.map((t: any) => ({
+  ...t,
+  userId: "",
+  dueDate: t.dueDate || new Date().toISOString().split("T")[0], // keep AI date
+}));
       setGeneratedTasks(tasksWithDefaults);
     }
 
