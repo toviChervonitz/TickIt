@@ -96,7 +96,7 @@ export default function GetAllProjectsPage() {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", backgroundColor: "background.default", py: 5 }}>
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 5 }}>
       <Container maxWidth="xl">
         {/* Header */}
         <Box
@@ -156,7 +156,7 @@ export default function GetAllProjectsPage() {
             {projects.map((wrapper: IProjectRole) => {
               const p = wrapper.project;
               console.log("p : ", p);
-              
+
               const dotColor = getDotColor(p._id || "default");
 
               return (
@@ -170,7 +170,8 @@ export default function GetAllProjectsPage() {
                       flexDirection: "column",
                       justifyContent: "space-between",
                       borderRadius: 4,
-                      border: "1px solid #edf2f7",
+                      backgroundColor: "background.default",
+                      border: "1px solid #e0e0e0",
                       cursor: "pointer",
                       transition: "0.2s",
                       "&:hover": {
@@ -196,27 +197,27 @@ export default function GetAllProjectsPage() {
                         </Box>
 
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
+                          <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
 
-                            {wrapper.role === "manager" && (
+                          {wrapper.role === "manager" && (
                             <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                e.stopPropagation(); 
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 handleEdit(wrapper);
-                                }}
-                                sx={{
+                              }}
+                              sx={{
                                 color: "primary.main",
                                 transition: "all 0.2s",
-                                "&:hover": { 
-                                    color: MAIN_COLOR, 
-                                    backgroundColor: "rgba(61,210,204,0.1)" 
+                                "&:hover": {
+                                  color: MAIN_COLOR,
+                                  backgroundColor: "rgba(61,210,204,0.1)"
                                 },
-                                }}
+                              }}
                             >
-                                <EditIcon fontSize="small" />
+                              <EditIcon fontSize="small" />
                             </IconButton>
-                            )}
+                          )}
                         </Box>
                       </Box>
 
@@ -279,23 +280,23 @@ export default function GetAllProjectsPage() {
       </Container>
 
       {/* === מודל עריכה (Popup) === */}
-      <Dialog 
-        open={!!editingProject} 
+      <Dialog
+        open={!!editingProject}
         onClose={() => setEditingProject(null)}
         maxWidth="sm"
         fullWidth
         PaperProps={{
-            sx: { borderRadius: 3, p: 1 }
+          sx: { borderRadius: 3, p: 1 }
         }}
       >
         <DialogContent>
-            {editingProject && (
-                <EditProject
-                    project={editingProject}
-                    onSaved={handleSaved}
-                    onCancel={() => setEditingProject(null)}
-                />
-            )}
+          {editingProject && (
+            <EditProject
+              project={editingProject}
+              onSaved={handleSaved}
+              onCancel={() => setEditingProject(null)}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
