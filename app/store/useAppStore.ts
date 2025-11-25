@@ -90,10 +90,11 @@ const useAppStore = create(
           const currentTasks = state.tasks;
           let newTasks: ITask[] = [];
 
+          const taskExists = data.task && currentTasks.some(t => t._id === data.task!._id);
+
           switch (data.action) {
             case "ADD":
-              // מוסיפים רק אם המשימה עוד לא קיימת ב-Store
-              if (data.task && !currentTasks.some(t => t._id === data.task!._id)) {
+              if (data.task && !taskExists) {
                 newTasks = [data.task, ...currentTasks];
               } else {
                 newTasks = currentTasks;
@@ -101,11 +102,13 @@ const useAppStore = create(
               break;
 
             case "UPDATE":
-              // עדכון אובייקט קיים
-              newTasks = currentTasks.map(t =>
-                // שימוש ב-spread operator כדי למזג את השדות המעודכנים (data.task)
-                t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
-              );
+              if (data.task && !taskExists) {
+                newTasks = [data.task, ...currentTasks];
+              } else {
+                newTasks = currentTasks.map(t =>
+                  t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
+                );
+              }
               break;
 
             case "DELETE":

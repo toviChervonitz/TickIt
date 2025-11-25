@@ -126,7 +126,7 @@ const pusher = new Pusher({
 // ----------------------------------------------------
 export async function PUT(
   req: Request,
-  context: { params: { taskId: string } } // הסרנו את ה-Promise לטובת בהירות
+  context: { params: Promise<{ taskId: string }> } // הסרנו את ה-Promise לטובת בהירות
 ) {
   await dbConnect();
 
@@ -135,7 +135,7 @@ export async function PUT(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { taskId } = context.params;
+  const { taskId } = await context.params;
 
   if (!taskId) {
     return NextResponse.json(
@@ -146,7 +146,7 @@ export async function PUT(
 
   // ⭐ שלב 1: אחזור המשימה הנוכחית כדי לקבל את ה-Assignee הישן וה-projectId ⭐
   // .select() מבטיח יעילות
-  const taskToUpdate : any= await Task.findById(taskId).select("projectId userId").lean();
+  const taskToUpdate: any = await Task.findById(taskId).select("projectId userId").lean();
 
   if (!taskToUpdate) {
     return NextResponse.json(
@@ -155,8 +155,8 @@ export async function PUT(
     );
   }
 
-  const oldAssigneeId = taskToUpdate.userId.toString(); 
-  const projectId = taskToUpdate.projectId.toString(); 
+  const oldAssigneeId = taskToUpdate.userId.toString();
+  const projectId = taskToUpdate.projectId.toString();
 
   // ⭐ שלב 2: בדיקת מנהל (הרשאות) ⭐
   const isManager = await ProjectUser.findOne({
@@ -188,10 +188,10 @@ export async function PUT(
 
   // ⭐ שלב 4: Populate - אחזור האובייקט המעודכן עם פרטי משתמש/פרויקט ⭐
   // נשתמש ב-"as ITask" ו-"as { _id: string }" כדי לפתור את שגיאות TypeScript
-  const updatedTaskPopulated : any = await Task.findById(taskId)
+  const updatedTaskPopulated: any = await Task.findById(taskId)
     .populate("userId", "name")
     .populate("projectId", "name")
-    .lean() ;
+    .lean();
 
   if (!updatedTaskPopulated) {
     return NextResponse.json(
