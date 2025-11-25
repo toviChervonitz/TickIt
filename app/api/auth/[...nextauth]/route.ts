@@ -82,6 +82,8 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     // לא נוגעים ב-DB כאן בכלל
     async signIn() {
+      console.log("now im in callbacks of nextauth");
+      
       return true; // כל משתמש שגוגל אישר → נכנס
     },
 
