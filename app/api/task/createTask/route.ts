@@ -5,6 +5,8 @@ import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { taskSchema } from "@/app/lib/validation";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
+import { broadcastTask } from "@/app/api/events/tasks/route";
+
 
 // Strongly typed token payload
 interface TokenPayload {
@@ -54,6 +56,8 @@ export async function POST(req: Request) {
       status: "todo",
       createdAt: new Date(),
     });
+
+    broadcastTask(newTask);
 
     return NextResponse.json({ message: "Task created successfully", task: newTask }, { status: 200 });
 
