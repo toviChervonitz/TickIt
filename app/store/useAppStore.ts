@@ -60,9 +60,16 @@ const useAppStore = create(
         if (typeof window === "undefined") return;
         if (get().eventSource) return;
 
+        console.log("📡 initRealtime called");
+
         const es = new EventSource("/api/events/tasks");
 
+        es.onopen = () => {
+          console.log("🟢 SSE connected!");
+        };
+
         es.onmessage = (event) => {
+          console.log("📨 SSE message received:", event.data);
           const data = JSON.parse(event.data);
 
           if (data.type === "taskCreated") {
@@ -74,13 +81,13 @@ const useAppStore = create(
 
             const isAssignedToMe =
               newTask.userId === currentUser._id ||
-              newTask.userId?._id === currentUser._id; 
+              newTask.userId?._id === currentUser._id;
 
             if (!isAssignedToMe) {
               return;
             }
 
-            set({ tasks: [...currentTasks, newTask] });
+            set({ tasks: [newTask, ...currentTasks] });
           }
         };
 
