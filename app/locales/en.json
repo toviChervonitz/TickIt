@@ -1,0 +1,9 @@
+{
+  "dashboard": "Dashboard",
+  "projects": "Projects",
+  "tasks": "Tasks",
+  "calendar": "Calendar",
+  "charts": "Charts",
+  "logout": "Logout",
+  "viewProfile": "View profile"
+}
