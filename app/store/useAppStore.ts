@@ -56,37 +56,37 @@ const useAppStore = create(
       setProjects: (projects) =>
         set((state) => ({ ...state, projects })),
 
-      // ⭐⭐⭐ ADD THIS: Real-time subscription
       initRealtime: () => {
         if (typeof window === "undefined") return;
-
-        // Prevent duplicate connections
         if (get().eventSource) return;
 
         const es = new EventSource("/api/events/tasks");
 
         es.onmessage = (event) => {
-          try {
-            const data = JSON.parse(event.data);
+          const data = JSON.parse(event.data);
 
-            if (data.type === "taskCreated") {
-              const currentTasks = get().tasks;
-              set({ tasks: [...currentTasks, data.task] });
+          if (data.type === "taskCreated") {
+            const newTask = data.task;
+            const currentUser = get().user;
+            const currentTasks = get().tasks;
+
+            if (!currentUser) return;
+
+            const isAssignedToMe =
+              newTask.userId === currentUser._id ||
+              newTask.userId?._id === currentUser._id; 
+
+            if (!isAssignedToMe) {
+              return;
             }
-          } catch (err) {
-            console.error("Realtime parse error:", err);
-          }
-        };
 
-        es.onerror = () => {
-          console.warn("SSE connection error - reconnecting in 5s");
-          es.close();
-          set({ eventSource: null });
-          setTimeout(() => get().initRealtime(), 5000);
+            set({ tasks: [...currentTasks, newTask] });
+          }
         };
 
         set({ eventSource: es });
       },
+
 
       logout: () => {
         const es = get().eventSource;
