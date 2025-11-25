@@ -128,17 +128,22 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import useAppStore from "@/app/store/useAppStore";
+import { darkScrollbar } from "@mui/material";
 
 export default function PostGoogleRedirect() {
   const router = useRouter();
   const { setUser } = useAppStore();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     (async () => {
-      const session = await getSession();
+      if (status === "loading") return <p>Loading...</p>;
+      // const session = await getSession();
+      // const ssession;
       console.log("session in post google redirect ", session);
-      
+
       if (!session || !session.user?.email) {
         router.push("/pages/login");
         return;
