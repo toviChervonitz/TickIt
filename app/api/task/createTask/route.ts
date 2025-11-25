@@ -4,8 +4,8 @@ import Task from "@/app/models/TaskModel";
 import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { taskSchema } from "@/app/lib/validation";
+import Pusher from "pusher";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
-import { broadcastTask } from "@/app/api/events/tasks/route";
 
 
 // Strongly typed token payload
@@ -13,6 +13,14 @@ interface TokenPayload {
   id: string;
   [key: string]: any;
 }
+
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID!,
+  key: process.env.PUSHER_KEY!,
+  secret: process.env.PUSHER_SECRET!,
+  cluster: process.env.PUSHER_CLUSTER!,
+  useTLS: true,
+});
 
 export async function POST(req: Request) {
   await dbConnect();
@@ -57,7 +65,14 @@ export async function POST(req: Request) {
       createdAt: new Date(),
     });
 
-    broadcastTask(newTask);
+    await pusher.trigger(
+      `private-user-${userId}`, // הערוץ של המשתמש הרלוונטי
+      "task-updated",           // שם האירוע
+      {
+        action: "ADD",          // הפעולה שבוצעה
+        task: newTask           // הנתונים המעודכנים
+      }
+    );
 
     return NextResponse.json({ message: "Task created successfully", task: newTask }, { status: 200 });
 
