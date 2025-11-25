@@ -289,3 +289,217 @@ export default function LoginPage() {
     </Box>
   );
 }
+// "use client";
+
+// import React, { useState, FormEvent, ChangeEvent } from "react";
+// import { useRouter } from "next/navigation";
+// import { signIn } from "next-auth/react";
+// import { Login } from "@/app/lib/server/authServer";
+// import useAppStore from "@/app/store/useAppStore";
+// import { IUserSafe } from "@/app/models/types";
+// import {
+//   Box, Container, Typography, TextField, Button, Card, Divider, Alert, Link as MuiLink, Stack
+// } from "@mui/material";
+// import Link from "next/link";
+// import GoogleIcon from '@mui/icons-material/Google';
+// import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+
+// // ✅ i18n
+// import { getTranslation } from "@/app/lib/i18n.ts";
+// interface LoginResponse {
+//   status: "success" | "error";
+//   message?: string;
+//   user?: IUserSafe;
+//   token?: string;
+// }
+
+// export default function LoginPage() {
+//   const router = useRouter();
+//   const { setUser } = useAppStore();
+
+//   // 🔹 Load translations for this page
+//   const t = getTranslation("en");
+
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [error, setError] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const [googleLoading, setGoogleLoading] = useState(false);
+
+//   const handleChange =
+//     (setter: React.Dispatch<React.SetStateAction<string>>) =>
+//       (e: ChangeEvent<HTMLInputElement>) => {
+//         setter(e.target.value);
+//       };
+
+//   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+//     e.preventDefault();
+//     if (!email || !password) {
+//       setError(t("error.missingFields"));
+//       return;
+//     }
+
+//     setError("");
+//     setLoading(true);
+
+//     try {
+//       const result: LoginResponse = await Login({ email, password });
+
+//       if (result.status === "error" || !result.user) {
+//         setError(result.message || t("error.loginFailed"));
+//         setLoading(false);
+//         return;
+//       }
+
+//       setUser(result.user);
+//       router.replace("/pages/dashboard");
+//     } catch (err: any) {
+//       console.error(err);
+//       setError(err.message || t("error.loginFailed"));
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleGoogleSignIn = async () => {
+//     setError("");
+//     setGoogleLoading(true);
+//     try {
+//       localStorage.setItem("googleAuthMode", "login");
+//       await signIn("google", {
+//         callbackUrl: "/pages/postGoogleRedirect",
+//         state: "login"
+//       });
+//     } catch (err: any) {
+//       console.error(err);
+//       setError(t("error.googleFailed"));
+//     } finally {
+//       setGoogleLoading(false);
+//     }
+//   };
+
+//   return (
+//     <Box
+//       sx={{
+//         minHeight: "50vh",
+//         backgroundColor: "#F0EBE3",
+//         display: "flex",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         py: 2.5,
+//         position: "relative",
+//       }}
+//     >
+//       <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
+//         <Card
+//           sx={{
+//             p: { xs: 3, sm: 5 },
+//             borderRadius: 4,
+//             boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+//           }}
+//         >
+//           {/* HEADER */}
+//           <Box sx={{ textAlign: "center", mb: 4 }}>
+//             <Box
+//               sx={{
+//                 width: 64,
+//                 height: 64,
+//                 borderRadius: "50%",
+//                 background: "linear-gradient(135deg, #3dd2cc 0%, #2dbfb9 100%)",
+//                 display: "flex",
+//                 alignItems: "center",
+//                 justifyContent: "center",
+//                 margin: "0 auto",
+//                 mb: 2,
+//               }}
+//             >
+//               <LockOutlinedIcon sx={{ color: "white", fontSize: 32 }} />
+//             </Box>
+
+//             <Typography variant="h4" fontWeight={800} color="primary.main" sx={{ mb: 1 }}>
+//               {t("title")}
+//             </Typography>
+
+//             <Typography variant="body1" color="text.secondary">
+//               {t("subtitle")}
+//             </Typography>
+//           </Box>
+
+//           {/* ERRORS */}
+//           {error && (
+//             <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
+//               {error}
+//             </Alert>
+//           )}
+
+//           {/* FORM */}
+//           <Box component="form" onSubmit={handleSubmit}>
+//             <Stack spacing={3}>
+//               <TextField
+//                 fullWidth
+//                 label={t("email")}
+//                 type="email"
+//                 value={email}
+//                 onChange={handleChange(setEmail)}
+//                 required
+//               />
+
+//               <TextField
+//                 fullWidth
+//                 label={t("password")}
+//                 type="password"
+//                 value={password}
+//                 onChange={handleChange(setPassword)}
+//                 required
+//               />
+
+//               <Button
+//                 type="submit"
+//                 variant="contained"
+//                 size="large"
+//                 fullWidth
+//                 disabled={loading}
+//               >
+//                 {loading ? t("loading") : t("signIn")}
+//               </Button>
+//             </Stack>
+//           </Box>
+
+//           <Divider sx={{ my: 3 }}>
+//             <Typography variant="body2" color="text.secondary" fontWeight={600}>
+//               {t("or")}
+//             </Typography>
+//           </Divider>
+
+//           {/* GOOGLE BUTTON */}
+//           <Button
+//             variant="outlined"
+//             size="large"
+//             fullWidth
+//             onClick={handleGoogleSignIn}
+//             disabled={googleLoading}
+//             startIcon={<GoogleIcon />}
+//           >
+//             {googleLoading ? t("connecting") : t("google")}
+//           </Button>
+
+//           {/* LINKS */}
+//           <Box sx={{ textAlign: "center", mt: 4 }}>
+//             <Typography variant="body2" color="text.secondary">
+//               {t("noAccount")}{" "}
+//               <MuiLink component={Link} href="/pages/register" color="primary.main" fontWeight={700}>
+//                 {t("createAccount")}
+//               </MuiLink>
+//             </Typography>
+
+//             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+//               {t("forgotPassword")}{" "}
+//               <MuiLink component={Link} href="/pages/forgotPassword" color="primary.main" fontWeight={700}>
+//                 {t("reset")}
+//               </MuiLink>
+//             </Typography>
+//           </Box>
+//         </Card>
+//       </Container>
+//     </Box>
+//   );
+// }
