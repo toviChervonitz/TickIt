@@ -127,10 +127,9 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getSession } from "next-auth/react";
 import { useSession } from "next-auth/react";
 import useAppStore from "@/app/store/useAppStore";
-import { darkScrollbar } from "@mui/material";
+
 
 export default function PostGoogleRedirect() {
   const router = useRouter();
@@ -138,20 +137,18 @@ export default function PostGoogleRedirect() {
   const { data: session, status } = useSession();
 
   useEffect(() => {
+    if (status === "loading") return; // don't redirect yet
+
+    console.log("session in post google redirect ", session);
+
+    if (!session || !session.user?.email) {
+      router.push("/pages/login");
+      return;
+    }
+
+    const mode = localStorage.getItem("googleAuthMode") || "login";
+    const email = session.user.email;
     (async () => {
-      if (status === "loading") return <p>Loading...</p>;
-      // const session = await getSession();
-      // const ssession;
-      console.log("session in post google redirect ", session);
-
-      if (!session || !session.user?.email) {
-        router.push("/pages/login");
-        return;
-      }
-
-      const mode = localStorage.getItem("googleAuthMode") || "login";
-      const email = session.user.email;
-
       // 1. לבדוק אם המשתמש קיים ב-DB
       const checkRes = await fetch(
         `/api/auth/checkUser?email=${encodeURIComponent(email)}`
@@ -253,7 +250,7 @@ export default function PostGoogleRedirect() {
         router.push("/pages/createProject");
       }
     })();
-  }, [router, setUser]);
+  }, [router, setUser, status, session]);
 
   return <p>Loading...</p>;
 }
