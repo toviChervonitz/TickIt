@@ -5,5 +5,107 @@
   "calendar": "Calendar",
   "charts": "Charts",
   "logout": "Logout",
-  "viewProfile": "View profile"
+  "viewProfile": "View profile",
+  "myTasks": "My Tasks",
+  "myProjects": "My Projects",
+  "project": "Project",
+  "task": "Task",
+  "todo": "To Do",
+  "inProgress": "In Progress",
+  "completed": "Completed",
+  "sortBy": "Sort By",
+  "dueDate": "Due Date", 
+  "allProjects": "All Projects",
+  "allTasks": "All Tasks",
+  "overdue": "Overdue",
+  "search": "Search",
+  "welcomeBack": "Welcome Back",
+  "happening": "Here's what's happening with your projects today",
+  "createProject": "Create New Project",
+  "createTask": "Create New Task",
+  "recentUpdates": "Recent Updates",
+  "projectUpdates":"You were added to new projects!",
+  "taskUpdates":"You were assigned new tasks!",
+  "doing": "Doing",
+  "done": "Done",
+  "progressOverview":"Progress Overview",
+  "due": "Due",
+  "selectProject":"Select a project to view tasks and details",
+  "viewProject":"View Project",
+  "addTask":"Add Task",
+  "assignee":"Assignee",
+  "allMembers":"All Members",
+  "addMember":"Add Member",
+  "title":"Title",
+  "yourCalendar":"Your Calendar",
+  "profileSettings":"Profile Settings",
+  "manageProfile":"Manage your account information and password",
+  "changeProfile": "Click to change profile picture",
+  "personalInformation": "Personal Information",
+  "fullName": "Full Name",
+  "emailAddress": "Email Address",
+  "phoneNumber": "Phone Number",
+  "password":"Password",
+  "emailCannotBeChanged":"Email cannot be changed",
+  "changePassword": "Change Password",
+  "leaveBlank":"Leave blank if you don't want to change your password",
+  "currentPassword": "Current Password",
+  "newPassword": "New Password",
+  "confirmNewPassword": "Confirm New Password",
+  "saveChanges": "Save Changes",
+  "cancel": "Cancel",
+  "projectDetails":"Project Details",
+  "addMembers":"Add team members",
+  "projectName":"Project Name",
+  "createTasks":"Create tasks",
+  "description":"Description",
+  "enterProjInfo":"Enter the basic information about your project",
+  "nextStep":"Next Step",
+  "invitePeople":"Invite people to collaborate on this project",
+  "manager":"Manager",
+  "teamMembers": "Team Members",
+  "addUser":"Add User",
+  "generateTasks":"Generate tasks",
+  "finishProject":"Finish Project",
+  "add":"Add",
+  "edit":"Edit",
+  "reject":"Reject",
+  "tasksCreated":"Tasks Created",
+  "close":"Close",
+  "signInToContinue":"Sign in to continue to your account",
+  "signIn":"Sign In",
+  "or":"or",
+  "continueWithGoogle":"Continue with Google",
+  "dontHaveAccount":"Don't have an account?",
+  "createAccount":"Create Account",
+  "forgotPassword":"Forgot your password?",
+  "resetHere":"Reset it here",
+  "uploadProfile": "Click to upload profile picture",
+  "joinUs:":"Join us and start managing your tasks",
+  "alreadyHaveAccount":"Already have an account?",
+  "resetPassword":"Reset Password",
+  "enterYourEmail":"Enter Your Email",
+  "followSteps":"Follow the steps to recover your account",
+  "enterEmail":"Enter Email",
+  "verifyCode":"Verify Code",
+  "weSendCode":"We'll send you a verification code to reset your password",
+  "SendCode":"Send Verification Code"
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
 }
