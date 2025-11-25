@@ -137,6 +137,7 @@ export default function PostGoogleRedirect() {
   useEffect(() => {
     (async () => {
       const session = await getSession();
+      if (status === "loading") return ;
       if (!session || !session.user?.email) {
         router.push("/pages/login");
         return;

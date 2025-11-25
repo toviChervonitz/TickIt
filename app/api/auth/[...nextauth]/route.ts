@@ -68,7 +68,9 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope:
-            "openid email profile https://www.googleapis.com/auth/calendar",
+            "openid email profile "
+            // https://www.googleapis.com/auth/calendar
+            ,
         },
       },
     }),
