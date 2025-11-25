@@ -53,8 +53,7 @@ export default function UserTasks() {
     }
 
     loadTasks();
-    initRealtime();
-  }, [user?._id,setTasks, initRealtime ]);
+  }, [user?._id]);
 
   const handleStatusChange = async (
     id: string,
