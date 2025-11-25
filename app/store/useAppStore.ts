@@ -58,7 +58,6 @@ const useAppStore = create(
 
       initializeRealtime: (userId: string) => {
         const state = get();
-        // אם הלקוח כבר קיים, אל תיצור חיבור נוסף
         if (state.pusherClient && (state.pusherClient as any).connection.state === 'connected') {
           console.log("Pusher already initialized and connected.");
           return;
@@ -66,40 +65,35 @@ const useAppStore = create(
 
         console.log(`Initializing Pusher for user ${userId}`);
 
-        // 1. יצירת אובייקט Pusher
         const pusherClient = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
           cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-          // נדרשת כתובת ה-API Route לאימות ערוצים פרטיים
           authEndpoint: "/api/pusher/auth",
           auth: {
-            // ניתן לשלוח נתונים נוספים אם צריך לאימות
             params: {
               userId: userId
             }
           }
         }) as PusherClient;
 
-        // שמירת הלקוח ב-Store
         set({ pusherClient });
 
-        // 2. הרשמה לערוץ הפרטי של המשתמש
         const channel = pusherClient.subscribe(`private-user-${userId}`);
 
         channel.bind("pusher:subscription_succeeded", () => {
           console.log(`Subscribed to private-user-${userId}`);
         });
 
-        // 3. האזנה לאירוע הכללי של עדכון משימות
         channel.bind("task-updated", (data: { action: "ADD" | "UPDATE" | "DELETE", task?: ITask, taskId?: string }) => {
           console.log("Real-time Task Update Received:", data.action, data.task || data.taskId);
 
-          const currentTasks = get().tasks;
+          const state = get();
+          const currentTasks = state.tasks;
           let newTasks: ITask[] = [];
 
           switch (data.action) {
             case "ADD":
+              // מוסיפים רק אם המשימה עוד לא קיימת ב-Store
               if (data.task && !currentTasks.some(t => t._id === data.task!._id)) {
-                // הוספה: אם המשימה לא קיימת, הוסף אותה
                 newTasks = [data.task, ...currentTasks];
               } else {
                 newTasks = currentTasks;
@@ -107,14 +101,15 @@ const useAppStore = create(
               break;
 
             case "UPDATE":
-              // עדכון: החלף את המשימה הקיימת בנתונים החדשים
+              // עדכון אובייקט קיים
               newTasks = currentTasks.map(t =>
-                t._id === data.task?._id ? { ...t, ...data.task } : t
+                // שימוש ב-spread operator כדי למזג את השדות המעודכנים (data.task)
+                t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
               );
               break;
 
             case "DELETE":
-              // מחיקה: סנן את המשימה הנמחקה
+              // פילטור המשימה שנמחקה/הועברה משם
               newTasks = currentTasks.filter(t => t._id !== data.taskId);
               break;
 
@@ -122,20 +117,20 @@ const useAppStore = create(
               newTasks = currentTasks;
           }
 
-          // עדכון ה-State של Zoostand
-          set({ tasks: newTasks });
-        });
-
-        // טיפול בניקוי החיבור (מומלץ)
-        (pusherClient as any).connection.bind('disconnected', () => {
-          console.log("Pusher Disconnected");
+          // ⭐ עדכון המערכים ב-Store ⭐
+          set({
+            tasks: newTasks,
+            // עדכון projectTasks: אם הפרויקט הנוכחי מוגדר, מסנן את המשימות ששייכות לו
+            projectTasks: state.projectId
+              ? newTasks.filter(t => t?.projectId!.toString() === state.projectId)
+              : state.projectTasks
+          });
         });
       },
 
       logout: () => {
-        const state = get(); // 👈 גישה ל-State הנוכחי
+        const state = get();
 
-        // ניתוק Pusher לפני ניקוי ה-State
         if (state.pusherClient) {
           state.pusherClient.disconnect();
           console.log("Pusher disconnected on logout.");
@@ -148,7 +143,7 @@ const useAppStore = create(
           projectTasks: [],
           tasks: [],
           projects: [],
-          pusherClient: null, // 👈 ניקוי ה-Client ב-State
+          pusherClient: null,
         });
       },
     }),

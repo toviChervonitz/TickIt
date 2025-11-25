@@ -71,11 +71,11 @@ export async function POST(req: Request) {
       .lean();
 
     await pusher.trigger(
-      `private-user-${userId}`, // הערוץ של המשתמש הרלוונטי
-      "task-updated",           // שם האירוע
+      `private-user-${userId}`, 
+      "task-updated",          
       {
-        action: "ADD",          // הפעולה שבוצעה
-        task: populatedTask           // הנתונים המעודכנים
+        action: "ADD",         
+        task: populatedTask         
       }
     );
 
