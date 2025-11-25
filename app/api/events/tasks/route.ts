@@ -36,6 +36,8 @@ export async function GET() {
 export function broadcastTask(task: any) {
     clients = clients.filter(client => {
         try {
+            console.log("🔊 Broadcasting new task to", clients.length, "clients");
+            console.log("🆕 Task broadcasted:", task.title);
             client.send({ type: "taskCreated", task });
             return true; // נשאר בחיים
         } catch (err) {
