@@ -1,48 +1,62 @@
-import { NextResponse } from "next/server";
-
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
-let clients: any[] = [];
+import { NextRequest } from "next/server";
 
-export async function GET() {
-    const stream = new ReadableStream({
-        start(controller) {
-            const encoder = new TextEncoder();
+let clients: { id: number; send: (data: any) => void }[] = [];
 
-            const clientId = Date.now();
-            const send = (data: any) =>
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+export async function GET(req: NextRequest) {
+  console.log("🔌 New SSE connection request");
 
-            clients.push({ id: clientId, send });
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      const clientId = Date.now();
 
-            send({ type: "connected", id: clientId });
-
-            return () => {
-                clients = clients.filter(c => c.id !== clientId);
-            };
+      const send = (data: any) => {
+        try {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(data)}\n\n`)
+          );
+        } catch (err) {
+          console.log("❌ Stream error:", err);
         }
-    });
+      };
 
-    return new Response(stream, {
-        headers: {
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache, no-transform",
-            Connection: "keep-alive",
-        },
-    });
+      clients.push({ id: clientId, send });
+      console.log("🟢 Client connected:", clientId);
+
+      send({ type: "connected", id: clientId });
+
+      req.signal.addEventListener("abort", () => {
+        console.log("🔴 Removing dead SSE client:", clientId);
+        clients = clients.filter((c) => c.id !== clientId);
+        controller.close();
+      });
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-store, no-transform",
+      "Connection": "keep-alive",
+      "Access-Control-Allow-Origin": "*",   
+      "Keep-Alive": "timeout=600",         
+    },
+  });
 }
 
-// פונקציה לשרתי Next.js
 export function broadcastTask(task: any) {
-    clients = clients.filter(client => {
-        try {
-            console.log("🔊 Broadcasting new task to", clients.length, "clients");
-            console.log("🆕 Task broadcasted:", task.title);
-            client.send({ type: "taskCreated", task });
-            return true; // נשאר בחיים
-        } catch (err) {
-            console.warn("Removing dead SSE client:", client.id);
-            return false; // להוציא מהרשימה
-        }
-    });
+  console.log(`📡 Broadcasting new task to ${clients.length} clients`);
+
+  clients.forEach((client) => {
+    try {
+      client.send({ type: "task", task });
+    } catch {
+      console.log("❌ Removing dead SSE client:", client.id);
+      clients = clients.filter((c) => c.id !== client.id);
+    }
+  });
 }

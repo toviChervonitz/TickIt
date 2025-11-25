@@ -25,6 +25,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import FilterListIcon from "@mui/icons-material/FilterList"; // לא חובה כרגע אבל השארתי
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import { set } from "mongoose";
 
 export default function UserTasks() {
   const { user, tasks, setTasks,initRealtime } = useAppStore();
@@ -52,7 +53,7 @@ export default function UserTasks() {
     }
 
     loadTasks();
-  }, [user?._id]);
+  }, [user?._id,setTasks]);
 
   const handleStatusChange = async (
     id: string,
