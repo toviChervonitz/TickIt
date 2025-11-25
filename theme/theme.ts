@@ -55,7 +55,6 @@ export const theme = createTheme({
                     transition: "0.25s ease",
                 },
                 containedPrimary: {
-                    background: "linear-gradient(to bottom, #1d486a, #163957)",
                     "&:hover": {
                         background: "linear-gradient(to bottom, #163957, #122d42)",
                     }

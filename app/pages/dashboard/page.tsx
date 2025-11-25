@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import useAppStore from "@/app/store/useAppStore";
 import { GetTasksByUserId } from "@/app/lib/server/taskServer";
 import { GetRecentAssignedTasks, getRecentProjects } from "@/app/lib/server/notificationsServer";
 import { ITask } from "@/app/models/types";
@@ -30,17 +29,27 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import FolderIcon from "@mui/icons-material/Folder";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import useAppStore from "@/app/store/useAppStore";
+import { KANBAN_COLUMNS_CONFIG } from "@/app/config/kanbanConfig";
 
 const Dashboard: React.FC = () => {
-  const user = useAppStore((state) => state.user);
   const router = useRouter();
 
-  const [allTasks, setAllTasks] = useState<ITask[]>([]);
+  const { user, tasks, setTasks } = useAppStore();
   const [upcomingTasks, setUpcomingTasks] = useState<ITask[]>([]);
   const [recentAssignedTasks, setRecentAssignedTasks] = useState<ITask[]>([]);
   const [recentProjects, setRecentProjects] = useState<{ _id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+
+  const getKanbanColor = (id: "todo" | "doing" | "done") => {
+    return KANBAN_COLUMNS_CONFIG.find(c => c.id === id);
+  };
+
+  const TODO_CONFIG = getKanbanColor("todo");
+  const DOING_CONFIG = getKanbanColor("doing");
+  const DONE_CONFIG = getKanbanColor("done");
 
   useEffect(() => {
     if (!user) return;
@@ -49,7 +58,7 @@ const Dashboard: React.FC = () => {
       setLoading(true);
       try {
         const fetchedTasks: ITask[] = await GetTasksByUserId(user._id);
-        setAllTasks(fetchedTasks);
+        setTasks(fetchedTasks);
 
         const now = new Date();
         now.setHours(0, 0, 0, 0);
@@ -82,7 +91,7 @@ const Dashboard: React.FC = () => {
     };
 
     fetchData();
-  }, []);
+  }, [user, setTasks]);
 
   if (error) {
     return (
@@ -94,9 +103,9 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  const todoCount = allTasks.filter((t) => t.status === "todo").length;
-  const doingCount = allTasks.filter((t) => t.status === "doing").length;
-  const doneCount = allTasks.filter((t) => t.status === "done").length;
+  const todoCount = tasks.filter((t) => t.status === "todo").length;
+  const doingCount = tasks.filter((t) => t.status === "doing").length;
+  const doneCount = tasks.filter((t) => t.status === "done").length;
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
@@ -113,17 +122,23 @@ const Dashboard: React.FC = () => {
           </Box>
 
           <Button
-            variant="contained"
+            variant="outlined"
             size="large"
             startIcon={<AddIcon />}
             onClick={() => router.push("/pages/createProject")}
             sx={{
-              px: 4,
-              py: 1.5,
+              color: "#0f3460",
+              borderColor: "#0f3460",
+              backgroundColor: "#ffffff",
+              borderWidth: "1.5px",
               fontWeight: 700,
-              background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
+              px: 3,
+              py: 1,
+              borderRadius: "10px",
               "&:hover": {
-                background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
+                backgroundColor: "#f0f2f5",
+                borderColor: "#0f3460",
+                borderWidth: "1.5px",
               },
             }}
           >
@@ -216,7 +231,7 @@ const Dashboard: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <Box>
                     <Typography variant="h3" fontWeight={800} color="primary.main">
-                      {allTasks.length}
+                      {tasks.length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" fontWeight={600}>
                       Total Tasks
@@ -246,23 +261,25 @@ const Dashboard: React.FC = () => {
                 borderRadius: 3,
                 border: "1px solid #e8eaed",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                backgroundColor: TODO_CONFIG?.bgColor || "rgba(183,163,126,0.08)",
               }}
             >
               <CardContent>
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <Box>
-                    <Typography variant="h3" fontWeight={800} color="#1d486a">
+                    <Typography variant="h3" fontWeight={800} color={TODO_CONFIG?.color || "#1d486a"}
+                    >
                       {todoCount}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                    <Typography variant="body2" color={TODO_CONFIG?.color || "#1d486a"} fontWeight={600}>
                       To Do
                     </Typography>
                   </Box>
                   <Chip
                     label="TODO"
                     sx={{
-                      backgroundColor: "rgba(29,72,106,0.15)",
-                      color: "#1d486a",
+                      backgroundColor: TODO_CONFIG?.bgColor || "rgba(29,72,106,0.15)",
+                      color: TODO_CONFIG?.color || "#1d486a",
                       fontWeight: 700,
                     }}
                   />
@@ -277,23 +294,24 @@ const Dashboard: React.FC = () => {
                 borderRadius: 3,
                 border: "1px solid #e8eaed",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                backgroundColor: DOING_CONFIG?.bgColor || "rgba(61,210,204,0.08)",
               }}
             >
               <CardContent>
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <Box>
-                    <Typography variant="h3" fontWeight={800} color="#66dcd7">
+                    <Typography variant="h3" fontWeight={800} color={DOING_CONFIG?.color || "#66dcd7"}>
                       {doingCount}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                    <Typography variant="body2" color={DOING_CONFIG?.color || "#66dcd7"} fontWeight={600}>
                       In Progress
                     </Typography>
                   </Box>
                   <Chip
                     label="DOING"
                     sx={{
-                      backgroundColor: "rgba(102,220,215,0.15)",
-                      color: "#66dcd7",
+                      backgroundColor: DOING_CONFIG?.bgColor || "rgba(102,220,215,0.15)",
+                      color: DOING_CONFIG?.color || "#66dcd7",
                       fontWeight: 700,
                     }}
                   />
@@ -308,23 +326,24 @@ const Dashboard: React.FC = () => {
                 borderRadius: 3,
                 border: "1px solid #e8eaed",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                backgroundColor: DONE_CONFIG?.bgColor || "rgba(65,137,135,0.08)",
               }}
             >
               <CardContent>
                 <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                   <Box>
-                    <Typography variant="h3" fontWeight={800} color="#3dd2cc">
+                    <Typography variant="h3" fontWeight={800} color={DONE_CONFIG?.color || "#1d486a"}>
                       {doneCount}
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" fontWeight={600}>
+                    <Typography variant="body2" color={DONE_CONFIG?.color || "#1d486a"} fontWeight={600}>
                       Completed
                     </Typography>
                   </Box>
                   <Chip
                     label="DONE"
                     sx={{
-                      backgroundColor: "rgba(61,210,204,0.15)",
-                      color: "#3dd2cc",
+                      backgroundColor: DONE_CONFIG?.bgColor || "rgba(29,72,106,0.1)",
+                      color: DONE_CONFIG?.color || "#1d486a",
                       fontWeight: 700,
                     }}
                   />
@@ -356,7 +375,7 @@ const Dashboard: React.FC = () => {
                   </Typography>
                 </Box>
                 <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <ProgressChart tasks={allTasks} />
+                  <ProgressChart tasks={tasks} />
                 </Box>
               </CardContent>
             </Card>
@@ -405,7 +424,19 @@ const Dashboard: React.FC = () => {
                   },
                 }}
               >
-                {upcomingTasks.length === 0 ? (
+                {loading ? (
+                  <Box
+                    sx={{
+                      flex: 1,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      height: "100%",
+                    }}
+                  >
+                    <CircularProgress sx={{ color: "#3dd2cc" }} />
+                  </Box>
+                ) : upcomingTasks.length === 0 ? (
                   <Paper
                     elevation={0}
                     sx={{
@@ -446,9 +477,9 @@ const Dashboard: React.FC = () => {
                             sx={{
                               backgroundColor:
                                 task.status === "todo"
-                                  ? "rgba(29,72,106,0.15)"
-                                  : "rgba(102,220,215,0.15)",
-                              color: task.status === "todo" ? "#1d486a" : "#66dcd7",
+                                  ? TODO_CONFIG?.bgColor || "rgba(29,72,106,0.15)"
+                                  : DOING_CONFIG?.bgColor || "rgba(102,220,215,0.15)",
+                              color: task.status === "todo" ? TODO_CONFIG?.color : DOING_CONFIG?.color,
                               fontWeight: 600,
                             }}
                           />

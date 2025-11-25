@@ -11,12 +11,16 @@ interface AppState {
   tasks: ITask[];
   projects: IProjectRole[];
 
-  setUser: (user: IUserSafe|null) => void;
+  setUser: (user: IUserSafe | null) => void;
   setProjectId: (projectId: string) => void;
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
   setProjects: (projects: IProjectRole[]) => void;
+
+  initRealtime: () => void;
+  eventSource: EventSource | null;
+
   logout: () => void;
 }
 
@@ -24,13 +28,15 @@ type MyPersist = PersistOptions<AppState, AppState>;
 
 const useAppStore = create(
   persist<AppState>(
-    (set) => ({
+    (set, get) => ({
       user: null,
-      projectId: null,//current project id
-      projectUsers: [],//user of current project
-      projectTasks: [],//tasks of current project
-      tasks: [],//all tasks
-      projects: [],//all projects
+      projectId: null,
+      projectUsers: [],
+      projectTasks: [],
+      tasks: [],
+      projects: [],
+
+      eventSource: null,
 
       setUser: (user) =>
         set((state) => ({ ...state, user })),
@@ -50,14 +56,52 @@ const useAppStore = create(
       setProjects: (projects) =>
         set((state) => ({ ...state, projects })),
 
-      logout: () => set({
-        user: null,
-        projectId: null,
-        projectUsers: [],
-        projectTasks: [],
-        tasks: [],
-        projects: [],
-      }),
+      initRealtime: () => {
+        if (typeof window === "undefined") return;
+        if (get().eventSource) return;
+
+        const es = new EventSource("/api/events/tasks");
+
+        es.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+
+          if (data.type === "taskCreated") {
+            const newTask = data.task;
+            const currentUser = get().user;
+            const currentTasks = get().tasks;
+
+            if (!currentUser) return;
+
+            const isAssignedToMe =
+              newTask.userId === currentUser._id ||
+              newTask.userId?._id === currentUser._id; 
+
+            if (!isAssignedToMe) {
+              return;
+            }
+
+            set({ tasks: [...currentTasks, newTask] });
+          }
+        };
+
+        set({ eventSource: es });
+      },
+
+
+      logout: () => {
+        const es = get().eventSource;
+        if (es) es.close();
+
+        set({
+          user: null,
+          projectId: null,
+          projectUsers: [],
+          projectTasks: [],
+          tasks: [],
+          projects: [],
+          eventSource: null,
+        });
+      },
     }),
     {
       name: "task-manager-storage",
