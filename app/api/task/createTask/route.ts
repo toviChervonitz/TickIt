@@ -16,7 +16,7 @@ interface TokenPayload {
 
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID!,
-  key: process.env.PUSHER_KEY!,
+  key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
   secret: process.env.PUSHER_SECRET!,
   cluster: process.env.PUSHER_CLUSTER!,
   useTLS: true,
@@ -65,16 +65,21 @@ export async function POST(req: Request) {
       createdAt: new Date(),
     });
 
+    const populatedTask = await Task.findById(newTask._id)
+      .populate('userId', 'name') 
+      .populate('projectId', 'name') 
+      .lean();
+
     await pusher.trigger(
       `private-user-${userId}`, // הערוץ של המשתמש הרלוונטי
       "task-updated",           // שם האירוע
       {
         action: "ADD",          // הפעולה שבוצעה
-        task: newTask           // הנתונים המעודכנים
+        task: populatedTask           // הנתונים המעודכנים
       }
     );
 
-    return NextResponse.json({ message: "Task created successfully", task: newTask }, { status: 200 });
+    return NextResponse.json({ message: "Task created successfully", task: populatedTask }, { status: 200 });
 
   } catch (err: any) {
     console.error("❌ Task creation error:", err);
