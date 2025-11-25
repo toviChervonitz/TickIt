@@ -27,7 +27,7 @@ import ClearIcon from "@mui/icons-material/Clear";
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 
 export default function UserTasks() {
-  const { user, tasks, setTasks } = useAppStore();
+  const { user, tasks, setTasks,initRealtime } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,6 +52,7 @@ export default function UserTasks() {
     }
 
     loadTasks();
+    initRealtime();
   }, [user?._id]);
 
   const handleStatusChange = async (
