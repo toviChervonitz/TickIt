@@ -137,6 +137,8 @@ export default function PostGoogleRedirect() {
   const { data: session, status } = useSession();
 
   useEffect(() => {
+    console.log("statussssss" ,status);
+    
     if (status === "loading") return; // don't redirect yet
 
     console.log("session in post google redirect ", session);
@@ -149,6 +151,8 @@ export default function PostGoogleRedirect() {
     const mode = localStorage.getItem("googleAuthMode") || "login";
     const email = session.user.email;
     (async () => {
+      console.log("in async function");
+      
       // 1. לבדוק אם המשתמש קיים ב-DB
       const checkRes = await fetch(
         `/api/auth/checkUser?email=${encodeURIComponent(email)}`
