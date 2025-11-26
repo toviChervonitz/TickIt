@@ -90,23 +90,23 @@ export default function RegisterPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setError("");
-    setGoogleLoading(true);
+  // const handleGoogleSignIn = async () => {
+  //   setError("");
+  //   setGoogleLoading(true);
 
-    try {
-      localStorage.setItem("googleAuthMode", "register");
-      await signIn("google", {
-        callbackUrl: "/pages/postGoogleRedirect",
-        state: "register",
-      });
-    } catch (err: any) {
-      console.error(err);
-      setError("Google sign-in failed");
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
+  //   try {
+  //     localStorage.setItem("googleAuthMode", "register");
+  //     await signIn("google", {
+  //       callbackUrl: "/pages/postGoogleRedirect",
+  //       state: "register",
+  //     });
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     setError("Google sign-in failed");
+  //   } finally {
+  //     setGoogleLoading(false);
+  //   }
+  // };
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
@@ -350,7 +350,7 @@ export default function RegisterPage() {
             </Typography>
           </Divider>
 
-          <Button
+          {/* <Button
             variant="outlined"
             size="large"
             fullWidth
@@ -378,7 +378,7 @@ export default function RegisterPage() {
             }}
           >
             {googleLoading ? "Connecting..." : "Sign up with Google"}
-          </Button>
+          </Button> */}
 
           <Box sx={{ textAlign: "center", mt: 4 }}>
             <Typography variant="body2" color="text.secondary">

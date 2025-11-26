@@ -2,16 +2,25 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
-import { Login } from "@/app/lib/server/authServer";
+import { Login, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
 import {
-  Box, Container, Typography, TextField, Button, Card, Divider, Alert, Link as MuiLink, Stack
+  Box,
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Card,
+  Divider,
+  Alert,
+  Link as MuiLink,
+  Stack,
 } from "@mui/material";
 import Link from "next/link";
-import GoogleIcon from '@mui/icons-material/Google';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import GoogleIcon from "@mui/icons-material/Google";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { signIn } from "next-auth/react";
 
 interface LoginResponse {
   status: "success" | "error";
@@ -32,9 +41,9 @@ export default function LoginPage() {
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-      (e: ChangeEvent<HTMLInputElement>) => {
-        setter(e.target.value);
-      };
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+    };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,21 +73,50 @@ export default function LoginPage() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (googleLoading) return;
     setError("");
     setGoogleLoading(true);
     try {
-      localStorage.setItem("googleAuthMode", "login");
-      await signIn("google", {
-        callbackUrl: "/pages/postGoogleRedirect",
-        state: "login"
-      });
-    } catch (err: any) {
-      console.error(err);
-      setError("Google sign-in failed");
+      const userRes = await signInWithGoogle();
+      console.log("res user in google sign in", userRes);
+      
+      const userData = {
+        email: userRes.email,
+        googleId: userRes.uid,
+        name: userRes.displayName,
+        profileImg: userRes.photoURL,
+      };
+      const { ok, status, data } = await googleLoginService(userData);
+      if (ok) {
+        console.log("data in google log in",data);
+        setUser(mapUserToClient(data.user));
+        alert(data.message);
+        router.push("/pages/dashboard");
+      } else {
+        setError(data.message || "Something went wrong");
+      }
+    } catch (error: any) {
+      console.error("Google sign-in error:", error.code || error);
+      setError("Something went wrong during Google sign-in");
     } finally {
-      setGoogleLoading(false);
+      setLoading(false);
     }
   };
+  //   setError("");
+  //   setGoogleLoading(true);
+  //   try {
+  //     localStorage.setItem("googleAuthMode", "login");
+  //     await signIn("google", {
+  //       callbackUrl: "/pages/postGoogleRedirect",
+  //       state: "login"
+  //     });
+  //   } catch (err: any) {
+  //     console.error(err);
+  //     setError("Google sign-in failed");
+  //   } finally {
+  //     setGoogleLoading(false);
+  //   }
+  // };
 
   return (
     <Box
@@ -97,7 +135,7 @@ export default function LoginPage() {
           left: 0,
           right: 0,
           bottom: 0,
-        }
+        },
       }}
     >
       <Container maxWidth="sm" sx={{ position: "relative", zIndex: 1 }}>
@@ -163,7 +201,7 @@ export default function LoginPage() {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#fafaf9",
-                  }
+                  },
                 }}
               />
 
@@ -178,7 +216,7 @@ export default function LoginPage() {
                 sx={{
                   "& .MuiOutlinedInput-root": {
                     backgroundColor: "#fafaf9",
-                  }
+                  },
                 }}
               />
 
@@ -203,7 +241,7 @@ export default function LoginPage() {
                   "&:disabled": {
                     background: "#9ca3af",
                     color: "white",
-                  }
+                  },
                 }}
               >
                 {loading ? "Signing in..." : "Sign In"}
@@ -241,14 +279,14 @@ export default function LoginPage() {
               "&:disabled": {
                 borderColor: "#e0e0e0",
                 color: "#9ca3af",
-              }
+              },
             }}
           >
             {googleLoading ? "Connecting..." : "Continue with Google"}
           </Button>
           <Box sx={{ textAlign: "center", mt: 4 }}>
             <Typography variant="body2" color="text.secondary">
-              Don't have an account?{" "}
+              Do not have an account?{" "}
               <MuiLink
                 component={Link}
                 href="/pages/register"
@@ -258,7 +296,7 @@ export default function LoginPage() {
                   textDecoration: "none",
                   "&:hover": {
                     textDecoration: "underline",
-                  }
+                  },
                 }}
               >
                 Create Account
@@ -276,14 +314,13 @@ export default function LoginPage() {
                   textDecoration: "none",
                   "&:hover": {
                     textDecoration: "underline",
-                  }
+                  },
                 }}
               >
                 Reset it here
               </MuiLink>
             </Typography>
           </Box>
-
         </Card>
       </Container>
     </Box>
