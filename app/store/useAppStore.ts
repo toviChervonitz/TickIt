@@ -2,9 +2,7 @@
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
-import { IProjectRole, ITask, IUserSafe } from "../models/types";
-
-type IProject = IProjectRole;
+import { IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
 
 type PusherClient = Pusher;
 
@@ -81,9 +79,15 @@ const useAppStore = create(
             console.log("Real-time Project Update Received:", data.project);
 
             const currentProjects = get().projects;
-            const updatedProjects = currentProjects.map((p) =>
-              p.project._id === data.project.project._id ? { ...p, ...data.project } : p
-            );
+            const updatedProjects = currentProjects.map((p) => {
+              if (p.project._id === data.project._id) {
+                return {
+                  ...p, 
+                  project: data.project 
+                } as IProjectRole;
+              }
+              return p;
+            });
 
             set({ projects: updatedProjects });
           }
