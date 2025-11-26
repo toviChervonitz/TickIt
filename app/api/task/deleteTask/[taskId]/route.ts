@@ -3,6 +3,15 @@ import { dbConnect } from "@/app/lib/DB";
 import Task from "@/app/models/TaskModel";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
+import Pusher from "pusher";
+
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID!,
+  key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
+  secret: process.env.PUSHER_SECRET!,
+  cluster: process.env.PUSHER_CLUSTER!,
+  useTLS: true,
+});
 
 export async function DELETE(
   req: NextRequest,
@@ -48,6 +57,22 @@ export async function DELETE(
         { error: "Forbidden - You cannot delete this task" },
         { status: 403 }
       );
+    }
+
+    const assigneeIdToDelete = task.userId.toString();
+
+    try {
+      await pusher.trigger(
+        `private-user-${assigneeIdToDelete}`,
+        "task-updated",
+        {
+          action: "DELETE",
+          taskId: taskId 
+        }
+      );
+      console.log(`Pusher trigger sent to assignee ${assigneeIdToDelete} for task deletion.`);
+    } catch (pusherError) {
+      console.error("Pusher error on task deletion:", pusherError);
     }
 
     await task.deleteOne();
