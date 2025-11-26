@@ -65,12 +65,28 @@ export async function PUT(
     const updatedProjectObject = updatedProject.toObject();
 
     try {
+        const projectUsers = await ProjectUserModel.find({ projectId }).select('userId').lean();
+        const userIds = projectUsers.map(pu => pu.userId.toString());
+
+        const userChannels = userIds.map(id => `private-user-${id}`);
+
         await pusher.trigger(
-            `private-project-${projectId}`, 
-            "project-updated", 
+            userChannels,                      
+            "project-list-updated",             
+            { project: updatedProjectObject }   
+        );
+        console.log(`Global Pusher trigger sent to ${userChannels.length} users for project list update.`);
+    } catch (globalPusherError) {
+        console.error("Pusher error on global project list update:", globalPusherError);
+    }
+
+    try {
+        await pusher.trigger(
+            `private-project-${projectId}`,
+            "project-updated",
             {
                 action: "UPDATE",
-                project: updatedProjectObject 
+                project: updatedProjectObject
             }
         );
         console.log(`Pusher trigger sent to project ${projectId} for update.`);

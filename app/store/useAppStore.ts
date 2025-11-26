@@ -69,10 +69,10 @@ const useAppStore = create(
         const channelName = `private-project-${projectId}`;
 
         if (pusherClient.channel(channelName)?.subscribed) {
-            console.log(`Already subscribed to project channel: ${channelName}`);
-            return;
+          console.log(`Already subscribed to project channel: ${channelName}`);
+          return;
         }
-        
+
         const channel = pusherClient.subscribe(channelName);
 
         channel.bind("pusher:subscription_succeeded", () => {
@@ -88,8 +88,8 @@ const useAppStore = create(
             const updatedProjects = currentProjects.map((p) => {
               if (p.project._id === data.project._id) {
                 return {
-                  ...p, 
-                  project: data.project 
+                  ...p,
+                  project: data.project
                 } as IProjectRole;
               }
               return p;
@@ -126,6 +126,28 @@ const useAppStore = create(
         channel.bind("pusher:subscription_succeeded", () => {
           console.log(`Subscribed to private-user-${userId}`);
         });
+
+        channel.bind(
+          "project-list-updated",
+          (data: { project: IProject }) => {
+            console.log("עדכון רשימת פרויקטים גלובלי התקבל:", data.project);
+
+            const updatedProjectData = data.project;
+            const currentProjects = get().projects;
+
+            const updatedProjects = currentProjects.map((p) => {
+              if (p.project._id === updatedProjectData._id) {
+                return {
+                  ...p,
+                  project: updatedProjectData 
+                };
+              }
+              return p;
+            });
+
+            set({ projects: updatedProjects });
+          }
+        );
 
         channel.bind("task-updated", (data: { action: "ADD" | "UPDATE" | "DELETE", task?: ITask, taskId?: string }) => {
           console.log("Real-time Task Update Received:", data.action, data.task || data.taskId);
