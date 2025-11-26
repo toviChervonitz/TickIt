@@ -76,6 +76,8 @@
   "signIn": "התחבר",
   "or": "או",
   "continueWithGoogle": "המשך עם Google",
+  "signupWithGoogle":"הרשם עם Google",
+
   "dontHaveAccount": "אין לך חשבון?",
   "createAccount": "צור חשבון",
   "forgotPassword": "שכחת סיסמה?",
@@ -89,16 +91,15 @@
   "enterEmail": "הזן אימייל",
   "verifyCode": "אמת קוד",
   "weSendCode": "נשלח אליך קוד אימות לאיפוס הסיסמה",
-  "SendCode": "שלח קוד אימות"
-
-
-
-
-
-
+  "sendCode": "שלח קוד אימות",
+  "sending":"שולח...",
+  "connecting":"מתחבר...",
+  "verificationCode":"קוד אימות",
+  "enter6code":"הזן את קוד האימות בן 6 הספרות ששלחנו ל",
+  "back":"חזור",
+  "updating":"מעדכן...",
+  "updatePassword":"עדכן סיסמה"
 }
-
-
 
 
 

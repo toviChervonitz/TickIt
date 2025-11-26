@@ -28,6 +28,7 @@ import { UploadButton } from "@uploadthing/react";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import ImageUpload from "@/app/components/ImageUpload";
 import { getTranslation } from "@/app/lib/i18n";
+import { useLanguage } from "@/app/context/LanguageContext";
 interface RegisterResponse {
   status: "success" | "error";
   message?: string;
@@ -38,7 +39,8 @@ interface RegisterResponse {
 export default function RegisterPage() {
   const router = useRouter();
   const { setUser } = useAppStore();
-  const t = getTranslation("en");
+  const { lang } = useLanguage();
+  const t = getTranslation(lang);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -255,7 +257,7 @@ export default function RegisterPage() {
             >
               <TextField
                 fullWidth
-                label="Full Name"
+                label={t("fullName")}
                 type="text"
                 value={name}
                 onChange={handleChange(setName)}
@@ -270,7 +272,7 @@ export default function RegisterPage() {
 
               <TextField
                 fullWidth
-                label="Email Address"
+                label={t("emailAddress")}
                 type="email"
                 value={email}
                 onChange={handleChange(setEmail)}
@@ -285,7 +287,7 @@ export default function RegisterPage() {
 
               <TextField
                 fullWidth
-                label="Phone Number"
+                label={t("phoneNumber")}
                 type="tel"
                 value={phone}
                 onChange={handleChange(setPhone)}
@@ -300,7 +302,7 @@ export default function RegisterPage() {
 
               <TextField
                 fullWidth
-                label="Password"
+                label={t("password")}
                 type="password"
                 value={password}
                 onChange={handleChange(setPassword)}
@@ -339,14 +341,14 @@ export default function RegisterPage() {
                   },
                 }}
               >
-                {loading ? "Creating Account..." : "Create Account"}
+                {loading ? t("creatingAccount") : t("createAccount")}
               </Button>
             </Stack>
           </Box>
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" color="text.secondary" fontWeight={600}>
-              OR
+              {t("or")}
             </Typography>
           </Divider>
 
@@ -377,12 +379,12 @@ export default function RegisterPage() {
               },
             }}
           >
-            {googleLoading ? "Connecting..." : "Sign up with Google"}
+            {googleLoading ? t("connecting") : t("signupWithGoogle")}
           </Button>
 
           <Box sx={{ textAlign: "center", mt: 4 }}>
             <Typography variant="body2" color="text.secondary">
-              Already have an account?{" "}
+              {t("alreadyHaveAccount")}{" "}
               <MuiLink
                 component={Link}
                 href="/pages/login"
@@ -395,7 +397,7 @@ export default function RegisterPage() {
                   },
                 }}
               >
-                Sign In
+                {t("signIn")}
               </MuiLink>
             </Typography>
           </Box>

@@ -76,8 +76,10 @@
   "signIn":"Sign In",
   "or":"or",
   "continueWithGoogle":"Continue with Google",
+  "signupWithGoogle":"Sign up with Google",
   "dontHaveAccount":"Don't have an account?",
   "createAccount":"Create Account",
+  "creatingAccount":"Creating Account...",
   "forgotPassword":"Forgot your password?",
   "resetHere":"Reset it here",
   "uploadProfile": "Click to upload profile picture",
@@ -87,8 +89,15 @@
   "enterYourEmail":"Enter Your Email",
   "followSteps":"Follow the steps to recover your account",
   "enterEmail":"Enter Email",
+  "pleaseEnterEmail":"Please enter your email",
   "verifyCode":"Verify Code",
+  "verificationCode":"Verification Code",
+  "enter6code":"Enter the 6-digit code we sent to",
   "weSendCode":"We'll send you a verification code to reset your password",
-  "SendCode":"Send Verification Code"
-
+  "sendCode":"Send Verification Code",
+  "sending":"Sending...",
+  "connecting":"Connecting...",
+  "back":"Back",
+  "updating":"Updating...",
+  "updatePassword":"Update Password"
 }

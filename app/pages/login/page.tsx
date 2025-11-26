@@ -304,6 +304,7 @@ import {
 import Link from "next/link";
 import GoogleIcon from '@mui/icons-material/Google';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { useLanguage } from "@/app/context/LanguageContext";
 
 interface LoginResponse {
   status: "success" | "error";
@@ -313,7 +314,8 @@ interface LoginResponse {
 }
 
 export default function LoginPage() {
-  const t = getTranslation("en");   // <-- YOUR TRANSLATION HOOK
+  const { lang } = useLanguage();
+  const t = getTranslation(lang);
   const router = useRouter();
   const { setUser } = useAppStore();
 
