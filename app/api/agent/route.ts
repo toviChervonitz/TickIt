@@ -25,31 +25,6 @@ const schema: any = {
   },
 };
 
-
-
-//   try {
-//     const response = await fetch("/api/agent", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         "x-project-id": projectId,
-//       },
-//       body: JSON.stringify({ userPrompt: projectSummary }),
-//     });
-
-//     const data = await response.json();
-
-//     if (!response.ok) {
-//       throw new Error(data.error || "Generating tasks failed");
-//     }
-
-//     return data;
-//   } catch (err: any) {
-//     console.error("Generate Content Error:", err);
-//     return null;
-//   }
-// };
-
 export async function POST(req: Request) {
   try {
     const projectId = req.headers.get("x-project-id"); // get project ID from header
@@ -101,6 +76,9 @@ export async function POST(req: Request) {
         - Return dates in ISO format (YYYY-MM-DD).
         The project starts on ${project.createdAt.toISOString().split("T")[0]}. Use this date as the reference for calculating due dates.
         Return ONLY JSON following the provided schema.
+        Use the same language as the user's prompt. 
+        If the prompt includes multiple languages, choose the language used for most of the text.
+
       `,
     });
 
