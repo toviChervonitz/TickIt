@@ -501,7 +501,7 @@ export default function LoginPage() {
                   }
                 }}
               >
-                {loading ? "Signing in..." : t("signIn")}
+                {loading ? t("signingIn") : t("signIn")}
               </Button>
             </Stack>
           </Box>

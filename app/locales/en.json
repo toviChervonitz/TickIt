@@ -47,9 +47,11 @@
   "phoneNumber": "Phone Number",
   "password":"Password",
   "emailCannotBeChanged":"Email cannot be changed",
+  "enterPhone":"Enter phone number",
   "changePassword": "Change Password",
   "leaveBlank":"Leave blank if you don't want to change your password",
   "currentPassword": "Current Password",
+  "enterCurrentPassword":"Enter current password",
   "newPassword": "New Password",
   "confirmNewPassword": "Confirm New Password",
   "saveChanges": "Save Changes",
@@ -99,5 +101,9 @@
   "connecting":"Connecting...",
   "back":"Back",
   "updating":"Updating...",
-  "updatePassword":"Update Password"
+  "updatePassword":"Update Password",
+  "enterName":"Enter your name",
+  "saving":"Saving...",
+  "enterNewPassword":"Enter new password",
+  "signingIn":"Signing In..."
 }

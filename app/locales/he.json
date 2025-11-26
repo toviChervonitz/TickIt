@@ -98,7 +98,14 @@
   "enter6code":"הזן את קוד האימות בן 6 הספרות ששלחנו ל",
   "back":"חזור",
   "updating":"מעדכן...",
-  "updatePassword":"עדכן סיסמה"
+  "updatePassword":"עדכן סיסמה",
+  "enterPhone":"הכנס מספר טלפון",
+  "creatingAccount":"יוצר חשבון...",
+  "pleaseEnterEmail":"אנא הזן את האימייל שלך",
+  "enterName":"הזן את שמך",
+  "saving":"שומר...",
+  "enterNewPassword":"הזן סיסמה חדשה"
+
 }
 
 
