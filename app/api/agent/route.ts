@@ -26,7 +26,6 @@ const schema: any = {
 };
 
 
-//   if (!projectSummary.trim() || !projectId.trim()) return null;
 
 //   try {
 //     const response = await fetch("/api/agent", {
