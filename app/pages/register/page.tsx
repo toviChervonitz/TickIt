@@ -27,7 +27,7 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import { UploadButton } from "@uploadthing/react";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import ImageUpload from "@/app/components/ImageUpload";
-
+import { getTranslation } from "@/app/lib/i18n";
 interface RegisterResponse {
   status: "success" | "error";
   message?: string;
@@ -38,7 +38,7 @@ interface RegisterResponse {
 export default function RegisterPage() {
   const router = useRouter();
   const { setUser } = useAppStore();
-
+  const t = getTranslation("en");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -166,11 +166,11 @@ export default function RegisterPage() {
               color="primary.main"
               sx={{ mb: 1 }}
             >
-              Create Account
+              {t("createAccount")}
             </Typography>
 
             <Typography variant="body1" color="text.secondary">
-              Join us and start managing your tasks
+              {t("joinUs")}
             </Typography>
           </Box>
 
@@ -240,7 +240,7 @@ export default function RegisterPage() {
               color="text.secondary"
               sx={{ display: "block", mt: 1 }}
             >
-              Click to upload profile picture
+              {t("uploadProfile")}
             </Typography>
           </Box>
 
