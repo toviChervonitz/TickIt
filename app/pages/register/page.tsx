@@ -110,9 +110,9 @@ export default function RegisterPage() {
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-    };
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setter(e.target.value);
+      };
 
   return (
     <Box
@@ -184,26 +184,27 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-           <Box sx={{ textAlign: "center", mb: 3 }}>
-         
-            <ImageUpload onUpload={setImage}/>
-         
-            <Box
-              sx={{
-                position: "relative",
-                display: "inline-block",
-              }}
-            >
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleImageChange}
+            />
+
+            <Box sx={{ position: "relative", display: "inline-block" }}>
               <Avatar
                 src={image}
+                alt={name}
                 sx={{
-                  width: 100,
-                  height: 100,
+                  width: 120,
+                  height: 120,
                   cursor: "pointer",
                   border: "4px solid",
                   borderColor: "primary.main",
                   backgroundColor: "#f0f0f0",
-                  fontSize: "2.5rem",
+                  fontSize: "3rem",
                   color: "#9ca3af",
                   "&:hover": {
                     opacity: 0.8,
@@ -212,7 +213,7 @@ export default function RegisterPage() {
                 }}
                 onClick={() => document.getElementById("imageInput")?.click()}
               >
-                {!image && "+"}
+                {!image && name?.charAt(0).toUpperCase()}
               </Avatar>
 
               <IconButton
@@ -222,8 +223,8 @@ export default function RegisterPage() {
                   right: 0,
                   backgroundColor: "primary.main",
                   color: "white",
-                  width: 36,
-                  height: 36,
+                  width: 40,
+                  height: 40,
                   "&:hover": {
                     backgroundColor: "primary.dark",
                   },
@@ -235,14 +236,11 @@ export default function RegisterPage() {
               </IconButton>
             </Box>
 
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ display: "block", mt: 1 }}
-            >
-              Click to upload profile picture
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
+              Click to change profile picture
             </Typography>
           </Box>
+
 
           <Box component="form" onSubmit={handleSubmit}>
             <Box
@@ -401,6 +399,6 @@ export default function RegisterPage() {
           </Box>
         </Card>
       </Container>
-    </Box>
+    </Box >
   );
 }
