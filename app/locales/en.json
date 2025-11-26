@@ -13,6 +13,7 @@
   "todo": "To Do",
   "inProgress": "In Progress",
   "completed": "Completed",
+  "manageWorkflow": "Manage your workflow efficiently",
   "sortBy": "Sort By",
   "dueDate": "Due Date", 
   "allProjects": "All Projects",
@@ -105,5 +106,7 @@
   "enterName":"Enter your name",
   "saving":"Saving...",
   "enterNewPassword":"Enter new password",
-  "signingIn":"Signing In..."
+  "signingIn":"Signing In...",
+  "clearFilters":"Clear all filters",
+  "noTasksYet":"No tasks yet"
 }
