@@ -3,12 +3,21 @@ import ProjectUserModel from "@/app/models/ProjectUserModel";
 import Project from "@/app/models/ProjectModel";
 import { NextResponse } from "next/server";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
+import Pusher from "pusher";
+
+const pusher = new Pusher({
+    appId: process.env.PUSHER_APP_ID!,
+    key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
+    secret: process.env.PUSHER_SECRET!,
+    cluster: process.env.PUSHER_CLUSTER!,
+    useTLS: true,
+});
 
 export async function PUT(
-  req: Request,
-  context: { params: Promise<{ projectId: string }> }
+    req: Request,
+    context: { params: Promise<{ projectId: string }> }
 ) {
-  await dbConnect();
+    await dbConnect();
     const currentUser = await getAuthenticatedUser();
     if (!currentUser) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -32,27 +41,45 @@ export async function PUT(
         userId: currentUser.id,
         projectId,
         role: "manager",
-    }); 
+    });
     if (!isManager) {
         return NextResponse.json(
             { error: "Forbidden - Only managers can edit projects" },
             { status: 403 }
         );
-    }const updates = await req.json();
+    } const updates = await req.json();
 
     const updatedProject = await Project.findByIdAndUpdate(
         projectId,
         updates,
         { new: true }
     );
+
     if (!updatedProject) {
         return NextResponse.json(
             { error: "Project not found" },
             { status: 404 }
         );
     }
+
+    const updatedProjectObject = updatedProject.toObject();
+
+    try {
+        await pusher.trigger(
+            `private-project-${projectId}`, 
+            "project-updated", 
+            {
+                action: "UPDATE",
+                project: updatedProjectObject 
+            }
+        );
+        console.log(`Pusher trigger sent to project ${projectId} for update.`);
+    } catch (pusherError) {
+        console.error("Pusher error on project update:", pusherError);
+    }
+
     return NextResponse.json(
-        { message: "Project updated successfully", project: updatedProject },
+        { message: "Project updated successfully", project: updatedProjectObject },
         { status: 200 }
     );
 }

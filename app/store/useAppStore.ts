@@ -4,6 +4,8 @@ import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
 import { IProjectRole, ITask, IUserSafe } from "../models/types";
 
+type IProject = IProjectRole;
+
 type PusherClient = Pusher;
 
 interface AppState {
@@ -23,6 +25,7 @@ interface AppState {
   setProjects: (projects: IProjectRole[]) => void;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
+  subscribeToProjectUpdates: (projectId: string) => void;
 }
 
 type MyPersist = PersistOptions<AppState, AppState>;
@@ -55,6 +58,37 @@ const useAppStore = create(
 
       setProjects: (projects) =>
         set((state) => ({ ...state, projects })),
+
+      subscribeToProjectUpdates: (projectId: string) => {
+        const state = get();
+        const pusherClient = state.pusherClient;
+
+        if (!pusherClient) {
+          console.error("Pusher Client not initialized.");
+          return;
+        }
+
+        const channelName = `private-project-${projectId}`;
+        const channel = pusherClient.subscribe(channelName);
+
+        channel.bind("pusher:subscription_succeeded", () => {
+          console.log(`Subscribed to project channel: ${channelName}`);
+        });
+
+        channel.bind(
+          "project-updated",
+          (data: { action: "UPDATE"; project: IProject }) => {
+            console.log("Real-time Project Update Received:", data.project);
+
+            const currentProjects = get().projects;
+            const updatedProjects = currentProjects.map((p) =>
+              p.project._id === data.project.project._id ? { ...p, ...data.project } : p
+            );
+
+            set({ projects: updatedProjects });
+          }
+        );
+      },
 
       initializeRealtime: (userId: string) => {
         const state = get();
@@ -112,7 +146,6 @@ const useAppStore = create(
               break;
 
             case "DELETE":
-              // פילטור המשימה שנמחקה/הועברה משם
               newTasks = currentTasks.filter(t => t._id !== data.taskId);
               break;
 
