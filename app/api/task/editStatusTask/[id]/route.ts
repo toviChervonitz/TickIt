@@ -2,10 +2,19 @@ import { dbConnect } from "@/app/lib/DB";
 import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import Task from "@/app/models/TaskModel";
+import { ITask } from "@/app/models/types";
 import { NextResponse } from "next/server";
+import Pusher from "pusher";
+
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID!,
+  key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
+  secret: process.env.PUSHER_SECRET!,
+  cluster: process.env.PUSHER_CLUSTER!,
+  useTLS: true,
+});
 
 export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
-  console.log("🟦 PUT /editStatusTask started");
 
   await dbConnect();
 
@@ -44,9 +53,33 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
 
     task.status = status;
 
-    await task.save();
+    const updatedTaskRaw = await task.save();
 
-    return NextResponse.json({ status: "success", message: "Task status updated successfully", task }, { status: 200 });
+    const updatedTaskPopulated = await Task.findById(updatedTaskRaw._id)
+      .populate("userId", "name")
+      .populate("projectId", "name")
+      .lean();
+
+    if (!updatedTaskPopulated) {
+      throw new Error("Failed to populate task after status update");
+    }
+
+    const assigneeId = task.userId.toString();
+
+    try {
+      await pusher.trigger(
+        `private-user-${assigneeId}`,
+        "task-updated",
+        {
+          action: "UPDATE",
+          task: updatedTaskPopulated
+        }
+      );
+    } catch (pusherError) {
+      console.error("Pusher error on status update:", pusherError);
+    }
+
+    return NextResponse.json({ status: "success", message: "Task status updated successfully", task: updatedTaskPopulated }, { status: 200 });
   } catch (err: any) {
     console.error(err);
     return NextResponse.json({ error: "Server error", details: err.message }, { status: 500 });
