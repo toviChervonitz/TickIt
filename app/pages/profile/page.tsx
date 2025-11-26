@@ -23,10 +23,13 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import SaveIcon from "@mui/icons-material/Save";
+import { getTranslation } from "@/app/lib/i18n";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function ProfilePage() {
   const router = useRouter();
-
+  const { lang } = useLanguage();
+  const t = getTranslation(lang);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [image, setImage] = useState<string>("");
@@ -120,11 +123,10 @@ export default function ProfilePage() {
         {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" fontWeight={800} color="primary.main" mb={1}>
-            Profile Settings
+            {t("profileSettings")}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Manage your account information and password
-          </Typography>
+{t("manageProfile")}          </Typography>
         </Box>
 
         <Card
@@ -201,7 +203,7 @@ export default function ProfilePage() {
               </Box>
 
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
-                Click to change profile picture
+                {t("changeProfile")}
               </Typography>
             </Box>
 
@@ -212,7 +214,7 @@ export default function ProfilePage() {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
                 <PersonIcon sx={{ color: "primary.main", fontSize: 24 }} />
                 <Typography variant="h6" fontWeight={700} color="primary.main">
-                  Personal Information
+                  {t("personalInformation")}
                 </Typography>
               </Box>
 
@@ -220,10 +222,10 @@ export default function ProfilePage() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Full Name"
+                    label={t("fullName")}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter your name"
+                    placeholder={t("enterName")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "#fafaf9",
@@ -235,11 +237,11 @@ export default function ProfilePage() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="Phone Number"
+                    label={t("phoneNumber")}
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="Enter your phone"
+                    placeholder={t("enterPhone")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "#fafaf9",
@@ -251,10 +253,10 @@ export default function ProfilePage() {
                 <Grid item xs={12}>
                   <TextField
                     fullWidth
-                    label="Email Address"
+                    label={t("emailAddress")}
                     value={user?.email || ""}
                     disabled
-                    helperText="Email cannot be changed"
+                    helperText={t("emailCannotBeChanged")}
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "#f5f5f5",
@@ -272,12 +274,12 @@ export default function ProfilePage() {
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                 <LockIcon sx={{ color: "primary.main", fontSize: 24 }} />
                 <Typography variant="h6" fontWeight={700} color="primary.main">
-                  Change Password
+                  {t("changePassword")}
                 </Typography>
               </Box>
 
               <Typography variant="body2" color="text.secondary" mb={3}>
-                Leave blank if you don't want to change your password
+                {t("leaveBlank")}
               </Typography>
 
               <Stack >
@@ -285,11 +287,11 @@ export default function ProfilePage() {
                   <Grid item xs={12} sm={12}>
                     <TextField
                       fullWidth
-                      label="Current Password"
+                      label={t("currentPassword")}
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="Enter current password"
+                      placeholder={t("enterCurrentPassword")}
                       sx={{
                         "& .MuiOutlinedInput-root": {
                           backgroundColor: "#fafaf9",
@@ -301,11 +303,11 @@ export default function ProfilePage() {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      label="New Password"
+                      label={t("newPassword")}
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Enter new password"
+                      placeholder={t("enterNewPassword")}
                       sx={{
                         "& .MuiOutlinedInput-root": {
                           backgroundColor: "#fafaf9",
@@ -317,11 +319,11 @@ export default function ProfilePage() {
                   <Grid item xs={12} sm={6}>
                     <TextField
                       fullWidth
-                      label="Confirm New Password"
+                      label={t("confirmNewPassword")}
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm new password"
+                      placeholder={t("confirmNewPassword")}
                       sx={{
                         "& .MuiOutlinedInput-root": {
                           backgroundColor: "#fafaf9",
@@ -347,7 +349,7 @@ export default function ProfilePage() {
                   "&:hover": { borderWidth: 2 },
                 }}
               >
-                Cancel
+                {t("cancel")}
               </Button>
 
               <Button
@@ -370,7 +372,7 @@ export default function ProfilePage() {
                   },
                 }}
               >
-                {loading ? "Saving..." : "Save Changes"}
+                {loading ? t("saving") : t("saveChanges")}
               </Button>
             </Box>
           </Box>
