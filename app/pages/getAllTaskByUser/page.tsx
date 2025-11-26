@@ -26,8 +26,13 @@ import FilterListIcon from "@mui/icons-material/FilterList"; // לא חובה כ
 import ClearIcon from "@mui/icons-material/Clear";
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { set } from "mongoose";
+import { useLanguage } from "@/app/context/LanguageContext";
+import { getTranslation } from "@/app/lib/i18n";
 
 export default function UserTasks() {
+    const { lang } = useLanguage();
+    const t = getTranslation(lang);
+  
   const { user, tasks, setTasks } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -121,21 +126,21 @@ export default function UserTasks() {
   const columns = [
     {
       id: "todo",
-      title: "To Do",
+      title: t("todo"),
       tasks: todoTasks,
       color: "#1d486a",
       bgColor: "rgba(29,72,106,0.08)",
     },
     {
       id: "doing",
-      title: "In Progress",
+      title: t("inProgress"),
       tasks: doingTasks,
       color: "#66dcd7",
       bgColor: "rgba(102,220,215,0.08)",
     },
     {
       id: "done",
-      title: "Completed",
+      title: t("completed"),
       tasks: doneTasks,
       color: "#3dd2cc",
       bgColor: "rgba(61,210,204,0.08)",
@@ -185,10 +190,10 @@ export default function UserTasks() {
           {/* Left Side: Title */}
           <Box>
             <Typography variant="h4" fontWeight={800} color="primary.main" gutterBottom>
-              My Tasks
+              {t("myTasks")}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Manage your workflow efficiently
+              {t("manageWorkflow")}
             </Typography>
           </Box>
 
@@ -201,7 +206,7 @@ export default function UserTasks() {
           >
              {/* Search Bar */}
             <TextField
-              placeholder="Search..."
+              placeholder={t("search")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               size="small"
@@ -228,13 +233,13 @@ export default function UserTasks() {
               value={projectFilter}
               onChange={(e) => setProjectFilter(e.target.value)}
               size="small"
-              label="Project"
+              label={t("project")}
               sx={{
                 width: { xs: '100%', sm: 160 },
                 "& .MuiOutlinedInput-root": { borderRadius: 2 },
               }}
             >
-              <MenuItem value="all">All Projects</MenuItem>
+              <MenuItem value="all">{t("allProjects")}</MenuItem>
               {projects.map((project) => (
                 <MenuItem key={project} value={project}>
                   {project}
@@ -248,19 +253,19 @@ export default function UserTasks() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               size="small"
-              label="Sort by"
+              label={t("sortBy")}
               sx={{
                 width: { xs: '100%', sm: 140 },
                 "& .MuiOutlinedInput-root": { borderRadius: 2 },
               }}
             >
-              <MenuItem value="dueDate">Due Date</MenuItem>
-              <MenuItem value="title">Title</MenuItem>
+              <MenuItem value="dueDate">{t("dueDate")}</MenuItem>
+              <MenuItem value="title">{t("title")}</MenuItem>
             </TextField>
 
             {/* Clear Filters Button */}
             {hasActiveFilters && (
-              <Tooltip title="Clear all filters">
+              <Tooltip title={t("clearFilters")}>
                 <IconButton 
                   onClick={clearFilters}
                   size="small"
@@ -401,7 +406,7 @@ export default function UserTasks() {
                             }}
                           >
                             <Typography variant="body2">
-                              No tasks yet
+                              {t("noTasksYet")}
                             </Typography>
                           </Box>
                         )}

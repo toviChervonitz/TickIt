@@ -19,6 +19,8 @@ import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AddMember from "@/app/components/AddMember";
 import GenerateTasks from "@/app/components/generatedTasks";
+import { getTranslation } from "@/app/lib/i18n";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 interface ProjectDetails {
   name: string;
@@ -31,9 +33,12 @@ interface User {
   name: string;
 }
 
-const steps = ["Project Details", "Add Team Members", "Create Tasks"];
 
 export default function CreateProjectPage() {
+    const { lang } = useLanguage();
+    const t = getTranslation(lang);
+  const steps = [t("projectDetails"), t("addTeamMembers"), t("createTasks")];
+
   const router = useRouter();
   const { setProjectId, setProjectUsers, projectUsers, user } = useAppStore();
 
@@ -131,11 +136,10 @@ export default function CreateProjectPage() {
         {/* Header */}
         <Box sx={{ textAlign: "center", mb: 5 }}>
           <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
-            Create New Project
+            {t("createProject")}
           </Typography>
           <Typography variant="h6" color="text.secondary">
-            Follow the steps below to set up your project
-          </Typography>
+{t("followProjectSteps")}          </Typography>
         </Box>
 
         {/* Stepper */}
@@ -194,10 +198,10 @@ export default function CreateProjectPage() {
                 </Box>
                 <Box>
                   <Typography variant="h5" fontWeight={700} color="primary.main">
-                    Project Details
+                    {t("projectDetails")}
                   </Typography>
                   <Typography color="text.secondary">
-                    Enter the basic information about your project
+                    {t("enterProjInfo")}
                   </Typography>
                 </Box>
               </Stack>
@@ -205,12 +209,12 @@ export default function CreateProjectPage() {
               <Stack spacing={3}>
                 <TextField
                   fullWidth
-                  label="Project Name"
+                  label={t("projectName")}
                   name="name"
                   value={projectDetails.name}
                   onChange={handleProjectChange}
                   required
-                  placeholder="e.g., Website Redesign"
+                  placeholder={t("projectNameExample")}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       backgroundColor: "#ffffff",
@@ -220,14 +224,14 @@ export default function CreateProjectPage() {
 
                 <TextField
                   fullWidth
-                  label="Project Description"
+                  label={t("projectDescription")}
                   name="description"
                   value={projectDetails.description}
                   onChange={handleProjectChange}
                   required
                   multiline
                   rows={4}
-                  placeholder="Describe what this project is about..."
+                  placeholder={t("projectDescriptionExample")}
                   sx={{
                     "& .MuiOutlinedInput-root": {
                       backgroundColor: "#ffffff",
@@ -239,7 +243,7 @@ export default function CreateProjectPage() {
                   <Button
                     variant="contained"
                     size="large"
-                    endIcon={<ArrowForwardIcon />}
+                    endIcon={lang==="en"?<ArrowForwardIcon />:<ArrowBackIcon />}
                     onClick={handleNextStep1}
                     disabled={loading || !projectDetails.name || !projectDetails.description}
                     sx={{
@@ -252,7 +256,7 @@ export default function CreateProjectPage() {
                       },
                     }}
                   >
-                    {loading ? "Creating..." : "Next Step"}
+                    {loading ? t("creating") : t("nextStep")}
                   </Button>
                 </Box>
               </Stack>
@@ -278,10 +282,10 @@ export default function CreateProjectPage() {
                 </Box>
                 <Box>
                   <Typography variant="h5" fontWeight={700} color="primary.main">
-                    Add Team Members
+                    {t("addTeamMembers")}
                   </Typography>
                   <Typography color="text.secondary">
-                    Invite people to collaborate on this project
+{t("invitePeople")}
                   </Typography>
                 </Box>
               </Stack>
@@ -301,7 +305,7 @@ export default function CreateProjectPage() {
                 {users.length > 0 && (
                   <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
                     <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                      Team Members ({users.length})
+                      {t("teamMembers")} ({users.length})
                     </Typography>
                     <List>
                       {users.map((u, idx) => (
@@ -321,7 +325,7 @@ export default function CreateProjectPage() {
                           />
                           {idx === 0 && (
                             <Chip
-                              label="Manager"
+                              label={t("manager")}
                               size="small"
                               color="primary"
                               sx={{ fontWeight: 600 }}
@@ -337,7 +341,7 @@ export default function CreateProjectPage() {
                   <Button
                     variant="contained"
                     size="large"
-                    endIcon={<ArrowForwardIcon />}
+                    endIcon={lang=="en"?<ArrowForwardIcon />:<ArrowBackIcon />}
                     onClick={() => setStep(2)}
                     disabled={loading || users.length === 0}
                     sx={{
@@ -350,7 +354,7 @@ export default function CreateProjectPage() {
                       },
                     }}
                   >
-                    Next Step
+                    {t("nextStep")}
                   </Button>
                 </Box>
               </Stack>
@@ -369,10 +373,10 @@ export default function CreateProjectPage() {
           {tasks.length > 0 && (
             <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
               <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                Tasks Created ({tasks.length})
+                {t("tasksCreated")} ({tasks.length})
               </Typography>
               <List>
-                {tasks.map((t, idx) => (
+                {tasks.map((taskItem, idx) => (
                   <ListItem
                     key={idx}
                     sx={{
@@ -383,10 +387,10 @@ export default function CreateProjectPage() {
                     }}
                   >
                     <ListItemText
-                      primary={t.title || "(No Title)"}
+                      primary={taskItem.title || "(No Title)"}
                       secondary={
-                        projectUsers.find((u) => u._id === t.userId)?.email ||
-                        "(Unassigned)"
+                        projectUsers.find((u) => u._id === taskItem.userId)?.email ||
+                      t("unassigned")
                       }
                       primaryTypographyProps={{ fontWeight: 600 }}
                     />
@@ -438,7 +442,7 @@ export default function CreateProjectPage() {
           },
         }}
       >
-        {loading ? "Finishing..." : "Finish Project"}
+        {loading ? t("finishing") : t("finishProject")}
       </Button>
     </Box>
   </Box>
