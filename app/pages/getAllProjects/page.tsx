@@ -27,27 +27,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
 
-// טורקיז
-const MAIN_COLOR = "#3dd2cc";
-
-// נקודה
-const DOT_COLORS = [
-  "#ff9f43",
-  "#5f27cd",
-  "#ff6b6b",
-  "#48dbfb",
-  "#1dd1a1",
-  "#f368e0",
-  "#fab1a0",
-];
-
-const getDotColor = (id: string) => {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return DOT_COLORS[Math.abs(hash % DOT_COLORS.length)];
-};
+const MAIN_COLOR = "secondary.main";
 
 export default function GetAllProjectsPage() {
   const { user, projects, setProjects, setProjectId } = useAppStore();
@@ -157,7 +137,7 @@ export default function GetAllProjectsPage() {
               const p = wrapper.project;
               console.log("p : ", p);
 
-              const dotColor = getDotColor(p._id || "default");
+              const dotColor = p.color;
 
               return (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={p._id} sx={{ display: "flex" }}>
@@ -197,7 +177,7 @@ export default function GetAllProjectsPage() {
                         </Box>
 
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <CircleIcon sx={{ fontSize: 14, color: dotColor }} />
+                          <CircleIcon sx={{ fontSize: 14, color: dotColor || "#F7F5F0" }} />
 
                           {wrapper.role === "manager" && (
                             <IconButton

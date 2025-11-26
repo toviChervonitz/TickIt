@@ -26,10 +26,23 @@ export async function POST(req: Request) {
             );
         }
 
+        const existingProject = await Project.findOne({ name: body.name });
+
+        if (existingProject) {
+            return NextResponse.json(
+                {
+                    status: "error",
+                    message: "A project with this name already exists.",
+                },
+                { status: 400 }
+            );
+        }
+
         const project = await Project.create({
             name: body.name,
             description: body.description,
         });
+
 
         await ProjectUser.create({
             userId: currentUser.id,

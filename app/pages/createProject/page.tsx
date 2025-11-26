@@ -64,6 +64,11 @@ export default function CreateProjectPage() {
       setError("");
 
       const result = await CreateProject(projectDetails);
+
+      if (result?.status === "error") {
+        throw new Error(result.message || "Failed to create project");
+      }
+
       if (!result?.project?._id) throw new Error("Invalid project ID");
 
       const newProjectId = result.project._id;
@@ -101,7 +106,7 @@ export default function CreateProjectPage() {
 
       const realTask = createdTask.task || createdTask;
       setTasks((prev) => [...prev, realTask]);
-      setTask({ title: "", content: "", userId: "", dueDate: "" , status: "todo"});
+      setTask({ title: "", content: "", userId: "", dueDate: "", status: "todo" });
     } catch (err: any) {
       setError(err.message || "Failed to create task");
     } finally {
@@ -358,91 +363,91 @@ export default function CreateProjectPage() {
           )}
 
           {/* Step 3: Add Tasks */}
-{step === 2 && (
-  <Box>
-    <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
-      {/* Left: Manual Task Form */}
-      <Box sx={{ flex: 1 }}>
-        <Stack spacing={3}>
-          <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} />
+          {step === 2 && (
+            <Box>
+              <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
+                {/* Left: Manual Task Form */}
+                <Box sx={{ flex: 1 }}>
+                  <Stack spacing={3}>
+                    <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} />
 
-          {tasks.length > 0 && (
-            <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
-              <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                Tasks Created ({tasks.length})
-              </Typography>
-              <List>
-                {tasks.map((t, idx) => (
-                  <ListItem
-                    key={idx}
-                    sx={{
-                      borderRadius: 2,
-                      mb: 1,
-                      backgroundColor: "#fafaf9",
-                      "&:hover": { backgroundColor: "#f5f5f5" },
+                    {tasks.length > 0 && (
+                      <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
+                        <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                          Tasks Created ({tasks.length})
+                        </Typography>
+                        <List>
+                          {tasks.map((t, idx) => (
+                            <ListItem
+                              key={idx}
+                              sx={{
+                                borderRadius: 2,
+                                mb: 1,
+                                backgroundColor: "#fafaf9",
+                                "&:hover": { backgroundColor: "#f5f5f5" },
+                              }}
+                            >
+                              <ListItemText
+                                primary={t.title || "(No Title)"}
+                                secondary={
+                                  projectUsers.find((u) => u._id === t.userId)?.email ||
+                                  "(Unassigned)"
+                                }
+                                primaryTypographyProps={{ fontWeight: 600 }}
+                              />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </Paper>
+                    )}
+                  </Stack>
+                </Box>
+
+                {/* Right: Generate Tasks */}
+                <Box sx={{ flex: 1 }}>
+                  <GenerateTasks
+                    projectName={projectDetails.name}
+                    projectDescription={projectDetails.description}
+                    projectId={projectIdLocal}
+                    projectUsers={projectUsers}
+                    onAddTask={async (generatedTask) => {
+                      const savedTask = await CreateTask({
+                        ...generatedTask,
+                        projectId: projectIdLocal,
+                        managerId: user?._id!,
+                      });
+
+                      const realTask = savedTask.task || savedTask;
+
+                      setTasks((prev) => [...prev, realTask]);
                     }}
-                  >
-                    <ListItemText
-                      primary={t.title || "(No Title)"}
-                      secondary={
-                        projectUsers.find((u) => u._id === t.userId)?.email ||
-                        "(Unassigned)"
-                      }
-                      primaryTypographyProps={{ fontWeight: 600 }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Paper>
+                  />
+                </Box>
+              </Box>
+
+              {/* Finish Button */}
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  endIcon={<CheckCircleIcon />}
+                  onClick={handleFinish}
+                  disabled={loading}
+                  sx={{
+                    px: 4,
+                    py: 1.5,
+                    fontWeight: 700,
+                    background: "linear-gradient(to bottom, #1d486a, #163957)",
+                    "&:hover": {
+                      background: "linear-gradient(to bottom, #163957, #122d42)",
+                    },
+                  }}
+                >
+                  {loading ? "Finishing..." : "Finish Project"}
+                </Button>
+              </Box>
+            </Box>
           )}
-        </Stack>
-      </Box>
-
-      {/* Right: Generate Tasks */}
-      <Box sx={{ flex: 1 }}>
-<GenerateTasks
-  projectName={projectDetails.name}
-  projectDescription={projectDetails.description}
-  projectId={projectIdLocal}
-  projectUsers={projectUsers}
-  onAddTask={async (generatedTask) => {
-    const savedTask = await CreateTask({
-      ...generatedTask,
-      projectId: projectIdLocal,
-      managerId: user?._id!,
-    });
-
-    const realTask = savedTask.task || savedTask;
-
-    setTasks((prev) => [...prev, realTask]);
-  }}
-/>
-      </Box>
-    </Box>
-
-    {/* Finish Button */}
-    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-      <Button
-        variant="contained"
-        size="large"
-        endIcon={<CheckCircleIcon />}
-        onClick={handleFinish}
-        disabled={loading}
-        sx={{
-          px: 4,
-          py: 1.5,
-          fontWeight: 700,
-          background: "linear-gradient(to bottom, #1d486a, #163957)",
-          "&:hover": {
-            background: "linear-gradient(to bottom, #163957, #122d42)",
-          },
-        }}
-      >
-        {loading ? "Finishing..." : "Finish Project"}
-      </Button>
-    </Box>
-  </Box>
-)}
         </Card>
       </Container>
     </Box>
