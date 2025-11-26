@@ -134,7 +134,7 @@ export default function ForgotPasswordPage() {
               {t("resetPassword")}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {t("followSteps")}
+              {t("followAccountSteps")}
             </Typography>
           </Box>
 

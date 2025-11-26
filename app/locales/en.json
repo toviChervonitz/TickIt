@@ -13,6 +13,7 @@
   "todo": "To Do",
   "inProgress": "In Progress",
   "completed": "Completed",
+  "manageWorkflow": "Manage your workflow efficiently",
   "sortBy": "Sort By",
   "dueDate": "Due Date", 
   "allProjects": "All Projects",
@@ -89,7 +90,7 @@
   "alreadyHaveAccount":"Already have an account?",
   "resetPassword":"Reset Password",
   "enterYourEmail":"Enter Your Email",
-  "followSteps":"Follow the steps to recover your account",
+  "followAccountSteps":"Follow the steps to recover your account",
   "enterEmail":"Enter Email",
   "pleaseEnterEmail":"Please enter your email",
   "verifyCode":"Verify Code",
@@ -105,5 +106,15 @@
   "enterName":"Enter your name",
   "saving":"Saving...",
   "enterNewPassword":"Enter new password",
-  "signingIn":"Signing In..."
+  "signingIn":"Signing In...",
+  "clearFilters":"Clear all filters",
+  "noTasksYet":"No tasks yet",
+  "followProjectSteps":"Follow the steps below to set up your project",
+  "projectDescription":"Project Description",
+  "addTeamMembers":"Add Team Members",
+  "creating":"Creating...",
+  "projectNameExample":"e.g., Website Redesign",
+  "projectDescriptionExample":"Describe what this project is about...",
+  "finishing":"Finishing...",
+  "unassigned":"(Unassigned)"
 }

@@ -104,7 +104,19 @@
   "pleaseEnterEmail":"אנא הזן את האימייל שלך",
   "enterName":"הזן את שמך",
   "saving":"שומר...",
-  "enterNewPassword":"הזן סיסמה חדשה"
+  "enterNewPassword":"הזן סיסמה חדשה",
+  "manageWorkflow": "נהל את זרימת העבודה שלך ביעילות",
+  "signingIn":"מתחבר...",
+  "clearFilters":"נקה את כל המסננים",
+  "noTasksYet":"אין משימות עדיין",
+  "followProjectSteps":"עקוב אחר השלבים הבאים כדי להגדיר את הפרויקט שלך",
+  "projectDescription":"תיאור הפרויקט",
+  "addTeamMembers":"הוסף חברי צוות",
+  "creating":"יוצר...",
+  "projectNameExample":"לדוגמה, עיצוב מחדש של אתר",
+  "projectDescriptionExample":"תאר מה הפרויקט הזה כולל...",
+  "finishing":"מסיים...",
+  "unassigned":"(Unassigned)"
 
 }
 

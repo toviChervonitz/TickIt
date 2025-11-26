@@ -37,3 +37,4 @@ export const handleGenerateContent = async (
     return null;
   }
 };
+

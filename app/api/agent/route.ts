@@ -25,32 +25,30 @@ const schema: any = {
   },
 };
 
-// Helper server function for frontend
-export const handleGenerateContent = async (projectSummary: string, projectId: string) => {
-  if (!projectSummary.trim() || !projectId.trim()) return null;
 
-  try {
-    const response = await fetch("/api/agent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-project-id": projectId,
-      },
-      body: JSON.stringify({ userPrompt: projectSummary }),
-    });
 
-    const data = await response.json();
+//   try {
+//     const response = await fetch("/api/agent", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         "x-project-id": projectId,
+//       },
+//       body: JSON.stringify({ userPrompt: projectSummary }),
+//     });
 
-    if (!response.ok) {
-      throw new Error(data.error || "Generating tasks failed");
-    }
+//     const data = await response.json();
 
-    return data;
-  } catch (err: any) {
-    console.error("Generate Content Error:", err);
-    return null;
-  }
-};
+//     if (!response.ok) {
+//       throw new Error(data.error || "Generating tasks failed");
+//     }
+
+//     return data;
+//   } catch (err: any) {
+//     console.error("Generate Content Error:", err);
+//     return null;
+//   }
+// };
 
 export async function POST(req: Request) {
   try {
