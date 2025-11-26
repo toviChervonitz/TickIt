@@ -67,6 +67,12 @@ const useAppStore = create(
         }
 
         const channelName = `private-project-${projectId}`;
+
+        if (pusherClient.channel(channelName)?.subscribed) {
+            console.log(`Already subscribed to project channel: ${channelName}`);
+            return;
+        }
+        
         const channel = pusherClient.subscribe(channelName);
 
         channel.bind("pusher:subscription_succeeded", () => {

@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect } from 'react';
-import useAppStore from '@/app/store/useAppStore'; // ודא שהנתיב לסטור נכון
-
+import useAppStore from '@/app/store/useAppStore'; 
 export default function RealtimeLoader() {
-    
-    const { user, initializeRealtime } = useAppStore();
+
+    const { user, initializeRealtime, projectId, subscribeToProjectUpdates } = useAppStore();
 
     useEffect(() => {
         if (user?._id) {
@@ -14,5 +13,18 @@ export default function RealtimeLoader() {
         }
     }, [user, initializeRealtime]);
 
-    return null; 
+    useEffect(() => {
+        if (projectId) {
+            console.log("Subscribing to current project updates:", projectId);
+            subscribeToProjectUpdates(projectId);
+        }
+
+        return () => {
+            if (projectId && useAppStore.getState().pusherClient) {
+                return;
+            }
+        };
+    }, [projectId, subscribeToProjectUpdates]);
+
+    return null;
 }
