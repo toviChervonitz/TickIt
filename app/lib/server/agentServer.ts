@@ -2,8 +2,7 @@ import { TaskFormData } from "@/app/components/AddTaskForm";
 
 export const handleGenerateContent = async (
   projectSummary: string,
-  projectId: string,
-  lang: "en" | "he"
+  projectId: string
 ): Promise<TaskFormData[] | null> => {
   if (!projectSummary.trim() || !projectId.trim()) return null;
 
@@ -13,7 +12,6 @@ export const handleGenerateContent = async (
       headers: {
         "Content-Type": "application/json",
         "x-project-id": projectId,
-        "x-lang": lang
       },
       body: JSON.stringify({ userPrompt: projectSummary }),
     });

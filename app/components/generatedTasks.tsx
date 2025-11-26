@@ -196,8 +196,7 @@ export default function GenerateTasks({
 
     const result = await handleGenerateContent(
       `Name: ${projectName}. Description: ${projectDescription}`,
-      projectId,
-      "he"
+      projectId
     );
 
     if (Array.isArray(result)) {
