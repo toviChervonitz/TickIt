@@ -25,35 +25,11 @@ const schema: any = {
   },
 };
 
-// Helper server function for frontend
-export const handleGenerateContent = async (projectSummary: string, projectId: string) => {
-  if (!projectSummary.trim() || !projectId.trim()) return null;
 
-  try {
-    const response = await fetch("/api/agent", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-project-id": projectId,
-      },
-      body: JSON.stringify({ userPrompt: projectSummary }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || "Generating tasks failed");
-    }
-
-    return data;
-  } catch (err: any) {
-    console.error("Generate Content Error:", err);
-    return null;
-  }
-};
 
 export async function POST(req: Request) {
   try {
+    const lang = req.headers.get("x-lang") || "en";
     const projectId = req.headers.get("x-project-id"); // get project ID from header
     if (!projectId) {
       return NextResponse.json({ error: "Project ID header missing" }, { status: 400 });
@@ -93,17 +69,26 @@ export async function POST(req: Request) {
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-      systemInstruction: `
-        You are a project task generator.
-        Generate BETWEEN 2 AND 5 actionable development tasks.
-        Each task MUST include a title, detailed markdown content, and dueDate.
-        - If the task seems short (< 2 hours), due date is tomorrow.
-        - For every additional few hours, add a day.
-        - If a task depends on another, place the dueDate after the dependent task’s dueDate.
-        - Return dates in ISO format (YYYY-MM-DD).
-        The project starts on ${project.createdAt.toISOString().split("T")[0]}. Use this date as the reference for calculating due dates.
-        Return ONLY JSON following the provided schema.
-      `,
+systemInstruction: `
+  You are a project task generator.
+  Language: ${lang === "he" ? "Hebrew" : "English"}.
+
+  Generate BETWEEN 2 AND 5 actionable development tasks
+  IN ${lang === "he" ? "HEBREW" : "ENGLISH"} ONLY.
+
+  Each task MUST include:
+  - title (short)
+  - content (markdown instructions)
+  - dueDate (ISO yyyy-mm-dd)
+
+  If the task seems short (< 2 hours), due date is tomorrow.
+  For longer tasks, add more days.
+  If a task depends on another, set dueDate after the other.
+
+  The project starts on ${project.createdAt.toISOString().split("T")[0]}.
+
+  Return ONLY JSON matching the schema.
+`,
     });
 
     const jsonString = result.response.text();
