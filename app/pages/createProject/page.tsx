@@ -35,8 +35,8 @@ interface User {
 
 
 export default function CreateProjectPage() {
-    const { lang } = useLanguage();
-    const t = getTranslation(lang);
+  const { lang } = useLanguage();
+  const t = getTranslation(lang);
   const steps = [t("projectDetails"), t("addTeamMembers"), t("createTasks")];
 
   const router = useRouter();
@@ -144,7 +144,7 @@ export default function CreateProjectPage() {
             {t("createProject")}
           </Typography>
           <Typography variant="h6" color="text.secondary">
-{t("followProjectSteps")}          </Typography>
+            {t("followProjectSteps")}          </Typography>
         </Box>
 
         {/* Stepper */}
@@ -248,7 +248,7 @@ export default function CreateProjectPage() {
                   <Button
                     variant="contained"
                     size="large"
-                    endIcon={lang==="en"?<ArrowForwardIcon />:<ArrowBackIcon />}
+                    endIcon={lang === "en" ? <ArrowForwardIcon /> : <ArrowBackIcon />}
                     onClick={handleNextStep1}
                     disabled={loading || !projectDetails.name || !projectDetails.description}
                     sx={{
@@ -290,7 +290,7 @@ export default function CreateProjectPage() {
                     {t("addTeamMembers")}
                   </Typography>
                   <Typography color="text.secondary">
-{t("invitePeople")}
+                    {t("invitePeople")}
                   </Typography>
                 </Box>
               </Stack>
@@ -346,7 +346,7 @@ export default function CreateProjectPage() {
                   <Button
                     variant="contained"
                     size="large"
-                    endIcon={lang=="en"?<ArrowForwardIcon />:<ArrowBackIcon />}
+                    endIcon={lang == "en" ? <ArrowForwardIcon /> : <ArrowBackIcon />}
                     onClick={() => setStep(2)}
                     disabled={loading || users.length === 0}
                     sx={{
@@ -375,83 +375,93 @@ export default function CreateProjectPage() {
                   <Stack spacing={3}>
                     <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} />
 
-          {tasks.length > 0 && (
-            <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
-              <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                {t("tasksCreated")} ({tasks.length})
-              </Typography>
-              <List>
-                {tasks.map((taskItem, idx) => (
-                  <ListItem
-                    key={idx}
-                    sx={{
-                      borderRadius: 2,
-                      mb: 1,
-                      backgroundColor: "#fafaf9",
-                      "&:hover": { backgroundColor: "#f5f5f5" },
+                    {tasks.length > 0 && (
+                      <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
+                        <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                          {t("tasksCreated")} ({tasks.length})
+                        </Typography>
+                        <List>
+                          {tasks.map((taskItem, idx) => {
+                            let assignedName = t("unassigned");
+                            const userIdRaw = taskItem.userId as any;
+                            if (typeof userIdRaw === "string" && userIdRaw) {
+                              assignedName = users.find(u => u._id === userIdRaw)?.name || t("unassigned");
+                            } else if (userIdRaw && typeof userIdRaw === "object") {
+                              assignedName =
+                                userIdRaw.name ||
+                                users.find(u => u._id === (userIdRaw._id || userIdRaw.id))?.name ||
+                                t("unassigned");
+                            }
+
+                            return (
+                              <ListItem
+                                key={idx}
+                                sx={{
+                                  borderRadius: 2,
+                                  mb: 1,
+                                  backgroundColor: "#fafaf9",
+                                  "&:hover": { backgroundColor: "#f5f5f5" },
+                                }}
+                              >
+                                <ListItemText
+                                  primary={taskItem.title || "(No Title)"}
+                                  secondary={assignedName}
+                                  primaryTypographyProps={{ fontWeight: 600 }}
+                                />
+                              </ListItem>
+                            );
+                          })}
+                        </List>
+                      </Paper>
+                    )}
+                  </Stack>
+                </Box>
+
+                {/* Right: Generate Tasks */}
+                <Box sx={{ flex: 1 }}>
+                  <GenerateTasks
+                    projectName={projectDetails.name}
+                    projectDescription={projectDetails.description}
+                    projectId={projectIdLocal}
+                    projectUsers={projectUsers}
+                    onAddTask={async (generatedTask) => {
+                      const savedTask = await CreateTask({
+                        ...generatedTask,
+                        projectId: projectIdLocal,
+                        managerId: user?._id!,
+                      });
+
+                      const realTask = savedTask.task || savedTask;
+
+                      setTasks((prev) => [...prev, realTask]);
                     }}
-                  >
-                    <ListItemText
-                      primary={taskItem.title || "(No Title)"}
-                      secondary={
-                        projectUsers.find((u) => u._id === taskItem.userId)?.email ||
-                      t("unassigned")
-                      }
-                      primaryTypographyProps={{ fontWeight: 600 }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Paper>
+                  />
+                </Box>
+              </Box>
+
+              {/* Finish Button */}
+              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  endIcon={<CheckCircleIcon />}
+                  onClick={handleFinish}
+                  disabled={loading}
+                  sx={{
+                    px: 4,
+                    py: 1.5,
+                    fontWeight: 700,
+                    background: "linear-gradient(to bottom, #1d486a, #163957)",
+                    "&:hover": {
+                      background: "linear-gradient(to bottom, #163957, #122d42)",
+                    },
+                  }}
+                >
+                  {loading ? t("finishing") : t("finishProject")}
+                </Button>
+              </Box>
+            </Box>
           )}
-        </Stack>
-      </Box>
-
-      {/* Right: Generate Tasks */}
-      <Box sx={{ flex: 1 }}>
-<GenerateTasks
-  projectName={projectDetails.name}
-  projectDescription={projectDetails.description}
-  projectId={projectIdLocal}
-  projectUsers={projectUsers}
-  onAddTask={async (generatedTask) => {
-    const savedTask = await CreateTask({
-      ...generatedTask,
-      projectId: projectIdLocal,
-      managerId: user?._id!,
-    });
-
-    const realTask = savedTask.task || savedTask;
-
-    setTasks((prev) => [...prev, realTask]);
-  }}
-/>
-      </Box>
-    </Box>
-
-    {/* Finish Button */}
-    <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-      <Button
-        variant="contained"
-        size="large"
-        endIcon={<CheckCircleIcon />}
-        onClick={handleFinish}
-        disabled={loading}
-        sx={{
-          px: 4,
-          py: 1.5,
-          fontWeight: 700,
-          background: "linear-gradient(to bottom, #1d486a, #163957)",
-          "&:hover": {
-            background: "linear-gradient(to bottom, #163957, #122d42)",
-          },
-        }}
-      >
-        {loading ? t("finishing") : t("finishProject")}
-      </Button>
-    </Box>
-  </Box>
-)}
         </Card>
       </Container>
     </Box>

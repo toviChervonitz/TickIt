@@ -26,7 +26,7 @@ export async function CreateTask(form: any) {
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.error || "Task creation failed");
+    throw new Error(data.message || data.error || "Task creation failed");
   }
 
   return { status: res.status, ...data };

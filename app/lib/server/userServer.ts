@@ -18,7 +18,7 @@ export async function AddUserToProject(
     throw new Error("UserAlreadyExists");
   }
   if (!res.ok) {
-    throw new Error(data.error || "Adding users to project failed");
+    throw new Error(data.message || data.error || "Adding users to project failed");
   }
 
   return { status: res.status, ...data };
@@ -50,7 +50,7 @@ export async function UpdateUser(
   }
 
   if (!res.ok) {
-    throw new Error(data.message || "Failed to update user");
+    throw new Error(data.message || data.error || "Failed to update user");
   }
 
   return data;
@@ -72,7 +72,7 @@ export async function AddManagerToProject(userId: string, projectId: string) {
 
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.error || "Adding manager to project failed");
+    throw new Error(data.message || data.error || "Adding manager to project failed");
   }
 
   return { status: res.status, ...data };
@@ -94,7 +94,7 @@ export async function getAllUsersByProjectId(projectId: string | null) {
     );
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || "Fetching users failed");
+      throw new Error(data.message || data.error || "Fetching users failed");
     }
     return data;
   } catch (err: any) {
