@@ -19,6 +19,7 @@ interface EditTaskProps {
   projectId: string;
   onSaved: () => void;
   onCancel: () => void;
+  dir:string
 }
 
 export default function EditTask({
@@ -44,7 +45,7 @@ export default function EditTask({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!task._id) return alert("Error: task ID missing");
+    if (!task._id) return console.log("Error: task ID missing");
 
     try {
       await UpdateTask(task._id, {
@@ -56,7 +57,6 @@ export default function EditTask({
       onSaved();
     } catch (err: any) {
       console.error("Error updating task:", err);
-      alert(err?.message || "Update failed.");
     }
   };
 

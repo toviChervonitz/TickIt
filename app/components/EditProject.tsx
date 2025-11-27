@@ -30,7 +30,7 @@ const EditProject =({
       };
         const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!project._id) return alert("Error: project ID missing");
+        if (!project._id) return console.log("Error: project ID missing");
         try {
           await UpdateProject(project._id, {
             name: project.name,
@@ -39,7 +39,6 @@ const EditProject =({
             onSaved();
         } catch (err: any) {
           console.error("Error updating project:", err);
-          alert(err?.message || "Update failed.");
         }
         };
     if (!mounted) return null;
