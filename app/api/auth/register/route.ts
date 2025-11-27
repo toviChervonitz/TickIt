@@ -3,7 +3,7 @@ import { dbConnect } from "@/app/lib/DB";
 import User from "@/app/models/UserModel";
 import { registerSchema } from "@/app/lib/validation";
 import { hashPassword } from "@/app/lib/bcrypt";
-import { createAuthResponse, createToken } from "@/app/lib/jwt";
+import { createAuthResponse } from "@/app/lib/jwt";
 
 export async function POST(req: Request) {
   await dbConnect();

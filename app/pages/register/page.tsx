@@ -3,7 +3,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Register } from "@/app/lib/server/authServer";
+import {  Register, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
 import {
@@ -27,6 +27,8 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import { UploadButton } from "@uploadthing/react";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import ImageUpload from "@/app/components/ImageUpload";
+import { register } from "module";
+import { googleRegisterService } from "@/app/lib/server/googleService";
 
 interface RegisterResponse {
   status: "success" | "error";
@@ -90,23 +92,37 @@ export default function RegisterPage() {
     }
   };
 
-  // const handleGoogleSignIn = async () => {
-  //   setError("");
-  //   setGoogleLoading(true);
+  const handleGoogleSignIn = async () => {
+    if (loading) return;
+    setLoading(true);
+    setError("");
 
-  //   try {
-  //     localStorage.setItem("googleAuthMode", "register");
-  //     await signIn("google", {
-  //       callbackUrl: "/pages/postGoogleRedirect",
-  //       state: "register",
-  //     });
-  //   } catch (err: any) {
-  //     console.error(err);
-  //     setError("Google sign-in failed");
-  //   } finally {
-  //     setGoogleLoading(false);
-  //   }
-  // };
+    try {
+      const user = await signInWithGoogle();
+
+      const userData = {
+        name: user.displayName,
+        email: user.email,
+        image: user.photoURL,
+      };
+
+      const { ok, data } = await googleRegisterService(userData);
+
+      if (!ok) {
+        setError(data.message || "Something went wrong");
+        return;
+      }
+
+      setUser(data.user);
+      router.push("/pages/createProject");
+    } catch (error: any) {
+  console.error("Google sign-in error:", error.code || error);
+      setError("Something went wrong during Google register");
+    
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
@@ -184,10 +200,9 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-           <Box sx={{ textAlign: "center", mb: 3 }}>
-         
-            <ImageUpload onUpload={setImage}/>
-         
+          <Box sx={{ textAlign: "center", mb: 3 }}>
+            <ImageUpload onUpload={setImage} />
+
             <Box
               sx={{
                 position: "relative",
@@ -350,7 +365,7 @@ export default function RegisterPage() {
             </Typography>
           </Divider>
 
-          {/* <Button
+          <Button
             variant="outlined"
             size="large"
             fullWidth
@@ -378,7 +393,7 @@ export default function RegisterPage() {
             }}
           >
             {googleLoading ? "Connecting..." : "Sign up with Google"}
-          </Button> */}
+          </Button>
 
           <Box sx={{ textAlign: "center", mt: 4 }}>
             <Typography variant="body2" color="text.secondary">

@@ -2,7 +2,10 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Login, signInWithGoogle } from "@/app/lib/server/authServer";
+import {
+  Login,
+  signInWithGoogle,
+} from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
 import {
@@ -21,6 +24,7 @@ import Link from "next/link";
 import GoogleIcon from "@mui/icons-material/Google";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { signIn } from "next-auth/react";
+import { googleLoginService } from "@/app/lib/server/googleService";
 
 interface LoginResponse {
   status: "success" | "error";
@@ -72,24 +76,26 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleLogIn = async () => {
     if (googleLoading) return;
     setError("");
     setGoogleLoading(true);
     try {
-      const userRes = await signInWithGoogle();
-      console.log("res user in google sign in", userRes);
-      
+      const res = await signInWithGoogle();
+      console.log("res user in google sign in", res);
+      const idToken = await res.getIdToken();
+      console.log("Firebase ID Token:", idToken);
+
       const userData = {
-        email: userRes.email,
-        googleId: userRes.uid,
-        name: userRes.displayName,
-        profileImg: userRes.photoURL,
+        email: res.email,
+        googleId: res.uid,
+        name: res.displayName,
+        image: res.photoURL,
       };
-      const { ok, status, data } = await googleLoginService(userData);
+      const { ok, status, data } = await googleLoginService(userData, idToken);
       if (ok) {
-        console.log("data in google log in",data);
-        setUser(mapUserToClient(data.user));
+        console.log("data in google log in", data);
+        setUser(data.user);
         alert(data.message);
         router.push("/pages/dashboard");
       } else {
@@ -102,21 +108,7 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-  //   setError("");
-  //   setGoogleLoading(true);
-  //   try {
-  //     localStorage.setItem("googleAuthMode", "login");
-  //     await signIn("google", {
-  //       callbackUrl: "/pages/postGoogleRedirect",
-  //       state: "login"
-  //     });
-  //   } catch (err: any) {
-  //     console.error(err);
-  //     setError("Google sign-in failed");
-  //   } finally {
-  //     setGoogleLoading(false);
-  //   }
-  // };
+
 
   return (
     <Box
@@ -259,7 +251,7 @@ export default function LoginPage() {
             variant="outlined"
             size="large"
             fullWidth
-            onClick={handleGoogleSignIn}
+            onClick={handleGoogleLogIn}
             disabled={googleLoading}
             startIcon={<GoogleIcon />}
             sx={{

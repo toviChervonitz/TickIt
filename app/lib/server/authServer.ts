@@ -44,14 +44,15 @@ export async function Login(form: any) {
 
 
 
+//google
 
-
-import { auth, provider } from "@/lib/firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
+import { auth, provider } from "../firebase";
 
 export async function signInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, provider);
+    console.log("result of google connect", result);
     const user = result.user;
     return user;
   } catch (error) {
@@ -60,6 +61,8 @@ export async function signInWithGoogle() {
   }
 }
 
+
+
 export async function signOutUser() {
   try {
     await signOut(auth);
@@ -67,6 +70,9 @@ export async function signOutUser() {
     console.error(" Sign-out error:", error);
   }
 }
+
+
+
 
 //
 // import NextAuth, { NextAuthOptions, Session } from "next-auth";
