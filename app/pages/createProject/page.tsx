@@ -120,7 +120,6 @@ export default function CreateProjectPage() {
   };
 
   const handleFinish = async () => {
-    alert("Project created successfully!");
     router.push("/pages/dashboard");
   };
 

@@ -180,7 +180,7 @@ export default function GetProjectTasks() {
   const handleEdit = async (taskId: string) => {
     if (!isManager) return;
     const t = filteredTasks.find((t) => t._id?.toString() === taskId);
-    if (!t?._id) return alert("Task not found");
+    if (!t?._id) return console.log("Task not found");
 
     const users = await fetchProjectUsers();
     setEditingTask({

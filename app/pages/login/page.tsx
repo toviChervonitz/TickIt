@@ -101,7 +101,6 @@ export default function LoginPage() {
       if (ok) {
         console.log("data in google log in", data);
         setUser(data.user);
-        alert(data.message);
         router.push("/pages/dashboard");
       } else {
         setError(data.message || "Something went wrong");
