@@ -139,7 +139,7 @@ const useAppStore = create(
               if (p.project._id === updatedProjectData._id) {
                 return {
                   ...p,
-                  project: updatedProjectData 
+                  project: updatedProjectData
                 };
               }
               return p;
@@ -188,9 +188,17 @@ const useAppStore = create(
           // ⭐ עדכון המערכים ב-Store ⭐
           set({
             tasks: newTasks,
-            // עדכון projectTasks: אם הפרויקט הנוכחי מוגדר, מסנן את המשימות ששייכות לו
             projectTasks: state.projectId
-              ? newTasks.filter(t => t?.projectId!.toString() === state.projectId)
+              ? newTasks.filter(t => {
+                if (!t?.projectId) return false;
+                if (typeof t.projectId === "object" && t.projectId._id) {
+                  return t.projectId._id.toString() === state.projectId;
+                }
+                if (typeof t.projectId === "string") {
+                  return t.projectId === state.projectId;
+                }
+                return false;
+              })
               : state.projectTasks
           });
         });

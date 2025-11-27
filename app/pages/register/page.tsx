@@ -112,9 +112,9 @@ export default function RegisterPage() {
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-    };
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setter(e.target.value);
+      };
 
   return (
     <Box
@@ -401,6 +401,6 @@ export default function RegisterPage() {
           </Box>
         </Card>
       </Container>
-    </Box>
+    </Box >
   );
 }

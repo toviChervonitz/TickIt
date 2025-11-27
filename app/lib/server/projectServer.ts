@@ -9,7 +9,7 @@ export async function CreateProject(form: any) {
     throw new Error(error.message);
   }
 
-  const bodyData = { ...form};
+  const bodyData = { ...form };
 
   const res = await fetch("/api/project/createProject", {
     method: "POST",
@@ -18,15 +18,15 @@ export async function CreateProject(form: any) {
     },
     body: JSON.stringify(bodyData),
   });
-  
+
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.error || "Project creation failed");
+    throw new Error(data.message || data.error || "Project creation failed");
   }
   return { status: res.status, ...data };
 }
 
-export async function GetAllProjectsByUserId(userId: string|null) {
+export async function GetAllProjectsByUserId(userId: string | null) {
   try {
 
     const res = await fetch(`/api/project/getAllProjects?userId=${userId}`, {
@@ -39,7 +39,7 @@ export async function GetAllProjectsByUserId(userId: string|null) {
 
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || "Fetching projects failed");
+      throw new Error(data.message || data.error || "Fetching projects failed");
     }
     return data;
   } catch (err: any) {
@@ -61,10 +61,10 @@ export async function getUserRoleInProject(userId: string | undefined, projectId
         cache: "no-store",
       }
     );
-    
+
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message || "Failed to fetch user role in project");
+      throw new Error(data.message || data.error || "Failed to fetch user role in project");
     }
     return data.role;
   } catch (error) {
@@ -73,7 +73,7 @@ export async function getUserRoleInProject(userId: string | undefined, projectId
   }
 }
 
-export async function UpdateProject(projectId: string, updates: Partial<{name: string; description: string;}>) {
+export async function UpdateProject(projectId: string, updates: Partial<{ name: string; description: string; }>) {
   const res = await fetch(`/api/project/editProject/${projectId}`, {
     method: "PUT",
     headers: {
@@ -83,7 +83,7 @@ export async function UpdateProject(projectId: string, updates: Partial<{name: s
   });
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data.error || "Project update failed");
+    throw new Error(data.message || data.error || "Project update failed");
   }
   return data;
 }

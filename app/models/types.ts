@@ -6,6 +6,7 @@ export interface IProject {
   name: string;
   description?: string;
   tasks?: mongoose.Types.ObjectId[];
+  color: string;
 }
 export interface IProjectRole {
   project: IProject;
