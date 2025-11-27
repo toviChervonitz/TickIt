@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 
-type Lang = "en" | "he";
+type Lang = "en" | "he"|"ar";
 
 interface LanguageContextType {
   lang: Lang;

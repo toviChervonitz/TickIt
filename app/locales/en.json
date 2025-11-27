@@ -179,5 +179,10 @@
 "startInMinutes":"Start in minutes",
 "cancelAnytime":"Cancel anytime",
 "advancedFeatures":"Advanced Features",
-"leadingPlatform":"✨ Leading Task Management Platform"
+"leadingPlatform":"✨ Leading Task Management Platform",
+"in":"in ",
+"searchProjects":"Search projects...",
+"noDescription":"No description available",
+"noProjectsYet":"No projects yet"
+
 }
