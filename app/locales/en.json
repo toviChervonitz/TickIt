@@ -145,5 +145,16 @@
 "fillInAllFields":"Please fill in all required fields",
 "failedCreateProject":"Failed to create project",
 "fillAllTaskFields":"Please fill all of the task's fields",
-"failedCreateTask":"Failed to create task"
+"failedCreateTask":"Failed to create task",
+"failedProjectData":"Failed to load project data",
+"taskNotFound":"Task not found",
+"manageTasks":"Manage and track tasks for this project",
+"loadingTask":"Loading task…",
+"noTasksMatch":"No tasks match your filters",
+"addNewTask":"Add New Task",
+"addTeamMember":"Add Team Member",
+"searchTasks":"Search tasks...",
+"delete":"Delete"
+
+
 }

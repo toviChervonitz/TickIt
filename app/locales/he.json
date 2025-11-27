@@ -145,9 +145,16 @@
 "fillInAllFields":"אנא מלא את כל השדות הנדרשים",
 "failedCreateProject":"יצירת הפרויקט נכשלה",
 "fillAllTaskFields":"אנא מלא את כל שדות המשימה",
-"failedCreateTask":"יצירת המשימה נכשלה"
-
-
+"failedCreateTask":"יצירת המשימה נכשלה",
+"failedProjectData":"טעינת נתוני הפרויקט נכשלה",
+"taskNotFound":"המשימה לא נמצאה",
+"manageTasks":"נהל ועקוב אחר משימות בפרויקט זה",
+"loadingTask":"טוען משימה…",
+"noTasksMatch":"אין משימות התואמות את המסננים שלך",
+"addNewTask":"הוסף משימה חדשה",
+"addTeamMember":"הוסף חבר צוות",
+"searchTasks":"חפש משימות",
+"delete":"מחק"
 }
 
 
