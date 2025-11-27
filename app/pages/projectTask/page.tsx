@@ -16,7 +16,7 @@ import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
 import { ITask, IUser } from "@/app/models/types";
 // --- ייבוא חדש ---
-import { KANBAN_COLUMNS_CONFIG } from "@/app/config/kanbanConfig"; 
+import { KANBAN_COLUMNS_CONFIG } from "@/app/config/kanbanConfig";
 // -----------------
 
 import {
@@ -60,7 +60,7 @@ export default function GetProjectTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
-  
+
   // Modals State
   const [editingTask, setEditingTask] = useState<EditTaskForm | null>(null);
   const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
@@ -229,7 +229,7 @@ export default function GetProjectTasks() {
         t._id === id ? { ...t, status: newStatus } : t
       );
       setTasks(updated);
-      
+
       // Update filtered tasks as well to reflect change immediately
       setFilteredTasks((prev) =>
         prev.map((t) =>
@@ -315,15 +315,15 @@ export default function GetProjectTasks() {
                 "&:hover": { backgroundColor: "rgba(29,72,106,0.1)" },
               }}
             >
-{             lang=="en"? <ArrowBackIcon />:<ArrowForwardIcon />
-}            </IconButton>
+              {lang == "en" ? <ArrowBackIcon /> : <ArrowForwardIcon />
+              }            </IconButton>
 
             <Box>
               <Typography variant="h4" fontWeight={800} color="primary.main">
                 Project Tasks
               </Typography>
               <Typography variant="body1" color="text.secondary">
-{t("manageTasks")}              </Typography>
+                {t("manageTasks")}              </Typography>
             </Box>
           </Box>
 
@@ -362,13 +362,13 @@ export default function GetProjectTasks() {
 
         {/* Filters Toolbar - Clean UI */}
         <Box sx={{ mb: 4 }}>
-            <Stack 
-                direction={{ xs: 'column', sm: 'row' }} 
-                spacing={2} 
-                alignItems="center"
-                justifyContent="flex-end" // Align to right
-            >
-             {/* Search Bar */}
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            alignItems="center"
+            justifyContent="flex-end" // Align to right
+          >
+            {/* Search Bar */}
             <TextField
               placeholder={t("searchTasks")}
               value={searchQuery}
@@ -432,10 +432,10 @@ export default function GetProjectTasks() {
             {/* Clear Filters Button */}
             {hasActiveFilters && (
               <Tooltip title={t("clearFilters")}>
-                <IconButton 
+                <IconButton
                   onClick={clearFilters}
                   size="small"
-                  sx={{ 
+                  sx={{
                     color: 'error.main',
                     border: '1px solid',
                     borderColor: 'error.light',
@@ -452,12 +452,12 @@ export default function GetProjectTasks() {
         {/* Drag & Drop */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Grid container spacing={3}>
-            {KANBAN_COLUMNS_CONFIG.map((columnConfig:any) => {
+            {KANBAN_COLUMNS_CONFIG.map((columnConfig: any) => {
               // הקצאת המשימות הרלוונטיות לפי ID
-              const tasks = 
-                columnConfig.id === "todo" ? todoTasks : 
-                columnConfig.id === "doing" ? doingTasks : 
-                doneTasks;
+              const tasks =
+                columnConfig.id === "todo" ? todoTasks :
+                  columnConfig.id === "doing" ? doingTasks :
+                    doneTasks;
 
               return (
                 <Grid item xs={12} md={4} key={columnConfig.id}>
@@ -489,9 +489,9 @@ export default function GetProjectTasks() {
                               }}
                             >
                               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <CircleIcon sx={{ fontSize: 12, color: columnConfig.color }} /> 
+                                <CircleIcon sx={{ fontSize: 12, color: columnConfig.color }} />
                                 <Typography variant="h6" fontWeight={700}>
-                                  {columnConfig.title==="To Do"?t("todo"):columnConfig.title==="In Progress"?t("inProgress"):t("completed")}
+                                  {columnConfig.title === "To Do" ? t("todo") : columnConfig.title === "In Progress" ? t("inProgress") : t("completed")}
                                 </Typography>
                               </Box>
 
@@ -541,8 +541,8 @@ export default function GetProjectTasks() {
                                     task.dueDate instanceof Date
                                       ? task.dueDate
                                       : task.dueDate
-                                      ? new Date(task.dueDate)
-                                      : undefined;
+                                        ? new Date(task.dueDate)
+                                        : undefined;
 
                                   return (
                                     <Draggable key={taskId} draggableId={taskId} index={index}>
@@ -639,7 +639,9 @@ export default function GetProjectTasks() {
               projectId={projectId!}
               onUserAdded={(newUser) => {
                 const prevUsers = useAppStore.getState().projectUsers;
-                setProjectUsers([...prevUsers, newUser]);
+                const updatedUsers = [...prevUsers, newUser];
+                setProjectUsers(updatedUsers);
+                setLocalProjectUsers(updatedUsers);
                 setShowAddUser(false);
               }}
               onClose={() => setShowAddUser(false)}

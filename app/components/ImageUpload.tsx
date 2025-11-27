@@ -7,7 +7,6 @@ const ImageUpload = ({onUpload}) => {
       <UploadButton
         endpoint="imageUploader"
         onClientUploadComplete={(res) => {
-          // Do something with the response
           console.log("Files: ", res);
           const fileUrl=res[0].ufsUrl
           onUpload(fileUrl);}}
