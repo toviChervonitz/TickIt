@@ -51,10 +51,9 @@ import { getTranslation } from "@/app/lib/i18n";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function GetProjectTasks() {
-  const { projectId, tasks, setTasks, user, setProjectUsers } = useAppStore();
+  const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName } = useAppStore();
   const { lang } = useLanguage();
   const t = getTranslation(lang);
-
   // Tasks Data
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -320,7 +319,7 @@ export default function GetProjectTasks() {
 
             <Box>
               <Typography variant="h4" fontWeight={800} color="primary.main">
-                Project Tasks
+                {getProjectName(projectId!)}
               </Typography>
               <Typography variant="body1" color="text.secondary">
 {t("manageTasks")}              </Typography>

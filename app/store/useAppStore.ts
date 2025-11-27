@@ -21,6 +21,7 @@ interface AppState {
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
   setProjects: (projects: IProjectRole[]) => void;
+  getProjectName: (projectId: string) => string | null;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
   subscribeToProjectUpdates: (projectId: string) => void;
@@ -56,6 +57,12 @@ const useAppStore = create(
 
       setProjects: (projects) =>
         set((state) => ({ ...state, projects })),
+
+    getProjectName: (projectId: string) => {
+      const projects = get().projects;
+      const projectRole = projects.find(p => p.project._id === projectId);
+      return projectRole?.project?.name || null;
+    },
 
       subscribeToProjectUpdates: (projectId: string) => {
         const state = get();
