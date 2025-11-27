@@ -4,7 +4,7 @@ import { GetAllProjectsByUserId } from "@/app/lib/server/projectServer";
 import { IProject, IProjectRole } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Container,
@@ -15,8 +15,10 @@ import {
   GridLegacy as Grid,
   Skeleton,
   IconButton,
-  Dialog, // הוספתי דיאלוג לפופ-אפ
-  DialogContent, // תוכן הדיאלוג
+  Dialog,
+  DialogContent,
+  TextField,
+  InputAdornment,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -24,6 +26,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CircleIcon from "@mui/icons-material/Circle";
 import EditIcon from "@mui/icons-material/Edit";
+import SearchIcon from "@mui/icons-material/Search";
 
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
 
@@ -33,6 +36,7 @@ export default function GetAllProjectsPage() {
   const { user, projects, setProjects, setProjectId } = useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // ==== עריכה ====
   const [editingProject, setEditingProject] = useState<ProjectForm | null>(null);
@@ -75,6 +79,23 @@ export default function GetAllProjectsPage() {
     router.push("/pages/projectTask");
   };
 
+  const filteredProjects = useMemo(() => {
+    if (!searchTerm) {
+      return projects;
+    }
+    const lowerCaseSearch = searchTerm.toLowerCase();
+    return projects.filter((wrapper: IProjectRole) => {
+      const p = wrapper.project;
+      return (
+        p.name.toLowerCase().includes(lowerCaseSearch) ||
+        (p.description && p.description.toLowerCase().includes(lowerCaseSearch))
+      );
+    });
+  }, [projects, searchTerm]);
+
+  const projectsToDisplay = filteredProjects;
+
+
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 5 }}>
       <Container maxWidth="xl">
@@ -98,28 +119,48 @@ export default function GetAllProjectsPage() {
             </Typography>
           </Box>
 
-          <Button
-            variant="outlined"
-            startIcon={<AddIcon />}
-            onClick={() => router.push("/pages/createProject")}
-            sx={{
-              color: "#0f3460",
-              borderColor: "#0f3460",
-              backgroundColor: "white",
-              borderWidth: "1.5px",
-              fontWeight: 700,
-              px: 3,
-              py: 1,
-              borderRadius: "10px",
-              "&:hover": {
-                backgroundColor: "#f0f2f5",
+          <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: "column", sm: "row" }, width: { xs: '100%', sm: 'auto' } }}>
+            {/* 2. שדה קלט לחיפוש */}
+            <TextField
+              variant="outlined"
+              placeholder="Search projects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="small"
+              sx={{ minWidth: 250 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" }
+              }}
+            />
+
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={() => router.push("/pages/createProject")}
+              sx={{
+                color: "#0f3460",
                 borderColor: "#0f3460",
+                backgroundColor: "white",
                 borderWidth: "1.5px",
-              },
-            }}
-          >
-            Create New Project
-          </Button>
+                fontWeight: 700,
+                px: 3,
+                py: 1,
+                borderRadius: "10px",
+                "&:hover": {
+                  backgroundColor: "#f0f2f5",
+                  borderColor: "#0f3460",
+                  borderWidth: "1.5px",
+                },
+              }}
+            >
+              Create New Project
+            </Button>
+          </Box>
         </Box>
 
         {/* Projects Grid */}
@@ -131,9 +172,9 @@ export default function GetAllProjectsPage() {
               </Grid>
             ))}
           </Grid>
-        ) : projects.length > 0 ? (
+        ) : projectsToDisplay.length > 0 ? (
           <Grid container spacing={3} alignItems="stretch">
-            {projects.map((wrapper: IProjectRole) => {
+            {projectsToDisplay.map((wrapper: IProjectRole) => {
               const p = wrapper.project;
               console.log("p : ", p);
 
