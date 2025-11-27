@@ -19,10 +19,14 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import EmailIcon from "@mui/icons-material/Email";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-
-const steps = ["Enter Email", "Verify Code", "Reset Password"];
+import { useLanguage } from "@/app/context/LanguageContext";
+import { getTranslation } from "@/app/lib/i18n";
 
 export default function ForgotPasswordPage() {
+  const { lang } = useLanguage();
+  const t = getTranslation(lang);
+  const steps = [t("enterEmail"), t("verifyCode"), t("resetPassword")];
+
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -32,7 +36,7 @@ export default function ForgotPasswordPage() {
 
   async function sendCode() {
     if (!email) {
-      setError("Please enter your email");
+      setError(t("pleaseEnterEmail"));
       return;
     }
     setLoading(true);
@@ -41,7 +45,7 @@ export default function ForgotPasswordPage() {
       await sendResetCode(email);
       setStep(2);
     } catch (err: any) {
-      setError(err.message || "Failed to send code");
+      setError(err.message || t("codeSendFailed"));
     } finally {
       setLoading(false);
     }
@@ -49,7 +53,7 @@ export default function ForgotPasswordPage() {
 
   async function verifyCode() {
     if (!code.trim()) {
-      setError("Please enter the verification code");
+      setError(t("EnterVerificationCode"));
       return;
     }
     setLoading(true);
@@ -58,7 +62,7 @@ export default function ForgotPasswordPage() {
       const data = await verifyResetCode(email, code.trim());
       if (data.success) setStep(3);
     } catch (err: any) {
-      setError(err.message || "Invalid code");
+      setError(err.message || t("invalidCode"));
     } finally {
       setLoading(false);
     }
@@ -66,11 +70,11 @@ export default function ForgotPasswordPage() {
 
   async function updatePassword() {
     if (!password) {
-      setError("Please enter a new password");
+      setError(t("failedEnterNewPassword"));
       return;
     }
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t("passwordTooShort"));
       return;
     }
     setLoading(true);
@@ -81,7 +85,7 @@ export default function ForgotPasswordPage() {
         window.location.href = "/pages/login";
       }
     } catch (err: any) {
-      setError(err.message || "Failed to update password");
+      setError(err.message || t("failedToUpdatePassword"));
     } finally {
       setLoading(false);
     }
@@ -127,10 +131,10 @@ export default function ForgotPasswordPage() {
             </Box>
 
             <Typography variant="h4" fontWeight={800} color="primary.main" mb={1}>
-              Reset Password
+              {t("resetPassword")}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Follow the steps to recover your account
+              {t("followAccountSteps")}
             </Typography>
           </Box>
 
@@ -174,17 +178,17 @@ export default function ForgotPasswordPage() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                   <EmailIcon sx={{ color: "primary.main", fontSize: 24 }} />
                   <Typography variant="h6" fontWeight={700} color="primary.main">
-                    Enter Your Email
+                    {t("enterEmail")}
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary" mb={2}>
-                  We'll send you a verification code to reset your password.
+                  {t("weSendCode")}
                 </Typography>
               </Box>
 
               <TextField
                 fullWidth
-                label="Email Address"
+                label={t("emailAddress")}
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -211,7 +215,7 @@ export default function ForgotPasswordPage() {
                   },
                 }}
               >
-                {loading ? "Sending..." : "Send Verification Code"}
+                {loading ? t("sending") : t("sendCode")}
               </Button>
             </Stack>
           )}
@@ -223,17 +227,17 @@ export default function ForgotPasswordPage() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                   <VpnKeyIcon sx={{ color: "primary.main", fontSize: 24 }} />
                   <Typography variant="h6" fontWeight={700} color="primary.main">
-                    Verify Code
+                    {t("verifyCode")}
                   </Typography>
                 </Box>
                 <Typography variant="body2" color="text.secondary" mb={2}>
-                  Enter the 6-digit code we sent to <strong>{email}</strong>
+                  {t("enter6code")} <strong>{email}</strong>
                 </Typography>
               </Box>
 
               <TextField
                 fullWidth
-                label="Verification Code"
+                label={t("verificationCode")}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="Enter 6-digit code"
@@ -261,7 +265,7 @@ export default function ForgotPasswordPage() {
                     "&:hover": { borderWidth: 2 },
                   }}
                 >
-                  Back
+                  {t("back")}
                 </Button>
                 <Button
                   variant="contained"
@@ -329,7 +333,7 @@ export default function ForgotPasswordPage() {
                   },
                 }}
               >
-                {loading ? "Updating..." : "Update Password"}
+                {loading ? t("updating") : t("updatePassword")}
               </Button>
             </Stack>
           )}

@@ -19,7 +19,7 @@ export const handleGenerateContent = async (
     const data = await response.json();
 
     if (!response.ok) {
-      throw new Error(data.error || "Generating tasks failed");
+      throw new Error(data.message || data.error || "Generating tasks failed");
     }
 
     // Ensure each task has title, content, dueDate
@@ -37,3 +37,4 @@ export const handleGenerateContent = async (
     return null;
   }
 };
+

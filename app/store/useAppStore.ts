@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
-import { IProjectRole, ITask, IUserSafe } from "../models/types";
+import { IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
 
 type PusherClient = Pusher;
 
@@ -23,6 +23,7 @@ interface AppState {
   setProjects: (projects: IProjectRole[]) => void;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
+  subscribeToProjectUpdates: (projectId: string) => void;
 }
 
 type MyPersist = PersistOptions<AppState, AppState>;
@@ -56,9 +57,51 @@ const useAppStore = create(
       setProjects: (projects) =>
         set((state) => ({ ...state, projects })),
 
+      subscribeToProjectUpdates: (projectId: string) => {
+        const state = get();
+        const pusherClient = state.pusherClient;
+
+        if (!pusherClient) {
+          console.error("Pusher Client not initialized.");
+          return;
+        }
+
+        const channelName = `private-project-${projectId}`;
+
+        if (pusherClient.channel(channelName)?.subscribed) {
+          console.log(`Already subscribed to project channel: ${channelName}`);
+          return;
+        }
+
+        const channel = pusherClient.subscribe(channelName);
+
+        channel.bind("pusher:subscription_succeeded", () => {
+          console.log(`Subscribed to project channel: ${channelName}`);
+        });
+
+        channel.bind(
+          "project-updated",
+          (data: { action: "UPDATE"; project: IProject }) => {
+            console.log("Real-time Project Update Received:", data.project);
+
+            const currentProjects = get().projects;
+            const updatedProjects = currentProjects.map((p) => {
+              if (p.project._id === data.project._id) {
+                return {
+                  ...p,
+                  project: data.project
+                } as IProjectRole;
+              }
+              return p;
+            });
+
+            set({ projects: updatedProjects });
+          }
+        );
+      },
+
       initializeRealtime: (userId: string) => {
         const state = get();
-        // אם הלקוח כבר קיים, אל תיצור חיבור נוסף
         if (state.pusherClient && (state.pusherClient as any).connection.state === 'connected') {
           console.log("Pusher already initialized and connected.");
           return;
@@ -66,40 +109,58 @@ const useAppStore = create(
 
         console.log(`Initializing Pusher for user ${userId}`);
 
-        // 1. יצירת אובייקט Pusher
         const pusherClient = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
           cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-          // נדרשת כתובת ה-API Route לאימות ערוצים פרטיים
           authEndpoint: "/api/pusher/auth",
           auth: {
-            // ניתן לשלוח נתונים נוספים אם צריך לאימות
             params: {
               userId: userId
             }
           }
         }) as PusherClient;
 
-        // שמירת הלקוח ב-Store
         set({ pusherClient });
 
-        // 2. הרשמה לערוץ הפרטי של המשתמש
         const channel = pusherClient.subscribe(`private-user-${userId}`);
 
         channel.bind("pusher:subscription_succeeded", () => {
           console.log(`Subscribed to private-user-${userId}`);
         });
 
-        // 3. האזנה לאירוע הכללי של עדכון משימות
+        channel.bind(
+          "project-list-updated",
+          (data: { project: IProject }) => {
+            console.log("עדכון רשימת פרויקטים גלובלי התקבל:", data.project);
+
+            const updatedProjectData = data.project;
+            const currentProjects = get().projects;
+
+            const updatedProjects = currentProjects.map((p) => {
+              if (p.project._id === updatedProjectData._id) {
+                return {
+                  ...p,
+                  project: updatedProjectData
+                };
+              }
+              return p;
+            });
+
+            set({ projects: updatedProjects });
+          }
+        );
+
         channel.bind("task-updated", (data: { action: "ADD" | "UPDATE" | "DELETE", task?: ITask, taskId?: string }) => {
           console.log("Real-time Task Update Received:", data.action, data.task || data.taskId);
 
-          const currentTasks = get().tasks;
+          const state = get();
+          const currentTasks = state.tasks;
           let newTasks: ITask[] = [];
+
+          const taskExists = data.task && currentTasks.some(t => t._id === data.task!._id);
 
           switch (data.action) {
             case "ADD":
-              if (data.task && !currentTasks.some(t => t._id === data.task!._id)) {
-                // הוספה: אם המשימה לא קיימת, הוסף אותה
+              if (data.task && !taskExists) {
                 newTasks = [data.task, ...currentTasks];
               } else {
                 newTasks = currentTasks;
@@ -107,14 +168,16 @@ const useAppStore = create(
               break;
 
             case "UPDATE":
-              // עדכון: החלף את המשימה הקיימת בנתונים החדשים
-              newTasks = currentTasks.map(t =>
-                t._id === data.task?._id ? { ...t, ...data.task } : t
-              );
+              if (data.task && !taskExists) {
+                newTasks = [data.task, ...currentTasks];
+              } else {
+                newTasks = currentTasks.map(t =>
+                  t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
+                );
+              }
               break;
 
             case "DELETE":
-              // מחיקה: סנן את המשימה הנמחקה
               newTasks = currentTasks.filter(t => t._id !== data.taskId);
               break;
 
@@ -122,20 +185,28 @@ const useAppStore = create(
               newTasks = currentTasks;
           }
 
-          // עדכון ה-State של Zoostand
-          set({ tasks: newTasks });
-        });
-
-        // טיפול בניקוי החיבור (מומלץ)
-        (pusherClient as any).connection.bind('disconnected', () => {
-          console.log("Pusher Disconnected");
+          // ⭐ עדכון המערכים ב-Store ⭐
+          set({
+            tasks: newTasks,
+            projectTasks: state.projectId
+              ? newTasks.filter(t => {
+                if (!t?.projectId) return false;
+                if (typeof t.projectId === "object" && t.projectId._id) {
+                  return t.projectId._id.toString() === state.projectId;
+                }
+                if (typeof t.projectId === "string") {
+                  return t.projectId === state.projectId;
+                }
+                return false;
+              })
+              : state.projectTasks
+          });
         });
       },
 
       logout: () => {
-        const state = get(); // 👈 גישה ל-State הנוכחי
+        const state = get();
 
-        // ניתוק Pusher לפני ניקוי ה-State
         if (state.pusherClient) {
           state.pusherClient.disconnect();
           console.log("Pusher disconnected on logout.");
@@ -148,7 +219,7 @@ const useAppStore = create(
           projectTasks: [],
           tasks: [],
           projects: [],
-          pusherClient: null, // 👈 ניקוי ה-Client ב-State
+          pusherClient: null,
         });
       },
     }),

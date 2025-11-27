@@ -29,7 +29,8 @@ import { ourFileRouter } from "@/app/api/uploadthing/core";
 import ImageUpload from "@/app/components/ImageUpload";
 import { register } from "module";
 import { googleRegisterService } from "@/app/lib/server/googleService";
-
+import { getTranslation } from "@/app/lib/i18n";
+import { useLanguage } from "@/app/context/LanguageContext";
 interface RegisterResponse {
   status: "success" | "error";
   message?: string;
@@ -40,7 +41,8 @@ interface RegisterResponse {
 export default function RegisterPage() {
   const router = useRouter();
   const { setUser } = useAppStore();
-
+  const { lang } = useLanguage();
+  const t = getTranslation(lang);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -59,7 +61,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name || !email || !phone || !password) {
-      setError("Please fill in all required fields.");
+      setError(t("fillInAllFields"));
       return;
     }
 
@@ -78,7 +80,7 @@ export default function RegisterPage() {
       const result: RegisterResponse = await Register(payload);
 
       if (result.status !== "success" || !result.user) {
-        setError(result.message || "Registration failed");
+        setError(result.message || t("registrationFailed"));
         setLoading(false);
         return;
       }
@@ -87,7 +89,7 @@ export default function RegisterPage() {
       router.replace("/pages/createProject");
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Registration failed");
+      setError(err.message || t("registrationFailed"));
       setLoading(false);
     }
   };
@@ -99,7 +101,6 @@ export default function RegisterPage() {
 
     try {
       const user = await signInWithGoogle();
-
       const userData = {
         name: user.displayName,
         email: user.email,
@@ -126,9 +127,9 @@ export default function RegisterPage() {
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-    };
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setter(e.target.value);
+      };
 
   return (
     <Box
@@ -182,11 +183,11 @@ export default function RegisterPage() {
               color="primary.main"
               sx={{ mb: 1 }}
             >
-              Create Account
+              {t("createAccount")}
             </Typography>
 
             <Typography variant="body1" color="text.secondary">
-              Join us and start managing your tasks
+              {t("joinUs")}
             </Typography>
           </Box>
 
@@ -200,25 +201,27 @@ export default function RegisterPage() {
             </Alert>
           )}
 
-          <Box sx={{ textAlign: "center", mb: 3 }}>
-            <ImageUpload onUpload={setImage} />
+         <Box sx={{ textAlign: "center", mb: 4 }}>
+            <input
+              id="imageInput"
+              type="file"
+              accept="image/*"
+              style={{ display: "none" }}
+              onChange={handleImageChange}
+            />
 
-            <Box
-              sx={{
-                position: "relative",
-                display: "inline-block",
-              }}
-            >
+            <Box sx={{ position: "relative", display: "inline-block" }}>
               <Avatar
                 src={image}
+                alt={name}
                 sx={{
-                  width: 100,
-                  height: 100,
+                  width: 120,
+                  height: 120,
                   cursor: "pointer",
                   border: "4px solid",
                   borderColor: "primary.main",
                   backgroundColor: "#f0f0f0",
-                  fontSize: "2.5rem",
+                  fontSize: "3rem",
                   color: "#9ca3af",
                   "&:hover": {
                     opacity: 0.8,
@@ -227,7 +230,7 @@ export default function RegisterPage() {
                 }}
                 onClick={() => document.getElementById("imageInput")?.click()}
               >
-                {!image && "+"}
+                {!image && name?.charAt(0).toUpperCase()}
               </Avatar>
 
               <IconButton
@@ -237,8 +240,8 @@ export default function RegisterPage() {
                   right: 0,
                   backgroundColor: "primary.main",
                   color: "white",
-                  width: 36,
-                  height: 36,
+                  width: 40,
+                  height: 40,
                   "&:hover": {
                     backgroundColor: "primary.dark",
                   },
@@ -250,14 +253,11 @@ export default function RegisterPage() {
               </IconButton>
             </Box>
 
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ display: "block", mt: 1 }}
-            >
-              Click to upload profile picture
+            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
+              {t("uploadProfile")}
             </Typography>
           </Box>
+
 
           <Box component="form" onSubmit={handleSubmit}>
             <Box
@@ -270,7 +270,7 @@ export default function RegisterPage() {
             >
               <TextField
                 fullWidth
-                label="Full Name"
+                label={t("fullName")}
                 type="text"
                 value={name}
                 onChange={handleChange(setName)}
@@ -285,7 +285,7 @@ export default function RegisterPage() {
 
               <TextField
                 fullWidth
-                label="Email Address"
+                label={t("emailAddress")}
                 type="email"
                 value={email}
                 onChange={handleChange(setEmail)}
@@ -300,7 +300,7 @@ export default function RegisterPage() {
 
               <TextField
                 fullWidth
-                label="Phone Number"
+                label={t("phoneNumber")}
                 type="tel"
                 value={phone}
                 onChange={handleChange(setPhone)}
@@ -315,7 +315,7 @@ export default function RegisterPage() {
 
               <TextField
                 fullWidth
-                label="Password"
+                label={t("password")}
                 type="password"
                 value={password}
                 onChange={handleChange(setPassword)}
@@ -354,14 +354,14 @@ export default function RegisterPage() {
                   },
                 }}
               >
-                {loading ? "Creating Account..." : "Create Account"}
+                {loading ? t("creatingAccount") : t("createAccount")}
               </Button>
             </Stack>
           </Box>
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" color="text.secondary" fontWeight={600}>
-              OR
+              {t("or")}
             </Typography>
           </Divider>
 
@@ -392,12 +392,12 @@ export default function RegisterPage() {
               },
             }}
           >
-            {googleLoading ? "Connecting..." : "Sign up with Google"}
+            {googleLoading ? t("connecting") : t("signupWithGoogle")}
           </Button>
 
           <Box sx={{ textAlign: "center", mt: 4 }}>
             <Typography variant="body2" color="text.secondary">
-              Already have an account?{" "}
+              {t("alreadyHaveAccount")}{" "}
               <MuiLink
                 component={Link}
                 href="/pages/login"
@@ -410,12 +410,12 @@ export default function RegisterPage() {
                   },
                 }}
               >
-                Sign In
+                {t("signIn")}
               </MuiLink>
             </Typography>
           </Box>
         </Card>
       </Container>
-    </Box>
+    </Box >
   );
 }

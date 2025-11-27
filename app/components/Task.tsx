@@ -20,6 +20,8 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { getTranslation } from "../lib/i18n";
+import { useLanguage } from "../context/LanguageContext";
 
 interface TaskProps {
   _id: string;
@@ -50,6 +52,9 @@ const Task: React.FC<TaskProps> = ({
   onDelete,
   onStatusChange,
 }) => {
+      const { lang } = useLanguage();
+      const t = getTranslation(lang);
+  
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [statusMenuAnchor, setStatusMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -91,11 +96,11 @@ const Task: React.FC<TaskProps> = ({
   const getStatusLabel = () => {
     switch (status) {
       case "todo":
-        return "To Do";
+        return t("todo");
       case "doing":
-        return "In Progress";
+        return t("inProgress");
       case "done":
-        return "Completed";
+        return t("completed");
     }
   };
 
@@ -195,7 +200,7 @@ const Task: React.FC<TaskProps> = ({
               fontWeight={isOverdue ? 600 : 500}
             >
               {formattedDate}
-              {isOverdue && " (Overdue)"}
+              {isOverdue && `  (${t("overdue")})`}
             </Typography>
           </Box>
 
@@ -247,7 +252,7 @@ const Task: React.FC<TaskProps> = ({
               }}
             >
               <EditIcon fontSize="small" sx={{ mr: 1, color: "#1d486a" }} />
-              Edit
+              {t("edit")}
             </MenuItem>
           )}
           {onDelete && (
@@ -259,7 +264,7 @@ const Task: React.FC<TaskProps> = ({
               sx={{ color: "#d93025" }}
             >
               <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-              Delete
+              {t("delete")}
             </MenuItem>
           )}
         </Menu>

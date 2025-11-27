@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
@@ -8,6 +9,7 @@ import {
 } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
+import { getTranslation } from "@/app/lib/i18n";
 import {
   Box,
   Container,
@@ -21,10 +23,11 @@ import {
   Stack,
 } from "@mui/material";
 import Link from "next/link";
-import GoogleIcon from "@mui/icons-material/Google";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { signIn } from "next-auth/react";
 import { googleLoginService } from "@/app/lib/server/googleService";
+import GoogleIcon from '@mui/icons-material/Google';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { useLanguage } from "@/app/context/LanguageContext";
 
 interface LoginResponse {
   status: "success" | "error";
@@ -34,6 +37,8 @@ interface LoginResponse {
 }
 
 export default function LoginPage() {
+  const { lang } = useLanguage();
+  const t = getTranslation(lang);
   const router = useRouter();
   const { setUser } = useAppStore();
 
@@ -52,7 +57,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      setError(t("emptyFields"));
       return;
     }
 
@@ -63,7 +68,7 @@ export default function LoginPage() {
       const result: LoginResponse = await Login({ email, password });
 
       if (result.status === "error" || !result.user) {
-        setError(result.message || "Login failed");
+        setError(result.message || t("loginFailed"));
         setLoading(false);
         return;
       }
@@ -71,7 +76,7 @@ export default function LoginPage() {
       router.replace("/pages/dashboard");
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Login failed");
+      setError(err.message || t("loginFailed"));
       setLoading(false);
     }
   };
@@ -162,11 +167,11 @@ export default function LoginPage() {
               color="primary.main"
               sx={{ mb: 1 }}
             >
-              Welcome Back
+              {t("welcomeBack")}
             </Typography>
 
             <Typography variant="body1" color="text.secondary">
-              Sign in to continue to your account
+              {t("signInToContinue")}
             </Typography>
           </Box>
 
@@ -184,7 +189,7 @@ export default function LoginPage() {
             <Stack spacing={3}>
               <TextField
                 fullWidth
-                label="Email Address"
+                label={t("emailAddress")}
                 type="email"
                 value={email}
                 onChange={handleChange(setEmail)}
@@ -199,7 +204,7 @@ export default function LoginPage() {
 
               <TextField
                 fullWidth
-                label="Password"
+                label={t("password")}
                 type="password"
                 value={password}
                 onChange={handleChange(setPassword)}
@@ -236,14 +241,14 @@ export default function LoginPage() {
                   },
                 }}
               >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? t("signingIn") : t("signIn")}
               </Button>
             </Stack>
           </Box>
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" color="text.secondary" fontWeight={600}>
-              OR
+              {t("or")}
             </Typography>
           </Divider>
 
@@ -274,11 +279,12 @@ export default function LoginPage() {
               },
             }}
           >
-            {googleLoading ? "Connecting..." : "Continue with Google"}
+            {googleLoading ? "Connecting..." : t("continueWithGoogle")}
           </Button>
+
           <Box sx={{ textAlign: "center", mt: 4 }}>
             <Typography variant="body2" color="text.secondary">
-              Do not have an account?{" "}
+              {t("dontHaveAccount")}{" "}
               <MuiLink
                 component={Link}
                 href="/pages/register"
@@ -291,12 +297,12 @@ export default function LoginPage() {
                   },
                 }}
               >
-                Create Account
+                {t("createAccount")}
               </MuiLink>
             </Typography>
 
             <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-              Forgot your password?{" "}
+              {t("forgotPassword")}{" "}
               <MuiLink
                 component={Link}
                 href="/pages/forgotPassword"
@@ -309,7 +315,7 @@ export default function LoginPage() {
                   },
                 }}
               >
-                Reset it here
+                {t("resetHere")}
               </MuiLink>
             </Typography>
           </Box>

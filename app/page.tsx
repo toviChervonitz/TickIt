@@ -15,32 +15,36 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import GroupsIcon from "@mui/icons-material/Groups";
 import InsightsIcon from "@mui/icons-material/Insights";
-import { sendTestEmail } from "./lib/mailer";
+import { useLanguage } from "./context/LanguageContext";
+import { getTranslation } from "./lib/i18n";
 
 export default function Home() {
+      const { lang } = useLanguage();
+      const t = getTranslation(lang);
+  
   const features = [
     {
       icon: <TrendingUpIcon sx={{ fontSize: 40, color: "primary.main" }} />,
-      title: "Project Management",
-      text: "Create, plan, and track tasks transparently and accurately for all team members.",
+      title: t("project"),
+      text: t("createPlanTrack"),
     },
     {
       icon: <GroupsIcon sx={{ fontSize: 40, color: "secondary.main" }} />,
-      title: "Real-Time Collaboration",
-      text: "Work together on tasks, comment, and stay synchronized — anytime, anywhere.",
+      title: t("collaboration"),
+      text: t("workTogether"),
     },
     {
       icon: <InsightsIcon sx={{ fontSize: 40, color: "primary.main" }} />,
-      title: "Advanced Analytics & Reporting",
-      text: "Gain insights into performance, productivity, and process efficiency.",
+      title: t("advancedAnalytics"),
+      text: t("gainInsights"),
     },
   ];
 
   const benefits = [
-    "AI Agent that understands natural language commands",
-    "Effortless management of tasks, users, and projects",
-    "Built-in permission system for Admins & Users",
-    "Reminders, email actions & calendar sync",
+t("aiAgent"),
+    t("effortlessManagement"),
+    t("builtInPermission"),
+    t("remindersEmailActions"),
   ];
   
   return (
@@ -69,7 +73,7 @@ export default function Home() {
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <Chip
-                label="✨ Leading Task Management Platform"
+                label={t("leadingPlatform")}
                 sx={{
                   mb: 3,
                   backgroundColor: "rgba(61,210,204,0.2)",
@@ -89,12 +93,12 @@ export default function Home() {
                   mb: 3,
                 }}
               >
-                Smart Task
+                {t("smartTask")}
                 <Box
                   component="span"
                   sx={{ color: "#3dd2cc", display: "block" }}
                 >
-                  Management System
+                  {t("managementSystem")}
                 </Box>
               </Typography>
 
@@ -103,8 +107,7 @@ export default function Home() {
                 color="rgba(255,255,255,0.85)"
                 sx={{ mb: 4, lineHeight: 1.7, fontWeight: 400 }}
               >
-                Manage projects, prioritize tasks, and collaborate seamlessly —
-                all in one efficient and beautifully organized platform.
+                {t("manageProjects")}
               </Typography>
 
               <Stack direction="row" spacing={2} sx={{ mb: 4 }}>
@@ -126,7 +129,7 @@ export default function Home() {
                     transition: "all 0.3s ease",
                   }}
                 >
-                  login
+                  {t("login")}
                 </Button>
               </Stack>
             </Grid>
@@ -166,7 +169,7 @@ export default function Home() {
         <Container maxWidth="lg">
           <Box sx={{ textAlign: "center", mb: 8 }}>
             <Chip
-              label="Advanced Features"
+              label={t("advancedFeatures")}
               sx={{
                 mb: 2,
                 backgroundColor: "white",
@@ -180,17 +183,14 @@ export default function Home() {
               color="primary.main"
               sx={{ mb: 2 }}
             >
-              Everything Your Team Needs
-            </Typography>
+{t("everythingYourTeamNeeds")}            </Typography>
             <Typography
               variant="h6"
               color="text.secondary"
               maxWidth="700px"
               mx="auto"
             >
-              Advanced tools for project management, collaboration, and progress
-              tracking
-            </Typography>
+{t("advancedTools")}            </Typography>
           </Box>
 
           <Grid container spacing={4}>
@@ -234,7 +234,7 @@ export default function Home() {
               color="primary.main"
               mb={3}
             >
-              Why Choose Us?
+              {t("whyChooseUs")}
             </Typography>
             <Typography
               variant="h6"
@@ -242,9 +242,7 @@ export default function Home() {
               mb={4}
               lineHeight={1.8}
             >
-              Our system offers excellent user experience, high performance, and
-              full support for all your organization&lsquo;s management needs.
-            </Typography>
+{t("whyChooseUsDescription")}            </Typography>
 
             <Stack spacing={2.5}>
               {benefits.map((benefit, i) => (
@@ -319,7 +317,7 @@ export default function Home() {
           sx={{ textAlign: "center", position: "relative", zIndex: 1 }}
         >
           <Typography variant="h3" fontWeight={800} color="white" mb={3}>
-            Lead Your Team to Success
+            {t("leadYourTeamToSuccess")}
           </Typography>
 
           <Typography
@@ -328,9 +326,7 @@ export default function Home() {
             mb={5}
             lineHeight={1.8}
           >
-            Join now and empower your organization with a smarter, faster way to
-            manage work. Start your free trial with no commitment.
-          </Typography>
+{t("joinNow")}          </Typography>
 
           <Button
             component={Link}
@@ -350,7 +346,7 @@ export default function Home() {
               transition: "all 0.3s ease",
             }}
           >
-            Create an Account
+            {t("createAccount")}
           </Button>
 
           <Stack
@@ -360,9 +356,9 @@ export default function Home() {
             sx={{ mt: 5 }}
           >
             {[
-              "No credit card required",
-              "Start in minutes",
-              "Cancel anytime",
+              t("noCreditCardRequired"),
+              t("startInMinutes"),
+              t("cancelAnytime"),
             ].map((text, i) => (
               <Typography
                 key={i}
