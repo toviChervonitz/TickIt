@@ -50,10 +50,9 @@ export async function compareToken(id: string) {
 }
 
 export function createAuthResponse(user: any, message?: string) {
-
   const token = createToken({
     id: user._id,
-    email: user.email
+    email: user.email,
   });
 
   const response = NextResponse.json(
@@ -66,6 +65,12 @@ export function createAuthResponse(user: any, message?: string) {
     { status: 200 }
   );
 
+  setTokenToCookie(response, token);
+
+  return response;
+}
+
+export function setTokenToCookie(response: NextResponse, token: string) {
   response.cookies.set("authToken", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -73,7 +78,4 @@ export function createAuthResponse(user: any, message?: string) {
     maxAge: 60 * 60 * 24 * 30, // 30 days
     path: "/",
   });
-
-  return response;
 }
-

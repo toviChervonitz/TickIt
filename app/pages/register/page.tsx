@@ -3,7 +3,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Register } from "@/app/lib/server/authServer";
+import {  Register, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
 import {
@@ -27,6 +27,8 @@ import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import { UploadButton } from "@uploadthing/react";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import ImageUpload from "@/app/components/ImageUpload";
+import { register } from "module";
+import { googleRegisterService } from "@/app/lib/server/googleService";
 import { getTranslation } from "@/app/lib/i18n";
 import { useLanguage } from "@/app/context/LanguageContext";
 interface RegisterResponse {
@@ -93,20 +95,33 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignIn = async () => {
+    if (loading) return;
+    setLoading(true);
     setError("");
-    setGoogleLoading(true);
 
     try {
-      localStorage.setItem("googleAuthMode", "register");
-      await signIn("google", {
-        callbackUrl: "/pages/postGoogleRedirect",
-        state: "register",
-      });
-    } catch (err: any) {
-      console.error(err);
-      setError(t("googleSignInFailed"));
+      const user = await signInWithGoogle();
+      const userData = {
+        name: user.displayName,
+        email: user.email,
+        image: user.photoURL,
+      };
+
+      const { ok, data } = await googleRegisterService(userData);
+
+      if (!ok) {
+        setError(data.message || "Something went wrong");
+        return;
+      }
+
+      setUser(data.user);
+      router.push("/pages/createProject");
+    } catch (error: any) {
+  console.error("Google sign-in error:", error.code || error);
+      setError("Something went wrong during Google register");
+    
     } finally {
-      setGoogleLoading(false);
+      setLoading(false);
     }
   };
 
