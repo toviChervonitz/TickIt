@@ -51,7 +51,7 @@ export default function UserTasks() {
         setTasks(data);
       } catch (err: any) {
         console.error(err);
-        setError("Failed to fetch tasks");
+        setError(t("failedToFetchTasks"));
       } finally {
         setLoading(false);
       }

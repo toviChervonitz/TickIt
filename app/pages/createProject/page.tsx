@@ -82,7 +82,7 @@ export default function CreateProjectPage() {
 
       setStep(1);
     } catch (err: any) {
-      setError(err.message || "Failed to create project");
+      setError(err.message || t("failedCreateProject"));
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export default function CreateProjectPage() {
 
   const handleAddTask = async () => {
     if (!task.title || !task.userId || !task.dueDate) {
-      setError("Please fill all fields for the task.");
+      setError(t("fillAllTaskFields"));
       return;
     }
 
@@ -108,7 +108,7 @@ export default function CreateProjectPage() {
       setTasks((prev) => [...prev, realTask]);
       setTask({ title: "", content: "", userId: "", dueDate: "" , status: "todo"});
     } catch (err: any) {
-      setError(err.message || "Failed to create task");
+      setError(err.message || t("failedCreateTask"));
     } finally {
       setLoading(false);
     }

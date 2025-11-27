@@ -44,7 +44,7 @@ export default function LoginPage() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !password) {
-      setError("Please enter both email and password.");
+      setError(t("emptyFields"));
       return;
     }
 
@@ -55,7 +55,7 @@ export default function LoginPage() {
       const result: LoginResponse = await Login({ email, password });
 
       if (result.status === "error" || !result.user) {
-        setError(result.message || "Login failed");
+        setError(result.message || t("loginFailed"));
         setLoading(false);
         return;
       }
@@ -63,7 +63,7 @@ export default function LoginPage() {
       router.replace("/pages/dashboard");
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Login failed");
+      setError(err.message || t("loginFailed"));
       setLoading(false);
     }
   };
@@ -79,7 +79,7 @@ export default function LoginPage() {
       });
     } catch (err: any) {
       console.error(err);
-      setError("Google sign-in failed");
+      setError(t("googleSignInFailed"));
     } finally {
       setGoogleLoading(false);
     }

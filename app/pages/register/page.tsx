@@ -59,7 +59,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!name || !email || !phone || !password) {
-      setError("Please fill in all required fields.");
+      setError(t("fillInAllFields"));
       return;
     }
 
@@ -78,7 +78,7 @@ export default function RegisterPage() {
       const result: RegisterResponse = await Register(payload);
 
       if (result.status !== "success" || !result.user) {
-        setError(result.message || "Registration failed");
+        setError(result.message || t("registrationFailed"));
         setLoading(false);
         return;
       }
@@ -87,7 +87,7 @@ export default function RegisterPage() {
       router.replace("/pages/createProject");
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Registration failed");
+      setError(err.message || t("registrationFailed"));
       setLoading(false);
     }
   };
@@ -104,7 +104,7 @@ export default function RegisterPage() {
       });
     } catch (err: any) {
       console.error(err);
-      setError("Google sign-in failed");
+      setError(t("googleSignInFailed"));
     } finally {
       setGoogleLoading(false);
     }
