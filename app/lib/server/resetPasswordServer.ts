@@ -11,7 +11,7 @@ export async function sendResetCode(email: string) {
 
   if (!res.ok) {
     const data = await res.json();
-    throw new Error(data.error || "Failed to send reset code");
+    throw new Error(data.message || data.error || "Failed to send reset code");
   }
 
   return await res.json(); // { success: true }
@@ -27,7 +27,7 @@ export async function verifyResetCode(email: string, code: string) {
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Failed to verify code");
+  if (!res.ok) throw new Error(data.message || data.error || "Failed to verify code");
 
   return data; // { success: true }
 }
@@ -42,7 +42,7 @@ export async function updatePasswordAPI(email: string, password: string) {
   });
 
   const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Failed to update password");
+  if (!res.ok) throw new Error(data.message || data.error|| "Failed to update password");
 
   return data; // { success: true }
 }
