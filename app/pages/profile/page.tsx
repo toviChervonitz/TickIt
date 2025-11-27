@@ -63,7 +63,7 @@ export default function ProfilePage() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!user) {
-      setError("No user in session. Please log in again.");
+      setError(t("noUser"));
       return;
     }
 
@@ -79,11 +79,11 @@ export default function ProfilePage() {
 
     if (anyPasswordField) {
       if (!currentPassword || !newPassword || !confirmPassword) {
-        setError("To change password, fill current, new and confirm password.");
+        setError(t("passwordChangeInstructions"));
         return;
       }
       if (newPassword !== confirmPassword) {
-        setError("New password and confirmation do not match.");
+        setError(t("passwordMismatch"));
         return;
       }
 
@@ -92,7 +92,7 @@ export default function ProfilePage() {
     }
 
     if (Object.keys(updates).length === 0) {
-      setError("No changes to update.");
+      setError(t("noChangesToUpdate"));
       return;
     }
 
@@ -102,7 +102,7 @@ export default function ProfilePage() {
     try {
       const result = await UpdateUser(user._id, user.email, updates);
       if (result.status !== "success" || !result.user) {
-        setError(result.message || "Updating failed");
+        setError(result.message || t("updatingFailed"));
         setLoading(false);
         return;
       }
@@ -111,7 +111,7 @@ export default function ProfilePage() {
       router.push("/pages/dashboard");
     } catch (err: any) {
       console.error("Updating error:", err);
-      setError(err.message || "Updating failed");
+      setError(err.message || t("updatingFailed"));
     } finally {
       setLoading(false);
     }

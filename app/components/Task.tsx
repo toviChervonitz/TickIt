@@ -252,7 +252,7 @@ const Task: React.FC<TaskProps> = ({
               }}
             >
               <EditIcon fontSize="small" sx={{ mr: 1, color: "#1d486a" }} />
-              Edit
+              {t("edit")}
             </MenuItem>
           )}
           {onDelete && (
@@ -264,7 +264,7 @@ const Task: React.FC<TaskProps> = ({
               sx={{ color: "#d93025" }}
             >
               <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
-              Delete
+              {t("delete")}
             </MenuItem>
           )}
         </Menu>

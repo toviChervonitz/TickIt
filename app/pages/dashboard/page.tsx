@@ -547,9 +547,13 @@ import FolderIcon from "@mui/icons-material/Folder";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import useAppStore from "@/app/store/useAppStore";
 import { KANBAN_COLUMNS_CONFIG } from "@/app/config/kanbanConfig";
+import { getTranslation } from "@/app/lib/i18n";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
+    const { lang } = useLanguage();
+    const t = getTranslation(lang);
 
   const { user, tasks, setTasks } = useAppStore();
   const [upcomingTasks, setUpcomingTasks] = useState<ITask[]>([]);
@@ -600,7 +604,7 @@ const Dashboard: React.FC = () => {
         setRecentProjects(recentProj);
       } catch (err: any) {
         console.error(err);
-        setError("Failed to load dashboard data.");
+        setError(t("dashboardError"));
       } finally {
         setLoading(false);
       }
@@ -630,10 +634,10 @@ const Dashboard: React.FC = () => {
         <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
             <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
-              Welcome back, {user?.name}!
+              {t("welcomeBack")} {user?.name}!
             </Typography>
             <Typography variant="h6" color="text.secondary">
-              Here's what's happening with your projects today
+              {t("happening")}
             </Typography>
           </Box>
 
@@ -658,7 +662,7 @@ const Dashboard: React.FC = () => {
               },
             }}
           >
-            Create New Project
+            {t("createProject")}
           </Button>
         </Box>
 
@@ -679,8 +683,7 @@ const Dashboard: React.FC = () => {
                       {tasks.length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" fontWeight={600}>
-                      Total Tasks
-                    </Typography>
+{t("totalTasks")}                    </Typography>
                   </Box>
                   <Box
                     sx={{
@@ -717,11 +720,11 @@ const Dashboard: React.FC = () => {
                       {todoCount}
                     </Typography>
                     <Typography variant="body2" color={TODO_CONFIG?.color || "#1d486a"} fontWeight={600}>
-                      To Do
+                      {t("todo")}
                     </Typography>
                   </Box>
                   <Chip
-                    label="TODO"
+                    label={t("todoBold")}
                     sx={{
                       backgroundColor: TODO_CONFIG?.bgColor || "rgba(29,72,106,0.15)",
                       color: TODO_CONFIG?.color || "#1d486a",
@@ -749,11 +752,11 @@ const Dashboard: React.FC = () => {
                       {doingCount}
                     </Typography>
                     <Typography variant="body2" color={DOING_CONFIG?.color || "#66dcd7"} fontWeight={600}>
-                      In Progress
+                      {t("inProgress")}
                     </Typography>
                   </Box>
                   <Chip
-                    label="DOING"
+                    label={t("doingBold")}
                     sx={{
                       backgroundColor: DOING_CONFIG?.bgColor || "rgba(102,220,215,0.15)",
                       color: DOING_CONFIG?.color || "#66dcd7",
@@ -781,11 +784,11 @@ const Dashboard: React.FC = () => {
                       {doneCount}
                     </Typography>
                     <Typography variant="body2" color={DONE_CONFIG?.color || "#1d486a"} fontWeight={600}>
-                      Completed
+                      {t("completed")}
                     </Typography>
                   </Box>
                   <Chip
-                    label="DONE"
+                    label={t("doneBold")}
                     sx={{
                       backgroundColor: DONE_CONFIG?.bgColor || "rgba(29,72,106,0.1)",
                       color: DONE_CONFIG?.color || "#1d486a",
@@ -816,7 +819,7 @@ const Dashboard: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2, pb: 0 }}>
                   <TrendingUpIcon sx={{ color: "#3dd2cc", fontSize: 28 }} />
                   <Typography variant="h5" fontWeight={700} color="primary.main">
-                    Progress Overview
+                    {t("progressOverview")}
                   </Typography>
                 </Box>
                 <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -842,7 +845,7 @@ const Dashboard: React.FC = () => {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
                   <CalendarTodayIcon sx={{ color: "#3dd2cc", fontSize: 28 }} />
                   <Typography variant="h5" fontWeight={700} color="primary.main">
-                    Upcoming Tasks (Next 7 Days)
+                    {t("upcomingTasks")} ({t("next7Days")})
                   </Typography>
                 </Box>
               </CardContent>
@@ -893,7 +896,7 @@ const Dashboard: React.FC = () => {
                     }}
                   >
                     <Typography variant="body1" color="text.secondary">
-                      No incomplete tasks due in the next 7 days. Great job!
+{t("noIncomplete")}
                     </Typography>
                   </Paper>
                 ) : (
@@ -917,7 +920,7 @@ const Dashboard: React.FC = () => {
                             {task.title}
                           </Typography>
                           <Chip
-                            label={task.status.toUpperCase()}
+                            label={t(task.status)}
                             size="small"
                             sx={{
                               backgroundColor:
@@ -939,10 +942,10 @@ const Dashboard: React.FC = () => {
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <CalendarTodayIcon sx={{ fontSize: 14, color: "text.secondary" }} />
                           <Typography variant="caption" color="text.secondary">
-                            Due:{" "}
+                            {t("due")}:{" "}
                             {typeof window !== "undefined" && task.dueDate
                               ? new Date(task.dueDate).toLocaleDateString()
-                              : "No due date"}
+                              : t("noDueDate")}
                           </Typography>
                         </Box>
                       </Paper>

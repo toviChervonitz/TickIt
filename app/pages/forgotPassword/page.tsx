@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
       await sendResetCode(email);
       setStep(2);
     } catch (err: any) {
-      setError(err.message || "Failed to send code");
+      setError(err.message || t("codeSendFailed"));
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
 
   async function verifyCode() {
     if (!code.trim()) {
-      setError("Please enter the verification code");
+      setError(t("EnterVerificationCode"));
       return;
     }
     setLoading(true);
@@ -62,7 +62,7 @@ export default function ForgotPasswordPage() {
       const data = await verifyResetCode(email, code.trim());
       if (data.success) setStep(3);
     } catch (err: any) {
-      setError(err.message || "Invalid code");
+      setError(err.message || t("invalidCode"));
     } finally {
       setLoading(false);
     }
@@ -70,11 +70,11 @@ export default function ForgotPasswordPage() {
 
   async function updatePassword() {
     if (!password) {
-      setError("Please enter a new password");
+      setError(t("failedEnterNewPassword"));
       return;
     }
     if (password.length < 6) {
-      setError("Password must be at least 6 characters");
+      setError(t("passwordTooShort"));
       return;
     }
     setLoading(true);
@@ -85,7 +85,7 @@ export default function ForgotPasswordPage() {
         window.location.href = "/pages/login";
       }
     } catch (err: any) {
-      setError(err.message || "Failed to update password");
+      setError(err.message || t("failedToUpdatePassword"));
     } finally {
       setLoading(false);
     }

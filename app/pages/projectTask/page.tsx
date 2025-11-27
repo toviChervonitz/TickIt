@@ -41,14 +41,19 @@ import {
 import CircleIcon from "@mui/icons-material/Circle";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import AddIcon from "@mui/icons-material/Add";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import SearchIcon from "@mui/icons-material/Search";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { useRouter } from "next/navigation";
+import { getTranslation } from "@/app/lib/i18n";
+import { useLanguage } from "@/app/context/LanguageContext";
 
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers } = useAppStore();
+  const { lang } = useLanguage();
+  const t = getTranslation(lang);
 
   // Tasks Data
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
@@ -103,7 +108,7 @@ export default function GetProjectTasks() {
         setProjectUsers(users);
       } catch (err) {
         console.error(err);
-        setError("Failed to load project data");
+        setError(t("failedProjectData"));
       } finally {
         setLoading(false);
       }
@@ -310,16 +315,15 @@ export default function GetProjectTasks() {
                 "&:hover": { backgroundColor: "rgba(29,72,106,0.1)" },
               }}
             >
-              <ArrowBackIcon />
-            </IconButton>
+{             lang=="en"? <ArrowBackIcon />:<ArrowForwardIcon />
+}            </IconButton>
 
             <Box>
               <Typography variant="h4" fontWeight={800} color="primary.main">
                 Project Tasks
               </Typography>
               <Typography variant="body1" color="text.secondary">
-                Manage and track tasks for this project
-              </Typography>
+{t("manageTasks")}              </Typography>
             </Box>
           </Box>
 
@@ -337,7 +341,7 @@ export default function GetProjectTasks() {
                   },
                 }}
               >
-                Add Task
+                {t("addTask")}
               </Button>
 
               <Button
@@ -350,7 +354,7 @@ export default function GetProjectTasks() {
                   "&:hover": { borderWidth: 2 },
                 }}
               >
-                Add Member
+                {t("addMember")}
               </Button>
             </Stack>
           )}
@@ -366,7 +370,7 @@ export default function GetProjectTasks() {
             >
              {/* Search Bar */}
             <TextField
-              placeholder="Search tasks..."
+              placeholder={t("searchTasks")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               size="small"
@@ -395,13 +399,13 @@ export default function GetProjectTasks() {
               value={userFilter}
               onChange={(e) => setUserFilter(e.target.value)}
               size="small"
-              label="Assignee"
+              label={t("assignee")}
               sx={{
                 width: { xs: '100%', sm: 160 },
                 "& .MuiOutlinedInput-root": { borderRadius: 2 },
               }}
             >
-              <MenuItem value="all">All Members</MenuItem>
+              <MenuItem value="all">{t("allMembers")}</MenuItem>
               {projectUsers.map((u) => (
                 <MenuItem key={u._id} value={u._id}>
                   {u.name}
@@ -415,19 +419,19 @@ export default function GetProjectTasks() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               size="small"
-              label="Sort by"
+              label={t("sortBy")}
               sx={{
                 width: { xs: '100%', sm: 140 },
                 "& .MuiOutlinedInput-root": { borderRadius: 2 },
               }}
             >
-              <MenuItem value="dueDate">Due Date</MenuItem>
-              <MenuItem value="title">Title</MenuItem>
+              <MenuItem value="dueDate">{t("dueDate")}</MenuItem>
+              <MenuItem value="title">{t("title")}</MenuItem>
             </TextField>
 
             {/* Clear Filters Button */}
             {hasActiveFilters && (
-              <Tooltip title="Clear filters">
+              <Tooltip title={t("clearFilters")}>
                 <IconButton 
                   onClick={clearFilters}
                   size="small"
@@ -487,7 +491,7 @@ export default function GetProjectTasks() {
                               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                 <CircleIcon sx={{ fontSize: 12, color: columnConfig.color }} /> 
                                 <Typography variant="h6" fontWeight={700}>
-                                  {columnConfig.title}
+                                  {columnConfig.title==="To Do"?t("todo"):columnConfig.title==="In Progress"?t("inProgress"):t("completed")}
                                 </Typography>
                               </Box>
 
@@ -515,7 +519,7 @@ export default function GetProjectTasks() {
                                   }}
                                 >
                                   <Typography variant="body2" color="text.secondary">
-                                    Loading task…
+                                    {t("loadingTask")}
                                   </Typography>
                                 </Paper>
                               ) : tasks.length > 0 ? (
@@ -581,7 +585,7 @@ export default function GetProjectTasks() {
                                   }}
                                 >
                                   <Typography variant="body2" color="text.secondary">
-                                    No tasks match your filters
+                                    {t("noTasksMatch")}
                                   </Typography>
                                 </Paper>
                               )}
@@ -605,7 +609,7 @@ export default function GetProjectTasks() {
             sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
           >
             <Typography component="div" variant="h6" fontWeight={700}>
-              Add New Task
+              {t("addNewTask")}
             </Typography>
             <IconButton onClick={() => setShowAddTask(false)}>
               <CloseIcon />
@@ -623,7 +627,7 @@ export default function GetProjectTasks() {
             sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
           >
             <Typography variant="h6" fontWeight={700}>
-              Add Team Member
+              {t("addTeamMember")}
             </Typography>
             <IconButton onClick={() => setShowAddUser(false)}>
               <CloseIcon />
