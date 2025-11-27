@@ -239,7 +239,7 @@ export default function RegisterPage() {
             </Box>
 
             <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
-              {t("changeProfile")}
+              {t("uploadProfile")}
             </Typography>
           </Box>
 

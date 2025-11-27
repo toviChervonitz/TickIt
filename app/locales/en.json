@@ -154,7 +154,30 @@
 "addNewTask":"Add New Task",
 "addTeamMember":"Add Team Member",
 "searchTasks":"Search tasks...",
-"delete":"Delete"
-
-
+"delete":"Delete",
+      "projectManagement": "Project Management",
+      "createPlanTrack": "Create, plan, and track tasks transparently and accurately for all team members.",
+      "collaboration": "Real-Time Collaboration",
+      "workTogether": "Work together on tasks, comment, and stay synchronized — anytime, anywhere.",
+      "advancedAnalytics": "Advanced Analytics & Reporting",
+      "gainInsights": "Gain insights into performance, productivity, and process efficiency.",
+    "aiAgent": "AI Agent that generates suggestions for tasks",
+    "effortlessManagement": "Effortless management of tasks, users, and projects",
+    "builtInPermission": "Built-in permission system for Admins & Users",
+    "remindersEmailActions": "Reminders, email actions & calendar sync",
+"smartTask":"Smart Task",
+"managementSystem":"Management System",
+"manageProjects":"Manage projects, prioritize tasks, and collaborate seamlessly —all in one efficient and beautifully organized platform.",
+"login":"Login",
+"everythingYourTeamNeeds":"Everything Your Team Needs",
+"advancedTools":"Advanced tools for project management, collaboration, and progress tracking",
+"whyChooseUs":"Why Choose Us?",
+"whyChooseUsDescription":"Our system offers excellent user experience, high performance, and full support for all your organization&lsquo;s management needs.",
+"leadYourTeamToSuccess":"Lead Your Team to Success",
+"joinNow":"Join now and empower your organization with a smarter, faster way to manage work. Start your free trial with no commitment.",
+"noCreditCardRequired":"No credit card required",
+"startInMinutes":"Start in minutes",
+"cancelAnytime":"Cancel anytime",
+"advancedFeatures":"Advanced Features",
+"leadingPlatform":"✨ Leading Task Management Platform"
 }
