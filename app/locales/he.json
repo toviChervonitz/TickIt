@@ -183,7 +183,11 @@
 "in":"ב",
 "searchProjects":"חפש פרויקטים...",
 "noDescription":"אין תיאור זמין",
-"noProjectsYet":"אין פרויקטים עדיין"
+"noProjectsYet":"אין פרויקטים עדיין",
+"areYouSureDeleteTask":"האם אתה בטוח שברצונך למחוק משימה זו? פעולה זו אינה ניתנת לביטול.",
+"deleteTask":"מחק משימה?"
+
+
 
 }
 

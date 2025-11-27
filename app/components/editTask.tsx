@@ -19,6 +19,7 @@ interface EditTaskProps {
   projectId: string;
   onSaved: () => void;
   onCancel: () => void;
+  dir:string
 }
 
 export default function EditTask({
