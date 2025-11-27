@@ -475,7 +475,7 @@ const Dashboard: React.FC = () => {
                             {task.title}
                           </Typography>
                           <Chip
-                            label={task.status.toUpperCase()}
+                            label={t(task.status)}
                             size="small"
                             sx={{
                               backgroundColor:

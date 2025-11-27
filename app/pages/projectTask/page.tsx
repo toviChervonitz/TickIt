@@ -491,7 +491,7 @@ export default function GetProjectTasks() {
                               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                 <CircleIcon sx={{ fontSize: 12, color: columnConfig.color }} /> 
                                 <Typography variant="h6" fontWeight={700}>
-                                  {columnConfig.title}
+                                  {columnConfig.title==="To Do"?t("todo"):columnConfig.title==="In Progress"?t("inProgress"):t("completed")}
                                 </Typography>
                               </Box>
 
