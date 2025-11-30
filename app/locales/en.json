@@ -185,6 +185,8 @@
 "noDescription":"No description available",
 "noProjectsYet":"No projects yet",
 "areYouSureDeleteTask":"Are you sure you want to delete this task? This action cannot be undone.",
-"deleteTask":"Delete Task?"
-
+"deleteTask":"Delete Task?",
+"pageNotFound":"Page not found",
+"pageNotFoundDescription":"The page you’re looking for doesn’t exist or has been moved. Please check the URL or return to your dashboard.",
+"returnToDashboard":"Return to Dashboard"
 }

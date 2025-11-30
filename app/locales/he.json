@@ -185,7 +185,10 @@
 "noDescription":"אין תיאור זמין",
 "noProjectsYet":"אין פרויקטים עדיין",
 "areYouSureDeleteTask":"האם אתה בטוח שברצונך למחוק משימה זו? פעולה זו אינה ניתנת לביטול.",
-"deleteTask":"מחק משימה?"
+"deleteTask":"מחק משימה?",
+"pageNotFound":"הדף לא נמצא",
+"pageNotFoundDescription":"הדף שאתה מחפש לא קיים או הועבר. אנא בדוק את כתובת ה-URL או חזור לדשבורד שלך.",
+"returnToDashboard":"חזור לדשבורד"
 
 
 
