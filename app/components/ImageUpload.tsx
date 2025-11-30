@@ -24,7 +24,7 @@
 import { UploadButton } from "@/utils/uploadthing";
 
 interface ImageUploadProps {
-  onUpload: (url: string) => void;   // ← טיפוס מוגדר וברור
+  onUpload: (url: string) => void;  
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload }) => {
