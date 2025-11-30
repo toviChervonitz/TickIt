@@ -151,7 +151,7 @@ const tasksWithDefaults = result.map((t: any) => ({
                   <Select
                     labelId={`assign-user-label-${index}`}
                     value={taskEdits.userId || ""}
-                    label="Assign User"
+                    label={t("assignTo")}
                     onChange={(e) => setTaskEdits({ ...taskEdits, userId: e.target.value })}
                   >
                     {projectUsers.map((user) => (
@@ -163,7 +163,7 @@ const tasksWithDefaults = result.map((t: any) => ({
                 </FormControl>
                 <TextField
                   type="date"
-                  label="Due Date"
+                  label={t("dueDate")}
                   value={taskEdits.dueDate}
                   onChange={(e) => setTaskEdits({ ...taskEdits, dueDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
@@ -201,7 +201,7 @@ const tasksWithDefaults = result.map((t: any) => ({
 
                 <TextField
                   type="date"
-                  label="Due Date"
+                  label={t("dueDate")}
                   value={task.dueDate}
                   onChange={(e) => handleChange(index, "dueDate", e.target.value)}
                   InputLabelProps={{ shrink: true }}

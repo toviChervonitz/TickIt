@@ -70,7 +70,7 @@ export default function AddUserToProjectForm({
       />
 
       <button onClick={handleAddUser} disabled={loading}>
-        {loading ? t("adding") : label}
+        {loading ? t("adding") : t("addUser")}
       </button>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
