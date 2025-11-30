@@ -605,7 +605,7 @@ const Task: React.FC<TaskProps> = ({
         <DialogTitle>{t("deleteTask")}</DialogTitle>
 
         <DialogContent>
-          <Typography>{t("areYouSureDeleteTask")}</Typography>
+          <Typography>{t("areYouSure")}</Typography>
         </DialogContent>
 
         <DialogActions>
