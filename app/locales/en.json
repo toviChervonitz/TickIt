@@ -201,5 +201,8 @@
 "selectUser":"Select user",
 "generating":"Generating...",
 "generateTasks":"Generate Tasks",
-"save":"Save"
+"save":"Save",
+"loadingTasks":"Loading tasks...",
+"loadingUser":"Loading user...",
+"messages":{} 
 }

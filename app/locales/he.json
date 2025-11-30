@@ -202,7 +202,24 @@
 "editTask":"ערוך משימה",
 "selectUser":"בחר משתמש",
 "generating":"מייצר...",
-"save":"שמור"
+"save":"שמור",
+"loadingTasks":"Loading tasks...",
+"loadingUser":"Loading user...",
+"messages":
+{
+  "allDay": "כל היום",
+  "previous": "חזור",
+  "next": "הבא",
+  "today": "היום",
+  "month": "חודש",
+  "week": "שבוע",
+  "day": "יום",
+  "agenda": "סיכום",
+  "date": "תאריך",
+  "time": "שעה",
+  "event": "משימה",
+  "noEventsInRange": "אין משימות בתקופה זו"
+} 
 
 
 
