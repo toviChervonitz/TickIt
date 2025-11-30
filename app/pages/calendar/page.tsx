@@ -450,15 +450,26 @@ const messages = lang === "he" ? {
         {t("yourCalendar")}
       </h1>
 
-      {/* Legend */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-        {projectLegend.map((p) => (
-          <div key={p.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <div style={{ width: 20, height: 20, backgroundColor: p.color }} />
-            <span>{p.name}</span>
-          </div>
-        ))}
-      </div>
+{/* Legend */}
+<div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+  {projectLegend.map((p) => (
+    <div key={p.key}>
+      <span
+        style={{
+          backgroundColor: p.color,
+          color: "#fff",
+          padding: "2px 6px",
+          borderRadius: 4,
+          fontSize: 12,
+          whiteSpace: "nowrap",
+          display: "inline-block",
+        }}
+      >
+        {p.name}
+      </span>
+    </div>
+  ))}
+</div>
 
       {/* Calendar */}
       <Calendar
@@ -467,7 +478,7 @@ const messages = lang === "he" ? {
         startAccessor="start"
         endAccessor="end"
         style={{ height: 600 }}
-  messages={messages} // <-- this is key
+  messages={t("messages") as any} // <-- this is key
         culture={lang} // <-- this tells the calendar which locale to use
 
         eventPropGetter={(e: any) => ({ style: e.style })}
