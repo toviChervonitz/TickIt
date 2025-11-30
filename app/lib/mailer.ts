@@ -48,3 +48,22 @@ export async function sendExistMail(to: string, manager: string) {
      `,
   });
 }
+
+export async function sendResetCodeEmail(to: string, code: string) {
+  console.log("sending reset code email");
+  return transporter.sendMail({
+    from: process.env.FROM_EMAIL!,
+    to,
+    subject: "Your Password Reset Code",
+    html: `
+       <div style="font-family: Arial, sans-serif;">
+         <p>Hello,</p>
+          <p>You have requested to reset your password. Please use the following code to proceed:</p> 
+          <h2 style="color: #2e6c80;">${code}</h2>
+          <p>This code is valid for the next 10 minutes.</p>
+          <p>If you did not request a password reset, please ignore this email.</p>
+          <p>Best regards,<br/>The Support Team</p>
+       </div>
+     `,
+  });
+}

@@ -180,8 +180,7 @@ export default function ProfilePage() {
                     },
                     transition: "all 0.3s ease",
                   }}
-                  onClick={() => document.getElementById("imageInput")?.click()}
-                >
+                  onChange={handleImageChange}                >
                   {!image && name?.charAt(0).toUpperCase()}
                 </Avatar>
 
