@@ -8,12 +8,10 @@ import Task from "@/app/models/TaskModel";
 export async function GET() {
   try {
     await dbConnect();
-
     const now = new Date();
     const tomorrow = new Date(now);
     tomorrow.setDate(now.getDate() + 1);
     tomorrow.setHours(0, 0, 0, 0);
-
     const dayAfter = new Date(tomorrow);
     dayAfter.setDate(tomorrow.getDate() + 1);
 
