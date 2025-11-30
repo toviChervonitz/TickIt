@@ -38,6 +38,8 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
+
 
   const { user, setUser } = useAppStore();
 
@@ -126,7 +128,8 @@ export default function ProfilePage() {
             {t("profileSettings")}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-{t("manageProfile")}          </Typography>
+            {t("manageProfile")}
+          </Typography>
         </Box>
 
         <Card
