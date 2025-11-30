@@ -153,7 +153,7 @@
 "noTasksMatch":"אין משימות התואמות את המסננים שלך",
 "addNewTask":"הוסף משימה חדשה",
 "addTeamMember":"הוסף חבר צוות",
-"searchTasks":"חפש משימות",
+"searchTasks":"חפש משימות...",
 "delete":"מחק",
       "projectManagement": "ניהול פרויקטים",
       "createPlanTrack": "צור, תכנן ועקוב אחר משימות בצורה שקופה ומדויקת עבור כל חברי הצוות.",
@@ -179,7 +179,16 @@
 "startInMinutes":"התחל תוך דקות",
 "cancelAnytime":"בטל בכל עת",
 "leadingPlatform":" ✨פלטפורמת ניהול משימות מובילה",
-"advancedFeatures":"תכונות מתקדמות"
+"advancedFeatures":"תכונות מתקדמות",
+"in":"ב",
+"searchProjects":"חפש פרויקטים...",
+"noDescription":"אין תיאור זמין",
+"noProjectsYet":"אין פרויקטים עדיין",
+"areYouSureDeleteTask":"האם אתה בטוח שברצונך למחוק משימה זו? פעולה זו אינה ניתנת לביטול.",
+"deleteTask":"מחק משימה?"
+
+
+
 }
 
 

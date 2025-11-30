@@ -24,15 +24,22 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CircleIcon from "@mui/icons-material/Circle";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
+  import { useLanguage } from "@/app/context/LanguageContext";
+  import { getTranslation } from "@/app/lib/i18n";
 
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
 
 const MAIN_COLOR = "secondary.main";
 
 export default function GetAllProjectsPage() {
+  
+    const { lang } = useLanguage();
+    const t = getTranslation(lang);
+  
   const { user, projects, setProjects, setProjectId } = useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -112,10 +119,10 @@ export default function GetAllProjectsPage() {
         >
           <Box>
             <Typography variant="h4" fontWeight={800} color="primary.main">
-              Projects
+              {t("projects")}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Select a project to view tasks and details
+              {t("selectProject")}
             </Typography>
           </Box>
 
@@ -123,7 +130,7 @@ export default function GetAllProjectsPage() {
             {/* 2. שדה קלט לחיפוש */}
             <TextField
               variant="outlined"
-              placeholder="Search projects..."
+              placeholder={t("searchProjects")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               size="small"
@@ -158,7 +165,7 @@ export default function GetAllProjectsPage() {
                 },
               }}
             >
-              Create New Project
+              {t("createProject")}
             </Button>
           </Box>
         </Box>
@@ -269,7 +276,7 @@ export default function GetAllProjectsPage() {
                           lineHeight: 1.5,
                         }}
                       >
-                        {p.description || "No description available."}
+                        {p.description || t("noDescription")}
                       </Typography>
                     </CardContent>
 
@@ -285,7 +292,7 @@ export default function GetAllProjectsPage() {
                           "&:hover": { gap: 1 },
                         }}
                       >
-                        View Project <ArrowForwardIcon sx={{ fontSize: 18 }} />
+                        {t("viewProject")} {lang=="en"?<ArrowForwardIcon sx={{ fontSize: 18 }} />:<ArrowBackIcon sx={{ fontSize: 18 }} />}
                       </Box>
                     </Box>
                   </Card>
@@ -295,7 +302,7 @@ export default function GetAllProjectsPage() {
           </Grid>
         ) : (
           <Box sx={{ textAlign: "center", py: 10 }}>
-            <Typography color="text.secondary">No projects yet.</Typography>
+            <Typography color="text.secondary">{t("noProjectsYet")}</Typography>
           </Box>
         )}
       </Container>
