@@ -17,6 +17,8 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
+import { getTranslation } from "../lib/i18n";
+import { useLanguage } from "../context/LanguageContext";
 
 interface GeneratedTask {
   title: string;
@@ -46,6 +48,9 @@ export default function GenerateTasks({
   projectUsers,
   onAddTask,
 }: GenerateTasksProps) {
+        const { lang } = useLanguage();
+        const t = getTranslation(lang);
+  
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -118,7 +123,7 @@ const tasksWithDefaults = result.map((t: any) => ({
           disabled={loading}
           sx={{ mb: 2 }}
         >
-          {loading ? "Generating..." : "Generate Tasks"}
+          {loading ? t("generating") : t("generateTasks")}
         </Button>
       )}
 
@@ -146,7 +151,7 @@ const tasksWithDefaults = result.map((t: any) => ({
                   <Select
                     labelId={`assign-user-label-${index}`}
                     value={taskEdits.userId || ""}
-                    label="Assign User"
+                    label={t("assignTo")}
                     onChange={(e) => setTaskEdits({ ...taskEdits, userId: e.target.value })}
                   >
                     {projectUsers.map((user) => (
@@ -158,7 +163,7 @@ const tasksWithDefaults = result.map((t: any) => ({
                 </FormControl>
                 <TextField
                   type="date"
-                  label="Due Date"
+                  label={t("dueDate")}
                   value={taskEdits.dueDate}
                   onChange={(e) => setTaskEdits({ ...taskEdits, dueDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
@@ -166,10 +171,10 @@ const tasksWithDefaults = result.map((t: any) => ({
                 />
                 <Stack direction="row" spacing={2}>
                   <Button variant="contained" onClick={saveEdit}>
-                    Save
+                    {t("save")}
                   </Button>
                   <Button variant="outlined" onClick={() => setEditingIndex(null)}>
-                    Cancel
+                    {t("cancel")}
                   </Button>
                 </Stack>
               </Stack>
@@ -196,7 +201,7 @@ const tasksWithDefaults = result.map((t: any) => ({
 
                 <TextField
                   type="date"
-                  label="Due Date"
+                  label={t("dueDate")}
                   value={task.dueDate}
                   onChange={(e) => handleChange(index, "dueDate", e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -205,13 +210,13 @@ const tasksWithDefaults = result.map((t: any) => ({
 
                 <Stack direction="row" spacing={2}>
                   <Button variant="contained" onClick={() => handleAdd(task)}>
-                    Add
+                    {t("add")}
                   </Button>
                   <Button variant="outlined" color="error" onClick={() => handleReject(task)}>
-                    Reject
+                    {t("reject")}
                   </Button>
                   <Button variant="outlined" onClick={() => startEditing(index)}>
-                    Edit
+                    {t("edit")}
                   </Button>
                 </Stack>
               </Stack>
