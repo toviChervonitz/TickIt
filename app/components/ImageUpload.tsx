@@ -1,13 +1,17 @@
 "use client";
 
 import { UploadButton } from "@/utils/uploadthing";
-const ImageUpload = ({onUpload}) => {
+
+interface ImageUploadProps {
+  onUpload: (url: string) => void;  
+}
+
+const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload }) => {
   return (
     <div>
       <UploadButton
         endpoint="imageUploader"
         onClientUploadComplete={(res) => {
-          // Do something with the response
           console.log("Files: ", res);
           const fileUrl=res[0].ufsUrl
           onUpload(fileUrl);}}

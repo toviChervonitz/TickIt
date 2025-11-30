@@ -38,6 +38,8 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
+
 
   const { user, setUser } = useAppStore();
 
@@ -126,7 +128,8 @@ export default function ProfilePage() {
             {t("profileSettings")}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-{t("manageProfile")}          </Typography>
+            {t("manageProfile")}
+          </Typography>
         </Box>
 
         <Card
@@ -177,8 +180,7 @@ export default function ProfilePage() {
                     },
                     transition: "all 0.3s ease",
                   }}
-                  onClick={() => document.getElementById("imageInput")?.click()}
-                >
+                  onChange={handleImageChange}                >
                   {!image && name?.charAt(0).toUpperCase()}
                 </Avatar>
 
