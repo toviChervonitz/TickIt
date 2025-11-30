@@ -1,7 +1,12 @@
 "use client";
 
 import { UploadButton } from "@/utils/uploadthing";
-const ImageUpload = ({onUpload}) => {
+
+interface ImageUploadProps {
+  onUpload: (url: string) => void;  
+}
+
+const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload }) => {
   return (
     <div>
       <UploadButton
