@@ -40,7 +40,6 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(false);
   const [showUploader, setShowUploader] = useState(false);
 
-
   const { user, setUser } = useAppStore();
 
   useEffect(() => {
@@ -153,7 +152,9 @@ export default function ProfilePage() {
 
           <Box component="form" onSubmit={handleSubmit}>
             {/* Profile Image Section */}
-            <Box sx={{ textAlign: "center", mb: 4 }}>
+            <ImageUpload onUpload={setImage} image={user?.image} />
+
+            {/* <Box sx={{ textAlign: "center", mb: 4 }}>
               <input
                 id="imageInput"
                 type="file"
@@ -207,13 +208,15 @@ export default function ProfilePage() {
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
                 {t("changeProfile")}
               </Typography>
-            </Box>
+            </Box> */}
 
             <Divider sx={{ my: 4 }} />
 
             {/* Personal Information Section */}
             <Box sx={{ mb: 4 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}
+              >
                 <PersonIcon sx={{ color: "primary.main", fontSize: 24 }} />
                 <Typography variant="h6" fontWeight={700} color="primary.main">
                   {t("personalInformation")}
@@ -273,7 +276,9 @@ export default function ProfilePage() {
 
             {/* Change Password Section */}
             <Box sx={{ mb: 4 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
                 <LockIcon sx={{ color: "primary.main", fontSize: 24 }} />
                 <Typography variant="h6" fontWeight={700} color="primary.main">
                   {t("changePassword")}
@@ -284,8 +289,8 @@ export default function ProfilePage() {
                 {t("leaveBlank")}
               </Typography>
 
-              <Stack >
-                <Grid container spacing={3} >
+              <Stack>
+                <Grid container spacing={3}>
                   <Grid item xs={12} sm={12}>
                     <TextField
                       fullWidth
@@ -338,7 +343,14 @@ export default function ProfilePage() {
             </Box>
 
             {/* Submit Button */}
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 4 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+                mt: 4,
+              }}
+            >
               <Button
                 variant="outlined"
                 size="large"
