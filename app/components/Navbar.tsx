@@ -1,5 +1,5 @@
 
-// "use client";
+//  "use client";
 
 // import { useState, useEffect } from "react";
 // import useAppStore from "@/app/store/useAppStore";
@@ -111,7 +111,6 @@
 //                       : "rgba(0,0,0,0.04)",
 //                   },
 //                   transition: "background-color 0.2s ease",
-//                   textAlign: lang === "he" ? "right" : "left",
 //                 }}
 //               >
 //                 <ListItemIcon sx={{ color: isActive ? "#3dd2cc" : "#1d486a", minWidth: 36 }}>
@@ -145,7 +144,6 @@
 //               cursor: "pointer",
 //               "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
 //               transition: "background-color 0.2s ease",
-//               flexDirection: lang === "he" ? "row-reverse" : "row",
 //             }}
 //             onClick={handleProfile}
 //           >
@@ -156,7 +154,7 @@
 //             >
 //               {!user.image && user.name?.charAt(0).toUpperCase()}
 //             </Avatar>
-//             <Box sx={{ flex: 1, minWidth: 0, textAlign: lang === "he" ? "right" : "left" }}>
+//             <Box sx={{ flex: 1, minWidth: 0 }}>
 //               <Typography variant="body2" fontWeight={600} color="text.secondary" noWrap>
 //                 {user.name}
 //               </Typography>
@@ -196,8 +194,8 @@
 //         sx={{
 //           position: "fixed",
 //           top: 16,
-//           left: lang === "he" ? "auto" : 16,
-//           right: lang === "he" ? 16 : "auto",
+//           left: 16,
+//           right: "auto",
 //           zIndex: 1300,
 //           display: { xs: "flex", md: "none" },
 //           backgroundColor: "white",
@@ -219,8 +217,6 @@
 //             width: DRAWER_WIDTH,
 //             backgroundColor: "background.default",
 //             boxSizing: "border-box",
-//             borderRight: lang === "he" ? "none" : "1px solid #e8eaed",
-//             borderLeft: lang === "he" ? "1px solid #e8eaed" : "none",
 //           },
 //         }}
 //       >
@@ -238,8 +234,6 @@
 //             boxSizing: "border-box",
 //             backgroundColor: "background.default",
 //             border: "none",
-//             borderRight: lang === "he" ? "none" : "1px solid #e8eaed",
-//             borderLeft: lang === "he" ? "1px solid #e8eaed" : "none",
 //           },
 //         }}
 //         open
@@ -249,7 +243,7 @@
 //     </>
 //   );
 // }
- "use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import useAppStore from "@/app/store/useAppStore";
@@ -268,6 +262,7 @@ import {
   Divider,
   IconButton,
   Stack,
+  Button,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -294,7 +289,7 @@ export default function Navbar() {
   const { user, logout } = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
-  const { lang } = useLanguage();
+  const { lang, setLang } = useLanguage();
   const t = getTranslation(lang);
 
   const [hydrated, setHydrated] = useState(false);
@@ -304,7 +299,6 @@ export default function Navbar() {
     setHydrated(true);
   }, []);
 
-  // Wait for hydration and pathname
   if (!hydrated || !pathname) return null;
   if (hiddenRoutes.includes(pathname)) return null;
 
@@ -320,6 +314,10 @@ export default function Navbar() {
   };
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+
+  const toggleLanguage = () => {
+    setLang(lang === "he" ? "en" : "he");
+  };
 
   const menuItems = [
     { text: t("dashboard"), icon: <HomeIcon />, path: "/pages/dashboard" },
@@ -338,11 +336,30 @@ export default function Navbar() {
         flexDirection: "column",
       }}
     >
-      <List sx={{ flex: 1, px: 1, py: 2 }}>
+      {/* ⭐ LANGUAGE SWITCH BUTTON */}
+      <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+        <Button
+          variant="contained"
+          fullWidth
+          onClick={toggleLanguage}
+          sx={{
+            backgroundColor: "#3dd2cc",
+            color: "#fff",
+            borderRadius: 2,
+            fontWeight: 600,
+            "&:hover": { backgroundColor: "#32b8b3" },
+          }}
+        >
+          {lang === "he" ? "English" : "עברית"}
+        </Button>
+      </Box>
+
+      <List sx={{ flex: 1, px: 1, py: 1 }}>
         {menuItems.map((item) => {
           const isActive =
             pathname === item.path ||
             (item.text === t("projects") && pathname === "/pages/projectTask");
+
           return (
             <ListItem key={item.text} disablePadding>
               <ListItemButton
