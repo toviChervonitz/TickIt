@@ -234,6 +234,7 @@ export default function UserTasks() {
               onChange={(e) => setProjectFilter(e.target.value)}
               size="small"
               label={t("project")}
+              SelectProps={{ MenuProps: { PaperProps: { dir: lang==="he" ? "rtl" : "ltr" } }, }}
               sx={{
                 width: { xs: '100%', sm: 160 },
                 "& .MuiOutlinedInput-root": { borderRadius: 2 },
@@ -254,6 +255,7 @@ export default function UserTasks() {
               onChange={(e) => setSortBy(e.target.value)}
               size="small"
               label={t("sortBy")}
+              SelectProps={{ MenuProps: { PaperProps: { dir: lang==="he" ? "rtl" : "ltr" } }, }}
               sx={{
                 width: { xs: '100%', sm: 140 },
                 "& .MuiOutlinedInput-root": { borderRadius: 2 },

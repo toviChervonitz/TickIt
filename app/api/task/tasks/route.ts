@@ -30,7 +30,7 @@ export async function GET(req: Request) {
 
         const tasks = await Task.find({ userId })
             .populate("userId", "name")
-            .populate("projectId", "name");
+            .populate("projectId", "name color"); 
 
         if (!tasks || tasks.length === 0) {
             return NextResponse.json(
