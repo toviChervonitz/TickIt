@@ -18,9 +18,9 @@ import { useLanguage } from "../../context/LanguageContext";
 import { getTranslation } from "../../lib/i18n";
 
 export default function Home() {
-      const { lang } = useLanguage();
-      const t = getTranslation(lang);
-  
+  const { lang, setLang } = useLanguage(); // add setLang
+  const t = getTranslation();
+
   const features = [
     {
       icon: <TrendingUpIcon sx={{ fontSize: 40, color: "primary.main" }} />,
@@ -40,12 +40,16 @@ export default function Home() {
   ];
 
   const benefits = [
-t("aiAgent"),
+    t("aiAgent"),
     t("effortlessManagement"),
     t("builtInPermission"),
     t("remindersEmailActions"),
   ];
-  
+
+  const toggleLang = () => {
+    setLang(lang === "en" ? "he" : "en");
+  };
+
   return (
     <Box sx={{ overflow: "hidden" }}>
       <Box
@@ -69,6 +73,22 @@ t("aiAgent"),
           maxWidth="lg"
           sx={{ py: { xs: 8, md: 12 }, position: "relative", zIndex: 1 }}
         >
+          {/* LANGUAGE TOGGLE BUTTON */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <Button
+              variant="outlined"
+              onClick={toggleLang}
+              sx={{
+                color: "#3dd2cc",
+                borderColor: "rgba(61,210,204,0.3)",
+                fontWeight: 600,
+                "&:hover": { backgroundColor: "rgba(61,210,204,0.1)" },
+              }}
+            >
+              {lang === "en" ? "HE" : "EN"}
+            </Button>
+          </Box>
+
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <Chip
@@ -81,6 +101,7 @@ t("aiAgent"),
                   border: "1px solid rgba(61,210,204,0.3)",
                 }}
               />
+              {/* ... rest of your component remains the same ... */}
 
               <Typography
                 variant="h2"

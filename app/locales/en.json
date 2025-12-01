@@ -204,5 +204,30 @@
 "save":"Save",
 "loadingTasks":"Loading tasks...",
 "loadingUser":"Loading user...",
-"messages":{} 
+"messages":{} ,
+
+  "provider_only_credentials_or_google": "Provider must be 'credentials' or 'google'.",
+  "provider_required": "Provider is required.",
+  "name_required": "Name is required.",
+  "name_min_2": "Name must be at least 2 characters long.",
+  "name_max_50": "Name cannot exceed 50 characters.",
+  "email_required": "Email is required.",
+  "email_invalid": "Please enter a valid email address.",
+  "tel_must_be_text": "Phone number must be a text string.",
+  "password_required_credentials": "Password is required for manual users.",
+  "password_pattern": "Password must be at least 6 characters long and include a letter and a number.",
+  "password_required": "Password is required.",
+  "project_name_required": "Project name is required.",
+  "project_name_min_2": "Project name must be at least 2 characters long.",
+  "project_name_max_100": "Project name cannot exceed 100 characters.",
+  "project_description_max_500": "Description cannot exceed 500 characters.",
+  "task_title_required": "Task title is required.",
+  "task_title_min_2": "Task title must be at least 2 characters long.",
+  "task_title_max_100": "Task title cannot exceed 100 characters.",
+  "task_content_max_1000": "Content cannot exceed 1000 characters.",
+  "task_due_date_invalid": "Due date must be a valid date.",
+  "task_due_date_required": "Due date is required.",
+  "task_due_date_iso": "Due date must be in ISO format (YYYY-MM-DD)."
+
+
 }
