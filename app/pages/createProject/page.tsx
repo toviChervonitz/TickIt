@@ -36,7 +36,7 @@ interface User {
 
 export default function CreateProjectPage() {
   const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   const steps = [t("projectDetails"), t("addTeamMembers"), t("createTasks")];
 
   const router = useRouter();
