@@ -53,7 +53,7 @@ import { useLanguage } from "@/app/context/LanguageContext";
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName } = useAppStore();
   const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   // Tasks Data
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);

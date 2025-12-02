@@ -28,6 +28,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import InsertChartIcon from "@mui/icons-material/InsertChart";
+import ChatIcon from "@mui/icons-material/Chat";
 import { logoutService } from "../lib/server/authServer";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../lib/i18n";
@@ -81,6 +82,8 @@ export default function Navbar() {
     { text: t("tasks"), icon: <AssignmentIcon />, path: "/pages/getAllTaskByUser" },
     { text: t("calendar"), icon: <CalendarTodayIcon />, path: "/pages/calendar" },
     { text: t("charts"), icon: <InsertChartIcon />, path: "/pages/charts" },
+    { text: t("chats"), icon: <ChatIcon />, path: "/pages/chats" },
+
   ];
 
   const drawerContent = (

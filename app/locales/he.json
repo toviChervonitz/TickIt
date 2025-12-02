@@ -243,7 +243,8 @@
   "task_content_max_1000": "התוכן לא יכול לעלות על 1000 תווים.",
   "task_due_date_invalid": "תאריך היעד חייב להיות תאריך חוקי.",
   "task_due_date_required": "תאריך היעד הוא שדה חובה.",
-  "task_due_date_iso": "תאריך היעד חייב להיות בפורמט ISO (YYYY-MM-DD)."
+  "task_due_date_iso": "תאריך היעד חייב להיות בפורמט ISO (YYYY-MM-DD).",
+  "chats": "צ'אטים"
 
 
 }
