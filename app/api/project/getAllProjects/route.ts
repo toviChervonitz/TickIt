@@ -14,9 +14,8 @@
 //     if (!currentUser) {
 //       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 //     }
-    
-//     const userId = currentUser.id;
 
+//     const userId = currentUser.id;
 
 //     const projectLinks = await ProjectUser.find({ userId }).select("projectId");
 
@@ -55,6 +54,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   await dbConnect();
+  const { searchParams } = new URL(req.url);
+  const skip = Number(searchParams.get("skip")) || 0;
+  const limit = Number(searchParams.get("limit")) || 8;
 
   try {
     const currentUser = await getAuthenticatedUser();
@@ -65,6 +67,8 @@ export async function GET(req: Request) {
     const userId = currentUser.id;
 
     const projectLinks = await ProjectUser.find({ userId })
+      .skip(skip)
+      .limit(limit)
       .populate("projectId")
       .select("projectId role");
 

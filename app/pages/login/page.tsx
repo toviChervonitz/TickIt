@@ -1,12 +1,8 @@
-
 "use client";
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Login,
-  signInWithGoogle,
-} from "@/app/lib/server/authServer";
+import { Login, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
 import { getTranslation } from "@/app/lib/i18n";
@@ -25,8 +21,8 @@ import {
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { googleLoginService } from "@/app/lib/server/googleService";
-import GoogleIcon from '@mui/icons-material/Google';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import GoogleIcon from "@mui/icons-material/Google";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useLanguage } from "@/app/context/LanguageContext";
 
 interface LoginResponse {
@@ -66,14 +62,27 @@ export default function LoginPage() {
 
     try {
       const result: LoginResponse = await Login({ email, password });
-
-      if (result.status === "error" || !result.user) {
-        setError(result.message || t("loginFailed"));
-        setLoading(false);
+      if (result) {
+        console.log("result from login page", result);
+      }
+      if (result.httpStatus === 404) {
+        router.push("/pages/register");
         return;
       }
-      setUser(result.user);
-      router.replace("/pages/dashboard");
+
+      if (result.httpStatus === 401) {
+        setError("Password incorrect");
+        return;
+      }
+
+    
+      if (result.httpStatus === 200 && result.user) {
+        setUser(result.user);
+        router.replace("/pages/dashboard");
+        return;
+      }
+
+      setError(result.message || "Login failed");
     } catch (err: any) {
       console.error(err);
       setError(err.message || t("loginFailed"));
@@ -112,7 +121,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
 
   return (
     <Box
