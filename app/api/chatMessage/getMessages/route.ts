@@ -39,7 +39,7 @@ export async function GET(req: Request) {
 
     // Fetch chat messages
     const messages = await ChatMessage.find({ projectId })
-      .populate("userId", "name profileImage")
+      .populate("userId", "name image")
       .sort({ createdAt: 1 });
 
     return NextResponse.json(

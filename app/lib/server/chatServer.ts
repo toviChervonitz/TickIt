@@ -1,66 +1,112 @@
-"use server";
 
 interface SendChatMessageProps {
   userId: string;
   projectId: string;
   message: string;
 }
+// export async function sendChatMessage({
+//   userId,
+//   projectId,
+//   message,
+// }: SendChatMessageProps) {
+//   try{
+//   const res = await fetch("/api/chatMessage/setMessage", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     credentials: "include",
+//       body: JSON.stringify({
+//         userId,
+//         projectId,
+//         message,
+//       }),
+//   });
 
-export async function sendChatMessage({
-  userId,
-  projectId,
-  message,
-}: SendChatMessageProps) {
+//   const data = await res.json();
+//   if (!res.ok) {
+//     throw new Error(data.message || data.error || "Message creation failed");
+//   }
+
+//   return { status: res.status, ...data };
+
+//   }
+//   catch(err:any){
+//     console.error("Error sending chat message:", err);
+//     throw new Error(err.message || "Chat message error");
+
+//   }
+
+// }
+
+
+
+
+
+
+// export async function getChatMessages(projectId: string) {
+//   try {
+
+//     const res = await fetch(`/api/chatMessage/getMessages?projectId=${projectId}`, {
+//       method: "GET",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       cache: "no-store",
+//     });
+
+//     const data = await res.json();
+//     if (!res.ok) {
+//       throw new Error(data.message || data.error || "Fetching chat failed");
+//     }
+//     return data;
+//   } catch (err: any) {
+//     console.error("Get chat Error:", err);
+//     return [];
+//   }
+// }
+// app/lib/server/chatServer.ts
+export async function sendChatMessage(payload: {
+  userId: string;
+  projectId: string;
+  message: string;
+}) {
+  const res = await fetch("/api/chatMessage/setMessage", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    // Throw the error returned from the server
+    throw new Error(data.error || "Message creation failed");
+  }
+
+  // Return the populated chat message object
+  return data.chatMessage;
+}
+
+export async function getChatMessages(projectId: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/chatMessage/setMessage`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      // IMPORTANT: must include credentials (cookies) so JWT is attached
-      credentials: "include",
-      body: JSON.stringify({
-        userId,
-        projectId,
-        message,
-      }),
+    const res = await fetch(`/api/chatMessage/getMessages?projectId=${projectId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
     });
 
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || "Failed to send chat message");
+      throw new Error(data.message || data.error || "Fetching chat failed");
     }
 
-    return data.chatMessage;
+    // Return only the chat array, default to empty array if missing
+    return data.chat ?? [];
   } catch (err: any) {
-    console.error("Error sending chat message:", err);
-    throw new Error(err.message || "Chat message error");
-  }
-}
-
-
-
-export async function getChatMessages( projectId : string) {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/chatMessage/getMessages?projectId=${projectId}`,
-      {
-        method: "GET",
-        credentials: "include", // needed for JWT cookie auth
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || data.message || "Failed to fetch chat");
-    }
-
-    return data.chat; // array of messages
-  } catch (err: any) {
-    console.error("Error fetching chat messages:", err);
-    throw new Error(err.message || "Chat fetch error");
+    console.error("Get chat Error:", err);
+    return [];
   }
 }
 

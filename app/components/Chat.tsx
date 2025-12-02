@@ -3,10 +3,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
 import useAppStore from "../store/useAppStore";
+import ChatMessageComp from "./ChatMessage"; // <-- import the component
 
 interface User {
+  _id: string;
   name: string;
-  profileImage?: string;
+  image?: string;
 }
 
 interface ChatMessage {
@@ -15,8 +17,6 @@ interface ChatMessage {
   message: string;
   createdAt: string;
 }
-
-
 
 export default function Chat() {
   const { projectId, user, getProjectName } = useAppStore();
@@ -46,28 +46,59 @@ export default function Chat() {
   };
 
   // Send message
-  const handleSend = async () => {
-    if (!newMessage.trim()) return;
+  // const handleSend = async () => {
+  //   if (!newMessage.trim()) return;
 
-    setLoading(true);
-    try {
-      const chatMessage = await sendChatMessage({
-        userId: user?._id!,
-        projectId: projectId!,
-        message: newMessage.trim(),
-      });
+  //   setLoading(true);
+  //   try {
+  //     const chatMessage = await sendChatMessage({
+  //       userId: user?._id!,
+  //       projectId: projectId!,
+  //       message: newMessage.trim(),
+  //     });
 
-      setMessages((prev) => [...prev, chatMessage]);
-      setNewMessage("");
-      scrollToBottom();
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setMessages((prev) => [...prev, chatMessage]);
+  //     setNewMessage("");
+  //     scrollToBottom();
+  //   } catch (err) {
+  //     console.error(err);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+const handleSend = async () => {
+  if (!newMessage.trim()) return;
 
-  // Handle Enter key
+  setLoading(true);
+
+  try {
+    // Send message to backend
+    const response = await sendChatMessage({
+      userId: user?._id!,
+      projectId: projectId!,
+      message: newMessage.trim(),
+    });
+
+    // Extract the returned populated message
+    const chatMessage = response.chatMessage;
+
+    // Add to state
+    setMessages((prev) => [...prev, chatMessage]);
+
+    // Clear input
+    setNewMessage("");
+
+    // Scroll to bottom
+    scrollToBottom();
+
+  } catch (err) {
+    console.error("Failed to send message:", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  // Enter key send
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -84,28 +115,25 @@ export default function Chat() {
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {messages.map((msg) => (
-          <div key={msg.id} className="flex items-start gap-2">
-            {msg.user.profileImage ? (
-              <img
-                src={msg.user.profileImage}
-                alt={msg.user.name}
-                className="w-8 h-8 rounded-full"
+        {messages.length > 0 ? (
+          messages.map((msg) => {
+            const msgUser = msg.user || { name: "Unknown", profileImage: undefined };
+            const isCurrentUser = msgUser._id === user?._id;
+
+            return (
+              <ChatMessageComp
+                key={msg.id}
+                username={isCurrentUser ? "You" : msgUser.name}
+                profileImage={msgUser.image}
+                message={msg.message}
+                time={new Date(msg.createdAt).toLocaleTimeString()}
               />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white">
-                {msg.user.name[0]}
-              </div>
-            )}
-            <div>
-              <div className="text-sm font-semibold">{msg.user.name}</div>
-              <div className="text-sm">{msg.message}</div>
-              <div className="text-xs text-gray-400">
-                {new Date(msg.createdAt).toLocaleTimeString()}
-              </div>
-            </div>
-          </div>
-        ))}
+            );
+          })
+        ) : (
+          <div className="text-gray-400 text-center mt-4">Start chatting!</div>
+        )}
+
         <div ref={messagesEndRef} />
       </div>
 
