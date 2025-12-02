@@ -185,7 +185,41 @@
 "noDescription":"אין תיאור זמין",
 "noProjectsYet":"אין פרויקטים עדיין",
 "areYouSureDeleteTask":"האם אתה בטוח שברצונך למחוק משימה זו? פעולה זו אינה ניתנת לביטול.",
-"deleteTask":"מחק משימה?"
+"deleteTask":"מחק משימה?",
+"pageNotFound":"הדף לא נמצא",
+"pageNotFoundDescription":"הדף שאתה מחפש לא קיים או הועבר. אנא בדוק את כתובת ה-URL או חזור לדשבורד שלך.",
+"returnToDashboard":"חזור לדשבורד",
+"assignTo":"הקצה ל",
+"taskContent":"תוכן המשימה",
+"taskTitle":"כותרת המשימה",
+"userAlreadyMember":"משתמש עם אימייל זה כבר חבר בפרויקט",
+"failedToAddUser":"הוספת המשתמש נכשלה",
+"userEmail":"אימייל המשתמש",
+"adding":"מוסיף...",
+"areYouSure":"האם אתה בטוח",
+"editProject":"ערוך פרויקט",
+"content":"תוכן",
+"editTask":"ערוך משימה",
+"selectUser":"בחר משתמש",
+"generating":"מייצר...",
+"save":"שמור",
+"loadingTasks":"Loading tasks...",
+"loadingUser":"Loading user...",
+"messages":
+{
+  "allDay": "כל היום",
+  "previous": "חזור",
+  "next": "הבא",
+  "today": "היום",
+  "month": "חודש",
+  "week": "שבוע",
+  "day": "יום",
+  "agenda": "סיכום",
+  "date": "תאריך",
+  "time": "שעה",
+  "event": "משימה",
+  "noEventsInRange": "אין משימות בתקופה זו"
+} 
 
 
 

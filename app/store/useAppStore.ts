@@ -58,11 +58,11 @@ const useAppStore = create(
       setProjects: (projects) =>
         set((state) => ({ ...state, projects })),
 
-    getProjectName: (projectId: string) => {
-      const projects = get().projects;
-      const projectRole = projects.find(p => p.project._id === projectId);
-      return projectRole?.project?.name || null;
-    },
+      getProjectName: (projectId: string) => {
+        const projects = get().projects;
+        const projectRole = projects.find(p => p.project._id === projectId);
+        return projectRole?.project?.name || null;
+      },
 
       subscribeToProjectUpdates: (projectId: string) => {
         const state = get();
@@ -193,20 +193,22 @@ const useAppStore = create(
           }
 
           // ⭐ עדכון המערכים ב-Store ⭐
-          set({
-            tasks: newTasks,
-            projectTasks: state.projectId
+          set(state => {
+            const newProjectTasks = state.projectId
               ? newTasks.filter(t => {
-                if (!t?.projectId) return false;
-                if (typeof t.projectId === "object" && t.projectId._id) {
-                  return t.projectId._id.toString() === state.projectId;
-                }
-                if (typeof t.projectId === "string") {
-                  return t.projectId === state.projectId;
-                }
-                return false;
+                const taskProjectId =
+                  (typeof t.projectId === "object" && t.projectId?._id)
+                    ? t.projectId._id.toString()
+                    : (typeof t.projectId === "string" ? t.projectId : null);
+
+                return taskProjectId === state.projectId;
               })
-              : state.projectTasks
+              : state.projectTasks; 
+
+            return {
+              tasks: newTasks,
+              projectTasks: newProjectTasks,
+            };
           });
         });
       },

@@ -14,11 +14,10 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import GroupsIcon from "@mui/icons-material/Groups";
 import InsightsIcon from "@mui/icons-material/Insights";
-import { useLanguage } from "@/app/context/LanguageContext";
-import { getTranslation } from "@/app/lib/i18n";
+import { useLanguage } from "../../context/LanguageContext";
+import { getTranslation } from "../../lib/i18n";
 
-
-export default function HomeContent() {
+export default function Home() {
       const { lang } = useLanguage();
       const t = getTranslation(lang);
   
