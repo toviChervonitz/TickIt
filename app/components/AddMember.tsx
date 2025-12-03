@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AddUserToProject } from "@/app/lib/server/userServer";
+import { getTranslation } from "../lib/i18n";
 
 interface Props {
   projectId: string;
@@ -20,6 +21,8 @@ export default function AddUserToProjectForm({
   label?: string;
   onClose?: () => void;
 }) {
+    const t = getTranslation();
+  
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -42,10 +45,10 @@ export default function AddUserToProjectForm({
       setEmail("");
     } catch (err: any) {
       if(err.message === "UserAlreadyExists"){
-        setError("User with this email is already a member of the project.");
+        setError(t("userAlreadyMember"));
       }
       else
-      setError(err.message || "Failed to add user");
+      setError(err.message || t("failedToAddUser"));
     } finally {
       setLoading(false);
       if (onClose) {
@@ -58,14 +61,14 @@ export default function AddUserToProjectForm({
     <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
       <input
         type="email"
-        placeholder="User Email"
+        placeholder={t("userEmail")}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleAddUser()}
       />
 
       <button onClick={handleAddUser} disabled={loading}>
-        {loading ? "Adding..." : label}
+        {loading ? t("adding") : t("addUser")}
       </button>
 
       {error && <p style={{ color: "red" }}>{error}</p>}

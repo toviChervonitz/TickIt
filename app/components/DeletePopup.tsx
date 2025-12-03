@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { getTranslation } from "../lib/i18n";
 
 interface Props {
   onConfirm: () => void;
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export default function ConfirmDelete({ onConfirm, onCancel, taskTitle }: Props) {
+    const t = getTranslation();
+  
   return (
     <div
       style={{
@@ -30,9 +33,9 @@ export default function ConfirmDelete({ onConfirm, onCancel, taskTitle }: Props)
           boxShadow: "0 0 12px rgba(0,0,0,0.2)",
         }}
       >
-        <h3 style={{ marginBottom: "10px" }}>Are you sure?</h3>
+        <h3 style={{ marginBottom: "10px" }}>{t("areYouSure")}</h3>
         <p style={{ marginBottom: "20px" }}>
-          Delete task: <strong>{taskTitle}</strong>?
+          {t("deleteTask")}: <strong>{taskTitle}</strong>?
         </p>
 
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
@@ -42,7 +45,7 @@ export default function ConfirmDelete({ onConfirm, onCancel, taskTitle }: Props)
             onClick={onConfirm}
             style={{ backgroundColor: "red", color: "white", padding: "5px 10px" }}
           >
-            Delete
+            {t("delete")}
           </button>
         </div>
       </div>

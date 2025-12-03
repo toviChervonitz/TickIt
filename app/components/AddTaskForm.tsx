@@ -2,6 +2,7 @@
 
 import React, { ChangeEvent, FormEvent } from "react";
 import useAppStore from "@/app/store/useAppStore";
+import { getTranslation } from "../lib/i18n";
 
 export interface TaskFormData {
   title: string;
@@ -19,6 +20,7 @@ interface TaskFormProps {
 
 export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
   const { projectUsers } = useAppStore();
+  const t = getTranslation();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -38,14 +40,14 @@ export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
       <input
         type="text"
         name="title"
-        placeholder="Task Title"
+        placeholder={t("taskTitle")}
         value={task.title}
         onChange={handleChange}
         required
       />
       <textarea
         name="content"
-        placeholder="Task Content"
+        placeholder={t("taskContent")}
         value={task.content}
         onChange={handleChange}
       />
@@ -55,7 +57,7 @@ export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
         onChange={handleChange}
         required
       >
-        <option value="">-- Assign to user --</option>
+        <option value="">{`-- ${t("assignTo")} --`}</option>
         (projectUsers)(
         {projectUsers.map((user) => (
           <option key={user._id} value={user._id}>
@@ -71,7 +73,7 @@ export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
         required
         min={new Date().toISOString().split("T")[0]}
       />
-      <button type="submit">Add Task</button>
+      <button type="submit">{t("addTask")}</button>
     </form>
   );
 }

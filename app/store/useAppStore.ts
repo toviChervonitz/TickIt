@@ -193,22 +193,20 @@ const useAppStore = create(
           }
 
           // ⭐ עדכון המערכים ב-Store ⭐
-          set(state => {
-            const newProjectTasks = state.projectId
+          set({
+            tasks: newTasks,
+            projectTasks: state.projectId
               ? newTasks.filter(t => {
-                const taskProjectId =
-                  (typeof t.projectId === "object" && t.projectId?._id)
-                    ? t.projectId._id.toString()
-                    : (typeof t.projectId === "string" ? t.projectId : null);
-
-                return taskProjectId === state.projectId;
+                if (!t?.projectId) return false;
+                if (typeof t.projectId === "object" && t.projectId._id) {
+                  return t.projectId._id.toString() === state.projectId;
+                }
+                if (typeof t.projectId === "string") {
+                  return t.projectId === state.projectId;
+                }
+                return false;
               })
-              : state.projectTasks; 
-
-            return {
-              tasks: newTasks,
-              projectTasks: newProjectTasks,
-            };
+              : state.projectTasks
           });
         });
       },

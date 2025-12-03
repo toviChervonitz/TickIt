@@ -4,6 +4,7 @@ import React, { useState, ChangeEvent, FormEvent, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { IUser } from "@/app/models/types";
 import { UpdateTask } from "@/app/lib/server/taskServer";
+import { getTranslation } from "../lib/i18n";
 
 export interface TaskForm {
   _id: string;
@@ -31,6 +32,7 @@ export default function EditTask({
 }: EditTaskProps) {
   const [task, setTask] = useState<TaskForm>(initialTask);
   const [mounted, setMounted] = useState(false);
+      const t = getTranslation();
 
   useEffect(() => {
     setMounted(true);
@@ -91,11 +93,11 @@ export default function EditTask({
         }}
       >
         <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "bold" }}>
-          Edit Task
+          {t("editTask")}
         </h2>
 
         <label>
-          Title:
+          {t("title")}:
           <input
             type="text"
             value={task.title}
@@ -111,7 +113,7 @@ export default function EditTask({
         </label>
 
         <label>
-          Content:
+          { t("content")}:
           <textarea
             name="content"
             value={task.content}
@@ -127,7 +129,7 @@ export default function EditTask({
         </label>
 
         <label>
-          Assign To:
+          {t("assignTo")}:
           <select
             name="userId"
             value={task.userId}
@@ -141,7 +143,7 @@ export default function EditTask({
               marginTop: "4px",
             }}
           >
-            <option value="">-- select user --</option>
+            <option value="">{t("selectUser")}</option>
             {projectUsers.map((user) => (
               <option key={user._id} value={user._id}>
                 {user.email}
@@ -151,7 +153,7 @@ export default function EditTask({
         </label>
 
         <label>
-          Due Date:
+          {t("dueDate")}:
           <input
             type="date"
             name="dueDate"
@@ -180,7 +182,7 @@ export default function EditTask({
               cursor: "pointer",
             }}
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             type="submit"
@@ -193,7 +195,7 @@ export default function EditTask({
               cursor: "pointer",
             }}
           >
-            Save
+            {t("saveChanges")}
           </button>
         </div>
       </form>

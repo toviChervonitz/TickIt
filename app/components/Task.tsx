@@ -369,7 +369,7 @@ const Task: React.FC<TaskProps> = ({
   onStatusChange,
 }) => {
   const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   const isRTL = lang === "he";
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -605,7 +605,7 @@ const Task: React.FC<TaskProps> = ({
         <DialogTitle>{t("deleteTask")}</DialogTitle>
 
         <DialogContent>
-          <Typography>{t("areYouSureDeleteTask")}</Typography>
+          <Typography>{t("areYouSure")}</Typography>
         </DialogContent>
 
         <DialogActions>
