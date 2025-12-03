@@ -6,28 +6,13 @@
 // import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
 // import useAppStore from "../store/useAppStore";
 // import ChatMessageComp from "./ChatMessage";
+// import { IChatMessage } from "../models/types";
 
-// interface User {
-//   _id: string;
-//   name: string;
-//   image?: string;
-// }
 
-// interface ChatMessage {
-//   id: string;
-//   user: User;
-//   message: string;
-//   createdAt: string;
-// }
+// export default function Chat() {
+//   const { projectId, user, messages, setMessages } = useAppStore();
 
-// interface ChatProps {
-//   onClose?: () => void; // optional close handler
-// }
-
-// export default function Chat({ onClose }: ChatProps) {
-//   const { projectId, user, getProjectName } = useAppStore();
-
-//   const [messages, setMessages] = useState<ChatMessage[]>([]);
+//   // const [messages, setMessages] = useState<IChatMessage[]>([]);
 //   const [newMessage, setNewMessage] = useState("");
 //   const [loading, setLoading] = useState(false);
 //   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -70,7 +55,6 @@
 //           user: data.chatMessage.user ?? { _id: "unknown", name: "Unknown", image: undefined },
 //         };
 
-//         // Prevent duplicates
 //         setMessages((prev) => {
 //           if (prev.find((m) => m.id === incoming.id)) return prev;
 //           return [...prev, incoming];
@@ -87,7 +71,6 @@
 //     };
 //   }, [projectId, user]);
 
-//   // Send a message
 //   const handleSend = async () => {
 //     if (!newMessage.trim() || !user || !projectId) return;
 
@@ -98,9 +81,7 @@
 //         projectId,
 //         message: newMessage.trim(),
 //       });
-
-//       // Clear input only; Pusher will append the message
-//       setNewMessage("");
+//       setNewMessage(""); // clear input only, Pusher handles new message
 //     } catch (err) {
 //       console.error("Failed to send message:", err);
 //     } finally {
@@ -116,9 +97,9 @@
 //   };
 
 //   return (
-//     <div style={{ display: "flex", flexDirection: "column", height: "100%", border: "1px solid #ccc", borderRadius: "8px", overflow: "hidden" }}>
+//     <div style={{ display: "flex", flexDirection: "column", height: "100%", border: "1px solid #ccc", borderRadius: "8px" }}>
 //       {/* Header */}
-//       <div style={{ position: "relative", padding: "16px", backgroundColor: "#2563eb", color: "white", fontWeight: "bold", fontSize: "1.125rem" }}>
+//       {/* <div style={{ position: "relative", padding: "16px", backgroundColor: "#2563eb", color: "white", fontWeight: "bold", fontSize: "1.125rem" }}>
 //         {getProjectName(projectId!)}
 //         {onClose && (
 //           <button
@@ -138,15 +119,14 @@
 //             ×
 //           </button>
 //         )}
-//       </div>
+//       </div> */}
 
-//       {/* Messages */}
-//       <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
+//       {/* Messages - scrollable */}
+//       <div style={{ flex: 1, overflowY: "auto", padding: "16px", backgroundColor: "#f9f9f9" }}>
 //         {messages.length > 0 ? (
 //           messages.map((msg, index) => {
 //             const msgUser = msg.user ?? { _id: "unknown", name: "Unknown", image: undefined };
 //             const isCurrentUser = msgUser._id === user?._id;
-
 //             const key = msg.id ?? `${msg.createdAt}-${index}`;
 
 //             return (
@@ -156,7 +136,7 @@
 //                 profileImage={msgUser.image}
 //                 message={msg.message}
 //                 time={new Date(msg.createdAt).toLocaleTimeString()}
-//                 isCurrentUser={isCurrentUser}
+//                 isCurrentUser={isCurrentUser} // this can be used for right/left alignment
 //               />
 //             );
 //           })
@@ -188,7 +168,7 @@
 //           disabled={loading || !newMessage.trim()}
 //           style={{
 //             backgroundColor: "#2563eb",
-//             color: "white",
+//             color: "white", 
 //             border: "none",
 //             borderRadius: "4px",
 //             padding: "8px 16px",
@@ -208,37 +188,26 @@ import Pusher from "pusher-js";
 import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
 import useAppStore from "../store/useAppStore";
 import ChatMessageComp from "./ChatMessage";
-
-interface User {
-  _id: string;
-  name: string;
-  image?: string;
-}
-
-interface ChatMessage {
-  id: string;
-  user: User;
-  message: string;
-  createdAt: string;
-}
+import { IChatMessage } from "../models/types";
 
 interface ChatProps {
   onClose?: () => void;
 }
 
 export default function Chat({ onClose }: ChatProps) {
-  const { projectId, user, getProjectName } = useAppStore();
-
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const { projectId, user, messages, setMessages } = useAppStore();
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
-  // Load initial messages
+  // Fetch initial messages if store is empty
   useEffect(() => {
-    if (!projectId) return;
+    if (!projectId || messages.length > 0) return;
+
     (async () => {
       try {
         const chat = await getChatMessages(projectId);
@@ -252,7 +221,7 @@ export default function Chat({ onClose }: ChatProps) {
         console.error("Failed to load chat messages:", err);
       }
     })();
-  }, [projectId]);
+  }, [projectId, messages, setMessages]);
 
   // Real-time Pusher subscription
   useEffect(() => {
@@ -272,11 +241,8 @@ export default function Chat({ onClose }: ChatProps) {
           user: data.chatMessage.user ?? { _id: "unknown", name: "Unknown", image: undefined },
         };
 
-        setMessages((prev) => {
-          if (prev.find((m) => m.id === incoming.id)) return prev;
-          return [...prev, incoming];
-        });
-
+        const currentMessages = useAppStore.getState().messages;
+        setMessages([...currentMessages, incoming]);
         scrollToBottom();
       }
     });
@@ -286,7 +252,7 @@ export default function Chat({ onClose }: ChatProps) {
       channel.unsubscribe();
       pusher.disconnect();
     };
-  }, [projectId, user]);
+  }, [projectId, user, setMessages]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !projectId) return;
@@ -298,7 +264,7 @@ export default function Chat({ onClose }: ChatProps) {
         projectId,
         message: newMessage.trim(),
       });
-      setNewMessage(""); // clear input only, Pusher handles new message
+      setNewMessage(""); // clear input only
     } catch (err) {
       console.error("Failed to send message:", err);
     } finally {
@@ -314,10 +280,29 @@ export default function Chat({ onClose }: ChatProps) {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%", border: "1px solid #ccc", borderRadius: "8px" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        width: "100%",
+        border: "1px solid #ccc",
+        borderRadius: "8px",
+        backgroundColor: "white",
+      }}
+    >
       {/* Header */}
-      <div style={{ position: "relative", padding: "16px", backgroundColor: "#2563eb", color: "white", fontWeight: "bold", fontSize: "1.125rem" }}>
-        {getProjectName(projectId!)}
+      {/* <div
+        style={{
+          position: "relative",
+          padding: "16px",
+          backgroundColor: "#2563eb",
+          color: "white",
+          fontWeight: "bold",
+          fontSize: "1.125rem",
+        }}
+      >
+        {projectId}
         {onClose && (
           <button
             onClick={onClose}
@@ -336,10 +321,17 @@ export default function Chat({ onClose }: ChatProps) {
             ×
           </button>
         )}
-      </div>
+      </div> */}
 
       {/* Messages - scrollable */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "16px", backgroundColor: "#f9f9f9" }}>
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "16px",
+          backgroundColor: "#f9f9f9",
+        }}
+      >
         {messages.length > 0 ? (
           messages.map((msg, index) => {
             const msgUser = msg.user ?? { _id: "unknown", name: "Unknown", image: undefined };
@@ -353,18 +345,27 @@ export default function Chat({ onClose }: ChatProps) {
                 profileImage={msgUser.image}
                 message={msg.message}
                 time={new Date(msg.createdAt).toLocaleTimeString()}
-                isCurrentUser={isCurrentUser} // this can be used for right/left alignment
+                isCurrentUser={isCurrentUser}
               />
             );
           })
         ) : (
-          <div style={{ textAlign: "center", color: "#9ca3af", marginTop: "16px" }}>Start chatting!</div>
+          <div style={{ textAlign: "center", color: "#9ca3af", marginTop: "16px" }}>
+            Start chatting!
+          </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <div style={{ display: "flex", padding: "16px", borderTop: "1px solid #ccc", gap: "8px" }}>
+      <div
+        style={{
+          display: "flex",
+          padding: "16px",
+          borderTop: "1px solid #ccc",
+          gap: "8px",
+        }}
+      >
         <input
           type="text"
           placeholder="Type your message..."
@@ -385,7 +386,7 @@ export default function Chat({ onClose }: ChatProps) {
           disabled={loading || !newMessage.trim()}
           style={{
             backgroundColor: "#2563eb",
-            color: "white", 
+            color: "white",
             border: "none",
             borderRadius: "4px",
             padding: "8px 16px",

@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
-import { IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
+import { IChatMessage, IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
 
 type PusherClient = Pusher;
 
@@ -14,6 +14,7 @@ interface AppState {
   tasks: ITask[];
   projects: IProjectRole[];
   pusherClient: PusherClient | null;
+  messages: IChatMessage[];
 
   setUser: (user: IUserSafe | null) => void;
   setProjectId: (projectId: string) => void;
@@ -22,6 +23,7 @@ interface AppState {
   setTasks: (tasks: ITask[]) => void;
   setProjects: (projects: IProjectRole[]) => void;
   getProjectName: (projectId: string) => string | null;
+  setMessages: (messages: IChatMessage[]) => void;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
   subscribeToProjectUpdates: (projectId: string) => void;
@@ -39,6 +41,7 @@ const useAppStore = create(
       tasks: [],//all tasks
       projects: [],//all projects
       pusherClient: null,
+      messages: [],
 
       setUser: (user) =>
         set((state) => ({ ...state, user })),
@@ -64,6 +67,16 @@ const useAppStore = create(
         return projectRole?.project?.name || null;
       },
 
+setMessages: (
+  messagesOrFn: IChatMessage[] | ((prev: IChatMessage[]) => IChatMessage[])
+) =>
+  set((state) => ({
+    ...state,
+    messages:
+      typeof messagesOrFn === "function"
+        ? messagesOrFn(state.messages)
+        : messagesOrFn,
+  })),
       subscribeToProjectUpdates: (projectId: string) => {
         const state = get();
         const pusherClient = state.pusherClient;

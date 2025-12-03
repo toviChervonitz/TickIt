@@ -49,6 +49,7 @@ import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { useRouter } from "next/navigation";
 import { getTranslation } from "@/app/lib/i18n";
 import { useLanguage } from "@/app/context/LanguageContext";
+import ChatFloating from "@/app/components/ChatFloating";
 
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName } = useAppStore();
@@ -686,6 +687,8 @@ export default function GetProjectTasks() {
             dir={lang === "he" ? "rtl" : "ltr"}
           />
         )}
+        <ChatFloating />
+
       </Container>
     </Box>
   );
