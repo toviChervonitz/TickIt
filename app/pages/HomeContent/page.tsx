@@ -16,9 +16,10 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import InsightsIcon from "@mui/icons-material/Insights";
 import { useLanguage } from "../../context/LanguageContext";
 import { getTranslation } from "../../lib/i18n";
+import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 
 export default function Home() {
-  const { lang, setLang } = useLanguage(); // add setLang
+  const { lang, setLang } = useLanguage();
   const t = getTranslation();
 
   const features = [
@@ -75,18 +76,7 @@ export default function Home() {
         >
           {/* LANGUAGE TOGGLE BUTTON */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
-            <Button
-              variant="outlined"
-              onClick={toggleLang}
-              sx={{
-                color: "#3dd2cc",
-                borderColor: "rgba(61,210,204,0.3)",
-                fontWeight: 600,
-                "&:hover": { backgroundColor: "rgba(61,210,204,0.1)" },
-              }}
-            >
-              {lang === "en" ? "HE" : "EN"}
-            </Button>
+            <LanguageSwitcher />
           </Box>
 
           <Grid container spacing={6} alignItems="center">
@@ -203,14 +193,14 @@ export default function Home() {
               color="primary.main"
               sx={{ mb: 2 }}
             >
-{t("everythingYourTeamNeeds")}            </Typography>
+              {t("everythingYourTeamNeeds")}            </Typography>
             <Typography
               variant="h6"
               color="text.secondary"
               maxWidth="700px"
               mx="auto"
             >
-{t("advancedTools")}            </Typography>
+              {t("advancedTools")}            </Typography>
           </Box>
 
           <Grid container spacing={4}>
@@ -262,7 +252,7 @@ export default function Home() {
               mb={4}
               lineHeight={1.8}
             >
-{t("whyChooseUsDescription")}            </Typography>
+              {t("whyChooseUsDescription")}            </Typography>
 
             <Stack spacing={2.5}>
               {benefits.map((benefit, i) => (
@@ -346,7 +336,7 @@ export default function Home() {
             mb={5}
             lineHeight={1.8}
           >
-{t("joinNow")}          </Typography>
+            {t("joinNow")}          </Typography>
 
           <Button
             component={Link}
