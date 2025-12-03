@@ -6,6 +6,8 @@ import ProjectUser from "@/app/models/ProjectUserModel";
 import { hashPassword } from "@/app/lib/bcrypt";
 import { getAuthenticatedUser, verifyToken } from "@/app/lib/jwt";
 import { sendExistMail, sendPasswordEmail } from "@/app/lib/mailer";
+import mongoose from "mongoose";
+import { dbConnect } from "@/app/lib/DB";
 
 interface AddMemberBody {
   email?: string;
@@ -14,6 +16,7 @@ interface AddMemberBody {
 }
 
 export async function POST(req: Request) {
+  await dbConnect();
   try {
     const body: AddMemberBody = await req.json();
     const { email, projectId, role = "viewer" } = body;
