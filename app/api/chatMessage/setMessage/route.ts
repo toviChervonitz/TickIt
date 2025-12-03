@@ -1,11 +1,10 @@
+
 // import { NextResponse } from "next/server";
 // import { dbConnect } from "@/app/lib/DB";
 // import Pusher from "pusher";
 // import { getAuthenticatedUser } from "@/app/lib/jwt";
 // import Project from "@/app/models/ProjectModel";
 // import ChatMessage from "@/app/models/ChatMessageModel";
-
-
 
 // const pusher = new Pusher({
 //   appId: process.env.PUSHER_APP_ID!,
@@ -19,24 +18,14 @@
 //   await dbConnect();
 
 //   try {
-//     const body = await req.json();
-//     const { userId, projectId, message } = body;
-
+//     const { userId, projectId, message } = await req.json();
 
 //     const currentUser = await getAuthenticatedUser();
-//     if (!currentUser) {
-//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-//     }
+//     if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-//     const loggedInUserId = currentUser.id;
-
-//     // Ensure project exists
 //     const project = await Project.findById(projectId);
-//     if (!project) {
-//       return NextResponse.json({ error: "Project not found" }, { status: 404 });
-//     }
+//     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-//     // Create task (assigned to userId from body)
 //     const newMessage = await ChatMessage.create({
 //       userId,
 //       projectId,
@@ -44,22 +33,20 @@
 //       createdAt: new Date(),
 //     });
 
-//     // const populatedMessage = await ChatMessage.findById(newMessage._id)
-//     //   .lean();
+//     const populatedMessage = await newMessage.populate("userId", "_id name image");
 
-//     await pusher.trigger(
-//       `private-user-${userId}`, 
-//       "chatMessage-updated",          
-//       {
-//         action: "ADD",         
-//         chatMessage: newMessage         
-//       }
-//     );
+//     const messageObj = populatedMessage.toObject();
+//     messageObj.user = messageObj.userId ?? { _id: "unknown", name: "Unknown", image: undefined };
+//     delete messageObj.userId;
 
-//     return NextResponse.json({ message: "ChatMessage created successfully", chatMessage: newMessage }, { status: 200 });
+//     await pusher.trigger(`private-user-${userId}`, "chatMessage-updated", {
+//       action: "ADD",
+//       chatMessage: messageObj,
+//     });
 
+//     return NextResponse.json({ chatMessage: messageObj }, { status: 200 });
 //   } catch (err: any) {
-//     console.error("❌ Chat Message creation error:", err);
+//     console.error("Chat POST Error:", err);
 //     return NextResponse.json({ error: "Failed to create chat message", details: err.message }, { status: 500 });
 //   }
 // }
@@ -86,17 +73,12 @@ export async function POST(req: Request) {
     const { userId, projectId, message } = body;
 
     const currentUser = await getAuthenticatedUser();
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    if (!currentUser) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Ensure project exists
     const project = await Project.findById(projectId);
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
-    }
+    if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-    // Create chat message
+    // Create the chat message
     const newMessage = await ChatMessage.create({
       userId,
       projectId,
@@ -104,17 +86,27 @@ export async function POST(req: Request) {
       createdAt: new Date(),
     });
 
-    // Populate the user info for frontend
-    const populatedMessage = await newMessage.populate("userId", "_id name image").execPopulate();
+    // Populate the user info
+    await newMessage.populate("userId", "_id name image");
 
-    // Trigger Pusher event
-    await pusher.trigger(`private-user-${userId}`, "chatMessage-updated", {
+    // Convert to plain object and reformat
+    const messageObj = newMessage.toObject();
+    messageObj.user = messageObj.userId
+      ? {
+          _id: messageObj.userId._id,
+          name: messageObj.userId.name,
+          image: messageObj.userId.image,
+        }
+      : { _id: "unknown", name: "Unknown", image: undefined };
+    delete messageObj.userId;
+
+    // Trigger Pusher to **project channel** so all members get the update
+    await pusher.trigger(`private-project-${projectId}`, "chatMessage-updated", {
       action: "ADD",
-      chatMessage: populatedMessage,
+      chatMessage: messageObj,
     });
 
-    // Return the populated message
-    return NextResponse.json({ chatMessage: populatedMessage }, { status: 200 });
+    return NextResponse.json({ chatMessage: messageObj }, { status: 200 });
   } catch (err: any) {
     console.error("❌ Chat Message creation error:", err);
     return NextResponse.json(
