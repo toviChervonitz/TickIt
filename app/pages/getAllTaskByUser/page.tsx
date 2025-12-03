@@ -31,7 +31,7 @@ import { getTranslation } from "@/app/lib/i18n";
 
 export default function UserTasks() {
     const { lang } = useLanguage();
-    const t = getTranslation(lang);
+    const t = getTranslation();
   
   const { user, tasks, setTasks } = useAppStore();
   const [loading, setLoading] = useState(true);

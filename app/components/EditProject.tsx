@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { UpdateProject } from '../lib/server/projectServer';
 import { getTranslation } from '../lib/i18n';
-import { useLanguage } from '../context/LanguageContext';
 
 export interface ProjectForm{
     _id: string;
@@ -20,8 +19,7 @@ const EditProject =({
     onSaved,
     onCancel,
 }: EditProjectProps) => {
-      const { lang } = useLanguage();
-      const t = getTranslation(lang);
+      const t = getTranslation();
   
     const [project, setProject]=useState<ProjectForm>(initialProject!);
     const [mounted, setMounted] = useState(false);

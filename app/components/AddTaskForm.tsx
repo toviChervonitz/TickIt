@@ -2,7 +2,6 @@
 
 import React, { ChangeEvent, FormEvent } from "react";
 import useAppStore from "@/app/store/useAppStore";
-import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../lib/i18n";
 
 export interface TaskFormData {
@@ -21,8 +20,7 @@ interface TaskFormProps {
 
 export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
   const { projectUsers } = useAppStore();
-  const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
