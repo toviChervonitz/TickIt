@@ -38,7 +38,7 @@ const MAIN_COLOR = "secondary.main";
 export default function GetAllProjectsPage() {
   
     const { lang } = useLanguage();
-    const t = getTranslation(lang);
+    const t = getTranslation();
   
   const { user, projects, setProjects, setProjectId } = useAppStore();
   const router = useRouter();
