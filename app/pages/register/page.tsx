@@ -41,8 +41,7 @@ interface RegisterResponse {
 export default function RegisterPage() {
   const router = useRouter();
   const { setUser } = useAppStore();
-  const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");

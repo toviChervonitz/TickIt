@@ -17,9 +17,9 @@ import { useLanguage } from "./context/LanguageContext";
 import { getTranslation } from "./lib/i18n";
 
 const NotFound = () => {
-    const { lang } = useLanguage();
-    const t = getTranslation(lang);
-    const theme = getTheme(lang);
+  const { lang } = useLanguage();
+  const t = getTranslation();
+  const theme = getTheme(lang);
 
 
   return (
@@ -81,7 +81,8 @@ const NotFound = () => {
                 lineHeight: 1.6,
               }}
             >
-{t("pageNotFoundDescription")}            </Typography>
+              {t("pageNotFoundDescription")}
+            </Typography>
 
             <Button
               variant="contained"

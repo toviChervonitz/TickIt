@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { AddUserToProject } from "@/app/lib/server/userServer";
 import { getTranslation } from "../lib/i18n";
-import { useLanguage } from "../context/LanguageContext";
 
 interface Props {
   projectId: string;
@@ -22,8 +21,7 @@ export default function AddUserToProjectForm({
   label?: string;
   onClose?: () => void;
 }) {
-    const { lang } = useLanguage();
-    const t = getTranslation(lang);
+    const t = getTranslation();
   
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);

@@ -19,12 +19,10 @@ import LockResetIcon from "@mui/icons-material/LockReset";
 import EmailIcon from "@mui/icons-material/Email";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
 
 export default function ForgotPasswordPage() {
-  const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   const steps = [t("enterEmail"), t("verifyCode"), t("resetPassword")];
 
   const [email, setEmail] = useState("");
