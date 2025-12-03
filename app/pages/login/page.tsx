@@ -61,22 +61,22 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result: LoginResponse = await Login({ email, password });
+      const result = await Login({ email, password });
       if (result) {
         console.log("result from login page", result);
       }
-      if (result.httpStatus === 404) {
+      if (result.status === 404) {
         router.push("/pages/register");
         return;
       }
 
-      if (result.httpStatus === 401) {
+      if (result.status === 401) {
         setError("Password incorrect");
+        setLoading(false);
         return;
       }
 
-    
-      if (result.httpStatus === 200 && result.user) {
+      if (result.status === 200 && result.user) {
         setUser(result.user);
         router.replace("/pages/dashboard");
         return;

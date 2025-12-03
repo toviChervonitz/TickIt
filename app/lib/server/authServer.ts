@@ -44,7 +44,7 @@ export async function Login(form: any) {
     localStorage.setItem("token", data.token);
   }
 
-  return { httpStatus: res.status, ...data };
+  return {  ...data, status: res.status };
 }
 
 //google
