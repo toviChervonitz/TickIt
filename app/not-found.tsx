@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from "react";
@@ -6,109 +7,111 @@ import {
   Typography,
   Button,
   Box,
-  Card,
   Container,
   ThemeProvider,
   CssBaseline,
 } from "@mui/material";
-import TaskAltIcon from "@mui/icons-material/TaskAlt"; // Icon relevant for a task management site
-import { getTheme } from "@/theme/theme"; // Ensure this path is correct for your Theme file
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import { getTheme } from "@/theme/theme";
+import { useLanguage } from "./context/LanguageContext";
+import { getTranslation } from "./lib/i18n";
 
 const NotFound = () => {
-  // Use English theme direction for formal presentation
-  const theme = getTheme("en"); 
+    const { lang } = useLanguage();
+    const t = getTranslation(lang);
+    const theme = getTheme(lang);
+
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Container
-        maxWidth="sm"
+
+      <Box
         sx={{
           minHeight: "100vh",
           display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
           alignItems: "center",
-          textAlign: "center",
+          justifyContent: "center",
+          backgroundColor: "#ffffff", // PURE WHITE
           padding: 4,
-          backgroundColor: theme.palette.background.default, // General background color
         }}
       >
-        <Card
+        <Container
+          maxWidth="lg"
           sx={{
-            width: "100%",
-            maxWidth: 450,
-            padding: { xs: 3, sm: 5 },
-            // Card styling inherits from MuiCard overrides in your theme
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 6,
+            flexDirection: { xs: "column", md: "row" },
+            textAlign: { xs: "center", md: "left" },
           }}
         >
-          <Box
-            sx={{
-              color: theme.palette.primary.main, // Deep blue
-              marginBottom: 3,
-            }}
-          >
-            <TaskAltIcon sx={{ fontSize: 80 }} /> {/* Large task icon */}
+          {/* LEFT SIDE — TEXT */}
+          <Box sx={{ maxWidth: 500 }}>
+            <Typography
+              variant="h1"
+              sx={{
+                fontSize: { xs: 80, md: 120 },
+                fontWeight: 900,
+                color: theme.palette.primary.main,
+                lineHeight: 1,
+                marginBottom: 2,
+              }}
+            >
+              404
+            </Typography>
+
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                marginBottom: 2,
+              }}
+            >
+              {t("pageNotFound")}
+            </Typography>
+
+            <Typography
+              variant="body1"
+              sx={{
+                color: theme.palette.text.secondary,
+                marginBottom: 4,
+                fontSize: 16,
+                lineHeight: 1.6,
+              }}
+            >
+{t("pageNotFoundDescription")}            </Typography>
+
+            <Button
+              variant="contained"
+              size="large"
+              component={Link}
+              href="/pages/dashboard"
+              sx={{
+                boxShadow: "0 6px 16px rgba(29,72,106,0.25)",
+                "&:hover": {
+                  background: "linear-gradient(to bottom, #163957, #122d42)",
+                },
+              }}
+            >
+              {t("returnToDashboard")}
+            </Button>
           </Box>
 
-          <Typography
-            variant="h1"
-            component="h1"
+          {/* RIGHT SIDE — ICON */}
+          <Box
             sx={{
-              fontSize: { xs: 80, sm: 100 },
-              fontWeight: 900,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
               color: theme.palette.primary.main,
-              lineHeight: 1,
-              marginBottom: 1,
             }}
           >
-            404
-          </Typography>
-
-          <Typography
-            variant="h4"
-            component="h2"
-            sx={{
-              fontWeight: 700,
-              color: theme.palette.text.primary, // Deep blue text
-              marginBottom: 2,
-            }}
-          >
-            Task Not Found! 🧐
-          </Typography>
-
-          <Typography
-            variant="body1"
-            sx={{
-              color: theme.palette.text.secondary, // Mid-tone blue text
-              marginBottom: 4,
-              fontSize: 16,
-              lineHeight: 1.6,
-            }}
-          >
-            **Error:** The requested resource could not be located. It appears
-            this path is not registered in our Task Management System. Please
-            verify the URL or return to the main dashboard to access your active tasks.
-          </Typography>
-
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            component={Link}
-            href="/pages/dashboard"
-            sx={{
-              boxShadow: "0 6px 16px rgba(29,72,106,0.25)", // Impressive shadow
-              "&:hover": {
-                // Uses the hover effect defined in your Theme
-                background: "linear-gradient(to bottom, #163957, #122d42)",
-              },
-            }}
-          >
-            Return to Dashboard
-          </Button>
-        </Card>
-      </Container>
+            <TaskAltIcon sx={{ fontSize: { xs: 150, md: 220 } }} />
+          </Box>
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 };

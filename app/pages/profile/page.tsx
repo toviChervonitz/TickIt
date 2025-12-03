@@ -25,11 +25,12 @@ import LockIcon from "@mui/icons-material/Lock";
 import SaveIcon from "@mui/icons-material/Save";
 import { getTranslation } from "@/app/lib/i18n";
 import { useLanguage } from "@/app/context/LanguageContext";
+import { Dialog } from "@mui/material"; // add this import at the top
+
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [image, setImage] = useState<string>("");
@@ -39,6 +40,7 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showUploader, setShowUploader] = useState(false);
+const [openImageModal, setOpenImageModal] = useState(false);
 
 
   const { user, setUser } = useAppStore();
@@ -153,7 +155,9 @@ export default function ProfilePage() {
 
           <Box component="form" onSubmit={handleSubmit}>
             {/* Profile Image Section */}
-            <Box sx={{ textAlign: "center", mb: 4 }}>
+            <ImageUpload onUpload={setImage} image={user?.image} />
+
+            {/* <Box sx={{ textAlign: "center", mb: 4 }}>
               <input
                 id="imageInput"
                 type="file"
@@ -163,26 +167,84 @@ export default function ProfilePage() {
               />
 
               <Box sx={{ position: "relative", display: "inline-block" }}>
-                <Avatar
-                  src={image}
-                  alt={name}
-                  sx={{
-                    width: 120,
-                    height: 120,
-                    cursor: "pointer",
-                    border: "4px solid",
-                    borderColor: "primary.main",
-                    backgroundColor: "#f0f0f0",
-                    fontSize: "3rem",
-                    color: "#9ca3af",
-                    "&:hover": {
-                      opacity: 0.8,
-                    },
-                    transition: "all 0.3s ease",
-                  }}
-                  onChange={handleImageChange}                >
-                  {!image && name?.charAt(0).toUpperCase()}
-                </Avatar>
+
+<Box sx={{ position: "relative", display: "inline-block" }}>
+  <Avatar
+    src={image}
+    alt={name}
+    sx={{
+      width: 120,
+      height: 120,
+      cursor: "pointer",
+      border: "4px solid",
+      borderColor: "primary.main",
+      backgroundColor: "#f0f0f0",
+      fontSize: "3rem",
+      color: "#9ca3af",
+      "&:hover": {
+        opacity: 0.8,
+      },
+      transition: "all 0.3s ease",
+    }}
+    onClick={() => setOpenImageModal(true)}
+  >
+    {!image && name?.charAt(0).toUpperCase()}
+  </Avatar>
+
+  <IconButton
+    sx={{
+      position: "absolute",
+      bottom: 0,
+      right: 0,
+      backgroundColor: "primary.main",
+      color: "white",
+      width: 40,
+      height: 40,
+      "&:hover": {
+        backgroundColor: "primary.dark",
+      },
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+    }}
+    onClick={() => document.getElementById("imageInput")?.click()}
+  >
+    <CameraAltIcon fontSize="small" />
+  </IconButton>
+</Box>
+
+<Dialog
+  open={openImageModal}
+  onClose={() => setOpenImageModal(false)} // closes on backdrop click or Esc
+  maxWidth="xl"
+  PaperProps={{
+    sx: {
+      backgroundColor: "transparent",
+      boxShadow: "none",
+      p: 0,           // remove padding
+      m: 0,           // remove margin
+      display: "inline-block", // shrink-wrap the image
+      borderRadius: 2,
+    },
+  }}
+  BackdropProps={{
+    sx: {
+      backgroundColor: "rgba(0,0,0,0.5)",
+    },
+  }}
+>
+  <img
+    src={image}
+    alt={name}
+    style={{
+      maxWidth: "89vw",
+      maxHeight: "89vh",
+      objectFit: "contain",
+      borderRadius: 8,
+      border: "4px solid #3dd2cc",
+      display: "block",
+    }}
+  />
+</Dialog>
+
 
                 <IconButton
                   sx={{
@@ -207,13 +269,15 @@ export default function ProfilePage() {
               <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
                 {t("changeProfile")}
               </Typography>
-            </Box>
+            </Box> */}
 
             <Divider sx={{ my: 4 }} />
 
             {/* Personal Information Section */}
             <Box sx={{ mb: 4 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}
+              >
                 <PersonIcon sx={{ color: "primary.main", fontSize: 24 }} />
                 <Typography variant="h6" fontWeight={700} color="primary.main">
                   {t("personalInformation")}
@@ -273,7 +337,9 @@ export default function ProfilePage() {
 
             {/* Change Password Section */}
             <Box sx={{ mb: 4 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
+              >
                 <LockIcon sx={{ color: "primary.main", fontSize: 24 }} />
                 <Typography variant="h6" fontWeight={700} color="primary.main">
                   {t("changePassword")}
@@ -284,8 +350,8 @@ export default function ProfilePage() {
                 {t("leaveBlank")}
               </Typography>
 
-              <Stack >
-                <Grid container spacing={3} >
+              <Stack>
+                <Grid container spacing={3}>
                   <Grid item xs={12} sm={12}>
                     <TextField
                       fullWidth
@@ -338,7 +404,14 @@ export default function ProfilePage() {
             </Box>
 
             {/* Submit Button */}
-            <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 4 }}>
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+                mt: 4,
+              }}
+            >
               <Button
                 variant="outlined"
                 size="large"

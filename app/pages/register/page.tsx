@@ -3,7 +3,7 @@
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import {  Register, signInWithGoogle } from "@/app/lib/server/authServer";
+import { Register, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
 import {
@@ -52,11 +52,11 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setImage(URL.createObjectURL(file));
-  };
+  // const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
+  //   setImage(URL.createObjectURL(file));
+  // };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,9 +117,8 @@ export default function RegisterPage() {
       setUser(data.user);
       router.push("/pages/createProject");
     } catch (error: any) {
-  console.error("Google sign-in error:", error.code || error);
+      console.error("Google sign-in error:", error.code || error);
       setError("Something went wrong during Google register");
-    
     } finally {
       setLoading(false);
     }
@@ -127,9 +126,9 @@ export default function RegisterPage() {
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-      (e: ChangeEvent<HTMLInputElement>) => {
-        setter(e.target.value);
-      };
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setter(e.target.value);
+    };
 
   return (
     <Box
@@ -200,8 +199,9 @@ export default function RegisterPage() {
               {error}
             </Alert>
           )}
-
-         <Box sx={{ textAlign: "center", mb: 4 }}>
+            <ImageUpload onUpload={setImage} image={image} />
+{/* 
+          <Box sx={{ textAlign: "center", mb: 4 }}>
             <input
               id="imageInput"
               type="file"
@@ -253,11 +253,14 @@ export default function RegisterPage() {
               </IconButton>
             </Box>
 
-            <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ display: "block", mt: 2 }}
+            >
               {t("uploadProfile")}
             </Typography>
-          </Box>
-
+          </Box> */}
 
           <Box component="form" onSubmit={handleSubmit}>
             <Box
@@ -416,6 +419,6 @@ export default function RegisterPage() {
           </Box>
         </Card>
       </Container>
-    </Box >
+    </Box>
   );
 }

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { UpdateProject } from '../lib/server/projectServer';
+import { getTranslation } from '../lib/i18n';
+import { useLanguage } from '../context/LanguageContext';
 
 export interface ProjectForm{
     _id: string;
@@ -18,6 +20,9 @@ const EditProject =({
     onSaved,
     onCancel,
 }: EditProjectProps) => {
+      const { lang } = useLanguage();
+      const t = getTranslation(lang);
+  
     const [project, setProject]=useState<ProjectForm>(initialProject!);
     const [mounted, setMounted] = useState(false);
     
@@ -57,11 +62,11 @@ const EditProject =({
         }}
       >
         <h2 style={{ margin: 0, fontSize: "18px", fontWeight: "bold" }}>
-          Edit project
+          {t("editProject")}
         </h2>
 
         <label>
-          Title:
+          {t("title")}:
           <input
             name="name"
             type="text"
@@ -78,7 +83,7 @@ const EditProject =({
         </label>
 
         <label>
-          Content:
+          {t("content")}:
           <textarea
             name="description"
             value={project.description}
@@ -106,7 +111,7 @@ const EditProject =({
               cursor: "pointer",
             }}
           >
-            Cancel
+            {t("cancel")}
           </button>
           <button
             type="submit"
@@ -119,7 +124,7 @@ const EditProject =({
               cursor: "pointer",
             }}
           >
-            Save
+            {t("saveChanges")}
           </button>
         </div>
       </form>
