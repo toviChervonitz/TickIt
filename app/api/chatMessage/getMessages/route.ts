@@ -1,3 +1,4 @@
+
 // import { dbConnect } from "@/app/lib/DB";
 // import { getAuthenticatedUser } from "@/app/lib/jwt";
 // import ProjectUser from "@/app/models/ProjectUserModel";
@@ -10,57 +11,40 @@
 //   try {
 //     const { searchParams } = new URL(req.url);
 //     const projectId = searchParams.get("projectId");
-
 //     if (!projectId) {
-//       return NextResponse.json(
-//         { status: "error", message: "projectId is required" },
-//         { status: 400 }
-//       );
+//       return NextResponse.json({ status: "error", message: "projectId is required" }, { status: 400 });
 //     }
 
-//     // Authenticate user
 //     const currentUser = await getAuthenticatedUser();
 //     if (!currentUser) {
 //       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 //     }
 
-//     // Ensure user belongs to the project
-//     const membership = await ProjectUser.findOne({
-//       projectId,
-//       userId: currentUser.id,
-//     });
-
+//     const membership = await ProjectUser.findOne({ projectId, userId: currentUser.id });
 //     if (!membership) {
-//       return NextResponse.json(
-//         { error: "Forbidden - You do not belong to this project" },
-//         { status: 403 }
-//       );
+//       return NextResponse.json({ error: "Forbidden - You do not belong to this project" }, { status: 403 });
 //     }
 
-//     // Fetch chat messages
-//     const messages = await ChatMessage.find({ projectId })
+//     // Fetch messages + populate user
+//     const rawMessages = await ChatMessage.find({ projectId })
 //       .populate("userId", "_id name image")
 //       .sort({ createdAt: 1 });
 
-//     return NextResponse.json(
-//       {
-//         status: "success",
-//         message: "Chat fetched successfully",
-//         chat: messages.map((msg) => ({
-//           id: msg._id,
-//           user: msg.userId,
-//           message: msg.message,
-//           createdAt: msg.createdAt,
-//         })),
-//       },
-//       { status: 200 }
-//     );
+//     // Ensure user object exists
+//     const messages = rawMessages.map((msg) => {
+//       const obj = msg.toObject();
+//       return {
+//         id: obj._id,
+//         message: obj.message,
+//         createdAt: obj.createdAt,
+//         user: obj.userId ?? { _id: "unknown", name: "Unknown", image: undefined },
+//       };
+//     });
+
+//     return NextResponse.json({ status: "success", message: "Chat fetched successfully", chat: messages }, { status: 200 });
 //   } catch (err) {
 //     console.error("Get Chat Error:", err);
-//     return NextResponse.json(
-//       { status: "error", message: "Server error" },
-//       { status: 500 }
-//     );
+//     return NextResponse.json({ status: "error", message: "Server error" }, { status: 500 });
 //   }
 // }
 import { dbConnect } from "@/app/lib/DB";
@@ -75,8 +59,14 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get("projectId");
+    const skip = parseInt(searchParams.get("skip") ?? "0");
+    const limit = parseInt(searchParams.get("limit") ?? "30");
+
     if (!projectId) {
-      return NextResponse.json({ status: "error", message: "projectId is required" }, { status: 400 });
+      return NextResponse.json(
+        { status: "error", message: "projectId is required" },
+        { status: 400 }
+      );
     }
 
     const currentUser = await getAuthenticatedUser();
@@ -84,30 +74,52 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const membership = await ProjectUser.findOne({ projectId, userId: currentUser.id });
+    const membership = await ProjectUser.findOne({
+      projectId,
+      userId: currentUser.id,
+    });
     if (!membership) {
-      return NextResponse.json({ error: "Forbidden - You do not belong to this project" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Forbidden - You do not belong to this project" },
+        { status: 403 }
+      );
     }
 
-    // Fetch messages + populate user
     const rawMessages = await ChatMessage.find({ projectId })
       .populate("userId", "_id name image")
-      .sort({ createdAt: 1 });
+      .sort({ createdAt: -1 }) // newest first
+      .skip(skip)
+      .limit(limit);
 
-    // Ensure user object exists
-    const messages = rawMessages.map((msg) => {
+    // re-sort oldest → newest for the UI
+    const ordered = rawMessages.reverse();
+
+    const messages = ordered.map((msg) => {
       const obj = msg.toObject();
       return {
         id: obj._id,
         message: obj.message,
         createdAt: obj.createdAt,
-        user: obj.userId ?? { _id: "unknown", name: "Unknown", image: undefined },
+        user: obj.userId ?? {
+          _id: "unknown",
+          name: "Unknown",
+          image: undefined,
+        },
       };
     });
 
-    return NextResponse.json({ status: "success", message: "Chat fetched successfully", chat: messages }, { status: 200 });
+    return NextResponse.json(
+      {
+        status: "success",
+        chat: messages,
+      },
+      { status: 200 }
+    );
   } catch (err) {
     console.error("Get Chat Error:", err);
-    return NextResponse.json({ status: "error", message: "Server error" }, { status: 500 });
+    return NextResponse.json(
+      { status: "error", message: "Server error" },
+      { status: 500 }
+    );
   }
 }

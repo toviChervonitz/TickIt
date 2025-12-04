@@ -1,226 +1,108 @@
 
-// "use client";
-
-// import React, { useEffect, useState, useRef } from "react";
-// import Pusher from "pusher-js";
-// import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
-// import useAppStore from "../store/useAppStore";
-// import ChatMessageComp from "./ChatMessage";
-// import { IChatMessage } from "../models/types";
-
-
-// export default function Chat() {
-//   const { projectId, user, messages, setMessages } = useAppStore();
-
-//   // const [messages, setMessages] = useState<IChatMessage[]>([]);
-//   const [newMessage, setNewMessage] = useState("");
-//   const [loading, setLoading] = useState(false);
-//   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-//   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-
-//   // Load initial messages
-//   useEffect(() => {
-//     if (!projectId) return;
-//     (async () => {
-//       try {
-//         const chat = await getChatMessages(projectId);
-//         const safeMessages = chat.map((msg: any) => ({
-//           ...msg,
-//           user: msg.user ?? { _id: "unknown", name: "Unknown", image: undefined },
-//         }));
-//         setMessages(safeMessages);
-//         scrollToBottom();
-//       } catch (err) {
-//         console.error("Failed to load chat messages:", err);
-//       }
-//     })();
-//   }, [projectId]);
-
-//   // Real-time Pusher subscription
-//   useEffect(() => {
-//     if (!projectId || !user) return;
-
-//     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-//       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
-//       authEndpoint: "/api/pusher/auth",
-//     });
-
-//     const channel = pusher.subscribe(`private-project-${projectId}`);
-
-//     channel.bind("chatMessage-updated", (data: any) => {
-//       if (data.action === "ADD" && data.chatMessage) {
-//         const incoming = {
-//           ...data.chatMessage,
-//           user: data.chatMessage.user ?? { _id: "unknown", name: "Unknown", image: undefined },
-//         };
-
-//         setMessages((prev) => {
-//           if (prev.find((m) => m.id === incoming.id)) return prev;
-//           return [...prev, incoming];
-//         });
-
-//         scrollToBottom();
-//       }
-//     });
-
-//     return () => {
-//       channel.unbind_all();
-//       channel.unsubscribe();
-//       pusher.disconnect();
-//     };
-//   }, [projectId, user]);
-
-//   const handleSend = async () => {
-//     if (!newMessage.trim() || !user || !projectId) return;
-
-//     setLoading(true);
-//     try {
-//       await sendChatMessage({
-//         userId: user._id,
-//         projectId,
-//         message: newMessage.trim(),
-//       });
-//       setNewMessage(""); // clear input only, Pusher handles new message
-//     } catch (err) {
-//       console.error("Failed to send message:", err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-//     if (e.key === "Enter" && !e.shiftKey) {
-//       e.preventDefault();
-//       handleSend();
-//     }
-//   };
-
-//   return (
-//     <div style={{ display: "flex", flexDirection: "column", height: "100%", border: "1px solid #ccc", borderRadius: "8px" }}>
-//       {/* Header */}
-//       {/* <div style={{ position: "relative", padding: "16px", backgroundColor: "#2563eb", color: "white", fontWeight: "bold", fontSize: "1.125rem" }}>
-//         {getProjectName(projectId!)}
-//         {onClose && (
-//           <button
-//             onClick={onClose}
-//             style={{
-//               position: "absolute",
-//               top: "8px",
-//               right: "8px",
-//               background: "transparent",
-//               border: "none",
-//               color: "white",
-//               fontSize: "1.25rem",
-//               cursor: "pointer",
-//             }}
-//             aria-label="Close chat"
-//           >
-//             ×
-//           </button>
-//         )}
-//       </div> */}
-
-//       {/* Messages - scrollable */}
-//       <div style={{ flex: 1, overflowY: "auto", padding: "16px", backgroundColor: "#f9f9f9" }}>
-//         {messages.length > 0 ? (
-//           messages.map((msg, index) => {
-//             const msgUser = msg.user ?? { _id: "unknown", name: "Unknown", image: undefined };
-//             const isCurrentUser = msgUser._id === user?._id;
-//             const key = msg.id ?? `${msg.createdAt}-${index}`;
-
-//             return (
-//               <ChatMessageComp
-//                 key={key}
-//                 username={isCurrentUser ? "You" : msgUser.name}
-//                 profileImage={msgUser.image}
-//                 message={msg.message}
-//                 time={new Date(msg.createdAt).toLocaleTimeString()}
-//                 isCurrentUser={isCurrentUser} // this can be used for right/left alignment
-//               />
-//             );
-//           })
-//         ) : (
-//           <div style={{ textAlign: "center", color: "#9ca3af", marginTop: "16px" }}>Start chatting!</div>
-//         )}
-//         <div ref={messagesEndRef} />
-//       </div>
-
-//       {/* Input */}
-//       <div style={{ display: "flex", padding: "16px", borderTop: "1px solid #ccc", gap: "8px" }}>
-//         <input
-//           type="text"
-//           placeholder="Type your message..."
-//           value={newMessage}
-//           onChange={(e) => setNewMessage(e.target.value)}
-//           onKeyDown={handleKeyDown}
-//           disabled={loading}
-//           style={{
-//             flex: 1,
-//             padding: "8px 12px",
-//             borderRadius: "4px",
-//             border: "1px solid #ccc",
-//             outline: "none",
-//           }}
-//         />
-//         <button
-//           onClick={handleSend}
-//           disabled={loading || !newMessage.trim()}
-//           style={{
-//             backgroundColor: "#2563eb",
-//             color: "white", 
-//             border: "none",
-//             borderRadius: "4px",
-//             padding: "8px 16px",
-//             cursor: loading || !newMessage.trim() ? "not-allowed" : "pointer",
-//           }}
-//         >
-//           Send
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import Pusher from "pusher-js";
 import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
 import useAppStore from "../store/useAppStore";
 import ChatMessageComp from "./ChatMessage";
-import { IChatMessage } from "../models/types";
-
 
 export default function Chat() {
   const { projectId, user, messages, setMessages } = useAppStore();
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [skip, setSkip] = useState(0); // how many messages already fetched
+  const limit = 30;
+  const shouldAutoScrollRef = useRef(true);
+
+  const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const initialLoadRef = useRef(true);
+  const isFetchingRef = useRef(false);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  /** Scroll to bottom on updates */
+useEffect(() => {
+  requestAnimationFrame(() => {
+    // Do not scroll if triggered by lazy-loading older messages
+    if (!shouldAutoScrollRef.current) {
+      shouldAutoScrollRef.current = true; // reset for next event
+      return;
+    }
 
-  // Fetch initial messages if store is empty
+    // First load → jump
+    if (initialLoadRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+      initialLoadRef.current = false;
+    } else {
+      // New messages → smooth to bottom
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  });
+}, [messages]);
+  /** Initial fetch */
   useEffect(() => {
     if (!projectId || messages.length > 0) return;
 
     (async () => {
-      try {
-        const chat = await getChatMessages(projectId);
-        const safeMessages = chat.map((msg: any) => ({
-          ...msg,
-          user: msg.user ?? { _id: "unknown", name: "Unknown", image: undefined },
-        }));
-        setMessages(safeMessages);
-        scrollToBottom();
-      } catch (err) {
-        console.error("Failed to load chat messages:", err);
-      }
+      const chat = await getChatMessages(projectId, 0, limit);
+
+      const safeMessages = chat.map((m: any) => ({
+        ...m,
+        user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
+      }));
+
+      setMessages(safeMessages);
+      setSkip(limit);
     })();
   }, [projectId, messages, setMessages]);
 
-  // Real-time Pusher subscription
+  /** Lazy load older messages when reaching the top */
+  const handleScroll = useCallback(async () => {
+    const container = containerRef.current;
+    if (!container || isFetchingRef.current) return;
+
+    if (container.scrollTop <= 0) {
+      isFetchingRef.current = true;
+
+      const oldHeight = container.scrollHeight;
+  shouldAutoScrollRef.current = false;  // <<<<<< ADD THIS
+
+      const older = await getChatMessages(projectId!, skip, limit);
+      if (older.length === 0) {
+        isFetchingRef.current = false;
+        return;
+      }
+
+      const safe = older.map((m: any) => ({
+        ...m,
+        user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
+      }));
+
+      // prepend older messages
+      const currentMessages = useAppStore.getState().messages;
+      setMessages([...safe, ...currentMessages]);
+
+      setSkip(skip + limit);
+
+      requestAnimationFrame(() => {
+        const newHeight = container.scrollHeight;
+        container.scrollTop = newHeight - oldHeight; // preserve scroll position
+      });
+
+      isFetchingRef.current = false;
+    }
+  }, [projectId, skip, limit, setMessages]);
+
+  /** Attach scroll listener */
+  useEffect(() => {
+    const div = containerRef.current;
+    if (!div) return;
+    div.addEventListener("scroll", handleScroll);
+    return () => div.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  /** Real-time Pusher */
   useEffect(() => {
     if (!projectId || !user) return;
 
@@ -238,9 +120,8 @@ export default function Chat() {
           user: data.chatMessage.user ?? { _id: "unknown", name: "Unknown", image: undefined },
         };
 
-        const currentMessages = useAppStore.getState().messages;
-        setMessages([...currentMessages, incoming]);
-        scrollToBottom();
+        const current = useAppStore.getState().messages;
+        setMessages([...current, incoming]);
       }
     });
 
@@ -251,6 +132,7 @@ export default function Chat() {
     };
   }, [projectId, user, setMessages]);
 
+  /** Send Message */
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !projectId) return;
 
@@ -261,133 +143,60 @@ export default function Chat() {
         projectId,
         message: newMessage.trim(),
       });
-      setNewMessage(""); // clear input only
-    } catch (err) {
-      console.error("Failed to send message:", err);
+      setNewMessage("");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        width: "100%",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-        backgroundColor: "white",
-      }}
-    >
-      {/* Header */}
-      {/* <div
-        style={{
-          position: "relative",
-          padding: "16px",
-          backgroundColor: "#2563eb",
-          color: "white",
-          fontWeight: "bold",
-          fontSize: "1.125rem",
-        }}
-      >
-        {projectId}
-        {onClose && (
-          <button
-            onClick={onClose}
-            style={{
-              position: "absolute",
-              top: "8px",
-              right: "8px",
-              background: "transparent",
-              border: "none",
-              color: "white",
-              fontSize: "1.25rem",
-              cursor: "pointer",
-            }}
-            aria-label="Close chat"
-          >
-            ×
-          </button>
-        )}
-      </div> */}
-
-      {/* Messages - scrollable */}
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <div
+        ref={containerRef}
         style={{
           flex: 1,
           overflowY: "auto",
           padding: "16px",
-          backgroundColor: "#f9f9f9",
+          background: "#f9f9f9",
         }}
       >
-        {messages.length > 0 ? (
-          messages.map((msg, index) => {
-            const msgUser = msg.user ?? { _id: "unknown", name: "Unknown", image: undefined };
-            const isCurrentUser = msgUser._id === user?._id;
-            const key = msg.id ?? `${msg.createdAt}-${index}`;
-
-            return (
-              <ChatMessageComp
-                key={key}
-                username={isCurrentUser ? "You" : msgUser.name}
-                profileImage={msgUser.image}
-                message={msg.message}
-                time={new Date(msg.createdAt).toLocaleTimeString()}
-                isCurrentUser={isCurrentUser}
-              />
-            );
-          })
-        ) : (
-          <div style={{ textAlign: "center", color: "#9ca3af", marginTop: "16px" }}>
-            Start chatting!
-          </div>
-        )}
+        {messages.map((msg, index) => {
+          const msgUser = msg.user ?? { _id: "unknown", name: "Unknown" };
+          const isMe = msgUser._id === user?._id;
+          return (
+            <ChatMessageComp
+              key={msg.id ?? index}
+              username={isMe ? "You" : msgUser.name}
+              profileImage={msgUser.image}
+              message={msg.message}
+              time={new Date(msg.createdAt).toLocaleTimeString()}
+              isCurrentUser={isMe}
+            />
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div
-        style={{
-          display: "flex",
-          padding: "16px",
-          borderTop: "1px solid #ccc",
-          gap: "8px",
-        }}
-      >
+      <div style={{ display: "flex", padding: "16px", gap: "8px" }}>
         <input
           type="text"
-          placeholder="Type your message..."
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={loading}
-          style={{
-            flex: 1,
-            padding: "8px 12px",
-            borderRadius: "4px",
-            border: "1px solid #ccc",
-            outline: "none",
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleSend();
           }}
+          style={{ flex: 1, border: "1px solid #ccc", borderRadius: 4, padding: "8px 12px" }}
+          placeholder="Type a message..."
         />
         <button
+          disabled={!newMessage.trim() || loading}
           onClick={handleSend}
-          disabled={loading || !newMessage.trim()}
           style={{
-            backgroundColor: "#2563eb",
+            background: "#2563eb",
             color: "white",
-            border: "none",
-            borderRadius: "4px",
             padding: "8px 16px",
-            cursor: loading || !newMessage.trim() ? "not-allowed" : "pointer",
+            borderRadius: 4,
+            border: "none",
           }}
         >
           Send
