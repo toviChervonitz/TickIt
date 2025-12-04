@@ -106,7 +106,7 @@ const [openImageModal, setOpenImageModal] = useState(false);
     try {
       const result = await UpdateUser(user._id, user.email, updates);
       if (result.status !== "success" || !result.user) {
-        setError(result.message || t("updatingFailed"));
+        setError(t("updatingFailed"));
         setLoading(false);
         return;
       }
@@ -115,7 +115,7 @@ const [openImageModal, setOpenImageModal] = useState(false);
       router.push("/pages/dashboard");
     } catch (err: any) {
       console.error("Updating error:", err);
-      setError(err.message || t("updatingFailed"));
+      setError(t("updatingFailed"));
     } finally {
       setLoading(false);
     }

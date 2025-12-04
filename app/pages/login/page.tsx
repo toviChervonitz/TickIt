@@ -66,7 +66,7 @@ export default function LoginPage() {
       const result: LoginResponse = await Login({ email, password });
 
       if (result.status === "error" || !result.user) {
-        setError(result.message || t("loginFailed"));
+        setError(t("loginFailed"));
         setLoading(false);
         return;
       }
@@ -74,7 +74,7 @@ export default function LoginPage() {
       router.replace("/pages/dashboard");
     } catch (err: any) {
       console.error(err);
-      setError(err.message || t("loginFailed"));
+      setError(t("loginFailed"));
       setLoading(false);
     }
   };
@@ -101,11 +101,11 @@ export default function LoginPage() {
         setUser(data.user);
         router.push("/pages/dashboard");
       } else {
-        setError(data.message || "Something went wrong");
+        setError(t("googleSignInFailed"));
       }
     } catch (error: any) {
       console.error("Google sign-in error:", error.code || error);
-      setError("Something went wrong during Google sign-in");
+      setError(t("googleSignInFailed"));
     } finally {
       setLoading(false);
     }

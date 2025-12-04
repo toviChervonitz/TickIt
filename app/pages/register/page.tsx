@@ -79,7 +79,7 @@ export default function RegisterPage() {
       const result: RegisterResponse = await Register(payload);
 
       if (result.status !== "success" || !result.user) {
-        setError(result.message || t("registrationFailed"));
+        setError(t("registrationFailed"));
         setLoading(false);
         return;
       }
@@ -88,7 +88,7 @@ export default function RegisterPage() {
       router.replace("/pages/createProject");
     } catch (err: any) {
       console.error(err);
-      setError(err.message || t("registrationFailed"));
+      setError(t("registrationFailed"));
       setLoading(false);
     }
   };
@@ -109,7 +109,7 @@ export default function RegisterPage() {
       const { ok, data } = await googleRegisterService(userData);
 
       if (!ok) {
-        setError(data.message || "Something went wrong");
+        setError(t("googleSignInFailed"));
         return;
       }
 
@@ -117,7 +117,7 @@ export default function RegisterPage() {
       router.push("/pages/createProject");
     } catch (error: any) {
       console.error("Google sign-in error:", error.code || error);
-      setError("Something went wrong during Google register");
+      setError(t("googleSignInFailed"));
     } finally {
       setLoading(false);
     }

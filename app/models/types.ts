@@ -74,3 +74,14 @@ export interface IUserSafe {
   provider: "credentials" | "google";
   image?: string;
 }
+export interface ChatUser {
+  _id: string;
+  name: string;
+  image?: string;
+}
+export interface IChatMessage {
+  id: string;
+  user: ChatUser;
+  message: string;
+  createdAt: string;
+}

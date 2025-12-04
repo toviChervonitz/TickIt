@@ -40,7 +40,7 @@ export default function GetAllProjectsPage() {
     const { lang } = useLanguage();
     const t = getTranslation();
   
-  const { user, projects, setProjects, setProjectId } = useAppStore();
+  const { user, projects, setProjects, setProjectId, setMessages } = useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,6 +83,7 @@ export default function GetAllProjectsPage() {
 
   const getIntoProject = (project: IProject) => {
     setProjectId(project._id!);
+    setMessages([]); // clear messages when entering a new project
     router.push("/pages/projectTask");
   };
 
