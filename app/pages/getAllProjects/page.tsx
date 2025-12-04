@@ -36,13 +36,12 @@ const MAIN_COLOR = "secondary.main";
 const LIMIT = 6;
 
 export default function GetAllProjectsPage() {
-  
-    const { lang } = useLanguage();
-    const t = getTranslation();
-  
-  const { user, projects, setProjects, setProjectId, setMessages } = useAppStore();
+  const { lang } = useLanguage();
+  // const t = getTranslation();
+  const { user, projects, setProjects, setProjectId, setMessages } =
+    useAppStore();
   const router = useRouter();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -89,7 +88,7 @@ export default function GetAllProjectsPage() {
 
   //================lazy loading=============
   async function loadMore() {
-    if (!user?._id || !hasMore ||loadingMore) return;
+    if (!user?._id || !hasMore || loadingMore) return;
     console.log("in load more ()");
 
     setLoadingMore(true);
