@@ -337,7 +337,7 @@ export default function UserTasks() {
                               }}
                             />
                             <Typography variant="subtitle1" fontWeight={700}>
-                              {columnConfig.title}
+                              {columnConfig.title==="To Do"?t("todo"):columnConfig.title==="In Progress"?t("doing"):t("done")}
                             </Typography>
                           </Box>
 
