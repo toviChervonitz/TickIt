@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,7 +17,6 @@ import {
   Divider,
   IconButton,
   Stack,
-  Button,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -32,6 +30,7 @@ import ChatIcon from "@mui/icons-material/Chat";
 import { logoutService } from "../lib/server/authServer";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../lib/i18n";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const DRAWER_WIDTH = 260;
 const hiddenRoutes = [
@@ -46,7 +45,7 @@ export default function Navbar() {
   const { user, logout } = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
-  const { lang, setLang } = useLanguage();
+  const { lang } = useLanguage();
   const t = getTranslation();
 
   const [hydrated, setHydrated] = useState(false);
@@ -72,10 +71,6 @@ export default function Navbar() {
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
-  const toggleLanguage = () => {
-    setLang(lang === "he" ? "en" : "he");
-  };
-
   const menuItems = [
     { text: t("dashboard"), icon: <HomeIcon />, path: "/pages/dashboard" },
     { text: t("projects"), icon: <FolderIcon />, path: "/pages/getAllProjects" },
@@ -95,25 +90,33 @@ export default function Navbar() {
         flexDirection: "column",
       }}
     >
-      {/* ⭐ LANGUAGE SWITCH BUTTON */}
-      <Box sx={{ px: 2, pt: 2, pb: 1 }}>
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={toggleLanguage}
+      {/* LOGO + LANGUAGE SWITCHER */}
+      <Box
+        sx={{
+          p: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          borderBottom: "1px solid #e8eaed"
+        }}
+      >
+
+        <Box
+          component="img"
+          src="/logo.png"
+          alt="TickIt Logo"
           sx={{
-            backgroundColor: "#3dd2cc",
-            color: "#fff",
-            borderRadius: 2,
-            fontWeight: 600,
-            "&:hover": { backgroundColor: "#32b8b3" },
+            height: 45,
+            width: "auto",
+            objectFit: "contain"
           }}
-        >
-          {lang === "he" ? "English" : "עברית"}
-        </Button>
+        />
+        <Box sx={{ transform: "scale(0.7)", transformOrigin: "left" }}>
+          <LanguageSwitcher />
+        </Box>
       </Box>
 
-      <List sx={{ flex: 1, px: 1, py: 1 }}>
+      <List sx={{ flex: 1, px: 1, py: 2 }}>
         {menuItems.map((item) => {
           const isActive =
             pathname === item.path ||

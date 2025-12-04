@@ -4,11 +4,12 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
   Tooltip,
+  Legend,
   ResponsiveContainer,
 } from "recharts";
-import {  ITask } from "../../models/types";
+import { ITask } from "../../models/types";
+import { KANBAN_COLUMNS_CONFIG } from "../../config/kanbanConfig";
 
 interface Props {
   tasks: ITask[];
@@ -23,42 +24,64 @@ export default function TaskStatusPieChart({ tasks }: Props) {
 
   const total = counts.todo + counts.doing + counts.done;
 
+  const COLORS = [
+    "#efe6cfff",
+    KANBAN_COLUMNS_CONFIG.find((c: any) => c.id === "doing")!.color,
+    KANBAN_COLUMNS_CONFIG.find((c: any) => c.id === "done")!.color,
+  ];
+
   const data = [
     { name: "To Do", value: counts.todo },
     { name: "Doing", value: counts.doing },
     { name: "Done", value: counts.done },
   ];
 
-  const COLORS = ["#FF8042", "#FFBB28", "#00C49F"];
+  // Label inside slice: "45%"
+  const renderInsideLabel = (props: any) => {
+    const { cx, cy, midAngle, outerRadius, value, index } = props;
 
-  // Custom label: "Done — 45%"
-  const renderLabel = (entry: any) => {
-    if (total === 0) return ""; // avoid NaN when no tasks
-    const percent = ((entry.value / total) * 100).toFixed(0);
-    return `${entry.name} - ${percent}%`;
+    if (total === 0 || value === 0) return null;
+
+    const RAD = Math.PI / 180;
+    const radius = outerRadius * 0.6; 
+    const x = cx + radius * Math.cos(-midAngle * RAD);
+    const y = cy + radius * Math.sin(-midAngle * RAD);
+
+    const percent = ((value / total) * 100).toFixed(0);
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        fontSize="16"
+        fontWeight="600"
+        textAnchor="middle"
+        dominantBaseline="central"
+      >
+        {percent}%
+      </text>
+    );
   };
+  
 
   return (
     <div className="w-full h-[300px]">
-      <ResponsiveContainer>
-        <PieChart>
+      <ResponsiveContainer> 
+        <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
           <Pie
             data={data}
             dataKey="value"
             nameKey="name"
             outerRadius={110}
-            label={renderLabel}
+            label={renderInsideLabel} 
           >
             {data.map((entry, index) => (
               <Cell key={index} fill={COLORS[index]} />
             ))}
           </Pie>
 
-          <Tooltip
-            formatter={(value: number, name: string) =>
-              [`${value} tasks`, name]
-            }
-          />
+          <Tooltip formatter={(value: number) => [`${value} tasks`]} />
           <Legend />
         </PieChart>
       </ResponsiveContainer>

@@ -397,7 +397,7 @@ export default function GetProjectTasks() {
             />
 
             {/* Filter: User */}
-            <TextField
+            {isManager && <TextField
               select
               value={userFilter}
               onChange={(e) => setUserFilter(e.target.value)}
@@ -417,7 +417,7 @@ export default function GetProjectTasks() {
                   {u.name}
                 </MenuItem>
               ))}
-            </TextField>
+            </TextField>}
 
             {/* Sort */}
             <TextField
@@ -486,6 +486,9 @@ export default function GetProjectTasks() {
                               borderRadius: 3,
                               p: 2,
                               minHeight: "70vh",
+                              height: "120vh",
+                              display: "flex",
+                              flexDirection: "column",
                               border: "1px solid #e8eaed",
                             }}
                           >
@@ -523,7 +526,16 @@ export default function GetProjectTasks() {
                             </Box>
 
                             {/* Tasks */}
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 2,
+                                overflowY: "auto",
+                                flex: 1,
+                                pr: 1
+                              }}
+                            >
                               {loading ? (
                                 <Paper
                                   elevation={0}

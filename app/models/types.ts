@@ -8,6 +8,10 @@ export interface IProject {
   tasks?: mongoose.Types.ObjectId[];
   color: string;
 }
+
+export type Lang = "en" | "he";
+
+
 export interface IProjectRole {
   project: IProject;
   role: "manager" | "viewer";
