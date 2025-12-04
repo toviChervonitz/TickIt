@@ -33,7 +33,7 @@ import { getTranslation } from "@/app/lib/i18n";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
 
 const MAIN_COLOR = "secondary.main";
-const LIMIT = 3;
+const LIMIT = 6;
 
 export default function GetAllProjectsPage() {
   const { lang } = useLanguage();
@@ -42,12 +42,13 @@ export default function GetAllProjectsPage() {
   const { user, projects, setProjects, setProjectId } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [editingProject, setEditingProject] = useState<ProjectForm | null>(
     null
   );
+  const [loadingMore, setLoadingMore] = useState(false);
 
   // ==== edit ====
 
@@ -69,10 +70,12 @@ export default function GetAllProjectsPage() {
   // ========= Fetch =========
 
   const fetchProjects = async () => {
+    if (!user?._id) return;
+    setLoading(true);
     try {
       const response = await GetAllProjectsByUserId(user?._id!, 0, LIMIT);
       setProjects(response.projects || []);
-      setPage(1);
+      // setPage((prev)=>prev+1);
       if (response.projects.length < LIMIT) setHasMore(false);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -83,18 +86,35 @@ export default function GetAllProjectsPage() {
 
   //================lazy loading=============
   async function loadMore() {
-    const response = await GetAllProjectsByUserId(
-      user._id!,
-      page * LIMIT,
-      LIMIT
-    );
+    if (!user?._id || !hasMore ||loadingMore) return;
+    console.log("in load more ()");
 
-    if (response.projects.length < LIMIT) {
-      setHasMore(false);
+    setLoadingMore(true);
+    try {
+      console.log("page", page);
+
+      const response = await GetAllProjectsByUserId(
+        user?._id!,
+        page * LIMIT,
+        LIMIT
+      );
+      // setPage(1);
+      if (response.projects.length < LIMIT) {
+        setHasMore(false);
+      }
+      console.log("response in load more", response);
+      console.log("projects in load more", projects);
+
+      // setProjects([...projects, ...response.projects]);
+
+      setProjects((prevProjects) => [...prevProjects, ...response.projects]);
+
+      setPage((prevPage) => prevPage + 1);
+    } catch (err) {
+      console.error("Load more error:", err);
+    } finally {
+      setLoadingMore(false);
     }
-
-    setProjects([...projects, ...response.projects]);
-    setPage((prev) => prev + 1);
   }
   //================== single project============
   const getIntoProject = (project: IProject) => {
@@ -117,6 +137,7 @@ export default function GetAllProjectsPage() {
   }, [projects, searchTerm]);
 
   const projectsToDisplay = filteredProjects;
+  console.log("projectsToDisplay", projectsToDisplay);
 
   useEffect(() => {
     fetchProjects();
@@ -129,6 +150,8 @@ export default function GetAllProjectsPage() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
+          console.log("project in use effect", projects);
+
           loadMore();
         }
       },
@@ -138,7 +161,8 @@ export default function GetAllProjectsPage() {
     observer.observe(loadMoreRef.current);
 
     return () => observer.disconnect();
-  }, [loadMoreRef, hasMore, page, projects]);
+    // }, [loadMoreRef, hasMore, page, projects]);
+  }, [loadMoreRef, hasMore, page, loadingMore]);
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 5 }}>
@@ -230,7 +254,7 @@ export default function GetAllProjectsPage() {
           <Grid container spacing={3} alignItems="stretch">
             {projectsToDisplay.map((wrapper: IProjectRole) => {
               const p = wrapper.project;
-              console.log("p : ", p);
+              // console.log("p : ", p);
 
               const dotColor = p.color;
 
@@ -385,7 +409,7 @@ export default function GetAllProjectsPage() {
             <Typography color="text.secondary">{t("noProjectsYet")}</Typography>
           </Box>
         )}
-        <Box ref={loadMoreRef} sx={{ height: 1 }} /> {/* אלמנט סוף */}
+        <Box ref={loadMoreRef} sx={{ height: 50 }} /> {/* אלמנט סוף */}
       </Container>
 
       {/* === מודל עריכה (Popup) === */}
