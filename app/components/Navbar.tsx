@@ -77,7 +77,6 @@ export default function Navbar() {
     { text: t("tasks"), icon: <AssignmentIcon />, path: "/pages/getAllTaskByUser" },
     { text: t("calendar"), icon: <CalendarTodayIcon />, path: "/pages/calendar" },
     { text: t("charts"), icon: <InsertChartIcon />, path: "/pages/charts" },
-    { text: t("chats"), icon: <ChatIcon />, path: "/pages/chats" },
 
   ];
 

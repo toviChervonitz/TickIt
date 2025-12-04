@@ -5,6 +5,7 @@ import Chat from "@/app/components/Chat";
 import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton, Box, Typography } from "@mui/material";
+import { Tooltip } from "@mui/material";
 
 export default function ChatFloating() {
   const [open, setOpen] = useState(false);
@@ -12,26 +13,32 @@ export default function ChatFloating() {
   return (
     <>
       {/* Floating Icon */}
-      {!open && (
-        <IconButton
-          onClick={() => setOpen(true)}
-          sx={{
-            position: "fixed",
-            bottom: 24,
-            right: 24,
-            bgcolor: "#3dd2cc",
-            color: "#fff",
-            "&:hover": { bgcolor: "#2dbfb9" },
-            width: 56,
-            height: 56,
-            borderRadius: "50%",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-            zIndex: 1000,
-          }}
-        >
-          <ChatIcon />
-        </IconButton>
-      )}
+  
+
+{!open && (
+  <Tooltip title="Open Chat" arrow>
+    <IconButton
+      onClick={() => setOpen(true)}
+      sx={{
+        position: "fixed",
+        bottom: 24,
+        right: 24,
+        bgcolor: "#3dd2cc",
+        color: "#fff",
+        "&:hover": { bgcolor: "#2dbfb9" },
+        width: 72,
+        height: 72,
+        borderRadius: "50%",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+        zIndex: 1000,
+        "& .MuiSvgIcon-root": { fontSize: 36 },
+      }}
+    >
+      <ChatIcon />
+    </IconButton>
+  </Tooltip>
+)}
+
 
       {/* Chat Popup */}
       {open && (
