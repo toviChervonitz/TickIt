@@ -4,7 +4,7 @@ import { GetAllProjectsByUserId } from "@/app/lib/server/projectServer";
 import { IProject, IProjectRole } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   Container,
@@ -28,12 +28,12 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CircleIcon from "@mui/icons-material/Circle";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
-  import { useLanguage } from "@/app/context/LanguageContext";
-  import { getTranslation } from "@/app/lib/i18n";
-
+import { useLanguage } from "@/app/context/LanguageContext";
+import { getTranslation } from "@/app/lib/i18n";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
 
 const MAIN_COLOR = "secondary.main";
+const LIMIT = 6;
 
 export default function GetAllProjectsPage() {
   
@@ -42,11 +42,18 @@ export default function GetAllProjectsPage() {
   
   const { user, projects, setProjects, setProjectId, setMessages } = useAppStore();
   const router = useRouter();
+  const t = getTranslation(lang);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const [editingProject, setEditingProject] = useState<ProjectForm | null>(
+    null
+  );
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  // ==== עריכה ====
-  const [editingProject, setEditingProject] = useState<ProjectForm | null>(null);
+  // ==== edit ====
 
   const handleEdit = (p: IProjectRole) => {
     setEditingProject({
@@ -64,29 +71,61 @@ export default function GetAllProjectsPage() {
   };
 
   // ========= Fetch =========
-  useEffect(() => {
-    if (!user?._id) return;
-    async function fetchProjects() {
-      try {
-        const response = await GetAllProjectsByUserId(user?._id!);
-        if (response?.status === "success") {
-          setProjects(response.projects || []);
-        }
-      } catch (err) {
-        console.error("Fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProjects();
-  }, [user, setProjects]);
 
+  const fetchProjects = async () => {
+    if (!user?._id) return;
+    setLoading(true);
+    try {
+      const response = await GetAllProjectsByUserId(user?._id!, 0, LIMIT);
+      setProjects(response.projects || []);
+      // setPage((prev)=>prev+1);
+      if (response.projects.length < LIMIT) setHasMore(false);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //================lazy loading=============
+  async function loadMore() {
+    if (!user?._id || !hasMore ||loadingMore) return;
+    console.log("in load more ()");
+
+    setLoadingMore(true);
+    try {
+      console.log("page", page);
+
+      const response = await GetAllProjectsByUserId(
+        user?._id!,
+        page * LIMIT,
+        LIMIT
+      );
+      // setPage(1);
+      if (response.projects.length < LIMIT) {
+        setHasMore(false);
+      }
+      console.log("response in load more", response);
+      console.log("projects in load more", projects);
+
+      // setProjects([...projects, ...response.projects]);
+
+      setProjects((prevProjects) => [...prevProjects, ...response.projects]);
+
+      setPage((prevPage) => prevPage + 1);
+    } catch (err) {
+      console.error("Load more error:", err);
+    } finally {
+      setLoadingMore(false);
+    }
+  }
+  //================== single project============
   const getIntoProject = (project: IProject) => {
     setProjectId(project._id!);
     setMessages([]); // clear messages when entering a new project
     router.push("/pages/projectTask");
   };
-
+  //=========filter============
   const filteredProjects = useMemo(() => {
     if (!searchTerm) {
       return projects;
@@ -102,7 +141,32 @@ export default function GetAllProjectsPage() {
   }, [projects, searchTerm]);
 
   const projectsToDisplay = filteredProjects;
+  console.log("projectsToDisplay", projectsToDisplay);
 
+  useEffect(() => {
+    fetchProjects();
+  }, [user]);
+
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+    if (!hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          console.log("project in use effect", projects);
+
+          loadMore();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    observer.observe(loadMoreRef.current);
+
+    return () => observer.disconnect();
+    // }, [loadMoreRef, hasMore, page, projects]);
+  }, [loadMoreRef, hasMore, page, loadingMore]);
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 5 }}>
@@ -127,7 +191,14 @@ export default function GetAllProjectsPage() {
             </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: "column", sm: "row" }, width: { xs: '100%', sm: 'auto' } }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 2,
+              flexDirection: { xs: "column", sm: "row" },
+              width: { xs: "100%", sm: "auto" },
+            }}
+          >
             {/* 2. שדה קלט לחיפוש */}
             <TextField
               variant="outlined"
@@ -142,7 +213,7 @@ export default function GetAllProjectsPage() {
                     <SearchIcon color="action" />
                   </InputAdornment>
                 ),
-                sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" }
+                sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" },
               }}
             />
 
@@ -170,13 +241,16 @@ export default function GetAllProjectsPage() {
             </Button>
           </Box>
         </Box>
-
         {/* Projects Grid */}
         {loading ? (
           <Grid container spacing={3}>
             {[1, 2, 3, 4].map((n) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={n}>
-                <Skeleton variant="rectangular" height={220} sx={{ borderRadius: 3 }} />
+                <Skeleton
+                  variant="rectangular"
+                  height={220}
+                  sx={{ borderRadius: 3 }}
+                />
               </Grid>
             ))}
           </Grid>
@@ -184,12 +258,20 @@ export default function GetAllProjectsPage() {
           <Grid container spacing={3} alignItems="stretch">
             {projectsToDisplay.map((wrapper: IProjectRole) => {
               const p = wrapper.project;
-              console.log("p : ", p);
+              // console.log("p : ", p);
 
               const dotColor = p.color;
 
               return (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={p._id} sx={{ display: "flex" }}>
+                <Grid
+                  item
+                  xs={12}
+                  sm={6}
+                  md={4}
+                  lg={3}
+                  key={p._id}
+                  sx={{ display: "flex" }}
+                >
                   <Card
                     elevation={0}
                     onClick={() => getIntoProject(p)}
@@ -210,7 +292,14 @@ export default function GetAllProjectsPage() {
                     }}
                   >
                     <CardContent sx={{ p: 3, flexGrow: 1 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          mb: 2,
+                        }}
+                      >
                         <Box
                           sx={{
                             width: 48,
@@ -222,11 +311,17 @@ export default function GetAllProjectsPage() {
                             justifyContent: "center",
                           }}
                         >
-                          <FolderIcon sx={{ color: MAIN_COLOR, fontSize: 28 }} />
+                          <FolderIcon
+                            sx={{ color: MAIN_COLOR, fontSize: 28 }}
+                          />
                         </Box>
 
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                          <CircleIcon sx={{ fontSize: 14, color: dotColor || "#F7F5F0" }} />
+                        <Box
+                          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                        >
+                          <CircleIcon
+                            sx={{ fontSize: 14, color: dotColor || "#F7F5F0" }}
+                          />
 
                           {wrapper.role === "manager" && (
                             <IconButton
@@ -240,7 +335,7 @@ export default function GetAllProjectsPage() {
                                 transition: "all 0.2s",
                                 "&:hover": {
                                   color: MAIN_COLOR,
-                                  backgroundColor: "rgba(61,210,204,0.1)"
+                                  backgroundColor: "rgba(61,210,204,0.1)",
                                 },
                               }}
                             >
@@ -281,7 +376,14 @@ export default function GetAllProjectsPage() {
                       </Typography>
                     </CardContent>
 
-                    <Box sx={{ p: 3, pt: 0, display: "flex", justifyContent: "flex-end" }}>
+                    <Box
+                      sx={{
+                        p: 3,
+                        pt: 0,
+                        display: "flex",
+                        justifyContent: "flex-end",
+                      }}
+                    >
                       <Box
                         sx={{
                           display: "flex",
@@ -293,7 +395,12 @@ export default function GetAllProjectsPage() {
                           "&:hover": { gap: 1 },
                         }}
                       >
-                        {t("viewProject")} {lang=="en"?<ArrowForwardIcon sx={{ fontSize: 18 }} />:<ArrowBackIcon sx={{ fontSize: 18 }} />}
+                        {t("viewProject")}{" "}
+                        {lang == "en" ? (
+                          <ArrowForwardIcon sx={{ fontSize: 18 }} />
+                        ) : (
+                          <ArrowBackIcon sx={{ fontSize: 18 }} />
+                        )}
                       </Box>
                     </Box>
                   </Card>
@@ -306,6 +413,7 @@ export default function GetAllProjectsPage() {
             <Typography color="text.secondary">{t("noProjectsYet")}</Typography>
           </Box>
         )}
+        <Box ref={loadMoreRef} sx={{ height: 50 }} /> {/* אלמנט סוף */}
       </Container>
 
       {/* === מודל עריכה (Popup) === */}
@@ -315,7 +423,7 @@ export default function GetAllProjectsPage() {
         maxWidth="sm"
         fullWidth
         PaperProps={{
-          sx: { borderRadius: 3, p: 1 }
+          sx: { borderRadius: 3, p: 1 },
         }}
       >
         <DialogContent>
@@ -328,7 +436,17 @@ export default function GetAllProjectsPage() {
           )}
         </DialogContent>
       </Dialog>
-
+      {/* {hasMore && (
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <Button
+            variant="contained"
+            onClick={loadMore}
+            sx={{ borderRadius: 3, px: 4, py: 1.5 }}
+          >
+            טען עוד
+          </Button>
+        </Box>
+      )} */}
     </Box>
   );
 }

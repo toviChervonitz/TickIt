@@ -21,7 +21,8 @@ interface AppState {
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
-  setProjects: (projects: IProjectRole[]) => void;
+  // setProjects: (projects: IProjectRole[]) => void;
+  setProjects: (projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])) => void;
   getProjectName: (projectId: string) => string | null;
   setMessages: (messages: IChatMessage[]) => void;
   logout: () => void;
@@ -58,9 +59,22 @@ const useAppStore = create(
       setTasks: (tasks) =>
         set((state) => ({ ...state, tasks })),
 
-      setProjects: (projects) =>
-        set((state) => ({ ...state, projects })),
+      // setProjects: (projects) =>
+      //   set((state) => ({ ...state, projects })),
+setProjects: (projectsOrUpdater) =>
+    set((state) => {
+        let newProjects;
+        
+        if (typeof projectsOrUpdater === 'function') {
+            // אם זה פונקציה, הפעל אותה על המערך הקיים
+            newProjects = projectsOrUpdater(state.projects);
+        } else {
+            // אם זה מערך, השתמש בו ישירות
+            newProjects = projectsOrUpdater;
+        }
 
+        return { ...state, projects: newProjects };
+    }),
       getProjectName: (projectId: string) => {
         const projects = get().projects;
         const projectRole = projects.find(p => p.project._id === projectId);
