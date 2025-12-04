@@ -244,10 +244,15 @@
   "task_due_date_invalid": "תאריך היעד חייב להיות תאריך חוקי.",
   "task_due_date_required": "תאריך היעד הוא שדה חובה.",
   "task_due_date_iso": "תאריך היעד חייב להיות בפורמט ISO (YYYY-MM-DD).",
-  "chats": "צ'אטים"
-
-
+    "typeMessage": "הקלד הודעה...",
+"send":"שלח",
+  "openChat": "פתח צ'אט"
 }
+
+
+
+
+
 
 
 

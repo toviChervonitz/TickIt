@@ -228,6 +228,9 @@
   "task_due_date_invalid": "Due date must be a valid date.",
   "task_due_date_required": "Due date is required.",
   "task_due_date_iso": "Due date must be in ISO format (YYYY-MM-DD).",
-  "chats": "Chats"
+  "chats": "Chats",
+  "typeMessage": "Type a message...",
+  "send":"Send",
+  "openChat": "Open Chat"
 
 }

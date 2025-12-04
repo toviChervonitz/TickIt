@@ -6,8 +6,11 @@ import Pusher from "pusher-js";
 import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
 import useAppStore from "../store/useAppStore";
 import ChatMessageComp from "./ChatMessage";
+import { get } from "http";
+import { getTranslation } from "../lib/i18n";
 
 export default function Chat() {
+  const t=getTranslation();
   const { projectId, user, messages, setMessages } = useAppStore();
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -160,20 +163,20 @@ useEffect(() => {
           background: "#f9f9f9",
         }}
       >
-        {messages.map((msg, index) => {
-          const msgUser = msg.user ?? { _id: "unknown", name: "Unknown" };
-          const isMe = msgUser._id === user?._id;
-          return (
-            <ChatMessageComp
-              key={msg.id ?? index}
-              username={isMe ? "You" : msgUser.name}
-              profileImage={msgUser.image}
-              message={msg.message}
-              time={new Date(msg.createdAt).toLocaleTimeString()}
-              isCurrentUser={isMe}
-            />
-          );
-        })}
+{messages.map((msg, index) => {
+  const msgUser = msg.user ?? { _id: "unknown", name: "Unknown" };
+  const isMe = msgUser._id === user?._id;
+  return (
+    <ChatMessageComp
+      key={msg.id ?? index}
+      username={isMe ? "You" : msgUser.name}
+      profileImage={msgUser.image}
+      message={msg.message}
+      time={msg.createdAt} // <-- just pass the raw value
+      isCurrentUser={isMe}
+    />
+  );
+})}
         <div ref={messagesEndRef} />
       </div>
 
@@ -186,7 +189,7 @@ useEffect(() => {
             if (e.key === "Enter") handleSend();
           }}
           style={{ flex: 1, border: "1px solid #ccc", borderRadius: 4, padding: "8px 12px" }}
-          placeholder="Type a message..."
+          placeholder={t("typeMessage")}
         />
         <button
           disabled={!newMessage.trim() || loading}
@@ -199,7 +202,7 @@ useEffect(() => {
             border: "none",
           }}
         >
-          Send
+          {t("send")}
         </button>
       </div>
     </div>
