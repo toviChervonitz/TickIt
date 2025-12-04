@@ -76,7 +76,7 @@ export default function ChatsPage() {
       {/* -------- MAIN CONTENT -------- */}
       <main className="flex-1 p-6" style={{ height: "100vh" }}>
         {projectId ? (
-          <Chat onClose={handleCloseChat} />
+          <Chat/>
         ) : (
           <div className="text-gray-400 text-lg flex items-center justify-center h-full">
             Open a chat

@@ -190,11 +190,8 @@ import useAppStore from "../store/useAppStore";
 import ChatMessageComp from "./ChatMessage";
 import { IChatMessage } from "../models/types";
 
-interface ChatProps {
-  onClose?: () => void;
-}
 
-export default function Chat({ onClose }: ChatProps) {
+export default function Chat() {
   const { projectId, user, messages, setMessages } = useAppStore();
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
