@@ -169,7 +169,7 @@ useEffect(() => {
   return (
     <ChatMessageComp
       key={msg.id ?? index}
-      username={isMe ? "You" : msgUser.name}
+      username={isMe ? "" : msgUser.name}
       profileImage={msgUser.image}
       message={msg.message}
       time={msg.createdAt} // <-- just pass the raw value
