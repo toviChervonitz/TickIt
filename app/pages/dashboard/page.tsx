@@ -33,12 +33,10 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import useAppStore from "@/app/store/useAppStore";
 import { KANBAN_COLUMNS_CONFIG } from "@/app/config/kanbanConfig";
 import { getTranslation } from "@/app/lib/i18n";
-import { useLanguage } from "@/app/context/LanguageContext";
 
 const Dashboard: React.FC = () => {
   const router = useRouter();
-    const { lang } = useLanguage();
-    const t = getTranslation(lang);
+  const t = getTranslation();
 
   const { user, tasks, setTasks } = useAppStore();
   const [upcomingTasks, setUpcomingTasks] = useState<ITask[]>([]);
@@ -168,7 +166,7 @@ const Dashboard: React.FC = () => {
                       {tasks.length}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" fontWeight={600}>
-{t("totalTasks")}                    </Typography>
+                      {t("totalTasks")}                    </Typography>
                   </Box>
                   <Box
                     sx={{
@@ -381,7 +379,7 @@ const Dashboard: React.FC = () => {
                     }}
                   >
                     <Typography variant="body1" color="text.secondary">
-{t("noIncomplete")}
+                      {t("noIncomplete")}
                     </Typography>
                   </Paper>
                 ) : (
@@ -459,7 +457,7 @@ const Dashboard: React.FC = () => {
                     icon={<FolderIcon />}
                     sx={{
                       borderRadius: 2,
-                      backgroundColor: "#F7F5F0",
+                      backgroundColor: "background.default",
                       border: "1px solid #1d486a",
                       height: '100%', // Ensure consistent height for side-by-side
                       "& .MuiAlert-icon": {
@@ -468,7 +466,8 @@ const Dashboard: React.FC = () => {
                     }}
                   >
                     <Typography variant="subtitle1" fontWeight={700} mb={1}>
-{t("projectUpdates")}                    </Typography>
+                      {t("projectUpdates")}
+                    </Typography>
                     <List dense>
                       {recentProjects.map((p) => (
                         <ListItem key={p._id} sx={{ py: 0 }}>
@@ -486,7 +485,7 @@ const Dashboard: React.FC = () => {
                     icon={<AssignmentIcon />}
                     sx={{
                       borderRadius: 2,
-                      backgroundColor: "#F7F5F0",
+                      backgroundColor: "background.default",
                       border: "1px solid #3dd2cc",
                       height: '100%', // Ensure consistent height for side-by-side
                       "& .MuiAlert-icon": {

@@ -36,10 +36,13 @@ const MAIN_COLOR = "secondary.main";
 const LIMIT = 6;
 
 export default function GetAllProjectsPage() {
-  const { lang } = useLanguage();
+  
+    const { lang } = useLanguage();
+    const t = getTranslation();
+  
+  const { user, projects, setProjects, setProjectId, setMessages } = useAppStore();
   const router = useRouter();
   const t = getTranslation(lang);
-  const { user, projects, setProjects, setProjectId } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -119,6 +122,7 @@ export default function GetAllProjectsPage() {
   //================== single project============
   const getIntoProject = (project: IProject) => {
     setProjectId(project._id!);
+    setMessages([]); // clear messages when entering a new project
     router.push("/pages/projectTask");
   };
   //=========filter============

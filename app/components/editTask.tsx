@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { IUser } from "@/app/models/types";
 import { UpdateTask } from "@/app/lib/server/taskServer";
 import { getTranslation } from "../lib/i18n";
-import { useLanguage } from "../context/LanguageContext";
 
 export interface TaskForm {
   _id: string;
@@ -33,8 +32,7 @@ export default function EditTask({
 }: EditTaskProps) {
   const [task, setTask] = useState<TaskForm>(initialTask);
   const [mounted, setMounted] = useState(false);
-      const { lang } = useLanguage();
-      const t = getTranslation(lang);
+      const t = getTranslation();
 
   useEffect(() => {
     setMounted(true);

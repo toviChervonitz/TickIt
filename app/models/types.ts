@@ -8,6 +8,10 @@ export interface IProject {
   tasks?: mongoose.Types.ObjectId[];
   color: string;
 }
+
+export type Lang = "en" | "he";
+
+
 export interface IProjectRole {
   project: IProject;
   role: "manager" | "viewer";
@@ -69,4 +73,15 @@ export interface IUserSafe {
   tel?: string;
   provider: "credentials" | "google";
   image?: string;
+}
+export interface ChatUser {
+  _id: string;
+  name: string;
+  image?: string;
+}
+export interface IChatMessage {
+  id: string;
+  user: ChatUser;
+  message: string;
+  createdAt: string;
 }

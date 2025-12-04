@@ -33,8 +33,7 @@ interface LoginResponse {
 }
 
 export default function LoginPage() {
-  const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   const router = useRouter();
   const { setUser } = useAppStore();
 
@@ -85,7 +84,7 @@ export default function LoginPage() {
       setError(result.message || "Login failed");
     } catch (err: any) {
       console.error(err);
-      setError(err.message || t("loginFailed"));
+      setError(t("loginFailed"));
       setLoading(false);
     }
   };
@@ -112,11 +111,11 @@ export default function LoginPage() {
         setUser(data.user);
         router.push("/pages/dashboard");
       } else {
-        setError(data.message || "Something went wrong");
+        setError(t("googleSignInFailed"));
       }
     } catch (error: any) {
       console.error("Google sign-in error:", error.code || error);
-      setError("Something went wrong during Google sign-in");
+      setError(t("googleSignInFailed"));
     } finally {
       setLoading(false);
     }

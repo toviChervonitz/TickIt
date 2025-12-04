@@ -18,7 +18,6 @@ import {
   Typography,
 } from "@mui/material";
 import { getTranslation } from "../lib/i18n";
-import { useLanguage } from "../context/LanguageContext";
 
 interface GeneratedTask {
   title: string;
@@ -48,9 +47,8 @@ export default function GenerateTasks({
   projectUsers,
   onAddTask,
 }: GenerateTasksProps) {
-        const { lang } = useLanguage();
-        const t = getTranslation(lang);
-  
+  const t = getTranslation();
+
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
@@ -66,11 +64,11 @@ export default function GenerateTasks({
     );
 
     if (Array.isArray(result)) {
-const tasksWithDefaults = result.map((t: any) => ({
-  ...t,
-  userId: "",
-  dueDate: t.dueDate || new Date().toISOString().split("T")[0], // keep AI date
-}));
+      const tasksWithDefaults = result.map((t: any) => ({
+        ...t,
+        userId: "",
+        dueDate: t.dueDate || new Date().toISOString().split("T")[0], // keep AI date
+      }));
       setGeneratedTasks(tasksWithDefaults);
     }
 

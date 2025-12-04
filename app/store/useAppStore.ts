@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
-import { IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
+import { IChatMessage, IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
 
 type PusherClient = Pusher;
 
@@ -14,6 +14,7 @@ interface AppState {
   tasks: ITask[];
   projects: IProjectRole[];
   pusherClient: PusherClient | null;
+  messages: IChatMessage[];
 
   setUser: (user: IUserSafe | null) => void;
   setProjectId: (projectId: string) => void;
@@ -23,6 +24,7 @@ interface AppState {
   // setProjects: (projects: IProjectRole[]) => void;
   setProjects: (projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])) => void;
   getProjectName: (projectId: string) => string | null;
+  setMessages: (messages: IChatMessage[]) => void;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
   subscribeToProjectUpdates: (projectId: string) => void;
@@ -40,6 +42,7 @@ const useAppStore = create(
       tasks: [],//all tasks
       projects: [],//all projects
       pusherClient: null,
+      messages: [],
 
       setUser: (user) =>
         set((state) => ({ ...state, user })),
@@ -78,6 +81,16 @@ setProjects: (projectsOrUpdater) =>
         return projectRole?.project?.name || null;
       },
 
+setMessages: (
+  messagesOrFn: IChatMessage[] | ((prev: IChatMessage[]) => IChatMessage[])
+) =>
+  set((state) => ({
+    ...state,
+    messages:
+      typeof messagesOrFn === "function"
+        ? messagesOrFn(state.messages)
+        : messagesOrFn,
+  })),
       subscribeToProjectUpdates: (projectId: string) => {
         const state = get();
         const pusherClient = state.pusherClient;
@@ -207,22 +220,20 @@ setProjects: (projectsOrUpdater) =>
           }
 
           // ⭐ עדכון המערכים ב-Store ⭐
-          set(state => {
-            const newProjectTasks = state.projectId
+          set({
+            tasks: newTasks,
+            projectTasks: state.projectId
               ? newTasks.filter(t => {
-                const taskProjectId =
-                  (typeof t.projectId === "object" && t.projectId?._id)
-                    ? t.projectId._id.toString()
-                    : (typeof t.projectId === "string" ? t.projectId : null);
-
-                return taskProjectId === state.projectId;
+                if (!t?.projectId) return false;
+                if (typeof t.projectId === "object" && t.projectId._id) {
+                  return t.projectId._id.toString() === state.projectId;
+                }
+                if (typeof t.projectId === "string") {
+                  return t.projectId === state.projectId;
+                }
+                return false;
               })
-              : state.projectTasks; 
-
-            return {
-              tasks: newTasks,
-              projectTasks: newProjectTasks,
-            };
+              : state.projectTasks
           });
         });
       },

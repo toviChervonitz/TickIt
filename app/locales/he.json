@@ -219,11 +219,40 @@
   "time": "שעה",
   "event": "משימה",
   "noEventsInRange": "אין משימות בתקופה זו"
-} 
+} ,
 
 
-
+  "provider_only_credentials_or_google": "ספק חייב להיות 'credentials' או 'google'.",
+  "provider_required": "ספק הוא שדה חובה.",
+  "name_required": "שם הוא שדה חובה.",
+  "name_min_2": "השם חייב להיות לפחות 2 תווים.",
+  "name_max_50": "השם לא יכול לעלות על 50 תווים.",
+  "email_required": "אימייל הוא שדה חובה.",
+  "email_invalid": "אנא הזן כתובת אימייל חוקית.",
+  "tel_must_be_text": "מספר הטלפון חייב להיות מחרוזת טקסט.",
+  "password_required_credentials": "סיסמה נדרשת למשתמשים ידניים.",
+  "password_pattern": "הסיסמה חייבת להיות באורך של לפחות 6 תווים ולכלול אות ומספר.",
+  "password_required": "סיסמה היא שדה חובה.",
+  "project_name_required": "שם הפרויקט הוא שדה חובה.",
+  "project_name_min_2": "שם הפרויקט חייב להיות לפחות 2 תווים.",
+  "project_name_max_100": "שם הפרויקט לא יכול לעלות על 100 תווים.",
+  "project_description_max_500": "התיאור לא יכול לעלות על 500 תווים.",
+  "task_title_required": "כותרת המשימה היא שדה חובה.",
+  "task_title_min_2": "כותרת המשימה חייבת להיות לפחות 2 תווים.",
+  "task_title_max_100": "כותרת המשימה לא יכולה לעלות על 100 תווים.",
+  "task_content_max_1000": "התוכן לא יכול לעלות על 1000 תווים.",
+  "task_due_date_invalid": "תאריך היעד חייב להיות תאריך חוקי.",
+  "task_due_date_required": "תאריך היעד הוא שדה חובה.",
+  "task_due_date_iso": "תאריך היעד חייב להיות בפורמט ISO (YYYY-MM-DD).",
+    "typeMessage": "הקלד הודעה...",
+"send":"שלח",
+  "openChat": "פתח צ'אט"
 }
+
+
+
+
+
 
 
 

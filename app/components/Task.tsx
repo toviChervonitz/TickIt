@@ -369,7 +369,7 @@ const Task: React.FC<TaskProps> = ({
   onStatusChange,
 }) => {
   const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   const isRTL = lang === "he";
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);

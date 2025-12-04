@@ -49,11 +49,13 @@ import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { useRouter } from "next/navigation";
 import { getTranslation } from "@/app/lib/i18n";
 import { useLanguage } from "@/app/context/LanguageContext";
+import ChatFloating from "@/app/components/ChatFloating";
+import { Lexend_Tera } from "next/font/google";
 
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName } = useAppStore();
   const { lang } = useLanguage();
-  const t = getTranslation(lang);
+  const t = getTranslation();
   // Tasks Data
   const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,19 +92,20 @@ export default function GetProjectTasks() {
       try {
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
-
+        let users=[]
         let data: ITask[] = [];
         if (role === "manager") {
           data = await GetTasksByProjectId(user._id, projectId);
+          const res = await getAllUsersByProjectId(projectId);
+          users = res.users || [];
+
         } else {
+
           data = tasks.filter(
             (t) => (t.projectId as { _id?: string })?._id === projectId
           );
         }
         setFilteredTasks(data);
-
-        const res = await getAllUsersByProjectId(projectId);
-        const users = res.users || [];
         setLocalProjectUsers(users);
         setProjectUsers(users);
       } catch (err) {
@@ -396,7 +399,7 @@ export default function GetProjectTasks() {
             />
 
             {/* Filter: User */}
-            <TextField
+            {isManager && <TextField
               select
               value={userFilter}
               onChange={(e) => setUserFilter(e.target.value)}
@@ -416,7 +419,7 @@ export default function GetProjectTasks() {
                   {u.name}
                 </MenuItem>
               ))}
-            </TextField>
+            </TextField>}
 
             {/* Sort */}
             <TextField
@@ -485,6 +488,9 @@ export default function GetProjectTasks() {
                               borderRadius: 3,
                               p: 2,
                               minHeight: "70vh",
+                              height: "120vh",
+                              display: "flex",
+                              flexDirection: "column",
                               border: "1px solid #e8eaed",
                             }}
                           >
@@ -522,7 +528,16 @@ export default function GetProjectTasks() {
                             </Box>
 
                             {/* Tasks */}
-                            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 2,
+                                overflowY: "auto",
+                                flex: 1,
+                                pr: 1
+                              }}
+                            >
                               {loading ? (
                                 <Paper
                                   elevation={0}
@@ -686,6 +701,8 @@ export default function GetProjectTasks() {
             dir={lang === "he" ? "rtl" : "ltr"}
           />
         )}
+        <ChatFloating />
+
       </Container>
     </Box>
   );

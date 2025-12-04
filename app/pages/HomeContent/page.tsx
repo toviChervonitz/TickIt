@@ -16,11 +16,12 @@ import GroupsIcon from "@mui/icons-material/Groups";
 import InsightsIcon from "@mui/icons-material/Insights";
 import { useLanguage } from "../../context/LanguageContext";
 import { getTranslation } from "../../lib/i18n";
+import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 
 export default function Home() {
-      const { lang } = useLanguage();
-      const t = getTranslation(lang);
-  
+  const { lang, setLang } = useLanguage();
+  const t = getTranslation();
+
   const features = [
     {
       icon: <TrendingUpIcon sx={{ fontSize: 40, color: "primary.main" }} />,
@@ -40,12 +41,16 @@ export default function Home() {
   ];
 
   const benefits = [
-t("aiAgent"),
+    t("aiAgent"),
     t("effortlessManagement"),
     t("builtInPermission"),
     t("remindersEmailActions"),
   ];
-  
+
+  const toggleLang = () => {
+    setLang(lang === "en" ? "he" : "en");
+  };
+
   return (
     <Box sx={{ overflow: "hidden" }}>
       <Box
@@ -69,6 +74,11 @@ t("aiAgent"),
           maxWidth="lg"
           sx={{ py: { xs: 8, md: 12 }, position: "relative", zIndex: 1 }}
         >
+          {/* LANGUAGE TOGGLE BUTTON */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <LanguageSwitcher />
+          </Box>
+
           <Grid container spacing={6} alignItems="center">
             <Grid item xs={12} md={6}>
               <Chip
@@ -81,6 +91,7 @@ t("aiAgent"),
                   border: "1px solid rgba(61,210,204,0.3)",
                 }}
               />
+              {/* ... rest of your component remains the same ... */}
 
               <Typography
                 variant="h2"
@@ -182,14 +193,14 @@ t("aiAgent"),
               color="primary.main"
               sx={{ mb: 2 }}
             >
-{t("everythingYourTeamNeeds")}            </Typography>
+              {t("everythingYourTeamNeeds")}            </Typography>
             <Typography
               variant="h6"
               color="text.secondary"
               maxWidth="700px"
               mx="auto"
             >
-{t("advancedTools")}            </Typography>
+              {t("advancedTools")}            </Typography>
           </Box>
 
           <Grid container spacing={4}>
@@ -241,7 +252,7 @@ t("aiAgent"),
               mb={4}
               lineHeight={1.8}
             >
-{t("whyChooseUsDescription")}            </Typography>
+              {t("whyChooseUsDescription")}            </Typography>
 
             <Stack spacing={2.5}>
               {benefits.map((benefit, i) => (
@@ -325,7 +336,7 @@ t("aiAgent"),
             mb={5}
             lineHeight={1.8}
           >
-{t("joinNow")}          </Typography>
+            {t("joinNow")}          </Typography>
 
           <Button
             component={Link}
