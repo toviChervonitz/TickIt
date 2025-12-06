@@ -294,7 +294,7 @@ export default function Home() {
             >
               <Box
                 component="img"
-                src="/screenshot.png"
+                src="https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6GsJ9GCMwQML3e425EoOuZNzIg9bAXKRUBCfx"
                 alt="Features preview"
                 sx={{
                   width: "100%",

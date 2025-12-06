@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
-import { IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
+import { IChatMessage, IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
 
 type PusherClient = Pusher;
 
@@ -14,14 +14,17 @@ interface AppState {
   tasks: ITask[];
   projects: IProjectRole[];
   pusherClient: PusherClient | null;
+  messages: IChatMessage[];
 
   setUser: (user: IUserSafe | null) => void;
   setProjectId: (projectId: string) => void;
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
-  setProjects: (projects: IProjectRole[]) => void;
+  // setProjects: (projects: IProjectRole[]) => void;
+  setProjects: (projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])) => void;
   getProjectName: (projectId: string) => string | null;
+  setMessages: (messages: IChatMessage[]) => void;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
   subscribeToProjectUpdates: (projectId: string) => void;
@@ -39,6 +42,7 @@ const useAppStore = create(
       tasks: [],//all tasks
       projects: [],//all projects
       pusherClient: null,
+      messages: [],
 
       setUser: (user) =>
         set((state) => ({ ...state, user })),
@@ -55,15 +59,38 @@ const useAppStore = create(
       setTasks: (tasks) =>
         set((state) => ({ ...state, tasks })),
 
-      setProjects: (projects) =>
-        set((state) => ({ ...state, projects })),
+      // setProjects: (projects) =>
+      //   set((state) => ({ ...state, projects })),
+setProjects: (projectsOrUpdater) =>
+    set((state) => {
+        let newProjects;
+        
+        if (typeof projectsOrUpdater === 'function') {
+            // אם זה פונקציה, הפעל אותה על המערך הקיים
+            newProjects = projectsOrUpdater(state.projects);
+        } else {
+            // אם זה מערך, השתמש בו ישירות
+            newProjects = projectsOrUpdater;
+        }
 
+        return { ...state, projects: newProjects };
+    }),
       getProjectName: (projectId: string) => {
         const projects = get().projects;
         const projectRole = projects.find(p => p.project._id === projectId);
         return projectRole?.project?.name || null;
       },
 
+setMessages: (
+  messagesOrFn: IChatMessage[] | ((prev: IChatMessage[]) => IChatMessage[])
+) =>
+  set((state) => ({
+    ...state,
+    messages:
+      typeof messagesOrFn === "function"
+        ? messagesOrFn(state.messages)
+        : messagesOrFn,
+  })),
       subscribeToProjectUpdates: (projectId: string) => {
         const state = get();
         const pusherClient = state.pusherClient;
