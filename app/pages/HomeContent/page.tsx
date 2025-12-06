@@ -47,9 +47,6 @@ export default function Home() {
     t("remindersEmailActions"),
   ];
 
-  const toggleLang = () => {
-    setLang(lang === "en" ? "he" : "en");
-  };
 
   return (
     <Box sx={{ overflow: "hidden" }}>
@@ -160,8 +157,12 @@ export default function Home() {
               >
                 <Box
                   component="img"
-                  src="https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6GsJ9GCMwQML3e425EoOuZNzIg9bAXKRUBCfx"
-                  alt="Task management preview"
+                  src={
+                    lang == "en"
+                      ? "https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6GsJ9GCMwQML3e425EoOuZNzIg9bAXKRUBCfx"
+                      : "https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6s4gyOoetU4vEh1eKX9R0wMrFuyAsLZI6oQTb"
+                  }
+                  alt={lang == "en" ? "StepUp dashboard illustration" : "איור דשבורד של StepUp"}
                   sx={{
                     width: "100%",
                     display: "block",
@@ -193,7 +194,8 @@ export default function Home() {
               color="primary.main"
               sx={{ mb: 2 }}
             >
-              {t("everythingYourTeamNeeds")}            </Typography>
+              {t("everythingYourTeamNeeds")}
+            </Typography>
             <Typography
               variant="h6"
               color="text.secondary"
