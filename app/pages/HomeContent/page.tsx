@@ -202,7 +202,8 @@ export default function Home() {
               maxWidth="700px"
               mx="auto"
             >
-              {t("advancedTools")}            </Typography>
+              {t("advancedTools")}
+            </Typography>
           </Box>
 
           <Grid container spacing={4}>
@@ -254,7 +255,8 @@ export default function Home() {
               mb={4}
               lineHeight={1.8}
             >
-              {t("whyChooseUsDescription")}            </Typography>
+              {t("whyChooseUsDescription")}
+            </Typography>
 
             <Stack spacing={2.5}>
               {benefits.map((benefit, i) => (
@@ -294,7 +296,7 @@ export default function Home() {
             >
               <Box
                 component="img"
-                src="https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6GsJ9GCMwQML3e425EoOuZNzIg9bAXKRUBCfx"
+                src=""
                 alt="Features preview"
                 sx={{
                   width: "100%",
