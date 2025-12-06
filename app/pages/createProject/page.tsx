@@ -372,7 +372,7 @@ export default function CreateProjectPage() {
                 {/* Left: Manual Task Form */}
                 <Box sx={{ flex: 1 }}>
                   <Stack spacing={3}>
-                    <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} />
+                    <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} variant="page"/>
 
                     {tasks.length > 0 && (
                       <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>

@@ -91,7 +91,7 @@ export default function GetProjectTasks() {
       try {
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
-        let users=[]
+        let users = []
         let data: ITask[] = [];
         if (role === "manager") {
           data = await GetTasksByProjectId(user._id, projectId);
@@ -481,10 +481,8 @@ export default function GetProjectTasks() {
 
               return (
                 <Grid item xs={12} md={4} key={columnConfig.id}>
-                  {/* <Box> */}
                   <Droppable droppableId={columnConfig.id}>
                     {(provided) => (
-                      // <Box>
                       <Paper
                         ref={provided.innerRef}
                         {...provided.droppableProps}
@@ -632,11 +630,7 @@ export default function GetProjectTasks() {
                         </Box>
                       </Paper>
                     )}
-
-                    {/* </Box> */}
-                    {/* )} */}
                   </Droppable>
-                  {/* </Box> */}
                 </Grid>
               );
             })}
@@ -663,7 +657,7 @@ export default function GetProjectTasks() {
           </DialogTitle>
 
           <DialogContent>
-            <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} />
+            <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} variant="popup" />
           </DialogContent>
         </Dialog>
 
@@ -678,7 +672,7 @@ export default function GetProjectTasks() {
           <DialogTitle
             sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
           >
-            <Typography variant="h6" fontWeight={700}>
+            <Typography fontWeight={700}>
               {t("addTeamMember")}
             </Typography>
             <IconButton onClick={() => setShowAddUser(false)}>
