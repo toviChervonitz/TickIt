@@ -33,6 +33,8 @@ provider: {
   { timestamps: true }
 );
 
+// ✅ Defensive fix for Turbopack / ESM environment
+// Sometimes mongoose.models is undefined initially
 // if (!mongoose.models) {
 //   (mongoose as any).models = {};
 // }
