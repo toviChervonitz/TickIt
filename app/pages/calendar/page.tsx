@@ -12,6 +12,7 @@ import { Types } from "mongoose";
 import { ITask, IProject } from "@/app/models/types";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
+import ShowTask from "@/app/components/ShowTask";
 
 /* ---------------- Helpers ---------------- */
 
@@ -44,21 +45,6 @@ function getProjectColor(projectId?: Types.ObjectId | IProject | string): string
 export default function CalendarPage() {
   const { lang } = useLanguage();
   const t = getTranslation();
-const messages = lang === "he" ? {
-  allDay: "כל היום",
-  previous: "חזור",
-  next: "הבא",
-  today: "היום",
-  month: "חודש",
-  week: "שבוע",
-  day: "יום",
-  agenda: "סיכום",
-  date: "תאריך",
-  time: "שעה",
-  event: "משימה",
-  noEventsInRange: "אין משימות בתקופה זו",
-  showMore: (total: number) => `+ עוד ${total}...`,
-} : {};
 
   const { user, tasks, setTasks } = useAppStore();
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
@@ -183,26 +169,26 @@ const messages = lang === "he" ? {
         {t("yourCalendar")}
       </h1>
 
-{/* Legend */}
-<div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-  {projectLegend.map((p) => (
-    <div key={p.key}>
-      <span
-        style={{
-          backgroundColor: p.color,
-          color: "#fff",
-          padding: "2px 6px",
-          borderRadius: 4,
-          fontSize: 12,
-          whiteSpace: "nowrap",
-          display: "inline-block",
-        }}
-      >
-        {p.name}
-      </span>
-    </div>
-  ))}
-</div>
+      {/* Legend */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+        {projectLegend.map((p) => (
+          <div key={p.key}>
+            <span
+              style={{
+                backgroundColor: p.color,
+                color: "#fff",
+                padding: "2px 6px",
+                borderRadius: 4,
+                fontSize: 12,
+                whiteSpace: "nowrap",
+                display: "inline-block",
+              }}
+            >
+              {p.name}
+            </span>
+          </div>
+        ))}
+      </div>
 
       {/* Calendar */}
       <Calendar
@@ -211,7 +197,7 @@ const messages = lang === "he" ? {
         startAccessor="start"
         endAccessor="end"
         style={{ height: 600 }}
-  messages={t("messages") as any} // <-- this is key
+        messages={t("messages") as any} // <-- this is key
         culture={lang} // <-- this tells the calendar which locale to use
 
         eventPropGetter={(e: any) => ({ style: e.style })}
@@ -251,26 +237,10 @@ const messages = lang === "he" ? {
               zIndex: 9999,
             }}
           >
-            <Task
-              _id={selectedTask._id!}
-              title={selectedTask.title}
-              content={selectedTask.content}
-              status={selectedTask.status}
-              dueDate={selectedTask.dueDate}
-              userId={
-                selectedTask.userId
-                  ? typeof selectedTask.userId === "object" && "_id" in selectedTask.userId
-                    ? (selectedTask.userId._id as string)
-                    : selectedTask.userId.toString()
-                  : user._id
-              }
-              userName={
-                selectedTask.userId && typeof selectedTask.userId === "object" && "name" in selectedTask.userId
-                  ? selectedTask.userId.name
-                  : user.name ?? "Unknown"
-              }
-              projectName={getProjectName(selectedTask.projectId)}
-              showButtons={true}
+            <ShowTask
+              open={!!selectedTask}
+              onClose={() => setSelectedTask(null)}
+              task={selectedTask}
             />
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 12 }}>
               <button

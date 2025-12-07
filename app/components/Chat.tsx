@@ -1,21 +1,30 @@
-
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import Pusher from "pusher-js";
 import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
 import useAppStore from "../store/useAppStore";
-import ChatMessageComp from "./ChatMessage";
-import { get } from "http";
+import ChatMessageComp from "./ChatMessage"; 
 import { getTranslation } from "../lib/i18n";
 
+import { Box, TextField, Button, CircularProgress } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
+import { useLanguage } from "../context/LanguageContext"; 
+
+const CHAT_COLORS = {
+  turquoise: "secondary.main", 
+  darkTurquoise: "secondary.main",
+  inputBorder: "#e0e0e0",
+  background: "#f9f9f9",
+};
+
 export default function Chat() {
-  const t=getTranslation();
+  const t = getTranslation();
   const { projectId, user, messages, setMessages } = useAppStore();
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [skip, setSkip] = useState(0); // how many messages already fetched
+  const [skip, setSkip] = useState(0);
   const limit = 30;
   const shouldAutoScrollRef = useRef(true);
 
@@ -24,30 +33,30 @@ export default function Chat() {
   const initialLoadRef = useRef(true);
   const isFetchingRef = useRef(false);
 
-  /** Scroll to bottom on updates */
-useEffect(() => {
-  requestAnimationFrame(() => {
-    // Do not scroll if triggered by lazy-loading older messages
-    if (!shouldAutoScrollRef.current) {
-      shouldAutoScrollRef.current = true; // reset for next event
-      return;
-    }
+  const { lang } = useLanguage();
+  const isRTL = lang === "he";
 
-    // First load → jump
-    if (initialLoadRef.current) {
-      messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-      initialLoadRef.current = false;
-    } else {
-      // New messages → smooth to bottom
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  });
-}, [messages]);
-  /** Initial fetch */
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      if (!shouldAutoScrollRef.current) {
+        shouldAutoScrollRef.current = true; 
+        return;
+      }
+
+      if (initialLoadRef.current) {
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        initialLoadRef.current = false;
+      } else {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  }, [messages]);
+
   useEffect(() => {
     if (!projectId || messages.length > 0) return;
 
     (async () => {
+      setLoading(true); 
       const chat = await getChatMessages(projectId, 0, limit);
 
       const safeMessages = chat.map((m: any) => ({
@@ -57,19 +66,19 @@ useEffect(() => {
 
       setMessages(safeMessages);
       setSkip(limit);
+      setLoading(false);
     })();
   }, [projectId, messages, setMessages]);
 
-  /** Lazy load older messages when reaching the top */
   const handleScroll = useCallback(async () => {
     const container = containerRef.current;
-    if (!container || isFetchingRef.current) return;
+    if (!container || isFetchingRef.current || skip === 0) return;
 
-    if (container.scrollTop <= 0) {
+    if (container.scrollTop <= 20) {
       isFetchingRef.current = true;
 
       const oldHeight = container.scrollHeight;
-  shouldAutoScrollRef.current = false;  // <<<<<< ADD THIS
+      shouldAutoScrollRef.current = false;  
 
       const older = await getChatMessages(projectId!, skip, limit);
       if (older.length === 0) {
@@ -82,7 +91,6 @@ useEffect(() => {
         user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
       }));
 
-      // prepend older messages
       const currentMessages = useAppStore.getState().messages;
       setMessages([...safe, ...currentMessages]);
 
@@ -90,14 +98,13 @@ useEffect(() => {
 
       requestAnimationFrame(() => {
         const newHeight = container.scrollHeight;
-        container.scrollTop = newHeight - oldHeight; // preserve scroll position
+        container.scrollTop = newHeight - oldHeight; 
       });
 
       isFetchingRef.current = false;
     }
   }, [projectId, skip, limit, setMessages]);
 
-  /** Attach scroll listener */
   useEffect(() => {
     const div = containerRef.current;
     if (!div) return;
@@ -105,7 +112,6 @@ useEffect(() => {
     return () => div.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  /** Real-time Pusher */
   useEffect(() => {
     if (!projectId || !user) return;
 
@@ -135,7 +141,6 @@ useEffect(() => {
     };
   }, [projectId, user, setMessages]);
 
-  /** Send Message */
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !projectId) return;
 
@@ -153,58 +158,107 @@ useEffect(() => {
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      <div
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+        overflow: "hidden", 
+      }}
+    >
+      <Box
         ref={containerRef}
-        style={{
+        sx={{
           flex: 1,
           overflowY: "auto",
-          padding: "16px",
-          background: "#f9f9f9",
+          p: 2, 
+          bgcolor: CHAT_COLORS.background, 
         }}
       >
-{messages.map((msg, index) => {
-  const msgUser = msg.user ?? { _id: "unknown", name: "Unknown" };
-  const isMe = msgUser._id === user?._id;
-  return (
-    <ChatMessageComp
-      key={msg.id ?? index}
-      username={isMe ? "" : msgUser.name}
-      profileImage={msgUser.image}
-      message={msg.message}
-      time={msg.createdAt} // <-- just pass the raw value
-      isCurrentUser={isMe}
-    />
-  );
-})}
-        <div ref={messagesEndRef} />
-      </div>
+        {loading && messages.length === 0 && (
+          <Box display="flex" justifyContent="center" py={2}>
+            <CircularProgress size={24} sx={{ color: CHAT_COLORS.turquoise }} />
+          </Box>
+        )}
 
-      <div style={{ display: "flex", padding: "16px", gap: "8px" }}>
-        <input
-          type="text"
+        {messages.map((msg, index) => {
+          const msgUser = msg.user ?? { _id: "unknown", name: "Unknown" };
+          const isMe = msgUser._id === user?._id;
+          return (
+            <ChatMessageComp
+              key={msg.id ?? index}
+              username={msgUser.name} 
+              profileImage={msgUser.image}
+              message={msg.message}
+              time={msg.createdAt}
+              isCurrentUser={isMe}
+            />
+          );
+        })}
+        <div ref={messagesEndRef} />
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          p: 1, 
+          gap: 1,
+          borderTop: `1px solid ${CHAT_COLORS.inputBorder}`,
+        }}
+      >
+        
+        <TextField
+          fullWidth
+          placeholder={t("typeMessage")}
+          variant="outlined"
+          size="small"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSend();
+          onKeyDown={(e) => (e.key === "Enter" ? handleSend() : null)}
+          disabled={loading}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              borderRadius: 50,
+              paddingRight: isRTL ? "4px" : "14px",
+              paddingLeft: isRTL ? "14px" : "4px",
+            },
+            "& fieldset": {
+              borderColor: CHAT_COLORS.inputBorder,
+            },
+            direction: isRTL ? "rtl" : "ltr", 
+            flexGrow: 1,
           }}
-          style={{ flex: 1, border: "1px solid #ccc", borderRadius: 4, padding: "8px 12px" }}
-          placeholder={t("typeMessage")}
         />
-        <button
-          disabled={!newMessage.trim() || loading}
+
+        <Button
+          variant="contained"
           onClick={handleSend}
-          style={{
-            background: "#2563eb",
-            color: "white",
-            padding: "8px 16px",
-            borderRadius: 4,
-            border: "none",
+          disabled={!newMessage.trim() || loading}
+          sx={{
+            minWidth: "40px",
+            height: "40px",
+            borderRadius: "50%",
+            p: 0,
+            bgcolor: CHAT_COLORS.turquoise,
+            "&:hover": { bgcolor: CHAT_COLORS.darkTurquoise },
+            "&.Mui-disabled": {
+              bgcolor: "rgba(0, 0, 0, 0.12)",
+              color: "rgba(0, 0, 0, 0.26)",
+            },
           }}
         >
-          {t("send")}
-        </button>
-      </div>
-    </div>
+          {loading ? (
+            <CircularProgress size={20} color="inherit" />
+          ) : (
+            <SendIcon
+              sx={{
+                fontSize: 20,
+                transform: isRTL ? "scaleX(-1)" : "none",
+              }}
+            />
+          )}
+        </Button>
+      </Box>
+    </Box>
   );
 }

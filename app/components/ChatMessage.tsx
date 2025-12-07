@@ -1,114 +1,7 @@
+"use client";
 
-// interface ChatMessageProps {
-//   username: string;
-//   profileImage?: string;
-//   message: string;
-//   time: string | Date;
-//   isCurrentUser?: boolean;
-// }
+import { Box, Typography, Avatar } from "@mui/material";
 
-// export default function ChatMessageComp({
-//   username,
-//   profileImage,
-//   message,
-//   time,
-//   isCurrentUser = false,
-// }: ChatMessageProps) {
-//   const date = new Date(time);
-//   const now = new Date();
-
-//   let formattedTime = "";
-
-//   const isToday =
-//     date.getFullYear() === now.getFullYear() &&
-//     date.getMonth() === now.getMonth() &&
-//     date.getDate() === now.getDate();
-
-//   const isThisYear = date.getFullYear() === now.getFullYear();
-
-//   const day = date.getDate();
-//   const month = date.getMonth() + 1;
-//   const year = date.getFullYear();
-//   const hoursMinutes = date.toLocaleTimeString(undefined, {
-//     hour: "2-digit",
-//     minute: "2-digit",
-//     hour12: false,
-//   });
-
-//   if (isToday) {
-//     // Only time
-//     formattedTime = hoursMinutes;
-//   } else if (isThisYear) {
-//     // Day/Month + time (no year)
-//     formattedTime = `${day}/${month}, ${hoursMinutes}`;
-//   } else {
-//     // Full date + time
-//     formattedTime = `${day}/${month}/${year}, ${hoursMinutes}`;
-//   }
-
-//   return (
-//     <div
-//       style={{
-//         display: "flex",
-//         justifyContent: isCurrentUser ? "flex-end" : "flex-start",
-//         marginBottom: "8px",
-//       }}
-//     >
-//       {!isCurrentUser && profileImage && (
-//         <img
-//           src={profileImage}
-//           alt={username}
-//           style={{
-//             width: "32px",
-//             height: "32px",
-//             borderRadius: "50%",
-//             marginRight: "8px",
-//           }}
-//         />
-//       )}
-
-//       <div
-//         style={{
-//           maxWidth: "70%",
-//           padding: "8px 12px",
-//           borderRadius: "12px",
-//           backgroundColor: isCurrentUser ? "#1d4ed8" : "#e5e7eb",
-//           color: isCurrentUser ? "white" : "black",
-//           wordBreak: "break-word",
-//           position: "relative",
-//         }}
-//       >
-//         {!isCurrentUser && (
-//           <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{username}</div>
-//         )}
-//         <div>{message}</div>
-//         <div
-//           style={{
-//             fontSize: "10px",
-//             color: isCurrentUser ? "#d1d5db" : "#6b7280",
-//             textAlign: "right",
-//             marginTop: "4px",
-//           }}
-//         >
-//           {formattedTime}
-//         </div>
-//       </div>
-
-//       {isCurrentUser && profileImage && (
-//         <img
-//           src={profileImage}
-//           alt={username}
-//           style={{
-//             width: "32px",
-//             height: "32px",
-//             borderRadius: "50%",
-//             marginLeft: "8px",
-//           }}
-//         />
-//       )}
-//     </div>
-//   );
-// }
 interface ChatMessageProps {
   username: string;
   profileImage?: string;
@@ -116,6 +9,15 @@ interface ChatMessageProps {
   time: string | Date;
   isCurrentUser?: boolean;
 }
+
+const CHAT_COLORS = {
+  currentUser: "text.secondary", 
+  otherUser: "text.disabled", 
+  currentUserText: "white",
+  otherUserText: "black",
+  currentUserTime: "rgba(255, 255, 255, 0.7)",
+  otherUserTime: "#6b7280",
+};
 
 export default function ChatMessageComp({
   username,
@@ -154,64 +56,87 @@ export default function ChatMessageComp({
   }
 
   return (
-    <div
-      style={{
+    <Box
+      sx={{
         display: "flex",
         justifyContent: isCurrentUser ? "flex-end" : "flex-start",
-        marginBottom: "8px",
+        mb: 1, 
+        alignItems: "flex-start",
       }}
     >
       {!isCurrentUser && profileImage && (
-        <img
+        <Avatar
           src={profileImage}
           alt={username}
-          style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            marginRight: "8px",
+          sx={{
+            width: 32,
+            height: 32,
+            mr: 1,
+            mt: 0.5, 
           }}
         />
       )}
 
-      <div
-        style={{
-          maxWidth: "70%",
-          padding: "8px 12px",
-          borderRadius: "12px",
-          backgroundColor: isCurrentUser ? "#1d4ed8" : "#e5e7eb",
-          color: isCurrentUser ? "white" : "black",
+      <Box
+        sx={{
+          maxWidth: "75%",
+          p: "10px 14px",
+          backgroundColor: isCurrentUser
+            ? CHAT_COLORS.currentUser
+            : CHAT_COLORS.otherUser,
+          color: isCurrentUser
+            ? CHAT_COLORS.currentUserText
+            : CHAT_COLORS.otherUserText,
+          borderRadius: isCurrentUser
+            ? "18px 18px 2px 18px" 
+            : "18px 18px 18px 2px", 
+          boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
           wordBreak: "break-word",
-          position: "relative",
         }}
       >
-        {/* Always show the username */}
-        <div style={{ fontWeight: "bold", marginBottom: "4px" }}>{username}</div>
-        <div>{message}</div>
-        <div
-          style={{
+        <Typography
+          variant="caption"
+          component="div"
+          fontWeight={700}
+          sx={{
+            mb: 0.5,
+            fontSize: 13,
+            color: isCurrentUser ? "#66dcd7" : CHAT_COLORS.otherUserText,
+          }}
+        >
+          {username}
+        </Typography>
+
+        <Typography variant="body2" sx={{ fontSize: 15, lineHeight: 1.3 }}>
+          {message}
+        </Typography>
+
+        <Typography
+          variant="caption"
+          component="div"
+          sx={{
             fontSize: "10px",
-            color: isCurrentUser ? "#d1d5db" : "#6b7280",
+            color: isCurrentUser ? CHAT_COLORS.currentUserTime : CHAT_COLORS.otherUserTime,
             textAlign: "right",
-            marginTop: "4px",
+            mt: 0.5,
           }}
         >
           {formattedTime}
-        </div>
-      </div>
+        </Typography>
+      </Box>
 
       {isCurrentUser && profileImage && (
-        <img
+        <Avatar
           src={profileImage}
           alt={username}
-          style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "50%",
-            marginLeft: "8px",
+          sx={{
+            width: 32,
+            height: 32,
+            ml: 1,
+            mt: 0.5,
           }}
         />
       )}
-    </div>
+    </Box>
   );
 }

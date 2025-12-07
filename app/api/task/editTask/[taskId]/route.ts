@@ -190,7 +190,7 @@ export async function PUT(
   // נשתמש ב-"as ITask" ו-"as { _id: string }" כדי לפתור את שגיאות TypeScript
   const updatedTaskPopulated: any = await Task.findById(taskId)
     .populate("userId", "name")
-    .populate("projectId", "name")
+    .populate("projectId", "name color")
     .lean();
 
   if (!updatedTaskPopulated) {

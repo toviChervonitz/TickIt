@@ -28,7 +28,7 @@ export async function GET(req: Request) {
         if (!currentUser) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
-//לבדוק שזה טוב
+
         const isMember = await ProjectUserModel.findOne({
             userId: currentUser.id,
             projectId
@@ -43,7 +43,7 @@ export async function GET(req: Request) {
 
         const tasks = await Task.find({ projectId })
             .populate("userId", "name")
-            .populate("projectId", "name");
+            .populate("projectId", "name color");
 
         if (!tasks || tasks.length === 0) {
             return NextResponse.json(
