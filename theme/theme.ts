@@ -12,7 +12,7 @@ export const getTheme = (lang: "en" | "he" | "ar") => {
       primary: { main: "#1d486a" },
       secondary: { main: "#3dd2cc" },
       background: { default: "#F7F5F0", paper: "#ffffff" },
-      text: { primary: "#122d42", secondary: "#1d486a", disabled: "#eef2f6" },
+      text: { primary: "#122d42", secondary: "#1d486a", },
     },
     typography: {
       fontFamily: "'Inter', sans-serif",

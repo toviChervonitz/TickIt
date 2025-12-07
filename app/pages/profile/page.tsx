@@ -39,9 +39,6 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showUploader, setShowUploader] = useState(false);
-const [openImageModal, setOpenImageModal] = useState(false);
-
 
   const { user, setUser } = useAppStore();
 
@@ -157,120 +154,6 @@ const [openImageModal, setOpenImageModal] = useState(false);
             {/* Profile Image Section */}
             <ImageUpload onUpload={setImage} image={user?.image} />
 
-            {/* <Box sx={{ textAlign: "center", mb: 4 }}>
-              <input
-                id="imageInput"
-                type="file"
-                accept="image/*"
-                style={{ display: "none" }}
-                onChange={handleImageChange}
-              />
-
-              <Box sx={{ position: "relative", display: "inline-block" }}>
-
-<Box sx={{ position: "relative", display: "inline-block" }}>
-  <Avatar
-    src={image}
-    alt={name}
-    sx={{
-      width: 120,
-      height: 120,
-      cursor: "pointer",
-      border: "4px solid",
-      borderColor: "primary.main",
-      backgroundColor: "#f0f0f0",
-      fontSize: "3rem",
-      color: "#9ca3af",
-      "&:hover": {
-        opacity: 0.8,
-      },
-      transition: "all 0.3s ease",
-    }}
-    onClick={() => setOpenImageModal(true)}
-  >
-    {!image && name?.charAt(0).toUpperCase()}
-  </Avatar>
-
-  <IconButton
-    sx={{
-      position: "absolute",
-      bottom: 0,
-      right: 0,
-      backgroundColor: "primary.main",
-      color: "white",
-      width: 40,
-      height: 40,
-      "&:hover": {
-        backgroundColor: "primary.dark",
-      },
-      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-    }}
-    onClick={() => document.getElementById("imageInput")?.click()}
-  >
-    <CameraAltIcon fontSize="small" />
-  </IconButton>
-</Box>
-
-<Dialog
-  open={openImageModal}
-  onClose={() => setOpenImageModal(false)} // closes on backdrop click or Esc
-  maxWidth="xl"
-  PaperProps={{
-    sx: {
-      backgroundColor: "transparent",
-      boxShadow: "none",
-      p: 0,           // remove padding
-      m: 0,           // remove margin
-      display: "inline-block", // shrink-wrap the image
-      borderRadius: 2,
-    },
-  }}
-  BackdropProps={{
-    sx: {
-      backgroundColor: "rgba(0,0,0,0.5)",
-    },
-  }}
->
-  <img
-    src={image}
-    alt={name}
-    style={{
-      maxWidth: "89vw",
-      maxHeight: "89vh",
-      objectFit: "contain",
-      borderRadius: 8,
-      border: "4px solid #3dd2cc",
-      display: "block",
-    }}
-  />
-</Dialog>
-
-
-                <IconButton
-                  sx={{
-                    position: "absolute",
-                    bottom: 0,
-                    right: 0,
-                    backgroundColor: "primary.main",
-                    color: "white",
-                    width: 40,
-                    height: 40,
-                    "&:hover": {
-                      backgroundColor: "primary.dark",
-                    },
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                  }}
-                  onClick={() => document.getElementById("imageInput")?.click()}
-                >
-                  <CameraAltIcon fontSize="small" />
-                </IconButton>
-              </Box>
-
-              <Typography variant="caption" color="text.secondary" sx={{ display: "block", mt: 2 }}>
-                {t("changeProfile")}
-              </Typography>
-            </Box> */}
-
             <Divider sx={{ my: 4 }} />
 
             {/* Personal Information Section */}
@@ -324,6 +207,7 @@ const [openImageModal, setOpenImageModal] = useState(false);
                     disabled
                     helperText={t("emailCannotBeChanged")}
                     sx={{
+                      color: "text.secondary",
                       "& .MuiOutlinedInput-root": {
                         backgroundColor: "#f5f5f5",
                       },
