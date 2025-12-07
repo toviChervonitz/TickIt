@@ -21,7 +21,6 @@ interface AppState {
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
-  // setProjects: (projects: IProjectRole[]) => void;
   setProjects: (projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])) => void;
   getProjectName: (projectId: string) => string | null;
   setMessages: (messages: IChatMessage[]) => void;
