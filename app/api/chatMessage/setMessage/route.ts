@@ -5,7 +5,6 @@ import Pusher from "pusher";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
 import Project from "@/app/models/ProjectModel";
 import ChatMessage from "@/app/models/ChatMessageModel";
-import { log } from "console";
 
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID!,
