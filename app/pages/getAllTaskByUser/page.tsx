@@ -349,7 +349,7 @@ export default function UserTasks() {
                               }}
                             />
                             <Typography variant="subtitle1" fontWeight={700}>
-                              {columnConfig.title==="To Do"?t("todo"):columnConfig.title==="In Progress"?t("doing"):t("done")}
+                              {columnConfig.title === "To Do" ? t("todo") : columnConfig.title === "In Progress" ? t("doing") : t("done")}
                             </Typography>
                           </Box>
 
@@ -420,6 +420,9 @@ export default function UserTasks() {
                                         onStatusChange={handleStatusChange}
                                         showButtons={false}
                                         onView={handleViewTask}
+                                        projectColor={typeof task.projectId === "object" && "color" in task.projectId
+                                          ? task.projectId.color
+                                          : "#888"}
                                       />
                                     </Box>
                                   )}

@@ -67,7 +67,7 @@ export async function POST(req: Request) {
 
     const populatedTask = await Task.findById(newTask._id)
       .populate('userId', 'name') 
-      .populate('projectId', 'name') 
+      .populate('projectId', 'name color') 
       .lean();
 
     await pusher.trigger(

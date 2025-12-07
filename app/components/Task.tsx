@@ -22,7 +22,7 @@ import {
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
-import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
+import FolderIcon from "@mui/icons-material/Folder";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
@@ -48,6 +48,7 @@ interface TaskProps {
     userId: string
   ) => void;
   onView?: (taskId: string) => void;
+  projectColor?: string;
 }
 
 const Task: React.FC<TaskProps> = ({
@@ -64,6 +65,7 @@ const Task: React.FC<TaskProps> = ({
   onDelete,
   onStatusChange,
   onView,
+  projectColor,
 }) => {
   const { lang } = useLanguage();
   const t = getTranslation();
@@ -239,7 +241,7 @@ const Task: React.FC<TaskProps> = ({
           </Box>
 
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <FolderOutlinedIcon sx={{ fontSize: 14, color: "text.secondary" }} />
+            <FolderIcon sx={{ fontSize: 18, color: projectColor || "#888" }} />
             <Typography variant="caption" color="text.secondary" noWrap>
               {projectName}
             </Typography>

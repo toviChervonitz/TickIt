@@ -5,6 +5,7 @@ import Pusher from "pusher";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
 import Project from "@/app/models/ProjectModel";
 import ChatMessage from "@/app/models/ChatMessageModel";
+import { log } from "console";
 
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID!,
@@ -49,6 +50,9 @@ export async function POST(req: Request) {
       : { _id: "unknown", name: "Unknown", image: undefined };
     delete messageObj.userId;
 
+    console.log("✅ Chat Message created:", messageObj);
+    console.log("massage length is: ", messageObj.length);
+    
     // Trigger Pusher to **project channel** so all members get the update
     await pusher.trigger(`private-project-${projectId}`, "chatMessage-updated", {
       action: "ADD",

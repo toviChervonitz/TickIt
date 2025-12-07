@@ -603,6 +603,11 @@ export default function GetProjectTasks() {
                                         onDelete={() => handleDelete(taskId)}
                                         onStatusChange={handleStatusChange}
                                         onView={handleViewTask}
+                                        projectColor={
+                                          typeof task.projectId === "object" && "color" in task.projectId
+                                            ? task.projectId.color
+                                            : "#888"
+                                        }
                                       />
                                     </Box>
                                   )}

@@ -57,7 +57,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
 
     const updatedTaskPopulated = await Task.findById(updatedTaskRaw._id)
       .populate("userId", "name")
-      .populate("projectId", "name")
+      .populate("projectId", "name color")
       .lean();
 
     if (!updatedTaskPopulated) {
