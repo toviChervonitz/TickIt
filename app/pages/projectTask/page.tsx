@@ -52,7 +52,8 @@ import ChatFloating from "@/app/components/ChatFloating";
 import { Lexend_Tera } from "next/font/google";
 
 export default function GetProjectTasks() {
-  const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName } = useAppStore();
+  const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName } =
+    useAppStore();
   const { lang } = useLanguage();
   const t = getTranslation();
   // Tasks Data
@@ -91,15 +92,13 @@ export default function GetProjectTasks() {
       try {
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
-        let users = []
+        let users = [];
         let data: ITask[] = [];
         if (role === "manager") {
           data = await GetTasksByProjectId(user._id, projectId);
           const res = await getAllUsersByProjectId(projectId);
           users = res.users || [];
-
         } else {
-
           data = tasks.filter(
             (t) => (t.projectId as { _id?: string })?._id === projectId
           );
@@ -135,7 +134,8 @@ export default function GetProjectTasks() {
     // 2. User Filter (Assignee)
     if (userFilter !== "all") {
       result = result.filter((t) => {
-        const tUserId = typeof t.userId === 'string' ? t.userId : (t.userId as IUser)?._id;
+        const tUserId =
+          typeof t.userId === "string" ? t.userId : (t.userId as IUser)?._id;
         return tUserId === userFilter;
       });
     }
@@ -160,19 +160,30 @@ export default function GetProjectTasks() {
     setSortBy("dueDate");
   };
 
-  const hasActiveFilters = searchQuery || userFilter !== "all" || sortBy !== "dueDate";
+  const isOldTask = (task: any) => {
+    const due = new Date(task.dueDate);
+    return !isNaN(due.getTime()) && due.getDate() < 10;
+  };
+  const hasActiveFilters =
+    searchQuery || userFilter !== "all" || sortBy !== "dueDate";
 
   // --- Task Categories (Applied Filters) ---
   const displayedTasks = filterAndSortTasks(filteredTasks);
   const todoTasks = displayedTasks.filter((t) => t.status === "todo");
   const doingTasks = displayedTasks.filter((t) => t.status === "doing");
   const doneTasks = displayedTasks.filter((t) => t.status === "done");
+  // const doneTasks = displayedTasks.filter(
+  //   (t) => t.status === "done" && !isOldTask(t)
+  // );
 
+  const doneTasksToDisplay = doneTasks.filter((t) => isOldTask(t));
+  const hiddenTasks = doneTasks.filter((t) => !isOldTask(t));
+  const [showOld, setShowOld] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
 
   const handleViewTask = (taskId: string) => {
-    const task = tasks.find(t => t._id === taskId);
+    const task = tasks.find((t) => t._id === taskId);
     setSelectedTask(task || null);
     setOpenView(true);
   };
@@ -202,14 +213,11 @@ export default function GetProjectTasks() {
         typeof t.userId === "string"
           ? t.userId
           : (t.userId as IUser)?._id?.toString() || users[0]?._id || "",
-      dueDate: t.dueDate
-        ? new Date(t.dueDate).toISOString().split("T")[0]
-        : "",
+      dueDate: t.dueDate ? new Date(t.dueDate).toISOString().split("T")[0] : "",
     });
   };
 
   const handleDelete = async (taskId: string) => {
-
     try {
       await DeleteTask(taskId);
       setTasks(tasks.filter((t) => t._id?.toString() !== taskId));
@@ -303,9 +311,7 @@ export default function GetProjectTasks() {
     }
   };
 
-
   return (
-
     <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 4 }}>
       <Container maxWidth="xl">
         {/* Header */}
@@ -390,7 +396,10 @@ export default function GetProjectTasks() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                    <SearchIcon
+                      fontSize="small"
+                      sx={{ color: "text.secondary" }}
+                    />
                   </InputAdornment>
                 ),
               }}
@@ -407,27 +416,31 @@ export default function GetProjectTasks() {
             />
 
             {/* Filter: User */}
-            {isManager && <TextField
-              select
-              value={userFilter}
-              onChange={(e) => setUserFilter(e.target.value)}
-              size="small"
-              label={t("assignee")}
-              SelectProps={{
-                MenuProps: { PaperProps: { dir: lang === "he" ? "rtl" : "ltr" } },
-              }}
-              sx={{
-                width: { xs: "100%", sm: 160 },
-                "& .MuiOutlinedInput-root": { borderRadius: 2 },
-              }}
-            >
-              <MenuItem value="all">{t("allMembers")}</MenuItem>
-              {projectUsers.map((u) => (
-                <MenuItem key={u._id} value={u._id}>
-                  {u.name}
-                </MenuItem>
-              ))}
-            </TextField>}
+            {isManager && (
+              <TextField
+                select
+                value={userFilter}
+                onChange={(e) => setUserFilter(e.target.value)}
+                size="small"
+                label={t("assignee")}
+                SelectProps={{
+                  MenuProps: {
+                    PaperProps: { dir: lang === "he" ? "rtl" : "ltr" },
+                  },
+                }}
+                sx={{
+                  width: { xs: "100%", sm: 160 },
+                  "& .MuiOutlinedInput-root": { borderRadius: 2 },
+                }}
+              >
+                <MenuItem value="all">{t("allMembers")}</MenuItem>
+                {projectUsers.map((u) => (
+                  <MenuItem key={u._id} value={u._id}>
+                    {u.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+            )}
 
             {/* Sort */}
             <TextField
@@ -437,7 +450,9 @@ export default function GetProjectTasks() {
               size="small"
               label={t("sortBy")}
               SelectProps={{
-                MenuProps: { PaperProps: { dir: lang === "he" ? "rtl" : "ltr" } },
+                MenuProps: {
+                  PaperProps: { dir: lang === "he" ? "rtl" : "ltr" },
+                },
               }}
               sx={{
                 width: { xs: "100%", sm: 140 },
@@ -458,7 +473,10 @@ export default function GetProjectTasks() {
                     color: "error.main",
                     border: "1px solid",
                     borderColor: "error.light",
-                    "&:hover": { backgroundColor: "error.light", color: "white" },
+                    "&:hover": {
+                      backgroundColor: "error.light",
+                      color: "white",
+                    },
                   }}
                 >
                   <FilterAltOffIcon fontSize="small" />
@@ -476,8 +494,10 @@ export default function GetProjectTasks() {
                 columnConfig.id === "todo"
                   ? todoTasks
                   : columnConfig.id === "doing"
-                    ? doingTasks
-                    : doneTasks;
+                  ? doingTasks
+                  : showOld
+                  ? doneTasks
+                  : doneTasksToDisplay;
 
               return (
                 <Grid item xs={12} md={4} key={columnConfig.id}>
@@ -505,10 +525,16 @@ export default function GetProjectTasks() {
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "space-between",
-                            px: 1
+                            px: 1,
                           }}
                         >
-                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
                             <CircleIcon
                               sx={{ fontSize: 12, color: columnConfig.color }}
                             />
@@ -516,8 +542,8 @@ export default function GetProjectTasks() {
                               {columnConfig.title === "To Do"
                                 ? t("todo")
                                 : columnConfig.title === "In Progress"
-                                  ? t("inProgress")
-                                  : t("completed")}
+                                ? t("inProgress")
+                                : t("completed")}
                             </Typography>
                           </Box>
 
@@ -540,7 +566,7 @@ export default function GetProjectTasks() {
                             gap: 2,
                             overflowY: "auto",
                             flex: 1,
-                            pr: 1
+                            pr: 1,
                           }}
                         >
                           {loading ? (
@@ -553,7 +579,10 @@ export default function GetProjectTasks() {
                                 border: "1px dashed #d0d0d0",
                               }}
                             >
-                              <Typography variant="body2" color="text.secondary">
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
                                 {t("loadingTask")}
                               </Typography>
                             </Paper>
@@ -563,24 +592,30 @@ export default function GetProjectTasks() {
                               const userId =
                                 typeof task.userId === "string"
                                   ? task.userId
-                                  : (task.userId as IUser)?._id?.toString() || "";
+                                  : (task.userId as IUser)?._id?.toString() ||
+                                    "";
                               const userName =
                                 typeof task.userId === "string"
                                   ? "Unknown"
                                   : (task.userId as IUser)?.name || "Unknown";
 
                               const projectName =
-                                (task.projectId as { name?: string })?.name || "No project";
+                                (task.projectId as { name?: string })?.name ||
+                                "No project";
 
                               const dueDate =
                                 task.dueDate instanceof Date
                                   ? task.dueDate
                                   : task.dueDate
-                                    ? new Date(task.dueDate)
-                                    : undefined;
+                                  ? new Date(task.dueDate)
+                                  : undefined;
 
                               return (
-                                <Draggable key={taskId} draggableId={taskId} index={index}>
+                                <Draggable
+                                  key={taskId}
+                                  draggableId={taskId}
+                                  index={index}
+                                >
                                   {(provided) => (
                                     <Box
                                       ref={provided.innerRef}
@@ -627,6 +662,33 @@ export default function GetProjectTasks() {
                           )}
 
                           {provided.placeholder}
+                        
+
+                          {hiddenTasks.length > 0 &&
+                            columnConfig.title === "Completed" &&
+                            !showOld && (
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                                sx={{
+                                  cursor: "pointer",
+                                  transition: "all 0.2s ease-in-out",
+                                  padding: "8px 12px",
+                                  borderRadius: 2,
+                                  "&:hover": {
+                                    backgroundColor: "rgba(0, 0, 0, 0.04)",
+                                    color: "primary.main",
+                                    transform: "translateY(-1px)",
+                                  },
+                                  "&:active": {
+                                    transform: "translateY(0)",
+                                  },
+                                }}
+                                onClick={()=>setShowOld(true)}
+                              >
+                                {hiddenTasks.length} Tasks hidden
+                              </Typography>
+                            )}
                         </Box>
                       </Paper>
                     )}
@@ -646,7 +708,11 @@ export default function GetProjectTasks() {
           dir={lang === "he" ? "rtl" : "ltr"}
         >
           <DialogTitle
-            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
             <Typography component="div" variant="h6" fontWeight={700}>
               {t("addNewTask")}
@@ -657,7 +723,12 @@ export default function GetProjectTasks() {
           </DialogTitle>
 
           <DialogContent>
-            <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} variant="popup" />
+            <TaskForm
+              task={newTask}
+              setTask={setNewTask}
+              onSubmit={handleAddTaskSubmit}
+              variant="popup"
+            />
           </DialogContent>
         </Dialog>
 
@@ -670,11 +741,13 @@ export default function GetProjectTasks() {
           dir={lang === "he" ? "rtl" : "ltr"}
         >
           <DialogTitle
-            sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
-            <Typography fontWeight={700}>
-              {t("addTeamMember")}
-            </Typography>
+            <Typography fontWeight={700}>{t("addTeamMember")}</Typography>
             <IconButton onClick={() => setShowAddUser(false)}>
               <CloseIcon />
             </IconButton>
@@ -711,8 +784,7 @@ export default function GetProjectTasks() {
           task={selectedTask}
         />
         <ChatFloating />
-
       </Container>
-    </Box >
+    </Box>
   );
 }

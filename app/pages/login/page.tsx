@@ -123,7 +123,19 @@ export default function LoginPage() {
       setUser(data.user);
       //check if user created just now then send it to createProject page
       // if(time)
-      router.push("/pages/dashboard");
+      const createdAt = new Date(data.user.createdAt); // התאריך שמתקבל מהשרת
+      const now = new Date(); // הזמן הנוכחי
+
+      const diffMs = now.getTime() - createdAt.getTime();
+
+      const diffMinutes = diffMs / 1000 / 60;
+      console.log("diffminutes", diffMinutes);
+
+      if (Number(diffMinutes) <= 5) {
+        console.log("in if of minutes");
+
+        router.push("/pages/createProject");
+      } else router.push("/pages/dashboard");
     } catch (error: any) {
       console.error("Google sign-in error:", error.code || error);
       setError(t("googleSignInFailed"));
