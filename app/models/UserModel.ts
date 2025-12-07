@@ -35,9 +35,9 @@ provider: {
 
 // ✅ Defensive fix for Turbopack / ESM environment
 // Sometimes mongoose.models is undefined initially
-if (!mongoose.models) {
-  (mongoose as any).models = {};
-}
+// if (!mongoose.models) {
+//   (mongoose as any).models = {};
+// }
 
 // ✅ Safe, re-usable model
 const User: Model<IUserDoc> =
