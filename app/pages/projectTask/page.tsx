@@ -15,9 +15,7 @@ import { getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
 import { ITask, IUser } from "@/app/models/types";
-// --- ייבוא חדש ---
 import { KANBAN_COLUMNS_CONFIG } from "@/app/config/kanbanConfig";
-// -----------------
 
 import {
   Box,
@@ -49,6 +47,7 @@ import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { useRouter } from "next/navigation";
 import { getTranslation } from "@/app/lib/i18n";
 import { useLanguage } from "@/app/context/LanguageContext";
+import ShowTask from "@/app/components/ShowTask";
 import ChatFloating from "@/app/components/ChatFloating";
 import { Lexend_Tera } from "next/font/google";
 
@@ -92,7 +91,7 @@ export default function GetProjectTasks() {
       try {
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
-        let users=[]
+        let users = []
         let data: ITask[] = [];
         if (role === "manager") {
           data = await GetTasksByProjectId(user._id, projectId);
@@ -168,6 +167,15 @@ export default function GetProjectTasks() {
   const todoTasks = displayedTasks.filter((t) => t.status === "todo");
   const doingTasks = displayedTasks.filter((t) => t.status === "doing");
   const doneTasks = displayedTasks.filter((t) => t.status === "done");
+
+  const [openView, setOpenView] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
+
+  const handleViewTask = (taskId: string) => {
+    const task = tasks.find(t => t._id === taskId);
+    setSelectedTask(task || null);
+    setOpenView(true);
+  };
 
   // --- Handlers ---
 
@@ -473,160 +481,156 @@ export default function GetProjectTasks() {
 
               return (
                 <Grid item xs={12} md={4} key={columnConfig.id}>
-                  <Box sx={{ height: "100%" }}>
-                    <Droppable droppableId={columnConfig.id}>
-                      {(provided) => (
+                  <Droppable droppableId={columnConfig.id}>
+                    {(provided) => (
+                      <Paper
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        elevation={0}
+                        sx={{
+                          backgroundColor: columnConfig.bgColor,
+                          borderRadius: 3,
+                          p: 2,
+                          minHeight: "70vh",
+                          height: "120vh",
+                          display: "flex",
+                          flexDirection: "column",
+                          border: "1px solid #e8eaed",
+                        }}
+                      >
+                        {/* Column Header */}
                         <Box
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          sx={{ height: "100%" }}
+                          sx={{
+                            mb: 3,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            px: 1
+                          }}
                         >
-                          <Paper
-                            elevation={0}
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <CircleIcon
+                              sx={{ fontSize: 12, color: columnConfig.color }}
+                            />
+                            <Typography variant="h6" fontWeight={700}>
+                              {columnConfig.title === "To Do"
+                                ? t("todo")
+                                : columnConfig.title === "In Progress"
+                                  ? t("inProgress")
+                                  : t("completed")}
+                            </Typography>
+                          </Box>
+
+                          <Chip
+                            label={loading ? "…" : tasks.length}
+                            size="small"
                             sx={{
-                              backgroundColor: columnConfig.bgColor,
-                              borderRadius: 3,
-                              p: 2,
-                              minHeight: "70vh",
-                              height: "120vh",
-                              display: "flex",
-                              flexDirection: "column",
-                              border: "1px solid #e8eaed",
+                              backgroundColor: columnConfig.color,
+                              color: "white",
+                              fontWeight: 600,
                             }}
-                          >
-                            {/* Column Header */}
-                            <Box
+                          />
+                        </Box>
+
+                        {/* Tasks */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            overflowY: "auto",
+                            flex: 1,
+                            pr: 1
+                          }}
+                        >
+                          {loading ? (
+                            <Paper
+                              elevation={0}
                               sx={{
-                                mb: 3,
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "space-between",
+                                p: 2,
+                                borderRadius: 2,
+                                backgroundColor: "white",
+                                border: "1px dashed #d0d0d0",
                               }}
                             >
-                              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                                <CircleIcon
-                                  sx={{ fontSize: 12, color: columnConfig.color }}
-                                />
-                                <Typography variant="h6" fontWeight={700}>
-                                  {columnConfig.title === "To Do"
-                                    ? t("todo")
-                                    : columnConfig.title === "In Progress"
-                                      ? t("inProgress")
-                                      : t("completed")}
-                                </Typography>
-                              </Box>
+                              <Typography variant="body2" color="text.secondary">
+                                {t("loadingTask")}
+                              </Typography>
+                            </Paper>
+                          ) : tasks.length > 0 ? (
+                            tasks.map((task, index) => {
+                              const taskId = task._id?.toString() || "";
+                              const userId =
+                                typeof task.userId === "string"
+                                  ? task.userId
+                                  : (task.userId as IUser)?._id?.toString() || "";
+                              const userName =
+                                typeof task.userId === "string"
+                                  ? "Unknown"
+                                  : (task.userId as IUser)?.name || "Unknown";
 
-                              <Chip
-                                label={loading ? "…" : tasks.length}
-                                size="small"
-                                sx={{
-                                  backgroundColor: columnConfig.color,
-                                  color: "white",
-                                  fontWeight: 600,
-                                }}
-                              />
-                            </Box>
+                              const projectName =
+                                (task.projectId as { name?: string })?.name || "No project";
 
-                            {/* Tasks */}
+                              const dueDate =
+                                task.dueDate instanceof Date
+                                  ? task.dueDate
+                                  : task.dueDate
+                                    ? new Date(task.dueDate)
+                                    : undefined;
+
+                              return (
+                                <Draggable key={taskId} draggableId={taskId} index={index}>
+                                  {(provided) => (
+                                    <Box
+                                      ref={provided.innerRef}
+                                      {...provided.draggableProps}
+                                      {...provided.dragHandleProps}
+                                      sx={{ mb: 2 }}
+                                    >
+                                      <Task
+                                        key={taskId}
+                                        _id={taskId}
+                                        userId={userId}
+                                        title={task.title}
+                                        content={task.content}
+                                        status={task.status}
+                                        dueDate={dueDate}
+                                        userName={userName}
+                                        projectName={projectName}
+                                        showButtons={isManager}
+                                        onEdit={handleEdit}
+                                        onDelete={() => handleDelete(taskId)}
+                                        onStatusChange={handleStatusChange}
+                                        onView={handleViewTask}
+                                      />
+                                    </Box>
+                                  )}
+                                </Draggable>
+                              );
+                            })
+                          ) : (
                             <Box
                               sx={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: 2,
-                                overflowY: "auto",
-                                flex: 1,
-                                pr: 1
+                                p: 4,
+                                textAlign: "center",
+                                opacity: 0.5,
+                                border: "1px dashed",
+                                borderColor: "divider",
+                                borderRadius: 2,
                               }}
                             >
-                              {loading ? (
-                                <Paper
-                                  elevation={0}
-                                  sx={{
-                                    p: 2,
-                                    borderRadius: 2,
-                                    backgroundColor: "white",
-                                    border: "1px dashed #d0d0d0",
-                                  }}
-                                >
-                                  <Typography variant="body2" color="text.secondary">
-                                    {t("loadingTask")}
-                                  </Typography>
-                                </Paper>
-                              ) : tasks.length > 0 ? (
-                                tasks.map((task, index) => {
-                                  const taskId = task._id?.toString() || "";
-                                  const userId =
-                                    typeof task.userId === "string"
-                                      ? task.userId
-                                      : (task.userId as IUser)?._id?.toString() || "";
-                                  const userName =
-                                    typeof task.userId === "string"
-                                      ? "Unknown"
-                                      : (task.userId as IUser)?.name || "Unknown";
-
-                                  const projectName =
-                                    (task.projectId as { name?: string })?.name || "No project";
-
-                                  const dueDate =
-                                    task.dueDate instanceof Date
-                                      ? task.dueDate
-                                      : task.dueDate
-                                        ? new Date(task.dueDate)
-                                        : undefined;
-
-                                  return (
-                                    <Draggable key={taskId} draggableId={taskId} index={index}>
-                                      {(provided) => (
-                                        <Box
-                                          ref={provided.innerRef}
-                                          {...provided.draggableProps}
-                                          {...provided.dragHandleProps}
-                                          sx={{ mb: 2 }}
-                                        >
-                                          <Task
-                                            key={taskId}
-                                            _id={taskId}
-                                            userId={userId}
-                                            title={task.title}
-                                            content={task.content}
-                                            status={task.status}
-                                            dueDate={dueDate}
-                                            userName={userName}
-                                            projectName={projectName}
-                                            showButtons={isManager}
-                                            onEdit={handleEdit}
-                                            onDelete={() => handleDelete(taskId)}
-                                            onStatusChange={handleStatusChange}
-                                          />
-                                        </Box>
-                                      )}
-                                    </Draggable>
-                                  );
-                                })
-                              ) : (
-                                <Paper
-                                  elevation={0}
-                                  sx={{
-                                    p: 3,
-                                    textAlign: "center",
-                                    backgroundColor: "white",
-                                    borderRadius: 2,
-                                    border: "1px dashed #e0e0e0",
-                                  }}
-                                >
-                                  <Typography variant="body2" color="text.secondary">
-                                    {t("noTasksMatch")}
-                                  </Typography>
-                                </Paper>
-                              )}
+                              <Typography variant="body2">
+                                {t("noTasksMatch")}
+                              </Typography>
                             </Box>
-                          </Paper>
+                          )}
 
                           {provided.placeholder}
                         </Box>
-                      )}
-                    </Droppable>
-                  </Box>
+                      </Paper>
+                    )}
+                  </Droppable>
                 </Grid>
               );
             })}
@@ -653,7 +657,7 @@ export default function GetProjectTasks() {
           </DialogTitle>
 
           <DialogContent>
-            <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} />
+            <TaskForm task={newTask} setTask={setNewTask} onSubmit={handleAddTaskSubmit} variant="popup" />
           </DialogContent>
         </Dialog>
 
@@ -668,7 +672,7 @@ export default function GetProjectTasks() {
           <DialogTitle
             sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
           >
-            <Typography variant="h6" fontWeight={700}>
+            <Typography fontWeight={700}>
               {t("addTeamMember")}
             </Typography>
             <IconButton onClick={() => setShowAddUser(false)}>
@@ -701,9 +705,14 @@ export default function GetProjectTasks() {
             dir={lang === "he" ? "rtl" : "ltr"}
           />
         )}
+        <ShowTask
+          open={openView}
+          onClose={() => setOpenView(false)}
+          task={selectedTask}
+        />
         <ChatFloating />
 
       </Container>
-    </Box>
+    </Box >
   );
 }

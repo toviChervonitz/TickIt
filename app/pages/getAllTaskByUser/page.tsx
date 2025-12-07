@@ -25,6 +25,7 @@ import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { KANBAN_COLUMNS_CONFIG } from "@/app/config/kanbanConfig";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
+import ShowTask from "@/app/components/ShowTask";
 
 export default function UserTasks() {
   const { lang } = useLanguage();
@@ -38,6 +39,15 @@ export default function UserTasks() {
   const [searchQuery, setSearchQuery] = useState("");
   const [projectFilter, setProjectFilter] = useState("all");
   const [sortBy, setSortBy] = useState("dueDate");
+
+  const [openView, setOpenView] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
+
+  const handleViewTask = (taskId: string) => {
+    const task = tasks.find(t => t._id === taskId);
+    setSelectedTask(task || null);
+    setOpenView(true);
+  };
 
   useEffect(() => {
     async function loadTasks() {
@@ -309,6 +319,8 @@ export default function UserTasks() {
                           p: 2,
                           minHeight: "70vh",
                           height: "120vh",
+                          display: "flex",
+                          flexDirection: "column",
                           transition: "all 0.2s ease",
                           border: `2px solid ${snapshot.isDraggingOver
                             ? columnConfig.color
@@ -337,7 +349,7 @@ export default function UserTasks() {
                               }}
                             />
                             <Typography variant="subtitle1" fontWeight={700}>
-                              {columnConfig.title}
+                              {columnConfig.title==="To Do"?t("todo"):columnConfig.title==="In Progress"?t("doing"):t("done")}
                             </Typography>
                           </Box>
 
@@ -355,7 +367,16 @@ export default function UserTasks() {
                         </Box>
 
                         {/* Tasks */}
-                        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            overflowY: "auto",
+                            flex: 1,
+                            pr: 1
+                          }}
+                        >
                           {tasks.length > 0 ? (
                             tasks.map((task, index) => {
                               const typedUser = task.userId as IUser | undefined;
@@ -398,6 +419,7 @@ export default function UserTasks() {
                                         }
                                         onStatusChange={handleStatusChange}
                                         showButtons={false}
+                                        onView={handleViewTask}
                                       />
                                     </Box>
                                   )}
@@ -431,6 +453,11 @@ export default function UserTasks() {
             })}
           </Grid>
         </DragDropContext>
+        <ShowTask
+          open={openView}
+          onClose={() => setOpenView(false)}
+          task={selectedTask}
+        />
       </Container>
     </Box>
   );

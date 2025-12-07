@@ -36,12 +36,12 @@ const MAIN_COLOR = "secondary.main";
 const LIMIT = 6;
 
 export default function GetAllProjectsPage() {
+
   const { lang } = useLanguage();
-  // const t = getTranslation();
-  const { user, projects, setProjects, setProjectId, setMessages } =
-    useAppStore();
-  const router = useRouter();
   const t = getTranslation();
+
+  const { user, projects, setProjects, setProjectId, setMessages } = useAppStore();
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);

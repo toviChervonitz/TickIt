@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { ITask } from "../../models/types";
 import { KANBAN_COLUMNS_CONFIG } from "../../config/kanbanConfig";
+import { getTranslation } from "@/app/lib/i18n";
 
 interface Props {
   tasks: ITask[];
@@ -22,6 +23,8 @@ export default function TaskStatusPieChart({ tasks }: Props) {
     done: tasks.filter((t) => t.status === "done").length,
   };
 
+  const t = getTranslation();
+
   const total = counts.todo + counts.doing + counts.done;
 
   const COLORS = [
@@ -31,9 +34,9 @@ export default function TaskStatusPieChart({ tasks }: Props) {
   ];
 
   const data = [
-    { name: "To Do", value: counts.todo },
-    { name: "Doing", value: counts.doing },
-    { name: "Done", value: counts.done },
+    { name: t("todo"), value: counts.todo },
+    { name: t("doing"), value: counts.doing },
+    { name: t("done"), value: counts.done },
   ];
 
   // Label inside slice: "45%"
