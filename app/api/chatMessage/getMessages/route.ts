@@ -6,6 +6,7 @@ import ChatMessage from "@/app/models/ChatMessageModel";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
+ 
   await dbConnect();
 
   try {
