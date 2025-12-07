@@ -39,7 +39,6 @@ provider: {
 //   (mongoose as any).models = {};
 // }
 
-// ✅ Safe, re-usable model
 const User: Model<IUserDoc> =
   mongoose.models.User || mongoose.model<IUserDoc>("User", UserSchema);
 
