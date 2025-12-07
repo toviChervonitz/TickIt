@@ -57,7 +57,7 @@ export async function GET(req: Request) {
   await dbConnect();
   const { searchParams } = new URL(req.url);
   const skip = Number(searchParams.get("skip")) || 0;
-  const limit = Number(searchParams.get("limit")) || 6;
+  const limit = Number(searchParams.get("limit")) || 8;
 
   try {
     const currentUser = await getAuthenticatedUser();
