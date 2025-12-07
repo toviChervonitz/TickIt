@@ -4,15 +4,15 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import Pusher from "pusher-js";
 import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
 import useAppStore from "../store/useAppStore";
-import ChatMessageComp from "./ChatMessage"; 
+import ChatMessageComp from "./ChatMessage";
 import { getTranslation } from "../lib/i18n";
 
 import { Box, TextField, Button, CircularProgress } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useLanguage } from "../context/LanguageContext"; 
+import { useLanguage } from "../context/LanguageContext";
 
 const CHAT_COLORS = {
-  turquoise: "secondary.main", 
+  turquoise: "secondary.main",
   darkTurquoise: "secondary.main",
   inputBorder: "#e0e0e0",
   background: "#f9f9f9",
@@ -22,11 +22,13 @@ export default function Chat() {
   const t = getTranslation();
   const { projectId, user, messages, setMessages } = useAppStore();
   const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loadingInitial, setLoadingInitial] = useState(true);
+  const [loadingSend, setLoadingSend] = useState(false);
 
   const [skip, setSkip] = useState(0);
   const limit = 30;
   const shouldAutoScrollRef = useRef(true);
+  const hasLoadedInitialMessagesRef = useRef(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -39,7 +41,7 @@ export default function Chat() {
   useEffect(() => {
     requestAnimationFrame(() => {
       if (!shouldAutoScrollRef.current) {
-        shouldAutoScrollRef.current = true; 
+        shouldAutoScrollRef.current = true;
         return;
       }
 
@@ -53,22 +55,33 @@ export default function Chat() {
   }, [messages]);
 
   useEffect(() => {
-    if (!projectId || messages.length > 0) return;
+    if (!projectId) return;
+    if (hasLoadedInitialMessagesRef.current) return;
+    if (messages.length > 0 && !loadingInitial) return;
+    if (isFetchingRef.current) return;
 
     (async () => {
-      setLoading(true); 
-      const chat = await getChatMessages(projectId, 0, limit);
+      isFetchingRef.current = true;
+      setLoadingInitial(true);
+      try {
+        const chat = await getChatMessages(projectId, 0, limit);
 
-      const safeMessages = chat.map((m: any) => ({
-        ...m,
-        user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
-      }));
+        const safeMessages = chat.map((m: any) => ({
+          ...m,
+          user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
+        }));
 
-      setMessages(safeMessages);
-      setSkip(limit);
-      setLoading(false);
+        setMessages(safeMessages);
+        setSkip(limit);
+        hasLoadedInitialMessagesRef.current = true;
+      } catch (error) {
+        console.error("Error loading initial chat messages:", error);
+      } finally {
+        isFetchingRef.current = false;
+        setLoadingInitial(false);
+      }
     })();
-  }, [projectId, messages, setMessages]);
+  }, [projectId, messages.length, setMessages, loadingInitial]);
 
   const handleScroll = useCallback(async () => {
     const container = containerRef.current;
@@ -78,7 +91,7 @@ export default function Chat() {
       isFetchingRef.current = true;
 
       const oldHeight = container.scrollHeight;
-      shouldAutoScrollRef.current = false;  
+      shouldAutoScrollRef.current = false;
 
       const older = await getChatMessages(projectId!, skip, limit);
       if (older.length === 0) {
@@ -98,7 +111,7 @@ export default function Chat() {
 
       requestAnimationFrame(() => {
         const newHeight = container.scrollHeight;
-        container.scrollTop = newHeight - oldHeight; 
+        container.scrollTop = newHeight - oldHeight;
       });
 
       isFetchingRef.current = false;
@@ -129,6 +142,10 @@ export default function Chat() {
           user: data.chatMessage.user ?? { _id: "unknown", name: "Unknown", image: undefined },
         };
 
+        if (user && incoming.user._id === user._id) {
+          return;
+        }
+
         const current = useAppStore.getState().messages;
         setMessages([...current, incoming]);
       }
@@ -144,16 +161,27 @@ export default function Chat() {
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !projectId) return;
 
-    setLoading(true);
+    setLoadingSend(true);
+    const messageToSend = newMessage.trim();
+
     try {
       await sendChatMessage({
         userId: user._id,
         projectId,
         message: newMessage.trim(),
       });
+
+      const newMessageObject = {
+        user: { _id: user._id, name: user.name, image: user.image },
+        message: messageToSend,
+        createdAt: new Date().toISOString(),
+      };
+
+      const current = useAppStore.getState().messages;
+      setMessages([...current, newMessageObject as any]);
       setNewMessage("");
     } finally {
-      setLoading(false);
+      setLoadingSend(false);
     }
   };
 
@@ -163,7 +191,7 @@ export default function Chat() {
         display: "flex",
         flexDirection: "column",
         height: "100%",
-        overflow: "hidden", 
+        overflow: "hidden",
       }}
     >
       <Box
@@ -171,15 +199,21 @@ export default function Chat() {
         sx={{
           flex: 1,
           overflowY: "auto",
-          p: 2, 
-          bgcolor: CHAT_COLORS.background, 
+          p: 2,
+          bgcolor: CHAT_COLORS.background,
         }}
       >
-        {loading && messages.length === 0 && (
+        {/* {loading && messages.length > 0 && (
           <Box display="flex" justifyContent="center" py={2}>
             <CircularProgress size={24} sx={{ color: CHAT_COLORS.turquoise }} />
           </Box>
         )}
+
+        {!loading && messages.length === 0 && (
+          <Box textAlign="center" py={2} color="text.secondary">
+            No messages yet. Start the conversation!
+          </Box>
+        )} */}
 
         {messages.map((msg, index) => {
           const msgUser = msg.user ?? { _id: "unknown", name: "Unknown" };
@@ -187,7 +221,7 @@ export default function Chat() {
           return (
             <ChatMessageComp
               key={msg.id ?? index}
-              username={msgUser.name} 
+              username={msgUser.name}
               profileImage={msgUser.image}
               message={msg.message}
               time={msg.createdAt}
@@ -201,12 +235,12 @@ export default function Chat() {
       <Box
         sx={{
           display: "flex",
-          p: 1, 
+          p: 1,
           gap: 1,
           borderTop: `1px solid ${CHAT_COLORS.inputBorder}`,
         }}
       >
-        
+
         <TextField
           fullWidth
           placeholder={t("typeMessage")}
@@ -215,7 +249,7 @@ export default function Chat() {
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           onKeyDown={(e) => (e.key === "Enter" ? handleSend() : null)}
-          disabled={loading}
+          disabled={loadingSend}
           sx={{
             "& .MuiOutlinedInput-root": {
               borderRadius: 50,
@@ -225,7 +259,7 @@ export default function Chat() {
             "& fieldset": {
               borderColor: CHAT_COLORS.inputBorder,
             },
-            direction: isRTL ? "rtl" : "ltr", 
+            direction: isRTL ? "rtl" : "ltr",
             flexGrow: 1,
           }}
         />
@@ -233,7 +267,7 @@ export default function Chat() {
         <Button
           variant="contained"
           onClick={handleSend}
-          disabled={!newMessage.trim() || loading}
+          disabled={!newMessage.trim() || loadingSend}
           sx={{
             minWidth: "40px",
             height: "40px",
@@ -247,7 +281,7 @@ export default function Chat() {
             },
           }}
         >
-          {loading ? (
+          {loadingSend ? (
             <CircularProgress size={20} color="inherit" />
           ) : (
             <SendIcon

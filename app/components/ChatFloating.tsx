@@ -11,7 +11,7 @@ import { useLanguage } from "../context/LanguageContext";
 export default function ChatFloating() {
   const [open, setOpen] = useState(false);
   const t = getTranslation();
-  const { lang } = useLanguage(); 
+  const { lang } = useLanguage();
 
   return (
     <>
@@ -65,13 +65,23 @@ export default function ChatFloating() {
           <Box
             sx={{
               p: 2,
-              bgcolor: "#3dd2cc",
+              bgcolor: "secondary.main",
               color: "#fff",
               display: "flex",
               alignItems: "center",
-              justifyContent: "flex-end", // aligns the X to the right
+              justifyContent: "space-between",
             }}
           >
+            <Typography
+              sx={{
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                ml: 1,
+                direction: lang === "he" ? "rtl" : "ltr",
+              }}
+            >
+              Project Chat
+            </Typography>
             <IconButton
               onClick={() => setOpen(false)}
               sx={{ color: "#fff" }}

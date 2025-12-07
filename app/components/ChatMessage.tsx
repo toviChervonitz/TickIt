@@ -11,8 +11,8 @@ interface ChatMessageProps {
 }
 
 const CHAT_COLORS = {
-  currentUser: "text.secondary", 
-  otherUser: "text.disabled", 
+  currentUser: "text.secondary",
+  otherUser: "#eef2f6",
   currentUserText: "white",
   otherUserText: "black",
   currentUserTime: "rgba(255, 255, 255, 0.7)",
@@ -60,7 +60,7 @@ export default function ChatMessageComp({
       sx={{
         display: "flex",
         justifyContent: isCurrentUser ? "flex-end" : "flex-start",
-        mb: 1, 
+        mb: 1,
         alignItems: "flex-start",
       }}
     >
@@ -72,7 +72,7 @@ export default function ChatMessageComp({
             width: 32,
             height: 32,
             mr: 1,
-            mt: 0.5, 
+            mt: 0.5,
           }}
         />
       )}
@@ -88,24 +88,26 @@ export default function ChatMessageComp({
             ? CHAT_COLORS.currentUserText
             : CHAT_COLORS.otherUserText,
           borderRadius: isCurrentUser
-            ? "18px 18px 2px 18px" 
-            : "18px 18px 18px 2px", 
+            ? "18px 18px 2px 18px"
+            : "18px 18px 18px 2px",
           boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
           wordBreak: "break-word",
         }}
       >
-        <Typography
-          variant="caption"
-          component="div"
-          fontWeight={700}
-          sx={{
-            mb: 0.5,
-            fontSize: 13,
-            color: isCurrentUser ? "#66dcd7" : CHAT_COLORS.otherUserText,
-          }}
-        >
-          {username}
-        </Typography>
+        {!isCurrentUser && (
+          <Typography
+            variant="caption"
+            component="div"
+            fontWeight={700}
+            sx={{
+              mb: 0.5,
+              fontSize: 13,
+              color: isCurrentUser ? "#66dcd7" : CHAT_COLORS.otherUserText,
+            }}
+          >
+            {username}
+          </Typography>
+        )}
 
         <Typography variant="body2" sx={{ fontSize: 15, lineHeight: 1.3 }}>
           {message}
