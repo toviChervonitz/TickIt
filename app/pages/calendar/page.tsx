@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -7,12 +6,31 @@ import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS, he } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import useAppStore from "@/app/store/useAppStore";
-import Task from "@/app/components/Task";
 import { Types } from "mongoose";
 import { ITask, IProject } from "@/app/models/types";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
 import ShowTask from "@/app/components/ShowTask";
+import {
+  Box,
+  Typography,
+  Chip,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  IconButton,
+  Stack,
+  Fade,
+  Slide,
+  useTheme,
+  alpha,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { TransitionProps } from "@mui/material/transitions";
 
 /* ---------------- Helpers ---------------- */
 
@@ -40,16 +58,26 @@ function getProjectColor(projectId?: Types.ObjectId | IProject | string): string
   return "#888";
 }
 
+/* ---------------- Transition for Dialog ---------------- */
+const SlideTransition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement;
+  },
+  ref: React.Ref<unknown>,
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
+
 /* ---------------- Calendar Page ---------------- */
 
 export default function CalendarPage() {
   const { lang } = useLanguage();
   const t = getTranslation();
+  const theme = useTheme();
 
   const { user, tasks, setTasks } = useAppStore();
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
   const [loading, setLoading] = useState(true);
-  const modalRef = useRef<HTMLDivElement | null>(null);
 
   const [today] = useState(() => new Date());
   const [view, setView] = useState<View>("month");
@@ -96,20 +124,6 @@ export default function CalendarPage() {
     };
   }, [user, tasks, setTasks]);
 
-  /* ------------ Modal close on outside click ------------- */
-  useEffect(() => {
-    if (!selectedTask) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        setSelectedTask(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [selectedTask]);
-
   /* ------------ Calendar Events ---------------- */
   const events: RBCEvent[] = useMemo(() => {
     return (tasks || []).map((task) => {
@@ -129,8 +143,9 @@ export default function CalendarPage() {
             : getProjectColor(task.projectId),
           color: "#fff",
           opacity: isCompleted ? 0.5 : 1,
-          borderRadius: 5,
-          padding: 2,
+          borderRadius: 8,
+          padding: "4px 8px",
+          border: "none",
         } as any,
       };
     });
@@ -157,102 +172,233 @@ export default function CalendarPage() {
     }));
   }, [tasks]);
 
-  if (loading) return <div>{t("loadingTasks")}</div>;
-  if (!user?._id) return <div>{t("loadingUser")}</div>;
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+      >
+        <Typography color="text.secondary">
+          {t("loadingTasks")}
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!user?._id) {
+    return (
+      <Box
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        minHeight="100vh"
+      >
+        <Typography color="text.secondary">
+          {t("loadingUser")}
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <div
-      dir={lang === "he" ? "rtl" : "ltr"}
-      style={{ padding: 16, fontFamily: "Arial, sans-serif" }}
-    >
-      <h1 style={{ fontSize: 24, fontWeight: "bold", marginBottom: 16 }}>
-        {t("yourCalendar")}
-      </h1>
+    <>
+      <style jsx global>{`
+        /* Custom Calendar Styles with MUI theme */
+        .rbc-calendar {
+          font-family: ${theme.typography.fontFamily};
+        }
 
-      {/* Legend */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
-        {projectLegend.map((p) => (
-          <div key={p.key}>
-            <span
-              style={{
-                backgroundColor: p.color,
-                color: "#fff",
-                padding: "2px 6px",
-                borderRadius: 4,
-                fontSize: 12,
-                whiteSpace: "nowrap",
-                display: "inline-block",
-              }}
-            >
-              {p.name}
-            </span>
-          </div>
-        ))}
-      </div>
+        .rbc-header {
+          padding: 16px 8px;
+          font-weight: 600;
+          font-size: 14px;
+          color: ${theme.palette.text.primary};
+          border-bottom: 2px solid ${theme.palette.divider};
+          background: ${alpha(theme.palette.primary.main, 0.05)};
+        }
 
-      {/* Calendar */}
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        style={{ height: 600 }}
-        messages={t("messages") as any} // <-- this is key
-        culture={lang} // <-- this tells the calendar which locale to use
+        .rbc-today {
+          background-color: ${alpha(theme.palette.primary.main, 0.08)};
+        }
 
-        eventPropGetter={(e: any) => ({ style: e.style })}
-        onSelectEvent={(e) => setSelectedTask(e.resource.task)}
-        view={view}
-        onView={(newView) => setView(newView)}
-        date={date}
-        onNavigate={(newDate) => setDate(newDate)}
-      />
+        .rbc-off-range-bg {
+          background-color: ${theme.palette.action.hover};
+        }
 
-      {/* Modal */}
-      {selectedTask && (
-        <>
-          <div
-            onClick={() => setSelectedTask(null)}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor: "rgba(0,0,0,0.5)",
-              zIndex: 9998,
-            }}
-          />
-          <div
-            ref={modalRef}
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              position: "fixed",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%,-50%)",
-              backgroundColor: "white",
-              padding: 20,
-              borderRadius: 10,
-              zIndex: 9999,
+        .rbc-event {
+          font-size: 13px;
+          font-weight: 500;
+          box-shadow: ${theme.shadows[2]};
+          cursor: pointer;
+          transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .rbc-event:hover {
+          transform: translateY(-2px);
+          box-shadow: ${theme.shadows[4]};
+        }
+
+        .rbc-toolbar {
+          margin-bottom: 24px;
+          padding: 16px;
+          background: ${alpha(theme.palette.background.paper, 0.6)};
+          border-radius: 12px;
+          border: 1px solid ${theme.palette.divider};
+        }
+
+        .rbc-toolbar button {
+          padding: 8px 16px;
+          border-radius: 8px;
+          border: 1px solid ${theme.palette.divider};
+          background: ${theme.palette.background.paper};
+          color: ${theme.palette.text.primary};
+          font-weight: 500;
+          transition: all 0.2s;
+          font-family: ${theme.typography.fontFamily};
+        }
+
+        .rbc-toolbar button:hover {
+          background: ${theme.palette.action.hover};
+          border-color: ${theme.palette.primary.main};
+        }
+
+        .rbc-toolbar button.rbc-active {
+          background: ${theme.palette.primary.main};
+          color: ${theme.palette.primary.contrastText};
+          border-color: ${theme.palette.primary.main};
+        }
+
+        .rbc-month-view, .rbc-time-view, .rbc-agenda-view {
+          border: 1px solid ${theme.palette.divider};
+          border-radius: 12px;
+          overflow: hidden;
+          background: ${theme.palette.background.paper};
+        }
+
+        .rbc-date-cell {
+          padding: 8px;
+          text-align: ${lang === "he" ? "left" : "right"};
+        }
+
+        .rbc-date-cell.rbc-now {
+          font-weight: 700;
+          color: ${theme.palette.primary.main};
+        }
+
+        .rbc-day-bg + .rbc-day-bg {
+          border-${lang === "he" ? "right" : "left"}: 1px solid ${theme.palette.divider};
+        }
+      `}</style>
+
+      <Box
+        dir={lang === "he" ? "rtl" : "ltr"}
+        sx={{ p: 3, maxWidth: 1400, mx: "auto" }}
+      >
+        {/* Header */}
+        <Box sx={{ mb: 4 }}>
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
+            <CalendarMonthIcon sx={{ fontSize: 36, color: "primary.main" }} />
+            <Typography fontWeight="bold" color="text.primary">
+              {t("yourCalendar")}
+            </Typography>
+          </Stack>
+          <Typography variant="body1" color="text.secondary">
+            {lang === "he"
+              ? "נהל את המשימות שלך בצורה ויזואלית"
+              : "Manage your tasks visually"}
+          </Typography>
+        </Box>
+
+        {/* Legend */}
+        {projectLegend.length > 0 && (
+          <Paper
+            elevation={2}
+            sx={{
+              p: 3,
+              mb: 3,
+              borderRadius: 3,
+              border: 1,
+              borderColor: "divider",
             }}
           >
-            <ShowTask
-              open={!!selectedTask}
-              onClose={() => setSelectedTask(null)}
-              task={selectedTask}
-            />
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 12 }}>
-              <button
-                style={{ padding: "8px 12px", borderRadius: 6 }}
-                onClick={() => setSelectedTask(null)}
-              >
-                {t("close")}
-              </button>
-            </div>
-          </div>
-        </>
+            <Typography
+              variant="subtitle2"
+              fontWeight="bold"
+              color="text.secondary"
+              sx={{ mb: 2 }}
+            >
+              {lang === "he" ? "פרויקטים" : "Projects"}
+            </Typography>
+            <Stack direction="row" flexWrap="wrap" gap={1.5}>
+              {projectLegend.map((p) => (
+                <Chip
+                  key={p.key}
+                  label={p.name}
+                  sx={{
+                    bgcolor: alpha(p.color, 0.15),
+                    color: p.color,
+                    fontWeight: 600,
+                    border: 1,
+                    borderColor: alpha(p.color, 0.3),
+                    "& .MuiChip-label": {
+                      px: 2,
+                    },
+                  }}
+                  icon={
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: "50%",
+                        bgcolor: p.color,
+                        ml: lang === "he" ? 0 : 1,
+                        mr: lang === "he" ? 1 : 0,
+                      }}
+                    />
+                  }
+                />
+              ))}
+            </Stack>
+          </Paper>
+        )}
+
+        {/* Calendar */}
+        <Paper
+          elevation={3}
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            border: 1,
+            borderColor: "divider",
+          }}
+        >
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: 650 }}
+            messages={t("messages") as any}
+            culture={lang}
+            eventPropGetter={(e: any) => ({ style: e.style })}
+            onSelectEvent={(e) => setSelectedTask(e.resource.task)}
+            view={view}
+            onView={(newView) => setView(newView)}
+            date={date}
+            onNavigate={(newDate) => setDate(newDate)}
+          />
+        </Paper>
+      </Box>
+
+      {selectedTask && (
+        <ShowTask
+          open={!!selectedTask}
+          onClose={() => setSelectedTask(null)}
+          task={selectedTask}
+        />
       )}
-    </div>
+    </>
   );
 }
