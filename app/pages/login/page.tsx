@@ -106,18 +106,41 @@ export default function LoginPage() {
         image: res.photoURL,
       };
       const { ok, status, data } = await googleLoginService(userData, idToken);
-      if (ok) {
-        console.log("data in google log in", data);
-        setUser(data.user);
-        router.push("/pages/dashboard");
-      } else {
-        setError(t("googleSignInFailed"));
+      console.log("status", status);
+      console.log("ok", ok);
+      if (!ok) {
+        setGoogleLoading(false);
+        if (status === 401) {
+          setError("Unauthorized Google access");
+        } else if (status === 400) {
+          setError("Some Google user details are missing");
+        } else {
+          setError("Google login failed");
+        }
+        return;
       }
+      console.log("data in google log in", data);
+      setUser(data.user);
+      //check if user created just now then send it to createProject page
+      // if(time)
+      const createdAt = new Date(data.user.createdAt); // התאריך שמתקבל מהשרת
+      const now = new Date(); // הזמן הנוכחי
+
+      const diffMs = now.getTime() - createdAt.getTime();
+
+      const diffMinutes = diffMs / 1000 / 60;
+      console.log("diffminutes", diffMinutes);
+
+      if (Number(diffMinutes) <= 5) {
+        console.log("in if of minutes");
+
+        router.push("/pages/createProject");
+      } else router.push("/pages/dashboard");
     } catch (error: any) {
       console.error("Google sign-in error:", error.code || error);
       setError(t("googleSignInFailed"));
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 

@@ -33,7 +33,7 @@ import { getTranslation } from "@/app/lib/i18n";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
 
 const MAIN_COLOR = "secondary.main";
-const LIMIT = 6;
+const LIMIT = 8;
 
 export default function GetAllProjectsPage() {
 
