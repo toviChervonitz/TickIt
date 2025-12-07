@@ -3,11 +3,19 @@
 import { useState } from "react";
 import { AddUserToProject } from "@/app/lib/server/userServer";
 import { getTranslation } from "../lib/i18n";
+import {
+  TextField,
+  Button,
+  Stack,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 
-interface Props {
+interface AddUserProps {
   projectId: string;
   onUserAdded?: (user: any) => void;
   label?: string;
+  onClose?: () => void;
 }
 
 export default function AddUserToProjectForm({
@@ -15,14 +23,9 @@ export default function AddUserToProjectForm({
   onUserAdded,
   label = "Add User",
   onClose,
-}: {
-  projectId: string;
-  onUserAdded: (user: any) => void;
-  label?: string;
-  onClose?: () => void;
-}) {
-    const t = getTranslation();
-  
+}: AddUserProps) {
+  const t = getTranslation();
+
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -34,44 +37,61 @@ export default function AddUserToProjectForm({
       setLoading(true);
       setError("");
 
-      const addedUser = await AddUserToProject(
-        projectId,
-        email.trim()
-      );
+      const addedUser = await AddUserToProject(projectId, email.trim());
 
-      // מחזיר לאבא אם רוצים לעדכן UI
       onUserAdded?.(addedUser);
 
       setEmail("");
     } catch (err: any) {
-      if(err.message === "UserAlreadyExists"){
+      if (err.message === "UserAlreadyExists") {
         setError(t("userAlreadyMember"));
+      } else {
+        setError(err.message || t("failedToAddUser"));
       }
-      else
-      setError(err.message || t("failedToAddUser"));
     } finally {
       setLoading(false);
-      if (onClose) {
-        onClose();
-      }
+      onClose?.();
     }
   };
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-      <input
+    <Stack spacing={1.5} sx={{ width: "100%" }}>
+      <TextField
+        size="small"
         type="email"
-        placeholder={t("userEmail")}
+        label={t("userEmail")}
+        sx={{ colors: "primary.main" }}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         onKeyDown={(e) => e.key === "Enter" && handleAddUser()}
+        fullWidth
       />
 
-      <button onClick={handleAddUser} disabled={loading}>
-        {loading ? t("adding") : t("addUser")}
-      </button>
+      <Button
+        variant="contained"
+        size="small"
+        onClick={handleAddUser}
+        disabled={loading}
+        sx={{
+          textTransform: "none", minWidth: 100,
+          background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
+          "&:hover": {
+            background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
+          },
+        }}
+      >
+        {loading ? (
+          <CircularProgress size={18} sx={{ color: "#fff" }} />
+        ) : (
+          t("addUser")
+        )}
+      </Button>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-    </div>
+      {error && (
+        <Typography variant="body2" color="error" sx={{ mt: 0.5 }}>
+          {error}
+        </Typography>
+      )}
+    </Stack>
   );
 }

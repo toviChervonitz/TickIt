@@ -25,11 +25,11 @@ export async function CreateProject(form: any) {
   }
   return { status: res.status, ...data };
 }
-
-export async function GetAllProjectsByUserId(userId: string | null) {
+//==================fetch===========
+export async function GetAllProjectsByUserId(userId: string | null, skip=0, limit=6) {
   try {
 
-    const res = await fetch(`/api/project/getAllProjects?userId=${userId}`, {
+    const res = await fetch(`/api/project/getAllProjects?userId=${userId}&skip=${skip}&limit=${limit}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

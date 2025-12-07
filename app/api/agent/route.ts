@@ -76,8 +76,10 @@ export async function POST(req: Request) {
         - Return dates in ISO format (YYYY-MM-DD).
         The project starts on ${project.createdAt.toISOString().split("T")[0]}. Use this date as the reference for calculating due dates.
         Return ONLY JSON following the provided schema.
-        Use the same language as the user's prompt. 
-        If the prompt includes multiple languages, choose the language used for most of the text.
+        Language rules:
+        - Use English by default.
+        - Only switch to another language if the user's prompt is **entirely in that language** or clearly predominantly in it.
+        - Do NOT mix languages.
 
       `,
     });
