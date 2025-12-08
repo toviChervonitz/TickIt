@@ -1,6 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { Box, GridLegacy as Grid, Paper, Typography, useTheme, Stack } from "@mui/material";
+import BarChartIcon from "@mui/icons-material/BarChart";
+import PieChartIcon from "@mui/icons-material/PieChart";
+import TimelineIcon from "@mui/icons-material/Timeline";
 import useAppStore from "@/app/store/useAppStore";
 import TaskStatusChart from "@/app/components/charts/progressChart";
 import TasksByProjectBarChart from "@/app/components/charts/tasksByProject";
@@ -46,18 +50,87 @@ export default function Charts() {
   if (loading) return <div>Loading tasks...</div>;
   if (!user?._id) return <div>Loading user...</div>;
 
+
   return (
-    <div>
-      <h1>Charts Page</h1>
+    <Box sx={{ p: 3, maxWidth: 1400, mx: "auto" }}>
+      <Typography
+        variant="h4"
+        fontWeight={700}
+        color="text.secondary"
+        sx={{ mb: 3 }}
+      >
+        Insights & Analytics
+      </Typography>
 
-      <p>general progress</p>
-      <TaskStatusChart tasks={tasks} />
+      <Grid container spacing={3}>
 
-      <p>how many tasks in each project</p>
-      <TasksByProjectBarChart tasks={tasks} />
+        {/* ----- GENERAL PROGRESS ----- */}
+        <Grid item xs={12} md={6}>
+          <Paper
+            elevation={3}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              backgroundColor: "background.default",
+              minHeight: 450,
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+              <PieChartIcon color="secondary" />
+              <Typography variant="h6" fontWeight={600} color="text.secondary">
+                General Progress
+              </Typography>
+            </Stack>
 
-      <p>how much done in a day/week/month</p>
-      <CompletedTasksLineChart tasks={tasks} />
-    </div>
+            <TaskStatusChart tasks={tasks} />
+          </Paper>
+        </Grid>
+
+        {/* ----- TASKS PER PROJECT ----- */}
+        <Grid item xs={12} md={6}>
+          <Paper
+            elevation={3}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              backgroundColor: "background.default",
+              minHeight: 450,
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+              <BarChartIcon color="secondary" />
+              <Typography variant="h6" fontWeight={600} color="text.secondary">
+                Tasks by Project
+              </Typography>
+            </Stack>
+
+            <TasksByProjectBarChart tasks={tasks} />
+          </Paper>
+        </Grid>
+
+        {/* ----- DONE OVER TIME ----- */}
+        <Grid item xs={12}>
+          <Paper
+            elevation={3}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              backgroundColor: "background.default",
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
+              <TimelineIcon color="secondary" />
+              <Typography variant="h6" fontWeight={600} color="text.secondary">
+                Progress Over Time
+              </Typography>
+            </Stack>
+
+            <CompletedTasksLineChart tasks={tasks} />
+          </Paper>
+        </Grid>
+
+      </Grid>
+    </Box>
   );
+
 }

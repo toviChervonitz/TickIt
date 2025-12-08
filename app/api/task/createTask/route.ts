@@ -8,12 +8,6 @@ import Pusher from "pusher";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
 
 
-// Strongly typed token payload
-interface TokenPayload {
-  id: string;
-  [key: string]: any;
-}
-
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID!,
   key: process.env.NEXT_PUBLIC_PUSHER_KEY!,

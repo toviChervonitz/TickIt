@@ -19,6 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
+import ScheduleIcon from "@mui/icons-material/Schedule";
 
 import { ITask, IUser, IProject } from "@/app/models/types";
 
@@ -28,7 +29,7 @@ interface ShowTaskProps {
   task: ITask | null;
 }
 
-const detailIconStyle: SxProps<Theme> = { 
+const detailIconStyle: SxProps<Theme> = {
   fontSize: "1.25rem",
 };
 
@@ -47,9 +48,9 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
       fullWidth
       PaperProps={{
         sx: {
-          maxHeight: "80vh", 
+          maxHeight: "80vh",
           p: 2,
-          backgroundColor: theme.palette.background.default, 
+          backgroundColor: theme.palette.background.default,
         },
       }}
     >
@@ -63,15 +64,15 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
           pb: 1,
         }}
       >
-        <Typography 
+        <Typography
           fontWeight={700}
           color="text.primary"
         >
           {task.title}
         </Typography>
 
-        <IconButton 
-          onClick={onClose} 
+        <IconButton
+          onClick={onClose}
           color="secondary"
           size="small"
         >
@@ -88,7 +89,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
           pr: 1,
           pl: 0,
           "&.MuiDialogContent-root": {
-            pl: 0, 
+            pl: 0,
             pr: 0,
           },
         }}
@@ -143,6 +144,29 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
             </Typography>
           </Stack>
 
+          {/* Status */}
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center" minWidth="120px">
+              <ScheduleIcon color="secondary" sx={{ fontSize: "1.3rem" }} />
+              <Typography
+                color="text.secondary"
+                fontWeight={600}
+                letterSpacing={0.3}
+              >
+                Status:
+              </Typography>
+            </Stack>
+
+            <Typography
+              fontSize={16}
+              fontWeight={500}
+              color="text.primary"
+              textTransform="capitalize"
+            >
+              {task.status || "todo"}
+            </Typography>
+          </Stack>
+
           {/* Due Date */}
           {task.dueDate && (
             <Stack direction="row" spacing={2} alignItems="center">
@@ -182,7 +206,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
               <Box
                 sx={{
                   p: 2.5,
-                  backgroundColor: theme.palette.background.paper, 
+                  backgroundColor: theme.palette.background.paper,
                   borderRadius: 1.5,
                   border: `1px solid ${theme.palette.divider}`,
                   whiteSpace: "pre-wrap",

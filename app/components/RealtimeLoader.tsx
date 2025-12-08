@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import useAppStore from '@/app/store/useAppStore'; 
+import useAppStore from '@/app/store/useAppStore';
 export default function RealtimeLoader() {
 
     const { user, initializeRealtime, projectId, subscribeToProjectUpdates } = useAppStore();
