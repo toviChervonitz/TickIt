@@ -1,4 +1,3 @@
-Tovi Chervonitz, 1 min
 "use client";
 
 import React from "react";
@@ -209,7 +208,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
                   p: 2.5,
                   backgroundColor: theme.palette.background.paper,
                   borderRadius: 1.5,
-                  border: 1px solid ${theme.palette.divider},
+                  border: `1px solid ${theme.palette.divider}`,
                   whiteSpace: "pre-wrap",
                   fontSize: 15,
                   lineHeight: 1.7,
