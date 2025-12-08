@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,6 +18,7 @@ import {
   Divider,
   IconButton,
   Stack,
+  Tooltip,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -26,13 +28,16 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import InsertChartIcon from "@mui/icons-material/InsertChart";
-import ChatIcon from "@mui/icons-material/Chat";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { logoutService } from "../lib/server/authServer";
 import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../lib/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 const DRAWER_WIDTH = 260;
+const COLLAPSED_WIDTH = 60;
+
 const hiddenRoutes = [
   "/pages/login",
   "/pages/register",
@@ -50,10 +55,9 @@ export default function Navbar() {
 
   const [hydrated, setHydrated] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => {
-    setHydrated(true);
-  }, []);
+  useEffect(() => setHydrated(true), []);
 
   if (!hydrated || !pathname) return null;
   if (hiddenRoutes.includes(pathname)) return null;
@@ -70,6 +74,7 @@ export default function Navbar() {
   };
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+  const handleCollapseToggle = () => setCollapsed(!collapsed);
 
   const menuItems = [
     { text: t("dashboard"), icon: <HomeIcon />, path: "/pages/dashboard" },
@@ -77,44 +82,73 @@ export default function Navbar() {
     { text: t("tasks"), icon: <AssignmentIcon />, path: "/pages/getAllTaskByUser" },
     { text: t("calendar"), icon: <CalendarTodayIcon />, path: "/pages/calendar" },
     { text: t("charts"), icon: <InsertChartIcon />, path: "/pages/charts" },
-
   ];
 
+  // ================================
+  //        FIXED TOP BAR HERE
+  // ================================
   const drawerContent = (
     <Box
       sx={{
         height: "100%",
-        backgroundColor: "background.default",
         display: "flex",
         flexDirection: "column",
+        width: collapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH,
+        transition: "width 0.3s",
+        backgroundColor: "background.default",
       }}
     >
-      {/* LOGO + LANGUAGE SWITCHER */}
+{/* TOP BAR */}
+<Box
+  sx={{
+    display: "flex",
+    flexDirection: "column",
+    p: 2,
+    borderBottom: "1px solid #e8eaed",
+  }}
+>
+  {/* ROW 1: collapse/expand button */}
+  <Box sx={{ display: "flex", justifyContent: "flex-end", mb: collapsed ? 0 : 1 }}>
+    <IconButton size="small" onClick={handleCollapseToggle}>
+      {collapsed
+        ? lang === "he"
+          ? <ChevronLeftIcon />
+          : <ChevronRightIcon />
+        : lang === "he"
+        ? <ChevronRightIcon />
+        : <ChevronLeftIcon />}
+    </IconButton>
+  </Box>
+
+  {/* DIVIDER BETWEEN ROWS */}
+  {!collapsed && <Divider sx={{ borderColor: "#e8eaed", mb: 1 }} />}
+
+  {/* ROW 2: Logo + Language (hidden in collapsed mode) */}
+  {!collapsed && (
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+      }}
+    >
+      {/* LOGO */}
       <Box
-        sx={{
-          p: 2,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderBottom: "1px solid #e8eaed"
-        }}
-      >
+        component="img"
+        src="/logo.png"
+        alt="TickIt Logo"
+        sx={{ height: 45, width: "auto" }}
+      />
 
-        <Box
-          component="img"
-          src="/logo.png"
-          alt="TickIt Logo"
-          sx={{
-            height: 45,
-            width: "auto",
-            objectFit: "contain"
-          }}
-        />
-        <Box sx={{ transform: "scale(0.7)", transformOrigin: "left" }}>
-          <LanguageSwitcher />
-        </Box>
-      </Box>
+      {/* LANGUAGE SWITCH */}
+      <LanguageSwitcher />
+    </Box>
+  )}
+</Box>
 
+
+
+      {/* MENU ITEMS */}
       <List sx={{ flex: 1, px: 1, py: 2 }}>
         {menuItems.map((item) => {
           const isActive =
@@ -122,37 +156,53 @@ export default function Navbar() {
             (item.text === t("projects") && pathname === "/pages/projectTask");
 
           return (
-            <ListItem key={item.text} disablePadding>
-              <ListItemButton
-                component={Link}
-                href={item.path}
-                onClick={() => setMobileOpen(false)}
-                sx={{
-                  borderRadius: 1.5,
-                  py: 1.2,
-                  px: 2,
-                  mb: 0.5,
-                  backgroundColor: isActive ? "rgba(61,210,204,0.12)" : "transparent",
-                  "&:hover": {
-                    backgroundColor: isActive
-                      ? "rgba(61,210,204,0.18)"
-                      : "rgba(0,0,0,0.04)",
-                  },
-                  transition: "background-color 0.2s ease",
-                }}
-              >
-                <ListItemIcon sx={{ color: isActive ? "#3dd2cc" : "#1d486a", minWidth: 36 }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  primaryTypographyProps={{
-                    fontSize: "0.95rem",
-                    fontWeight: isActive ? 600 : 500,
-                    color: "#1d486a",
+            <ListItem
+              key={item.text}
+              disablePadding
+              sx={{ justifyContent: collapsed ? "center" : "flex-start" }}
+            >
+              <Tooltip title={collapsed ? item.text : ""} placement="right">
+                <ListItemButton
+                  component={Link}
+                  href={item.path}
+                  onClick={() => setMobileOpen(false)}
+                  sx={{
+                    borderRadius: 1.5,
+                    py: 1.2,
+                    px: collapsed ? 0 : 2,
+                    mb: 0.5,
+                    justifyContent: collapsed ? "center" : "flex-start",
+                    backgroundColor: isActive ? "rgba(61,210,204,0.12)" : "transparent",
+                    "&:hover": {
+                      backgroundColor: isActive
+                        ? "rgba(61,210,204,0.18)"
+                        : "rgba(0,0,0,0.04)",
+                    },
+                    transition: "background-color 0.2s ease",
                   }}
-                />
-              </ListItemButton>
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: isActive ? "#3dd2cc" : "#1d486a",
+                      minWidth: 36,
+                      justifyContent: "center",
+                    }}
+                  >
+                    {item.icon}
+                  </ListItemIcon>
+
+                  {!collapsed && (
+                    <ListItemText
+                      primary={item.text}
+                      primaryTypographyProps={{
+                        fontSize: "0.95rem",
+                        fontWeight: isActive ? 600 : 500,
+                        color: "#1d486a",
+                      }}
+                    />
+                  )}
+                </ListItemButton>
+              </Tooltip>
             </ListItem>
           );
         })}
@@ -160,56 +210,79 @@ export default function Navbar() {
 
       <Divider sx={{ borderColor: "#e8eaed" }} />
 
+      {/* USER + LOGOUT */}
       {user && (
-        <Box sx={{ p: 2 }}>
+        <Box sx={{ p: collapsed ? 0 : 2 }}>
           <Stack
             direction="row"
             spacing={1.5}
             alignItems="center"
             sx={{
-              p: 1.5,
+              p: collapsed ? 0 : 1.5,
               borderRadius: 1.5,
               cursor: "pointer",
               "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
               transition: "background-color 0.2s ease",
+              justifyContent: collapsed ? "center" : "flex-start",
             }}
             onClick={handleProfile}
           >
-            <Avatar
-              src={user.image}
-              alt={user.name}
-              sx={{ width: 36, height: 36, backgroundColor: "#3dd2cc", fontSize: "0.95rem", fontWeight: 600 }}
-            >
-              {!user.image && user.name?.charAt(0).toUpperCase()}
-            </Avatar>
-            <Box sx={{ flex: 1, minWidth: 0 }}>
-              <Typography variant="body2" fontWeight={600} color="text.secondary" noWrap>
-                {user.name}
-              </Typography>
-              <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.75rem" }} noWrap>
-                {t("viewProfile")}
-              </Typography>
-            </Box>
+            <Tooltip title={collapsed ? user.name : ""} placement="right">
+              <Avatar
+                src={user.image}
+                alt={user.name}
+                sx={{
+                  width: 36,
+                  height: 36,
+                  backgroundColor: "#3dd2cc",
+                  fontSize: "0.95rem",
+                  fontWeight: 600,
+                }}
+              >
+                {!user.image && user.name?.charAt(0).toUpperCase()}
+              </Avatar>
+            </Tooltip>
+
+            {!collapsed && (
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="body2" fontWeight={600} color="text.secondary" noWrap>
+                  {user.name}
+                </Typography>
+                <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.75rem" }} noWrap>
+                  {t("viewProfile")}
+                </Typography>
+              </Box>
+            )}
           </Stack>
 
-          <ListItemButton
-            onClick={handleLogout}
-            sx={{
-              borderRadius: 1.5,
-              py: 1.2,
-              px: 2,
-              mt: 1,
-              "&:hover": { backgroundColor: "rgba(244,67,54,0.08)" },
-            }}
-          >
-            <ListItemIcon sx={{ color: "#d93025", minWidth: 36 }}>
-              <LogoutIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText
-              primary={t("logout")}
-              primaryTypographyProps={{ fontSize: "0.95rem", fontWeight: 500, color: "#d93025" }}
-            />
-          </ListItemButton>
+          <Tooltip title={collapsed ? t("logout") : ""} placement="right">
+            <ListItemButton
+              onClick={handleLogout}
+              sx={{
+                borderRadius: 1.5,
+                py: 1.2,
+                px: collapsed ? 0 : 2,
+                mt: 1,
+                justifyContent: collapsed ? "center" : "flex-start",
+                "&:hover": { backgroundColor: "rgba(244,67,54,0.08)" },
+              }}
+            >
+              <ListItemIcon sx={{ color: "#d93025", minWidth: 36, justifyContent: "center" }}>
+                <LogoutIcon fontSize="small" />
+              </ListItemIcon>
+
+              {!collapsed && (
+                <ListItemText
+                  primary={t("logout")}
+                  primaryTypographyProps={{
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    color: "#d93025",
+                  }}
+                />
+              )}
+            </ListItemButton>
+          </Tooltip>
         </Box>
       )}
     </Box>
@@ -217,13 +290,13 @@ export default function Navbar() {
 
   return (
     <>
+      {/* MOBILE TOGGLE */}
       <IconButton
         onClick={handleDrawerToggle}
         sx={{
           position: "fixed",
           top: 16,
           left: 16,
-          right: "auto",
           zIndex: 1300,
           display: { xs: "flex", md: "none" },
           backgroundColor: "white",
@@ -234,6 +307,7 @@ export default function Navbar() {
         {mobileOpen ? <CloseIcon /> : <MenuIcon />}
       </IconButton>
 
+      {/* MOBILE DRAWER */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -251,17 +325,20 @@ export default function Navbar() {
         {drawerContent}
       </Drawer>
 
+      {/* DESKTOP DRAWER */}
       <Drawer
         variant="permanent"
         sx={{
           display: { xs: "none", md: "block" },
-          width: DRAWER_WIDTH,
+          width: collapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH,
           flexShrink: 0,
           "& .MuiDrawer-paper": {
-            width: DRAWER_WIDTH,
+            width: collapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH,
             boxSizing: "border-box",
             backgroundColor: "background.default",
             border: "none",
+            overflowX: "hidden",
+            transition: "width 0.3s",
           },
         }}
         open
