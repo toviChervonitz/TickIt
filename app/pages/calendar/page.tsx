@@ -16,23 +16,14 @@ import {
   Typography,
   Chip,
   Paper,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  IconButton,
   Stack,
-  Fade,
   Slide,
   useTheme,
   alpha,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
 import { TransitionProps } from "@mui/material/transitions";
 
-/* ---------------- Helpers ---------------- */
 
 function getProjectKey(projectId?: Types.ObjectId | IProject | string): string {
   if (!projectId) return "Default";
@@ -58,17 +49,6 @@ function getProjectColor(projectId?: Types.ObjectId | IProject | string): string
   return "#888";
 }
 
-/* ---------------- Transition for Dialog ---------------- */
-const SlideTransition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement;
-  },
-  ref: React.Ref<unknown>,
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
-/* ---------------- Calendar Page ---------------- */
 
 export default function CalendarPage() {
   const { lang } = useLanguage();
@@ -83,7 +63,6 @@ export default function CalendarPage() {
   const [view, setView] = useState<View>("month");
   const [date, setDate] = useState<Date>(today);
 
-  // --- Dynamic localizer based on language ---
   const localesMap = { en: enUS, he };
   const localizer = dateFnsLocalizer({
     format,
@@ -93,7 +72,6 @@ export default function CalendarPage() {
     locales: { [lang]: localesMap[lang] },
   });
 
-  /* ------------ Load tasks ---------------- */
   useEffect(() => {
     let isMounted = true;
 
@@ -124,7 +102,6 @@ export default function CalendarPage() {
     };
   }, [user, tasks, setTasks]);
 
-  /* ------------ Calendar Events ---------------- */
   const events: RBCEvent[] = useMemo(() => {
     return (tasks || []).map((task) => {
       const isCompleted = task.status === "done" || !!task.completedDate;
@@ -151,7 +128,6 @@ export default function CalendarPage() {
     });
   }, [tasks, today]);
 
-  /* ------------ Project Legend ---------------- */
   const projectLegend = useMemo(() => {
     const unique: Record<string, { name: string; color: string }> = {};
 
@@ -220,7 +196,7 @@ export default function CalendarPage() {
         }
 
         .rbc-today {
-          background-color: ${alpha(theme.palette.primary.main, 0.08)};
+          background-color: ${alpha(theme.palette.secondary.main, 0.22)};
         }
 
         .rbc-off-range-bg {
@@ -233,6 +209,7 @@ export default function CalendarPage() {
           box-shadow: ${theme.shadows[2]};
           cursor: pointer;
           transition: transform 0.2s, box-shadow 0.2s;
+          padding: 4px 20px;
         }
 
         .rbc-event:hover {
@@ -296,73 +273,6 @@ export default function CalendarPage() {
         dir={lang === "he" ? "rtl" : "ltr"}
         sx={{ p: 3, maxWidth: 1400, mx: "auto" }}
       >
-        {/* Header */}
-        <Box sx={{ mb: 4 }}>
-          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
-            <CalendarMonthIcon sx={{ fontSize: 36, color: "primary.main" }} />
-            <Typography fontWeight="bold" color="text.primary">
-              {t("yourCalendar")}
-            </Typography>
-          </Stack>
-          <Typography variant="body1" color="text.secondary">
-            {lang === "he"
-              ? "נהל את המשימות שלך בצורה ויזואלית"
-              : "Manage your tasks visually"}
-          </Typography>
-        </Box>
-
-        {/* Legend */}
-        {projectLegend.length > 0 && (
-          <Paper
-            elevation={2}
-            sx={{
-              p: 3,
-              mb: 3,
-              borderRadius: 3,
-              border: 1,
-              borderColor: "divider",
-            }}
-          >
-            <Typography
-              variant="subtitle2"
-              fontWeight="bold"
-              color="text.secondary"
-              sx={{ mb: 2 }}
-            >
-              {lang === "he" ? "פרויקטים" : "Projects"}
-            </Typography>
-            <Stack direction="row" flexWrap="wrap" gap={1.5}>
-              {projectLegend.map((p) => (
-                <Chip
-                  key={p.key}
-                  label={p.name}
-                  sx={{
-                    bgcolor: alpha(p.color, 0.15),
-                    color: p.color,
-                    fontWeight: 600,
-                    border: 1,
-                    borderColor: alpha(p.color, 0.3),
-                    "& .MuiChip-label": {
-                      px: 2,
-                    },
-                  }}
-                  icon={
-                    <Box
-                      sx={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        bgcolor: p.color,
-                        ml: lang === "he" ? 0 : 1,
-                        mr: lang === "he" ? 1 : 0,
-                      }}
-                    />
-                  }
-                />
-              ))}
-            </Stack>
-          </Paper>
-        )}
 
         {/* Calendar */}
         <Paper
@@ -371,7 +281,8 @@ export default function CalendarPage() {
             p: 3,
             borderRadius: 3,
             border: 1,
-            borderColor: "divider",
+            borderColor: "background.default",
+            backgroundColor: "background.default",
           }}
         >
           <Calendar
