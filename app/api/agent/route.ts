@@ -162,20 +162,29 @@ export async function POST(req: Request) {
       model,
       contents: [
         {
-          text: `
-You are a project task generator.
+          text: ` You are a project task generator.
 Generate BETWEEN 2 AND 5 actionable development tasks.
 Each task MUST include:
-- title  
-- detailed markdown content
+- title
+- content (short, concise description, 1–3 sentences; do NOT add step-by-step instructions)
 - dueDate (ISO format YYYY-MM-DD)
 
-The project started on ${startDate}.
-Return ONLY JSON — an array of tasks. Each task MUST have { title, content, dueDate }.
-Prompt: ${userPrompt}
+Due date rules:
+- Short tasks (< 2 hours) → due tomorrow.
+- Longer tasks → add days based on task length.
+- If a task depends on another, its dueDate must be after the dependent task’s dueDate.
 
-IMPORTANT: Do not add any explanation or commentary. Return strictly valid JSON.
-          `,
+The project starts on ${startDate}. Use this date to calculate due dates.
+Language: Use English by default unless the user's prompt is entirely in another language.
+Return ONLY valid JSON — an array of tasks. Do not add any explanations.
+
+Example output:
+[
+  { "title": "Task 1", "content": "Short description", "dueDate": "2025-12-09" }
+]
+Prompt: ${userPrompt}
+`,
+
         },
       ],
     });
