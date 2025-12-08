@@ -80,7 +80,7 @@ export default function ChatFloating() {
                 direction: lang === "he" ? "rtl" : "ltr",
               }}
             >
-              Project Chat
+              {t("projectChat")}
             </Typography>
             <IconButton
               onClick={() => setOpen(false)}

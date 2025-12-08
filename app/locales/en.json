@@ -235,6 +235,7 @@
   "completedTasks": "Completed Tasks",
   "noProject": "No Project",
   "details": "Details",
-  "assignedTo": "Assigned To"
+  "assignedTo": "Assigned To",
+  "projectChat": "Project Chat"
 
 }

@@ -245,9 +245,11 @@
   "openChat": "פתח צ'אט",
   "projectsLegend": "אגדת פרויקטים",
   "completedTasks": "משימות שהושלמו",
-    "noProject": "אין פרויקט",
+  "noProject": "אין פרויקט",
   "details": "פרטים",
-    "assignedTo": "הוקצה ל"
+  "assignedTo": "הוקצה ל",
+  "projectChat": "צ'אט הפרויקט"
+  
 
 
 }
