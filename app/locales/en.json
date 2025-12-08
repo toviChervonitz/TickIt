@@ -236,6 +236,7 @@
   "noProject": "No Project",
   "details": "Details",
   "assignedTo": "Assigned To",
-  "projectChat": "Project Chat"
+  "projectChat": "Project Chat",
+  "status": "Status"
 
 }

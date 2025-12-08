@@ -115,7 +115,7 @@ export default function GetProjectTasks() {
     };
 
     loadProjectData();
-  }, [projectId, user]);
+  }, [projectId, user, setTasks]);
 
   // --- Filter Logic ---
   const filterAndSortTasks = (taskList: ITask[]) => {
