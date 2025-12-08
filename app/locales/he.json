@@ -244,5 +244,10 @@
   "send": "שלח",
   "openChat": "פתח צ'אט",
   "projectsLegend": "אגדת פרויקטים",
-  "completedTasks": "משימות שהושלמו"
+  "completedTasks": "משימות שהושלמו",
+    "noProject": "אין פרויקט",
+  "details": "פרטים",
+    "assignedTo": "הוקצה ל"
+
+
 }

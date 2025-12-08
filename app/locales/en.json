@@ -232,6 +232,9 @@
   "send": "Send",
   "openChat": "Open Chat",
   "projectsLegend": "Projects Legend",
-  "completedTasks": "Completed Tasks"
+  "completedTasks": "Completed Tasks",
+  "noProject": "No Project",
+  "details": "Details",
+  "assignedTo": "Assigned To"
 
 }
