@@ -35,11 +35,11 @@ const useAppStore = create(
   persist<AppState>(
     (set, get) => ({
       user: null,
-      projectId: null,//current project id
-      projectUsers: [],//user of current project
-      projectTasks: [],//tasks of current project
-      tasks: [],//all tasks
-      projects: [],//all projects
+      projectId: null,
+      projectUsers: [],
+      projectTasks: [],
+      tasks: [],
+      projects: [],
       pusherClient: null,
       messages: [],
 
@@ -58,38 +58,35 @@ const useAppStore = create(
       setTasks: (tasks) =>
         set((state) => ({ ...state, tasks })),
 
-      // setProjects: (projects) =>
-      //   set((state) => ({ ...state, projects })),
-setProjects: (projectsOrUpdater) =>
-    set((state) => {
-        let newProjects;
-        
-        if (typeof projectsOrUpdater === 'function') {
-            // אם זה פונקציה, הפעל אותה על המערך הקיים
-            newProjects = projectsOrUpdater(state.projects);
-        } else {
-            // אם זה מערך, השתמש בו ישירות
-            newProjects = projectsOrUpdater;
-        }
+      setProjects: (projectsOrUpdater) =>
+        set((state) => {
+          let newProjects;
 
-        return { ...state, projects: newProjects };
-    }),
+          if (typeof projectsOrUpdater === 'function') {
+            newProjects = projectsOrUpdater(state.projects);
+          } else {
+            newProjects = projectsOrUpdater;
+          }
+
+          return { ...state, projects: newProjects };
+        }),
       getProjectName: (projectId: string) => {
         const projects = get().projects;
         const projectRole = projects.find(p => p.project._id === projectId);
         return projectRole?.project?.name || null;
       },
 
-setMessages: (
-  messagesOrFn: IChatMessage[] | ((prev: IChatMessage[]) => IChatMessage[])
-) =>
-  set((state) => ({
-    ...state,
-    messages:
-      typeof messagesOrFn === "function"
-        ? messagesOrFn(state.messages)
-        : messagesOrFn,
-  })),
+      setMessages: (
+        messagesOrFn: IChatMessage[] | ((prev: IChatMessage[]) => IChatMessage[])
+      ) =>
+        set((state) => ({
+          ...state,
+          messages:
+            typeof messagesOrFn === "function"
+              ? messagesOrFn(state.messages)
+              : messagesOrFn,
+        })),
+
       subscribeToProjectUpdates: (projectId: string) => {
         const state = get();
         const pusherClient = state.pusherClient;
@@ -140,8 +137,6 @@ setMessages: (
           return;
         }
 
-        console.log(`Initializing Pusher for user ${userId}`);
-
         const pusherClient = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
           cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
           authEndpoint: "/api/pusher/auth",
@@ -163,7 +158,6 @@ setMessages: (
         channel.bind(
           "project-list-updated",
           (data: { project: IProject }) => {
-            console.log("עדכון רשימת פרויקטים גלובלי התקבל:", data.project);
 
             const updatedProjectData = data.project;
             const currentProjects = get().projects;
@@ -198,6 +192,10 @@ setMessages: (
               } else {
                 newTasks = currentTasks;
               }
+              if (data.task?.projectId?._id === state.projectId) {
+                const newProjectTasks = [data.task, ...state.projectTasks];
+                set({ projectTasks: newProjectTasks });
+              }
               break;
 
             case "UPDATE":
@@ -208,10 +206,20 @@ setMessages: (
                   t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
                 );
               }
+              if (data.task?.projectId?._id === state.projectId) {
+                const newProjectTasks = state.projectTasks.map(t =>
+                  t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
+                );
+                set({ projectTasks: newProjectTasks });
+              }
               break;
 
             case "DELETE":
               newTasks = currentTasks.filter(t => t._id !== data.taskId);
+              if (data.task?.projectId?._id === state.projectId) {
+                const newProjectTasks = state.projectTasks.filter(t => t._id !== data.taskId);
+                set({ projectTasks: newProjectTasks });
+              }
               break;
 
             default:
