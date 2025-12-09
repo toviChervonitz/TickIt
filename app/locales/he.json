@@ -244,5 +244,7 @@
   "send": "שלח",
   "openChat": "פתח צ'אט",
   "projectsLegend": "אגדת פרויקטים",
-  "completedTasks": "משימות שהושלמו"
+  "completedTasks": "משימות שהושלמו",
+  "expand": "הרחב", 
+  "collapse": "כווץ"
 }

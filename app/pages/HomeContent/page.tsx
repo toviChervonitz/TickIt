@@ -148,7 +148,7 @@ export default function Home() {
                   borderRadius: 4,
                   overflow: "hidden",
                   boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-                  transform: "perspective(1000px) rotateY(-5deg)",
+                  transform: "perspective(1000px) rotateY(-7deg)",
                   transition: "transform 0.3s ease",
                   "&:hover": {
                     transform: "perspective(1000px) rotateY(0deg)",

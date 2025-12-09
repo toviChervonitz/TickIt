@@ -232,6 +232,6 @@
   "send": "Send",
   "openChat": "Open Chat",
   "projectsLegend": "Projects Legend",
-  "completedTasks": "Completed Tasks"
-
-}
+  "completedTasks": "Completed Tasks",
+  "expand": "Expand", 
+  "collapse": "Collapse" }
