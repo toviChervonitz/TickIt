@@ -68,7 +68,8 @@ export async function GET(req: Request) {
       .populate("projectId")
       .select("projectId role")
       .select("lastOpenedAt")
-      .sort({"lastOpenedAt":-1});
+      .sort({ "lastOpenedAt": -1 });
+    console.log("last opened", projectLinks.map((p) => p.lastOpenedAt));
 
 
     const projectsWithRoles = projectLinks
@@ -78,7 +79,7 @@ export async function GET(req: Request) {
         lastOpenedAt: link.lastOpenedAt,
       }))
 
-    
+
     if (!projectsWithRoles.length) {
       return NextResponse.json(
         {
