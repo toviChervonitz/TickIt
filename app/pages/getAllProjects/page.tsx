@@ -398,7 +398,6 @@ export default function GetAllProjectsPage() {
         <Box />
       </Container>
 
-      {/* === מודל עריכה (Popup) === */}
       <Dialog
         open={!!editingProject}
         onClose={() => setEditingProject(null)}
@@ -418,17 +417,6 @@ export default function GetAllProjectsPage() {
           )}
         </DialogContent>
       </Dialog>
-      {/* {hasMore && (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <Button
-            variant="contained"
-            onClick={loadMore}
-            sx={{ borderRadius: 3, px: 4, py: 1.5 }}
-          >
-            טען עוד
-          </Button>
-        </Box>
-      )} */}
     </Box>
   );
 }

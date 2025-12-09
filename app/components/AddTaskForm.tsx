@@ -1,85 +1,6 @@
-// "use client";
-
-// import React, { ChangeEvent, FormEvent } from "react";
-// import useAppStore from "@/app/store/useAppStore";
-// import { getTranslation } from "../lib/i18n";
-
-// export interface TaskFormData {
-//   title: string;
-//   content: string;
-//   userId: string;
-//   dueDate: string;
-//   status: "todo" | "doing" | "done";
-// }
-
-// interface TaskFormProps {
-//   task: TaskFormData;
-//   setTask: (t: TaskFormData) => void;
-//   onSubmit: () => void; 
-// }
-
-// export default function TaskForm({ task, setTask, onSubmit }: TaskFormProps) {
-//   const { projectUsers } = useAppStore();
-//   const t = getTranslation();
-
-//   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-//     const { name, value } = e.target;
-//     setTask({ ...task, [name]: value });
-//   };
-
-//   console.log(projectUsers,"in form to add task");
-
-//   return (
-//     <form
-//       className="create-project-form"
-//       onSubmit={(e: FormEvent) => {
-//         e.preventDefault();
-//         onSubmit();
-//       }}
-//     >
-//       <input
-//         type="text"
-//         name="title"
-//         placeholder={t("taskTitle")}
-//         value={task.title}
-//         onChange={handleChange}
-//         required
-//       />
-//       <textarea
-//         name="content"
-//         placeholder={t("taskContent")}
-//         value={task.content}
-//         onChange={handleChange}
-//       />
-//       <select
-//         name="userId"
-//         value={task.userId}
-//         onChange={handleChange}
-//         required
-//       >
-//         <option value="">{`-- ${t("assignTo")} --`}</option>
-//         (projectUsers)(
-//         {projectUsers.map((user) => (
-//           <option key={user._id} value={user._id}>
-//             {user.email}
-//           </option>
-//         ))})
-//       </select>
-//       <input
-//         type="date"
-//         name="dueDate"
-//         value={task.dueDate}
-//         onChange={handleChange}
-//         required
-//         min={new Date().toISOString().split("T")[0]}
-//       />
-//       <button type="submit">{t("addTask")}</button>
-//     </form>
-//   );
-// }
 "use client";
 
-import React, { ChangeEvent, FormEvent } from "react";
+import React, { ChangeEvent, FormEvent, useState } from "react";
 import useAppStore from "@/app/store/useAppStore";
 import { getTranslation } from "../lib/i18n";
 
@@ -88,11 +9,11 @@ import {
   Button,
   Stack,
   MenuItem,
-  GridLegacy as Grid,
   Box,
   Paper,
+  CircularProgress,
+  useTheme,
   useMediaQuery,
-  useTheme
 } from "@mui/material";
 
 export interface TaskFormData {
@@ -106,7 +27,7 @@ export interface TaskFormData {
 interface TaskFormProps {
   task: TaskFormData;
   setTask: (t: TaskFormData) => void;
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>; // חשוב! שיהיה async כדי שנוכל לחכות
   variant?: "popup" | "page";
 }
 
@@ -121,6 +42,8 @@ export default function TaskForm({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -128,9 +51,15 @@ export default function TaskForm({
     setTask({ ...task, [name]: value });
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    onSubmit();
+    setLoading(true);
+
+    try {
+      await onSubmit(); // שולח למסד נתונים
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -145,7 +74,6 @@ export default function TaskForm({
     >
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={variant === "popup" ? 2 : 3}>
-
           {/* Title */}
           <TextField
             fullWidth
@@ -169,6 +97,7 @@ export default function TaskForm({
             rows={variant === "popup" ? 3 : 4}
           />
 
+          {/* Row */}
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={2}
@@ -205,51 +134,35 @@ export default function TaskForm({
             />
           </Stack>
 
-
           {/* Submit Button */}
-          <Box
-            sx={{
-              width: "100%",
-              mt: 1,
-            }}
-          >
-            {variant === "popup" ? (
-              /* POPUP BUTTON — טורקיז ורחב */
-              <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                size="small"
-                sx={{
-                  textTransform: "none",
-                  py: 1.3,
-                  background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
-                  "&:hover": {
-                    background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
-                  },
-                }}
-              >
-                {t("addTask")}
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                size="medium"
-                sx={{
-                  textTransform: "none",
-                  py: 1.4,
-                  bgcolor: "#1B4A71",
-                  "&:hover": { bgcolor: "#163B5A" },
-                }}
-              >
-                {t("addTask")}
-              </Button>
-            )}
+          <Box sx={{ width: "100%", mt: 1 }}>
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={loading}
+              sx={{
+                textTransform: "none",
+                py: 1.3,
+                background:
+                  variant === "popup"
+                    ? "linear-gradient(to bottom, #3dd2cc, #2dbfb9)"
+                    : "#1B4A71",
+                "&:hover": {
+                  background:
+                    variant === "popup"
+                      ? "linear-gradient(to bottom, #2dbfb9, #1fa9a3)"
+                      : "#163B5A",
+                },
+              }}
+            >
+              {loading ? (
+                <CircularProgress size={22} sx={{ color: "white" }} />
+              ) : (
+                t("addTask")
+              )}
+            </Button>
           </Box>
-
-
         </Stack>
       </Box>
     </Paper>
