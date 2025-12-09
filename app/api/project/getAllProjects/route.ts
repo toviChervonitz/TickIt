@@ -64,21 +64,19 @@ export async function GET(req: Request) {
 
     const userId = currentUser.id;
 
-    const projectLinks = await ProjectUser.find({ userId })
+    // const projectLinks = await ProjectUser.find({ userId, isArchive: false })
+    const projectLinks = await ProjectUser.find({ userId, isArchived: false })
       .populate("projectId")
       .select("projectId role")
       .select("lastOpenedAt")
-      .sort({ "lastOpenedAt": -1 });
-    console.log("last opened", projectLinks.map((p) => p.lastOpenedAt));
+      .sort({ lastOpenedAt: -1 });
+    console.log("projectLink", projectLinks);
 
-
-    const projectsWithRoles = projectLinks
-      .map((link) => ({
-        project: link.projectId,
-        role: link.role,
-        lastOpenedAt: link.lastOpenedAt,
-      }))
-
+    const projectsWithRoles = projectLinks.map((link) => ({
+      project: link.projectId,
+      role: link.role,
+      lastOpenedAt: link.lastOpenedAt,
+    }));
 
     if (!projectsWithRoles.length) {
       return NextResponse.json(
