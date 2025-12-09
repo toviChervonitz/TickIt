@@ -148,7 +148,7 @@ export default function Home() {
                   borderRadius: 4,
                   overflow: "hidden",
                   boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
-                  transform: "perspective(1000px) rotateY(-5deg)",
+                  transform: "perspective(1000px) rotateY(-7deg)",
                   transition: "transform 0.3s ease",
                   "&:hover": {
                     transform: "perspective(1000px) rotateY(0deg)",
@@ -289,18 +289,26 @@ export default function Home() {
           <Grid item xs={12} md={6}>
             <Box
               sx={{
-                borderRadius: 4,
-                overflow: "hidden",
-                boxShadow: "0 16px 40px rgba(0,0,0,0.12)",
-              }}
+                  position: "relative",
+                  borderRadius: 4,
+                  overflow: "hidden",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+                  transform: "perspective(1000px) rotateY(5deg)",
+                  transition: "transform 0.3s ease",
+                  "&:hover": {
+                    transform: "perspective(1000px) rotateY(0deg)",
+                  },
+                }}
             >
               <Box
                 component="img"
-                src=""
+                src="https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6RHNxTy6eAJQDXpO1g64C0kGtq3MuPSHli2Kd"
                 alt="Features preview"
                 sx={{
                   width: "100%",
                   display: "block",
+                  border: "8px solid rgba(255,255,255,0.1)",
+                  borderRadius: 3,
                 }}
               />
             </Box>

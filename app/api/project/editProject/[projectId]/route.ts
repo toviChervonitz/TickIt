@@ -71,11 +71,11 @@ export async function PUT(
         const userChannels = userIds.map(id => `private-user-${id}`);
 
         await pusher.trigger(
-            userChannels,                      
-            "project-list-updated",             
-            { project: updatedProjectObject }   
+            userChannels,
+            "project-list-updated",
+            { project: updatedProjectObject }
         );
-        console.log(`Global Pusher trigger sent to ${userChannels.length} users for project list update.`);
+
     } catch (globalPusherError) {
         console.error("Pusher error on global project list update:", globalPusherError);
     }

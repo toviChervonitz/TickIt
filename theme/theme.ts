@@ -11,7 +11,7 @@ export const getTheme = (lang: "en" | "he" | "ar") => {
       mode: "light",
       primary: { main: "#1d486a" },
       secondary: { main: "#3dd2cc" },
-      background: { default: "#F7F5F0", paper: "#ffffff" },
+      background: { default: "#F7F5F0", paper: "#ffffffff" },
       text: { primary: "#122d42", secondary: "#1d486a", },
     },
     typography: {

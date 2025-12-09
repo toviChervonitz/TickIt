@@ -18,6 +18,7 @@ const ProjectUserSchema = new mongoose.Schema(
       enum: ["manager", "viewer"],
       default: "viewer",
     },
+    lastOpenedAt: { type: Date},
   },
   { timestamps: true }
 );
