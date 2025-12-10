@@ -116,7 +116,7 @@ import { GoogleGenAI } from "@google/genai";
 
 // Initialize GenAI client
 const ai = new GoogleGenAI({
-  apiKey: process.env.NEW_GEMINI || "",
+  apiKey: process.env.GEMINI_API_KEY || "",
 });
 
 // Helper: extract first JSON block from AI output
