@@ -3,6 +3,11 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import useAppStore from "@/app/store/useAppStore";
 import { getTranslation } from "../lib/i18n";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { he, enUS } from "date-fns/locale";
+import { InputAdornment } from "@mui/material";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 import {
   TextField,
@@ -131,18 +136,43 @@ export default function TaskForm({
     </MenuItem>
   ))}
 </TextField>
+<Box sx={{ direction: lang === "he" ? "rtl" : "ltr" }}>
+  <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={lang === "he" ? he : enUS}>
+    <DatePicker
+      label={t("dueDate")}
+      value={task.dueDate ? new Date(task.dueDate) : null}
+      onChange={(newValue) => {
+        setTask({ ...task, dueDate: newValue ? newValue.toISOString().split("T")[0] : "" });
+      }}
+      slotProps={{
+        textField: {
+          fullWidth: true,
+          size: "small",
+          required: true,
+          InputLabelProps: { shrink: true },
+        },
+        popper: {
+          sx: {
+            "& .MuiPickersCalendarHeader-root": {
+              justifyContent: lang === "he" ? "flex-end" : "flex-start",
+              flexDirection: lang === "he" ? "row-reverse" : "row",
+            },
+            "& .MuiPickersArrowSwitcher-root": {
+              flexDirection: lang === "he" ? "row-reverse" : "row",
+            },
+            "& .MuiPickersCalendarHeader-label": {
+              textAlign: lang === "he" ? "right" : "center",
+            },
+            "& .MuiPickersWeekdays-container": {
+              flexDirection: lang === "he" ? "row-reverse" : "row", // flip weekdays
+            },
+          },
+        },
+      }}
+    />
+  </LocalizationProvider>
+</Box>
 
-            <TextField
-              type="date"
-              label={t("dueDate")}
-              name="dueDate"
-              fullWidth
-              size="small"
-              value={task.dueDate}
-              onChange={handleChange}
-              InputLabelProps={{ shrink: true }}
-              required
-            />
           </Stack>
 
           {/* Submit Button */}
