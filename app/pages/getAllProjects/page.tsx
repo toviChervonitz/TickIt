@@ -39,7 +39,7 @@ import Archive from "@/app/components/Archive";
 import ShowArchive from "@/app/components/ShowArchive";
 
 const MAIN_COLOR = "secondary.main";
-const LIMIT=8;
+const LIMIT = 8;
 
 export default function GetAllProjectsPage() {
   const { lang } = useLanguage();
@@ -262,7 +262,7 @@ export default function GetAllProjectsPage() {
                 >
                   <Card
                     elevation={0}
-                    onClick={() => getIntoProject(p)}
+                    // onClick={() => getIntoProject(p)}
                     sx={{
                       width: "100%",
                       display: "flex",
@@ -375,6 +375,7 @@ export default function GetAllProjectsPage() {
                       }}
                     >
                       <Box
+                        onClick={() => getIntoProject(p)}
                         sx={{
                           display: "flex",
                           alignItems: "center",
