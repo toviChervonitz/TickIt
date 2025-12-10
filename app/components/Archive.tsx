@@ -13,7 +13,6 @@ export default function Archive({ projectId, userId, archived }: ArchiveProps) {
   async function archive(isArchive: boolean) {
     const res = await toArchive(projectId, userId, isArchive);
     if (res.ok) {
-      // עדכון מקומי בסטור
       setProjects(
         projects.map((p) =>
           p.project._id === projectId ? { ...p, isArchived: isArchive } : p
