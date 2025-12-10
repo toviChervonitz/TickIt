@@ -36,9 +36,10 @@ import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
 import Archive from "@/app/components/Archive";
+import ShowArchive from "@/app/components/ShowArchive";
 
 const MAIN_COLOR = "secondary.main";
-const LIMIT = 8;
+const LIMIT=8;
 
 export default function GetAllProjectsPage() {
   const { lang } = useLanguage();
@@ -56,6 +57,7 @@ export default function GetAllProjectsPage() {
     null
   );
   const [loadingMore, setLoadingMore] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
 
   // ==== edit ====
 
@@ -145,12 +147,6 @@ export default function GetAllProjectsPage() {
 
   const projectsToDisplay = filteredProjects;
 
-  //==============archive=====================
-  async function archive(projectId: string, isArchive: boolean) {
-    const res = await toArchive(projectId, user?._id, isArchive);
-    console.log("return from archive", res);
-    // fetchProjects()
-  }
   console.log("projectsToDisplay", projectsToDisplay);
 
   useEffect(() => {
@@ -188,7 +184,7 @@ export default function GetAllProjectsPage() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
-<ShowArchive/>
+            <ShowArchive show={showArchive} setShowArchive={setShowArchive} />
 
             {/* 2. שדה קלט לחיפוש */}
             <TextField
