@@ -53,7 +53,6 @@ export default function TasksByProjectBarChart({ tasks }: Props) {
           <XAxis dataKey="name" />
           <YAxis allowDecimals={false} />
           <Tooltip formatter={(value: number) => [`${value} tasks`, "Tasks"]} />
-          <Legend />
           <Bar dataKey="tasks">
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
