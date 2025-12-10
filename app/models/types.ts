@@ -7,6 +7,7 @@ export interface IProject {
   description?: string;
   tasks?: mongoose.Types.ObjectId[];
   color: string;
+  // isArchived:boolean;
 }
 
 export type Lang = "en" | "he";
@@ -15,12 +16,13 @@ export type Lang = "en" | "he";
 export interface IProjectRole {
   project: IProject;
   role: "manager" | "viewer";
+  isArchived:boolean;
 }
 
-export interface IProjectRole {
-  project: IProject;
-  role: "manager" | "viewer";
-}
+// export interface IProjectRole {
+//   project: IProject;
+//   role: "manager" | "viewer";
+// }
 
 export interface IProjectUser {
   _id?: string;
