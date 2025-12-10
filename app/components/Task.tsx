@@ -17,6 +17,7 @@ import {
   Button,
   DialogContent,
   DialogTitle,
+  TextField,
 } from "@mui/material";
 
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -26,6 +27,7 @@ import FolderIcon from "@mui/icons-material/Folder";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 
 import { getTranslation } from "../lib/i18n";
 import { useLanguage } from "../context/LanguageContext";
@@ -77,6 +79,7 @@ const Task: React.FC<TaskProps> = ({
     null
   );
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   const formattedDate = dueDate
     ? new Date(dueDate).toLocaleDateString("en-GB")
@@ -98,6 +101,18 @@ const Task: React.FC<TaskProps> = ({
     onStatusChange?.(_id, newStatus, userId);
   };
 
+  const handleDeleteConfirm = () => {
+    if (deleteConfirmText.toLowerCase() === "delete") {
+      onDelete?.(_id);
+      setConfirmOpen(false);
+      setDeleteConfirmText("");
+    }
+  };
+
+  const handleDialogClose = () => {
+    setConfirmOpen(false);
+    setDeleteConfirmText("");
+  };
 
   const getKanbanColor = (id: "todo" | "doing" | "done") => {
     return KANBAN_COLUMNS_CONFIG.find(c => c.id === id);
@@ -320,30 +335,174 @@ const Task: React.FC<TaskProps> = ({
       <Dialog
         dir={isRTL ? "rtl" : "ltr"}
         open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        onClose={handleDialogClose}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            p: 2,
+            borderRadius: "16px",
+            backgroundColor: "white",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.15)",
+          },
+        }}
       >
-        <DialogTitle>{t("deleteTask")}</DialogTitle>
+        {/* Warning Icon Header */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            pt: 2,
+            pb: 1,
+          }}
+        >
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: "50%",
+              backgroundColor: "#fef2f2",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <WarningAmberRoundedIcon
+              sx={{
+                fontSize: 36,
+                color: "#dc2626",
+              }}
+            />
+          </Box>
+        </Box>
 
-        <DialogContent>
-          <Typography>{t("areYouSure")}</Typography>
+        <DialogTitle
+          sx={{
+            textAlign: "center",
+            fontWeight: 700,
+            fontSize: "1.35rem",
+            color: "#1d1d1d",
+            mb: 0.5,
+            pt: 2,
+            pb: 1,
+          }}
+        >
+          {t("deleteTask")}
+        </DialogTitle>
+
+        <DialogContent sx={{ textAlign: "center", pb: 2 }}>
+          <Typography
+            sx={{
+              fontSize: "0.95rem",
+              color: "#6b7280",
+              mb: 3,
+              lineHeight: 1.6,
+            }}
+          >
+          </Typography>
+
+          {/* Confirmation Input */}
+          <Box sx={{ mt: 2 }}>
+            <Typography
+              sx={{
+                fontSize: "0.85rem",
+                color: "#374151",
+                mb: 1.5,
+                fontWeight: 500,
+                textAlign: isRTL ? "right" : "left",
+              }}
+            >
+              {isRTL 
+                ? 'הקלד "delete" כדי לאשר מחיקה'
+                : 'Type "delete" to confirm'}
+            </Typography>
+            <TextField
+              fullWidth
+              value={deleteConfirmText}
+              onChange={(e) => setDeleteConfirmText(e.target.value)}
+              placeholder="delete"
+              autoFocus
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "10px",
+                  backgroundColor: "#f9fafb",
+                  "&:hover fieldset": {
+                    borderColor: "#d1d5db",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#dc2626",
+                    borderWidth: "2px",
+                  },
+                },
+              }}
+              onKeyPress={(e) => {
+                if (e.key === "Enter" && deleteConfirmText.toLowerCase() === "delete") {
+                  handleDeleteConfirm();
+                }
+              }}
+            />
+          </Box>
         </DialogContent>
 
-        <DialogActions>
-          <Button onClick={() => setConfirmOpen(false)}>
+        <DialogActions
+          sx={{
+            justifyContent: "center",
+            gap: 1.5,
+            px: 3,
+            pb: 3,
+            pt: 1,
+          }}
+        >
+          {/* Cancel Button */}
+          <Button
+            variant="outlined"
+            onClick={handleDialogClose}
+            sx={{
+              px: 4,
+              py: 1,
+              borderRadius: "10px",
+              fontWeight: 600,
+              color: "#6b7280",
+              borderColor: "#d1d5db",
+              textTransform: "none",
+              fontSize: "0.95rem",
+              "&:hover": {
+                borderColor: "#9ca3af",
+                backgroundColor: "#f9fafb",
+              },
+            }}
+          >
             {t("cancel")}
           </Button>
 
+          {/* Delete Button */}
           <Button
-            color="error"
-            onClick={() => {
-              onDelete?.(_id);
-              setConfirmOpen(false);
+            variant="contained"
+            onClick={handleDeleteConfirm}
+            disabled={deleteConfirmText.toLowerCase() !== "delete"}
+            sx={{
+              px: 4,
+              py: 1,
+              borderRadius: "10px",
+              fontWeight: 600,
+              textTransform: "none",
+              fontSize: "0.95rem",
+              backgroundColor: "#dc2626",
+              "&:hover": {
+                backgroundColor: "#b91c1c",
+              },
+              "&:disabled": {
+                backgroundColor: "#fca5a5",
+                color: "#ffffff",
+                opacity: 0.6,
+              },
             }}
           >
             {t("delete")}
           </Button>
         </DialogActions>
       </Dialog>
+
     </Card>
   );
 };

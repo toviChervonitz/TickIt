@@ -18,6 +18,11 @@ const ProjectUserSchema = new mongoose.Schema(
       enum: ["manager", "viewer"],
       default: "viewer",
     },
+    lastOpenedAt: { type: Date },
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

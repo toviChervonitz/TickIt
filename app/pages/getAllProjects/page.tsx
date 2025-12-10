@@ -1,6 +1,10 @@
 "use client";
 
-import { GetAllProjectsByUserId } from "@/app/lib/server/projectServer";
+import {
+  GetAllProjectsByUserId,
+  openProject,
+  toArchive,
+} from "@/app/lib/server/projectServer";
 import { IProject, IProjectRole } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
 import { useRouter } from "next/navigation";
@@ -31,22 +35,23 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
+import Archive from "@/app/components/Archive";
 
 const MAIN_COLOR = "secondary.main";
 const LIMIT = 8;
 
 export default function GetAllProjectsPage() {
-
   const { lang } = useLanguage();
   const t = getTranslation();
 
-  const { user, projects, setProjects, setProjectId, setMessages } = useAppStore();
+  const { user, projects, setProjects, setProjectId, setMessages } =
+    useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  // const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [editingProject, setEditingProject] = useState<ProjectForm | null>(
     null
   );
@@ -75,7 +80,8 @@ export default function GetAllProjectsPage() {
     if (!user?._id) return;
     setLoading(true);
     try {
-      const response = await GetAllProjectsByUserId(user?._id!, 0, LIMIT);
+      // const response = await GetAllProjectsByUserId(user?._id!, 0, LIMIT);
+      const response = await GetAllProjectsByUserId(user._id!);
       setProjects(response.projects || []);
       // setPage((prev)=>prev+1);
       if (response.projects.length < LIMIT) setHasMore(false);
@@ -89,39 +95,37 @@ export default function GetAllProjectsPage() {
   //================lazy loading=============
   async function loadMore() {
     if (!user?._id || !hasMore || loadingMore) return;
-    console.log("in load more ()");
+    // if ( !hasMore ) return;
 
     setLoadingMore(true);
     try {
       console.log("page", page);
-
+      const skip = page * LIMIT;
       const response = await GetAllProjectsByUserId(
-        user?._id!,
-        page * LIMIT,
-        LIMIT
+        user._id!
+        // skip,
+        // LIMIT
       );
       // setPage(1);
       if (response.projects.length < LIMIT) {
         setHasMore(false);
       }
-      console.log("response in load more", response);
-      console.log("projects in load more", projects);
-
-      // setProjects([...projects, ...response.projects]);
 
       setProjects((prevProjects) => [...prevProjects, ...response.projects]);
 
       setPage((prevPage) => prevPage + 1);
     } catch (err) {
-      console.error("Load more error:", err);
     } finally {
       setLoadingMore(false);
     }
   }
+
   //================== single project============
-  const getIntoProject = (project: IProject) => {
+  const getIntoProject = async (project: IProject) => {
     setProjectId(project._id!);
     setMessages([]); // clear messages when entering a new project
+    const res = await openProject(project._id, user?._id);
+
     router.push("/pages/projectTask");
   };
   //=========filter============
@@ -140,32 +144,18 @@ export default function GetAllProjectsPage() {
   }, [projects, searchTerm]);
 
   const projectsToDisplay = filteredProjects;
+
+  //==============archive=====================
+  async function archive(projectId: string, isArchive: boolean) {
+    const res = await toArchive(projectId, user?._id, isArchive);
+    console.log("return from archive", res);
+    // fetchProjects()
+  }
   console.log("projectsToDisplay", projectsToDisplay);
 
   useEffect(() => {
     fetchProjects();
   }, [user]);
-
-  useEffect(() => {
-    if (!loadMoreRef.current) return;
-    if (!hasMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          console.log("project in use effect", projects);
-
-          loadMore();
-        }
-      },
-      { threshold: 1 }
-    );
-
-    observer.observe(loadMoreRef.current);
-
-    return () => observer.disconnect();
-    // }, [loadMoreRef, hasMore, page, projects]);
-  }, [loadMoreRef, hasMore, page, loadingMore]);
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 5 }}>
@@ -198,6 +188,8 @@ export default function GetAllProjectsPage() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
+<ShowArchive/>
+
             {/* 2. שדה קלט לחיפוש */}
             <TextField
               variant="outlined"
@@ -258,8 +250,9 @@ export default function GetAllProjectsPage() {
             {projectsToDisplay.map((wrapper: IProjectRole) => {
               const p = wrapper.project;
               // console.log("p : ", p);
-
+              if (!p) return;
               const dotColor = p.color;
+              // const dotColor = p.color|| "#F7F5F0";
 
               return (
                 <Grid
@@ -373,6 +366,8 @@ export default function GetAllProjectsPage() {
                       >
                         {p.description || t("noDescription")}
                       </Typography>
+                      <Archive projectId={p._id} userId={user!._id} />
+                      {/* <button onClick={()=>archive(p._id!,true)}>archive</button> */}
                     </CardContent>
 
                     <Box
@@ -412,10 +407,10 @@ export default function GetAllProjectsPage() {
             <Typography color="text.secondary">{t("noProjectsYet")}</Typography>
           </Box>
         )}
-        <Box ref={loadMoreRef} sx={{ height: 50 }} /> {/* אלמנט סוף */}
+        {/* <Box ref={loadMoreRef} sx={{ height: 50 }} />  */}
+        <Box />
       </Container>
 
-      {/* === מודל עריכה (Popup) === */}
       <Dialog
         open={!!editingProject}
         onClose={() => setEditingProject(null)}
@@ -435,17 +430,6 @@ export default function GetAllProjectsPage() {
           )}
         </DialogContent>
       </Dialog>
-      {/* {hasMore && (
-        <Box sx={{ textAlign: "center", mt: 4 }}>
-          <Button
-            variant="contained"
-            onClick={loadMore}
-            sx={{ borderRadius: 3, px: 4, py: 1.5 }}
-          >
-            טען עוד
-          </Button>
-        </Box>
-      )} */}
     </Box>
   );
 }

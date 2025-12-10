@@ -1,4 +1,3 @@
-
 import ProjectModel from "@/app/models/ProjectModel";
 import { projectSchema } from "../validation";
 import { getAuthenticatedUser } from "../jwt";
@@ -26,10 +25,13 @@ export async function CreateProject(form: any) {
   return { status: res.status, ...data };
 }
 //==================fetch===========
-export async function GetAllProjectsByUserId(userId: string | null, skip=0, limit=8) {
+export async function GetAllProjectsByUserId(
+  userId: string | null | undefined
+) {
+  // export async function GetAllProjectsByUserId(userId: string | null, skip=0, limit=8) {
   try {
-
-    const res = await fetch(`/api/project/getAllProjects?userId=${userId}&skip=${skip}&limit=${limit}`, {
+    const res = await fetch(`/api/project/getAllProjects?userId=${userId}`, {
+      // const res = await fetch(`/api/project/getAllProjects?userId=${userId}&skip=${skip}&limit=${limit}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -48,9 +50,11 @@ export async function GetAllProjectsByUserId(userId: string | null, skip=0, limi
   }
 }
 
-export async function getUserRoleInProject(userId: string | undefined, projectId: string | null) {
+export async function getUserRoleInProject(
+  userId: string | undefined,
+  projectId: string | null
+) {
   try {
-
     const res = await fetch(
       `/api/projectUser/getUserRoleInProject?userId=${userId}&projectId=${projectId}`,
       {
@@ -64,7 +68,9 @@ export async function getUserRoleInProject(userId: string | undefined, projectId
 
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.message || data.error || "Failed to fetch user role in project");
+      throw new Error(
+        data.message || data.error || "Failed to fetch user role in project"
+      );
     }
     return data.role;
   } catch (error) {
@@ -73,7 +79,10 @@ export async function getUserRoleInProject(userId: string | undefined, projectId
   }
 }
 
-export async function UpdateProject(projectId: string, updates: Partial<{ name: string; description: string; }>) {
+export async function UpdateProject(
+  projectId: string,
+  updates: Partial<{ name: string; description: string }>
+) {
   const res = await fetch(`/api/project/editProject/${projectId}`, {
     method: "PUT",
     headers: {
@@ -86,4 +95,35 @@ export async function UpdateProject(projectId: string, updates: Partial<{ name: 
     throw new Error(data.message || data.error || "Project update failed");
   }
   return data;
+}
+//===========open project================
+export async function openProject(
+  projectId: string | undefined,
+  userId: string | undefined
+) {
+  const res = await fetch("/api/projectUser/usageUpdate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, projectId }),
+  });
+  if (!res.ok) {
+    throw new Error("Project update last open failed");
+  }
+  return res;
+}
+//============archive=============
+export async function toArchive(
+  projectId: string | undefined,
+  userId: string | undefined,
+  isArchive: boolean
+) {
+  const res = await fetch("/api/projectUser/archive", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, projectId, isArchive }),
+  });
+  if (!res.ok) {
+    throw new Error("Project update last open failed");
+  }
+  return res;
 }

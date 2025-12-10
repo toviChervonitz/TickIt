@@ -245,6 +245,8 @@
   "openChat": "פתח צ'אט",
   "projectsLegend": "אגדת פרויקטים",
   "completedTasks": "משימות שהושלמו",
+  "expand": "הרחב", 
+  "collapse": "כווץ",
   "noProject": "אין פרויקט",
   "details": "פרטים",
   "assignedTo": "הוקצה ל",

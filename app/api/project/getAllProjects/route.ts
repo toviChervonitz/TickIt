@@ -48,16 +48,13 @@
 // }
 
 import { dbConnect } from "@/app/lib/DB";
-import {  getAuthenticatedUser } from "@/app/lib/jwt";
+import { getAuthenticatedUser } from "@/app/lib/jwt";
 import "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
   await dbConnect();
-  const { searchParams } = new URL(req.url);
-  const skip = Number(searchParams.get("skip")) || 0;
-  const limit = Number(searchParams.get("limit")) || 8;
 
   try {
     const currentUser = await getAuthenticatedUser();
@@ -67,13 +64,21 @@ export async function GET(req: Request) {
 
     const userId = currentUser.id;
 
-    const projectLinks = await ProjectUser.find({ userId })
-      .skip(skip)
-      .limit(limit)
+    // const projectLinks = await ProjectUser.find({ userId, isArchive: false })
+    const projectLinks = await ProjectUser.find({ userId, isArchived: false })
       .populate("projectId")
-      .select("projectId role");
+      .select("projectId role")
+      .select("lastOpenedAt")
+      .sort({ lastOpenedAt: -1 });
+    console.log("projectLink", projectLinks);
 
-    if (!projectLinks.length) {
+    const projectsWithRoles = projectLinks.map((link) => ({
+      project: link.projectId,
+      role: link.role,
+      lastOpenedAt: link.lastOpenedAt,
+    }));
+
+    if (!projectsWithRoles.length) {
       return NextResponse.json(
         {
           status: "success",
@@ -84,12 +89,6 @@ export async function GET(req: Request) {
         { status: 200 }
       );
     }
-
-    console.log("projects link in router", projectLinks);
-    const projectsWithRoles = projectLinks.map((link) => ({
-      project: link.projectId,
-      role: link.role,
-    }));
 
     return NextResponse.json(
       {
