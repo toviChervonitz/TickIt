@@ -3,6 +3,7 @@
 import {
   GetAllProjectsByUserId,
   openProject,
+  toArchive,
 } from "@/app/lib/server/projectServer";
 import { IProject, IProjectRole } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
@@ -34,6 +35,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
+import Archive from "@/app/components/Archive";
 
 const MAIN_COLOR = "secondary.main";
 const LIMIT = 8;
@@ -122,9 +124,8 @@ export default function GetAllProjectsPage() {
   const getIntoProject = async (project: IProject) => {
     setProjectId(project._id!);
     setMessages([]); // clear messages when entering a new project
-    const res= await openProject(project._id, user?._id);
-    console.log("return from last open",res);
-    
+    const res = await openProject(project._id, user?._id);
+
     router.push("/pages/projectTask");
   };
   //=========filter============
@@ -143,6 +144,13 @@ export default function GetAllProjectsPage() {
   }, [projects, searchTerm]);
 
   const projectsToDisplay = filteredProjects;
+
+  //==============archive=====================
+  async function archive(projectId: string, isArchive: boolean) {
+    const res = await toArchive(projectId, user?._id, isArchive);
+    console.log("return from archive", res);
+    // fetchProjects()
+  }
   console.log("projectsToDisplay", projectsToDisplay);
 
   useEffect(() => {
@@ -180,6 +188,8 @@ export default function GetAllProjectsPage() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
+<ShowArchive/>
+
             {/* 2. שדה קלט לחיפוש */}
             <TextField
               variant="outlined"
@@ -241,7 +251,8 @@ export default function GetAllProjectsPage() {
               const p = wrapper.project;
               // console.log("p : ", p);
               if (!p) return;
-              const dotColor = p.color || "#c38e07ff";
+              const dotColor = p.color;
+              // const dotColor = p.color|| "#F7F5F0";
 
               return (
                 <Grid
@@ -355,6 +366,8 @@ export default function GetAllProjectsPage() {
                       >
                         {p.description || t("noDescription")}
                       </Typography>
+                      <Archive projectId={p._id} userId={user!._id} />
+                      {/* <button onClick={()=>archive(p._id!,true)}>archive</button> */}
                     </CardContent>
 
                     <Box

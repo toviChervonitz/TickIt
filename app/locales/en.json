@@ -233,5 +233,12 @@
   "openChat": "Open Chat",
   "projectsLegend": "Projects Legend",
   "completedTasks": "Completed Tasks",
+  "noProject": "No Project",
+  "details": "Details",
+  "assignedTo": "Assigned To",
+  "projectChat": "Project Chat",
+  "status": "Status",
   "expand": "Expand", 
-  "collapse": "Collapse" }
+  "collapse": "Collapse" 
+
+}

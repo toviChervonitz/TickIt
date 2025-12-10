@@ -246,5 +246,14 @@
   "projectsLegend": "אגדת פרויקטים",
   "completedTasks": "משימות שהושלמו",
   "expand": "הרחב", 
-  "collapse": "כווץ"
+  "collapse": "כווץ",
+  "noProject": "אין פרויקט",
+  "details": "פרטים",
+  "assignedTo": "הוקצה ל",
+  "projectChat": "צ'אט הפרויקט",
+  "status": "מצב"
+
+  
+
+
 }

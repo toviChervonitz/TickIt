@@ -302,7 +302,7 @@ export default function Home() {
             >
               <Box
                 component="img"
-                src="https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6RHNxTy6eAJQDXpO1g64C0kGtq3MuPSHli2Kd"
+                src="https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6iMIRseZJEjywZvfH17RX0gLSAmcruoD6hC53"
                 alt="Features preview"
                 sx={{
                   width: "100%",

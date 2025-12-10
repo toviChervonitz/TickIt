@@ -25,7 +25,9 @@ export async function CreateProject(form: any) {
   return { status: res.status, ...data };
 }
 //==================fetch===========
-export async function GetAllProjectsByUserId(userId: string | null|undefined) {
+export async function GetAllProjectsByUserId(
+  userId: string | null | undefined
+) {
   // export async function GetAllProjectsByUserId(userId: string | null, skip=0, limit=8) {
   try {
     const res = await fetch(`/api/project/getAllProjects?userId=${userId}`, {
@@ -95,15 +97,33 @@ export async function UpdateProject(
   return data;
 }
 //===========open project================
-export async function openProject(projectId: string|undefined,userId:string|undefined){
-  const res=await fetch("/api/project/usageUpdate", {
+export async function openProject(
+  projectId: string | undefined,
+  userId: string | undefined
+) {
+  const res = await fetch("/api/projectUser/usageUpdate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId, projectId }),
   });
   if (!res.ok) {
     throw new Error("Project update last open failed");
-    
   }
   return res;
-};
+}
+//============archive=============
+export async function toArchive(
+  projectId: string | undefined,
+  userId: string | undefined,
+  isArchive: boolean
+) {
+  const res = await fetch("/api/projectUser/archive", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId, projectId, isArchive }),
+  });
+  if (!res.ok) {
+    throw new Error("Project update last open failed");
+  }
+  return res;
+}
