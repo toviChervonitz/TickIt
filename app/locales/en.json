@@ -237,6 +237,8 @@
   "details": "Details",
   "assignedTo": "Assigned To",
   "projectChat": "Project Chat",
-  "status": "Status"
+  "status": "Status",
+  "expand": "Expand", 
+  "collapse": "Collapse" 
 
 }
