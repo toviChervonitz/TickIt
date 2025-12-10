@@ -133,21 +133,33 @@ export default function EditTask({
         />
 
         {/* User Select */}
-        <TextField
-          select
-          label={t("assignTo")}
-          name="userId"
-          value={task.userId}
-          onChange={handleChange}
-          fullWidth
-        >
-          <MenuItem value="">{t("selectUser")}</MenuItem>
-          {projectUsers.map((user) => (
-            <MenuItem key={user._id} value={user._id}>
-              {user.email}
-            </MenuItem>
-          ))}
-        </TextField>
+<TextField
+  select
+  label={t("assignTo")}
+  name="userId"
+  fullWidth
+  size="small"
+  value={task.userId}
+  onChange={handleChange}
+  required
+  SelectProps={{
+    MenuProps: {
+      PaperProps: {
+        style: {
+          direction: lang === "he" ? "rtl" : "ltr",
+        },
+      },
+    },
+  }}
+>
+  <MenuItem value="">-- {t("selectUser")} --</MenuItem>
+  {projectUsers?.map((user) => (
+    <MenuItem key={user._id} value={user._id}>
+      {user.email}
+    </MenuItem>
+  ))}
+</TextField>
+
 
         {/* Due date */}
 <TextField

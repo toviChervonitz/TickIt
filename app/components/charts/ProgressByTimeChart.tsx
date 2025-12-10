@@ -221,6 +221,7 @@ import {
   useTheme,
   Stack,
   Divider,
+  TextField,
 } from "@mui/material";
 
 import {
@@ -310,7 +311,33 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
 
       {/* FILTERS */}
       <Stack direction="row" spacing={2} alignItems="center">
-        <Select
+                      <TextField
+                        select
+                        value={selectedProject}
+          onChange={(e) => setSelectedProject(e.target.value)}
+                        size="small"
+                        SelectProps={{
+                          MenuProps: {
+                            PaperProps: { dir: lang === "he" ? "rtl" : "ltr" },
+                          },
+                        }}
+                        sx={{
+                          width: { xs: "100%", sm: 160 },
+                          "& .MuiOutlinedInput-root": { borderRadius: 2 },
+                        }}
+                      >
+                         <MenuItem value="all">{t("allProjects")}</MenuItem>
+{projectNames
+  .filter((name) => name !== "all") // exclude "all" here
+  .map((name) => (
+    <MenuItem key={name} value={name}>
+      {name}
+    </MenuItem>
+))}
+
+                      </TextField>
+        
+        {/* <Select
           value={selectedProject}
           onChange={(e) => setSelectedProject(e.target.value)}
           size="small"
@@ -354,7 +381,7 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
               {name === "all" ? t("allProjects") : name}
             </MenuItem>
           ))}
-        </Select>
+        </Select> */}
 
         <ToggleButtonGroup
           exclusive
