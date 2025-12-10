@@ -267,6 +267,21 @@ export default function CalendarPage() {
         .rbc-day-bg + .rbc-day-bg {
           border-${lang === "he" ? "right" : "left"}: 1px solid ${theme.palette.divider};
         }
+        /* Fix toolbar button rounding for RTL */
+:global([dir='rtl'] .rbc-toolbar button) {
+  border-radius: 0; /* reset all */
+}
+
+:global([dir='rtl'] .rbc-toolbar button:first-child) {
+  border-top-right-radius: 8px;
+  border-bottom-right-radius: 8px;
+}
+
+:global([dir='rtl'] .rbc-toolbar button:last-child) {
+  border-top-left-radius: 8px;
+  border-bottom-left-radius: 8px;
+}
+
       `}</style>
 
       <Box
