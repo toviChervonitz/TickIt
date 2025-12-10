@@ -131,19 +131,63 @@ export default function GetAllProjectsPage() {
     router.push("/pages/projectTask");
   };
   //=========filter============
+  // const filteredProjects = useMemo(() => {
+  //   if (!searchTerm) {
+  //     return projects;
+  //   }
+  //   const lowerCaseSearch = searchTerm.toLowerCase();
+  //   return projects.filter((wrapper: IProjectRole) => {
+  //     const p = wrapper.project;
+  //     return (
+  //       p.name.toLowerCase().includes(lowerCaseSearch) ||
+  //       (p.description && p.description.toLowerCase().includes(lowerCaseSearch))
+  //     );
+  //   });
+  // }, [projects, searchTerm]);
+  //---------------------------------------
+  // const filteredProjects = useMemo(() => {
+  //   if (!projects) return [];
+  //   console.log("showArchive",showArchive);
+  //   console.log("in use memo",projects);
+
+  //   // סינון לפי ארכיון או פעילים
+  //   const archiveFilter = projects.filter((p) =>showArchive ? p.isArchived: !p.isArchived;);
+  // console.log("archiveProject",archiveFilter);
+
+  //   // סינון לפי חיפוש
+  //   if (!searchTerm) return archiveFilter;
+
+  //   const search = searchTerm.toLowerCase();
+  //   return archiveFilter.filter((wrapper) => {
+  //     const p = wrapper.project;
+  //     return (
+  //       p.name.toLowerCase().includes(search) ||
+  //       (p.description && p.description.toLowerCase().includes(search))
+  //     );
+  //   });
+  // }, [projects, searchTerm, showArchive]);
+
   const filteredProjects = useMemo(() => {
-    if (!searchTerm) {
-      return projects;
-    }
-    const lowerCaseSearch = searchTerm.toLowerCase();
-    return projects.filter((wrapper: IProjectRole) => {
-      const p = wrapper.project;
+    if (!projects) return [];
+
+    // 1️⃣ סינון לפי ארכיון
+    const archiveFiltered = projects.filter((p) =>
+      showArchive ? p.isArchived : !p.isArchived
+    );
+
+    // 2️⃣ חיפוש
+    if (!searchTerm) return archiveFiltered;
+
+    const search = searchTerm.toLowerCase();
+    return archiveFiltered.filter((p) => {
+      const project = p.project;
       return (
-        p.name.toLowerCase().includes(lowerCaseSearch) ||
-        (p.description && p.description.toLowerCase().includes(lowerCaseSearch))
+        project.name.toLowerCase().includes(search) ||
+        (project.description &&
+          project.description.toLowerCase().includes(search))
       );
     });
-  }, [projects, searchTerm]);
+  }, [projects, searchTerm, showArchive]);
 
   const projectsToDisplay = filteredProjects;
 
