@@ -239,6 +239,13 @@
   "projectChat": "Project Chat",
   "status": "Status",
   "expand": "Expand", 
-  "collapse": "Collapse" 
+  "collapse": "Collapse",
+  "insightsAndAnalytics": "Insights & Analytics",
+  "generalProgress": "General Progress",
+  "tasksByProject": "Tasks by Project",
+  "progressOverTime": "Progress Over Time",
+  "daily": "Daily",
+  "weekly": "Weekly",
+  "monthly": "Monthly"
 
 }

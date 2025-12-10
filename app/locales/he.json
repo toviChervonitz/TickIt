@@ -251,7 +251,15 @@
   "details": "פרטים",
   "assignedTo": "הוקצה ל",
   "projectChat": "צ'אט הפרויקט",
-  "status": "מצב"
+  "status": "מצב",
+  "insightsAndAnalytics": "תובנות ואנליטיקה",
+  "generalProgress": "התקדמות כללית",
+  "tasksByProject": "משימות לפי פרויקט",
+  "progressOverTime": "התקדמות לאורך זמן" ,
+  "daily": "יומי",
+  "weekly": "שבועי",
+  "monthly": "חודשי"
+
 
   
 
