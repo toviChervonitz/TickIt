@@ -117,11 +117,9 @@ export default function GetProjectTasks() {
     loadProjectData();
   }, [projectId, user, setProjectTasks]);
 
-  // --- Filter Logic ---
   const filterAndSortTasks = (taskList: ITask[]) => {
     let result = [...taskList];
 
-    // 1. Search Filter
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter(
@@ -188,7 +186,6 @@ export default function GetProjectTasks() {
     setOpenView(true);
   };
 
-  // --- Handlers ---
 
   const fetchProjectUsers = async () => {
     if (!projectId) return [];
@@ -249,13 +246,13 @@ export default function GetProjectTasks() {
       );
       setTasks(updated);
 
-      // Update filtered tasks as well to reflect change immediately
       const updatedProjectTasks = projectTasks.map((t) =>
         t._id === id ? { ...t, status: newStatus } : t
       );
       setProjectTasks(updatedProjectTasks);
 
       await UpdateTaskStatus(id, userId, newStatus);
+      
     } catch (err) {
       console.error("Failed to update task status:", err);
     }

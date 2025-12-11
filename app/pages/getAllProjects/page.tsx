@@ -23,6 +23,7 @@ import {
   DialogContent,
   TextField,
   InputAdornment,
+  Tooltip,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -308,7 +309,9 @@ export default function GetAllProjectsPage() {
                                 },
                               }}
                             >
-                              <EditIcon fontSize="small" />
+                              <Tooltip title={t("editProject")} placement="top" arrow>
+                                <EditIcon fontSize="small" />
+                              </Tooltip>
                             </IconButton>
                           )}
                           <Archive projectId={p._id} userId={user!._id} archived={showArchive} />
