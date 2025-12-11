@@ -16,7 +16,7 @@ import {
 import { IUser } from "@/app/models/types";
 import { UpdateTask } from "@/app/lib/server/taskServer";
 import { getTranslation } from "../lib/i18n";
-import { useLanguage } from "../context/LanguageContext";
+import useAppStore from "../store/useAppStore";
 
 export interface TaskForm {
   _id: string;
@@ -46,8 +46,8 @@ export default function EditTask({
   const [task, setTask] = useState<TaskForm>(initialTask);
   const [loading, setLoading] = useState(false);
   const t = getTranslation();
-  const { lang } = useLanguage();
-  const isHebrew = lang === "he";
+  const { language } = useAppStore();
+  const isHebrew = language === "he";
   useEffect(() => {
     setTask(initialTask);
   }, [initialTask]);

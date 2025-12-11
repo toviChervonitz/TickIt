@@ -46,15 +46,13 @@ import SearchIcon from "@mui/icons-material/Search";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { useRouter } from "next/navigation";
 import { getTranslation } from "@/app/lib/i18n";
-import { useLanguage } from "@/app/context/LanguageContext";
 import ShowTask from "@/app/components/ShowTask";
 import ChatFloating from "@/app/components/ChatFloating";
 import { Lexend_Tera } from "next/font/google";
 
 export default function GetProjectTasks() {
-  const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName, setProjectTasks, projectTasks } =
+  const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName, setProjectTasks, projectTasks, language } =
     useAppStore();
-  const { lang } = useLanguage();
   const t = getTranslation();
   // Tasks Data
   // const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
@@ -332,7 +330,7 @@ export default function GetProjectTasks() {
                 "&:hover": { backgroundColor: "rgba(29,72,106,0.1)" },
               }}
             >
-              {lang === "en" ? <ArrowBackIcon /> : <ArrowForwardIcon />}
+              {language === "en" ? <ArrowBackIcon /> : <ArrowForwardIcon />}
             </IconButton>
 
             <Box>
@@ -424,7 +422,7 @@ export default function GetProjectTasks() {
                 label={t("assignee")}
                 SelectProps={{
                   MenuProps: {
-                    PaperProps: { dir: lang === "he" ? "rtl" : "ltr" },
+                    PaperProps: { dir: language === "he" ? "rtl" : "ltr" },
                   },
                 }}
                 sx={{
@@ -450,7 +448,7 @@ export default function GetProjectTasks() {
               label={t("sortBy")}
               SelectProps={{
                 MenuProps: {
-                  PaperProps: { dir: lang === "he" ? "rtl" : "ltr" },
+                  PaperProps: { dir: language === "he" ? "rtl" : "ltr" },
                 },
               }}
               sx={{
@@ -709,7 +707,7 @@ export default function GetProjectTasks() {
           onClose={() => setShowAddTask(false)}
           maxWidth="md"
           fullWidth
-          dir={lang === "he" ? "rtl" : "ltr"}
+          dir={language === "he" ? "rtl" : "ltr"}
         >
           <DialogTitle
             sx={{
@@ -742,7 +740,7 @@ export default function GetProjectTasks() {
           onClose={() => setShowAddUser(false)}
           maxWidth="sm"
           fullWidth
-          dir={lang === "he" ? "rtl" : "ltr"}
+          dir={language === "he" ? "rtl" : "ltr"}
         >
           <DialogTitle
             sx={{
@@ -779,7 +777,7 @@ export default function GetProjectTasks() {
             projectId={projectId!}
             onSaved={handleSaved}
             onCancel={() => setEditingTask(null)}
-            dir={lang === "he" ? "rtl" : "ltr"}
+            dir={language === "he" ? "rtl" : "ltr"}
           />
         )}
         <ShowTask

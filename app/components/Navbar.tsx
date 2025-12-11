@@ -31,7 +31,6 @@ import InsertChartIcon from "@mui/icons-material/InsertChart";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { logoutService } from "../lib/server/authServer";
-import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../lib/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -47,10 +46,9 @@ const hiddenRoutes = [
 ];
 
 export default function Navbar() {
-  const { user, logout } = useAppStore();
+  const { user, logout , language} = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
-  const { lang } = useLanguage();
   const t = getTranslation();
 
   const [hydrated, setHydrated] = useState(false);
@@ -111,10 +109,10 @@ export default function Navbar() {
   <Box sx={{ display: "flex", justifyContent: "flex-end", mb: collapsed ? 0 : 1 }}>
     <IconButton size="small" onClick={handleCollapseToggle}>
       {collapsed
-        ? lang === "he"
+        ? language === "he"
           ? <ChevronLeftIcon />
           : <ChevronRightIcon />
-        : lang === "he"
+        : language === "he"
         ? <ChevronRightIcon />
         : <ChevronLeftIcon />}
     </IconButton>

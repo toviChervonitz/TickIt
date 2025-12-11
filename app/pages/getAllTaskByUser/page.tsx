@@ -23,15 +23,13 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { KANBAN_COLUMNS_CONFIG } from "@/app/config/kanbanConfig";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
 import ShowTask from "@/app/components/ShowTask";
 
 export default function UserTasks() {
-  const { lang } = useLanguage();
   const t = getTranslation();
 
-  const { user, tasks, setTasks } = useAppStore();
+  const { user, tasks, setTasks, language } = useAppStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -243,7 +241,7 @@ export default function UserTasks() {
               onChange={(e) => setProjectFilter(e.target.value)}
               size="small"
               label={t("project")}
-              SelectProps={{ MenuProps: { PaperProps: { dir: lang === "he" ? "rtl" : "ltr" } }, }}
+              SelectProps={{ MenuProps: { PaperProps: { dir: language === "he" ? "rtl" : "ltr" } }, }}
               sx={{
                 width: { xs: '100%', sm: 160 },
                 "& .MuiOutlinedInput-root": { borderRadius: 2 },
@@ -264,7 +262,7 @@ export default function UserTasks() {
               onChange={(e) => setSortBy(e.target.value)}
               size="small"
               label={t("sortBy")}
-              SelectProps={{ MenuProps: { PaperProps: { dir: lang === "he" ? "rtl" : "ltr" } }, }}
+              SelectProps={{ MenuProps: { PaperProps: { dir: language === "he" ? "rtl" : "ltr" } }, }}
               sx={{
                 width: { xs: '100%', sm: 140 },
                 "& .MuiOutlinedInput-root": { borderRadius: 2 },

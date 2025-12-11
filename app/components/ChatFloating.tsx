@@ -6,12 +6,11 @@ import ChatIcon from "@mui/icons-material/Chat";
 import CloseIcon from "@mui/icons-material/Close";
 import { IconButton, Box, Typography, Tooltip } from "@mui/material";
 import { getTranslation } from "../lib/i18n";
-import { useLanguage } from "../context/LanguageContext";
-
+import useAppStore from "../store/useAppStore";
 export default function ChatFloating() {
   const [open, setOpen] = useState(false);
   const t = getTranslation();
-  const { lang } = useLanguage();
+  const { language } = useAppStore();
 
   return (
     <>
@@ -34,7 +33,7 @@ export default function ChatFloating() {
               zIndex: 1000,
               "& .MuiSvgIcon-root": {
                 fontSize: 36,
-                transform: lang === "he" ? "scaleX(-1)" : "none", // flip for Hebrew
+                transform: language === "he" ? "scaleX(-1)" : "none", // flip for Hebrew
               },
             }}
           >
@@ -77,7 +76,7 @@ export default function ChatFloating() {
                 fontSize: "1.1rem",
                 fontWeight: 600,
                 ml: 1,
-                direction: lang === "he" ? "rtl" : "ltr",
+                direction: language === "he" ? "rtl" : "ltr",
               }}
             >
               {t("projectChat")}

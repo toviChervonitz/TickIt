@@ -13,13 +13,13 @@ import {
 } from "@mui/material";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { getTheme } from "@/theme/theme";
-import { useLanguage } from "./context/LanguageContext";
 import { getTranslation } from "./lib/i18n";
+import useAppStore from "./store/useAppStore";
 
 const NotFound = () => {
-  const { lang } = useLanguage();
+  const { language } = useAppStore();
   const t = getTranslation();
-  const theme = getTheme(lang);
+  const theme = getTheme(language);
 
 
   return (

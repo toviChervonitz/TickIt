@@ -22,7 +22,7 @@ import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { ITask, IUser, IProject } from "@/app/models/types";
 import { getTranslation } from "../lib/i18n";
-import { useLanguage } from "../context/LanguageContext";
+import useAppStore from "../store/useAppStore";
 
 interface ShowTaskProps {
   open: boolean;
@@ -37,14 +37,14 @@ const detailIconStyle: SxProps<Theme> = {
 const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
   if (!task) return null;
 
-  const { lang } = useLanguage();
+  const { language } = useAppStore();
   const t = getTranslation();
   const theme = useTheme();
 
   const user = task.userId as IUser;
   const project = task.projectId as IProject;
 
-  const isRtl = lang === "he";
+  const isRtl = language === "he";
 
   return (
     <Dialog

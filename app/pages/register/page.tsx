@@ -30,7 +30,6 @@ import ImageUpload from "@/app/components/ImageUpload";
 import { register } from "module";
 import { googleRegisterService } from "@/app/lib/server/googleService";
 import { getTranslation } from "@/app/lib/i18n";
-import { useLanguage } from "@/app/context/LanguageContext";
 interface RegisterResponse {
   status: "success" | "error";
   message?: string;

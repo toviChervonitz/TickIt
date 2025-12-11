@@ -9,7 +9,6 @@ import { getTranslation } from "../lib/i18n";
 
 import { Box, TextField, Button, CircularProgress } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useLanguage } from "../context/LanguageContext";
 
 const CHAT_COLORS = {
   turquoise: "secondary.main",
@@ -20,7 +19,7 @@ const CHAT_COLORS = {
 
 export default function Chat() {
   const t = getTranslation();
-  const { projectId, user, messages, setMessages } = useAppStore();
+  const { projectId, user, messages, setMessages, language } = useAppStore();
   const [newMessage, setNewMessage] = useState("");
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [loadingSend, setLoadingSend] = useState(false);
@@ -35,8 +34,7 @@ export default function Chat() {
   const initialLoadRef = useRef(true);
   const isFetchingRef = useRef(false);
 
-  const { lang } = useLanguage();
-  const isRTL = lang === "he";
+  const isRTL = language === "he";
 
   useEffect(() => {
     requestAnimationFrame(() => {
