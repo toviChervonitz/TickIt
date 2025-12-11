@@ -11,7 +11,7 @@ import {
   CreateTask,
   UpdateTaskStatus,
 } from "@/app/lib/server/taskServer";
-import { getUserRoleInProject } from "@/app/lib/server/projectServer";
+import { getIsArchived, getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
 import { ITask, IUser } from "@/app/models/types";
@@ -49,7 +49,9 @@ import { getTranslation } from "@/app/lib/i18n";
 import { useLanguage } from "@/app/context/LanguageContext";
 import ShowTask from "@/app/components/ShowTask";
 import ChatFloating from "@/app/components/ChatFloating";
-import { Lexend_Tera } from "next/font/google";
+import { get } from "http";
+import { log } from "util";
+// import { Lexend_Tera } from "next/font/google";
 
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName, setProjectTasks, projectTasks } =
@@ -90,15 +92,19 @@ export default function GetProjectTasks() {
     const loadProjectData = async () => {
       setLoading(true);
       try {
+        const isArchive=await getIsArchived(projectId,user._id);
+        console.log("isArchive:",isArchive);
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
         let users = [];
         let data: ITask[] = [];
-        if (role === "manager") {
-          data = await GetTasksByProjectId(user._id, projectId);
+        if (role === "manager"||isArchive) {
+          data = await GetTasksByProjectId(user._id, projectId,isArchive);
+
           const res = await getAllUsersByProjectId(projectId);
           users = res.users || [];
         } else {
+          //if project is archived make api to bring that tasks
           data = tasks.filter(
             (t) => (t.projectId as { _id?: string })?._id === projectId
           );
