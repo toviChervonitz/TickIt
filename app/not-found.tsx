@@ -1,120 +1,79 @@
-
 "use client";
 
 import React from "react";
 import Link from "next/link";
-import {
-  Typography,
-  Button,
-  Box,
-  Container,
-  ThemeProvider,
-  CssBaseline,
-} from "@mui/material";
-import TaskAltIcon from "@mui/icons-material/TaskAlt";
-import { getTheme } from "@/theme/theme";
-import { useLanguage } from "./context/LanguageContext";
-import { getTranslation } from "./lib/i18n";
+import { Box, Typography, Button } from "@mui/material";
 
-const NotFound = () => {
-  const { lang } = useLanguage();
-  const t = getTranslation();
-  const theme = getTheme(lang);
-
-
+export default function NotFound() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-
-      <Box
+    <Box
+      sx={{
+        width: "100%",
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        backgroundColor: "#FBFAF7", 
+      }}
+    >
+      {/* מספר 404 */}
+      <Typography
         sx={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#ffffff", // PURE WHITE
-          padding: 4,
+          fontSize: { xs: 150, md: 190 },
+          fontWeight: 900,
+          color: "#1d486a",
+          marginBottom: 2,
         }}
       >
-        <Container
-          maxWidth="lg"
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 6,
-            flexDirection: { xs: "column", md: "row" },
-            textAlign: { xs: "center", md: "left" },
-          }}
-        >
-          {/* LEFT SIDE — TEXT */}
-          <Box sx={{ maxWidth: 500 }}>
-            <Typography
-              variant="h1"
-              sx={{
-                fontSize: { xs: 80, md: 120 },
-                fontWeight: 900,
-                color: theme.palette.primary.main,
-                lineHeight: 1,
-                marginBottom: 2,
-              }}
-            >
-              404
-            </Typography>
+        404
+      </Typography>
 
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 700,
-                marginBottom: 2,
-              }}
-            >
-              {t("pageNotFound")}
-            </Typography>
+      {/* טקסט מתחת ל־404 */}
+      <Typography
+        sx={{
+          fontSize: { xs: 22, md: 28 },
+          fontWeight: 600,
+          color: "#1d486a",
+          marginBottom: 1,
+        }}
+      >
+        הדף שחיפשת לא נמצא
+      </Typography>
 
-            <Typography
-              variant="body1"
-              sx={{
-                color: theme.palette.text.secondary,
-                marginBottom: 4,
-                fontSize: 16,
-                lineHeight: 1.6,
-              }}
-            >
-              {t("pageNotFoundDescription")}
-            </Typography>
+      <Typography
+        sx={{
+          fontSize: 16,
+          color: "#5b6f7c",
+          maxWidth: 420,
+          marginBottom: 4,
+          lineHeight: 1.6,
+        }}
+      >
+        ייתכן שהכתובת שונתה או שהדף הועבר למקום אחר.
+        ניתן לחזור לדשבורד בלחיצה על הכפתור.
+      </Typography>
 
-            <Button
-              variant="contained"
-              size="large"
-              component={Link}
-              href="/pages/dashboard"
-              sx={{
-                boxShadow: "0 6px 16px rgba(29,72,106,0.25)",
-                "&:hover": {
-                  background: "linear-gradient(to bottom, #163957, #122d42)",
-                },
-              }}
-            >
-              {t("returnToDashboard")}
-            </Button>
-          </Box>
-
-          {/* RIGHT SIDE — ICON */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: theme.palette.primary.main,
-            }}
-          >
-            <TaskAltIcon sx={{ fontSize: { xs: 150, md: 220 } }} />
-          </Box>
-        </Container>
-      </Box>
-    </ThemeProvider>
+      {/* כפתור */}
+      <Button
+        variant="contained"
+        component={Link}
+        href="/pages/dashboard"
+        sx={{
+          backgroundColor: "#1d486a",
+          padding: "12px 32px",
+          borderRadius: 3,
+          fontWeight: 600,
+          fontSize: 16,
+          textTransform: "none",
+          "&:hover": {
+            backgroundColor: "#153852",
+          },
+        }}
+      >
+        חזרה לדשבורד
+      </Button>
+    </Box>
   );
-};
-
-export default NotFound;
+}

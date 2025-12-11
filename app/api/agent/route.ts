@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 
 // Initialize GenAI client
 const ai = new GoogleGenAI({
-  apiKey: process.env.NEW_GEMINI || "",
+  apiKey: process.env.GEMINI_API_KEY || "",
 });
 
 // Helper: extract first JSON block from AI output
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
 
     const startDate = project.createdAt.toISOString().split("T")[0];
 
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash"; // easily switch 2.0 <-> 2.5
+    const model =  "gemini-2.5-flash"; 
 
     const response = await ai.models.generateContent({
       model,
