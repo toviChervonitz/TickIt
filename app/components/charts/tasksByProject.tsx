@@ -19,7 +19,6 @@ interface Props {
 }
 
 export default function TasksByProjectBarChart({ tasks }: Props) {
-  // Count tasks per project and store color
   const projectMap: Record<
     string,
     { count: number; color: string }
@@ -28,7 +27,7 @@ export default function TasksByProjectBarChart({ tasks }: Props) {
   tasks.forEach((task) => {
     if (task.projectId && "name" in task.projectId) {
       const name = task.projectId.name;
-      const color = task.projectId.color || "#8884d8"; // fallback color
+      const color = task.projectId.color || "#8884d8"; 
       if (!projectMap[name]) projectMap[name] = { count: 0, color };
       projectMap[name].count += 1;
     } else {
@@ -38,7 +37,6 @@ export default function TasksByProjectBarChart({ tasks }: Props) {
     }
   });
 
-  // Prepare data for Recharts
   const data = Object.entries(projectMap).map(([name, { count, color }]) => ({
     name,
     tasks: count,
@@ -53,7 +51,6 @@ export default function TasksByProjectBarChart({ tasks }: Props) {
           <XAxis dataKey="name" />
           <YAxis allowDecimals={false} />
           <Tooltip formatter={(value: number) => [`${value} tasks`, "Tasks"]} />
-          <Legend />
           <Bar dataKey="tasks">
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />

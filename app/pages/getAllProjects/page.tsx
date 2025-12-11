@@ -39,7 +39,7 @@ import Archive from "@/app/components/Archive";
 import ShowArchive from "@/app/components/ShowArchive";
 
 const MAIN_COLOR = "secondary.main";
-const LIMIT=8;
+const LIMIT = 8;
 
 export default function GetAllProjectsPage() {
   const { lang } = useLanguage();
@@ -82,10 +82,8 @@ export default function GetAllProjectsPage() {
     if (!user?._id) return;
     setLoading(true);
     try {
-      // const response = await GetAllProjectsByUserId(user?._id!, 0, LIMIT);
       const response = await GetAllProjectsByUserId(user._id!);
       setProjects(response.projects || []);
-      // setPage((prev)=>prev+1);
       if (response.projects.length < LIMIT) setHasMore(false);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -94,33 +92,7 @@ export default function GetAllProjectsPage() {
     }
   };
 
-  //================lazy loading=============
-  async function loadMore() {
-    if (!user?._id || !hasMore || loadingMore) return;
-    // if ( !hasMore ) return;
 
-    setLoadingMore(true);
-    try {
-      console.log("page", page);
-      const skip = page * LIMIT;
-      const response = await GetAllProjectsByUserId(
-        user._id!
-        // skip,
-        // LIMIT
-      );
-      // setPage(1);
-      if (response.projects.length < LIMIT) {
-        setHasMore(false);
-      }
-
-      setProjects((prevProjects) => [...prevProjects, ...response.projects]);
-
-      setPage((prevPage) => prevPage + 1);
-    } catch (err) {
-    } finally {
-      setLoadingMore(false);
-    }
-  }
 
   //================== single project============
   const getIntoProject = async (project: IProject) => {
@@ -130,20 +102,29 @@ export default function GetAllProjectsPage() {
 
     router.push("/pages/projectTask");
   };
-  //=========filter============
+
+
   const filteredProjects = useMemo(() => {
-    if (!searchTerm) {
-      return projects;
-    }
-    const lowerCaseSearch = searchTerm.toLowerCase();
-    return projects.filter((wrapper: IProjectRole) => {
-      const p = wrapper.project;
+    if (!projects) return [];
+
+    // 1️⃣ סינון לפי ארכיון
+    const archiveFiltered = projects.filter((p) =>
+      showArchive ? p.isArchived : !p.isArchived
+    );
+
+    // 2️⃣ חיפוש
+    if (!searchTerm) return archiveFiltered;
+
+    const search = searchTerm.toLowerCase();
+    return archiveFiltered.filter((p) => {
+      const project = p.project;
       return (
-        p.name.toLowerCase().includes(lowerCaseSearch) ||
-        (p.description && p.description.toLowerCase().includes(lowerCaseSearch))
+        project.name.toLowerCase().includes(search) ||
+        (project.description &&
+          project.description.toLowerCase().includes(search))
       );
     });
-  }, [projects, searchTerm]);
+  }, [projects, searchTerm, showArchive]);
 
   const projectsToDisplay = filteredProjects;
 
@@ -184,7 +165,6 @@ export default function GetAllProjectsPage() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            <ShowArchive show={showArchive} setShowArchive={setShowArchive} />
 
             {/* 2. שדה קלט לחיפוש */}
             <TextField
@@ -203,6 +183,7 @@ export default function GetAllProjectsPage() {
                 sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" },
               }}
             />
+            <ShowArchive show={showArchive} setShowArchive={setShowArchive} />
 
             <Button
               variant="outlined"
@@ -262,7 +243,7 @@ export default function GetAllProjectsPage() {
                 >
                   <Card
                     elevation={0}
-                    onClick={() => getIntoProject(p)}
+                    // onClick={() => getIntoProject(p)}
                     sx={{
                       width: "100%",
                       display: "flex",
@@ -330,6 +311,7 @@ export default function GetAllProjectsPage() {
                               <EditIcon fontSize="small" />
                             </IconButton>
                           )}
+                          <Archive projectId={p._id} userId={user!._id} archived={showArchive} />
                         </Box>
                       </Box>
 
@@ -362,8 +344,6 @@ export default function GetAllProjectsPage() {
                       >
                         {p.description || t("noDescription")}
                       </Typography>
-                      <Archive projectId={p._id} userId={user!._id} />
-                      {/* <button onClick={()=>archive(p._id!,true)}>archive</button> */}
                     </CardContent>
 
                     <Box
@@ -375,6 +355,7 @@ export default function GetAllProjectsPage() {
                       }}
                     >
                       <Box
+                        onClick={() => getIntoProject(p)}
                         sx={{
                           display: "flex",
                           alignItems: "center",
@@ -403,7 +384,6 @@ export default function GetAllProjectsPage() {
             <Typography color="text.secondary">{t("noProjectsYet")}</Typography>
           </Box>
         )}
-        {/* <Box ref={loadMoreRef} sx={{ height: 50 }} />  */}
         <Box />
       </Container>
 

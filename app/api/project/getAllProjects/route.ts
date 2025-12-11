@@ -65,10 +65,11 @@ export async function GET(req: Request) {
     const userId = currentUser.id;
 
     // const projectLinks = await ProjectUser.find({ userId, isArchive: false })
-    const projectLinks = await ProjectUser.find({ userId, isArchived: false })
+    const projectLinks = await ProjectUser.find({ userId})
       .populate("projectId")
       .select("projectId role")
       .select("lastOpenedAt")
+      .select("isArchived")
       .sort({ lastOpenedAt: -1 });
     console.log("projectLink", projectLinks);
 
@@ -76,6 +77,7 @@ export async function GET(req: Request) {
       project: link.projectId,
       role: link.role,
       lastOpenedAt: link.lastOpenedAt,
+      isArchived:link.isArchived
     }));
 
     if (!projectsWithRoles.length) {

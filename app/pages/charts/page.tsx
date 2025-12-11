@@ -9,10 +9,12 @@ import useAppStore from "@/app/store/useAppStore";
 import TaskStatusChart from "@/app/components/charts/progressChart";
 import TasksByProjectBarChart from "@/app/components/charts/tasksByProject";
 import CompletedTasksLineChart from "@/app/components/charts/ProgressByTimeChart";
+import { getTranslation } from "@/app/lib/i18n";
 
 export default function Charts() {
   const { user, tasks, projects, setTasks } = useAppStore();
   const [loading, setLoading] = useState(true);
+  const t = getTranslation();
 
   useEffect(() => {
     let isMounted = true;
@@ -47,8 +49,8 @@ export default function Charts() {
     };
   }, [user, tasks, setTasks]);
 
-  if (loading) return <div>Loading tasks...</div>;
-  if (!user?._id) return <div>Loading user...</div>;
+  if (loading) return <div>{t("loadingTasks")}...</div>;
+  if (!user?._id) return <div>{t("loadingUser")}...</div>;
 
 
   return (
@@ -59,7 +61,7 @@ export default function Charts() {
         color="text.secondary"
         sx={{ mb: 3 }}
       >
-        Insights & Analytics
+        {t("insightsAndAnalytics")}
       </Typography>
 
       <Grid container spacing={3}>
@@ -78,7 +80,7 @@ export default function Charts() {
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <PieChartIcon color="secondary" />
               <Typography variant="h6" fontWeight={600} color="text.secondary">
-                General Progress
+                {t("generalProgress")}
               </Typography>
             </Stack>
 
@@ -100,7 +102,7 @@ export default function Charts() {
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <BarChartIcon color="secondary" />
               <Typography variant="h6" fontWeight={600} color="text.secondary">
-                Tasks by Project
+                {t("tasksByProject")}
               </Typography>
             </Stack>
 
@@ -121,7 +123,7 @@ export default function Charts() {
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <TimelineIcon color="secondary" />
               <Typography variant="h6" fontWeight={600} color="text.secondary">
-                Progress Over Time
+                {t("progressOverTime")}
               </Typography>
             </Stack>
 
