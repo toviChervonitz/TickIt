@@ -11,7 +11,7 @@ import {
   CreateTask,
   UpdateTaskStatus,
 } from "@/app/lib/server/taskServer";
-import { getUserRoleInProject } from "@/app/lib/server/projectServer";
+import { getIsArchived, getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
 import { ITask, IUser } from "@/app/models/types";
@@ -48,7 +48,9 @@ import { useRouter } from "next/navigation";
 import { getTranslation } from "@/app/lib/i18n";
 import ShowTask from "@/app/components/ShowTask";
 import ChatFloating from "@/app/components/ChatFloating";
-import { Lexend_Tera } from "next/font/google";
+import { get } from "http";
+import { log } from "util";
+// import { Lexend_Tera } from "next/font/google";
 
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName, setProjectTasks, projectTasks, language } =
@@ -88,15 +90,19 @@ export default function GetProjectTasks() {
     const loadProjectData = async () => {
       setLoading(true);
       try {
+        const isArchive=await getIsArchived(projectId,user._id);
+        console.log("isArchive:",isArchive);
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
         let users = [];
         let data: ITask[] = [];
-        if (role === "manager") {
-          data = await GetTasksByProjectId(user._id, projectId);
+        if (role === "manager"||isArchive) {
+          data = await GetTasksByProjectId(user._id, projectId,isArchive);
+
           const res = await getAllUsersByProjectId(projectId);
           users = res.users || [];
         } else {
+          //if project is archived make api to bring that tasks
           data = tasks.filter(
             (t) => (t.projectId as { _id?: string })?._id === projectId
           );
@@ -115,11 +121,9 @@ export default function GetProjectTasks() {
     loadProjectData();
   }, [projectId, user, setProjectTasks]);
 
-  // --- Filter Logic ---
   const filterAndSortTasks = (taskList: ITask[]) => {
     let result = [...taskList];
 
-    // 1. Search Filter
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter(
@@ -186,7 +190,6 @@ export default function GetProjectTasks() {
     setOpenView(true);
   };
 
-  // --- Handlers ---
 
   const fetchProjectUsers = async () => {
     if (!projectId) return [];
@@ -247,13 +250,13 @@ export default function GetProjectTasks() {
       );
       setTasks(updated);
 
-      // Update filtered tasks as well to reflect change immediately
       const updatedProjectTasks = projectTasks.map((t) =>
         t._id === id ? { ...t, status: newStatus } : t
       );
       setProjectTasks(updatedProjectTasks);
 
       await UpdateTaskStatus(id, userId, newStatus);
+      
     } catch (err) {
       console.error("Failed to update task status:", err);
     }

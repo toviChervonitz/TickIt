@@ -59,13 +59,13 @@ export async function GetTasksByUserId(userId: string | undefined) {
   }
 }
 
-export async function GetTasksByProjectId(id: string, projectId: string | null) {
+export async function GetTasksByProjectId(id: string, projectId: string | null,isArchived?:boolean) {
   if (!projectId) {
     throw new Error("Missing projectdId.");
   }
   try {
 
-    const res = await fetch(`/api/task/projectTasks?projectId=${projectId}&&userId=${id}`, {
+    const res = await fetch(`/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
