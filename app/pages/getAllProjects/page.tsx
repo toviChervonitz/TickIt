@@ -82,10 +82,8 @@ export default function GetAllProjectsPage() {
     if (!user?._id) return;
     setLoading(true);
     try {
-      // const response = await GetAllProjectsByUserId(user?._id!, 0, LIMIT);
       const response = await GetAllProjectsByUserId(user._id!);
       setProjects(response.projects || []);
-      // setPage((prev)=>prev+1);
       if (response.projects.length < LIMIT) setHasMore(false);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -94,33 +92,7 @@ export default function GetAllProjectsPage() {
     }
   };
 
-  //================lazy loading=============
-  async function loadMore() {
-    if (!user?._id || !hasMore || loadingMore) return;
-    // if ( !hasMore ) return;
-
-    setLoadingMore(true);
-    try {
-      console.log("page", page);
-      const skip = page * LIMIT;
-      const response = await GetAllProjectsByUserId(
-        user._id!
-        // skip,
-        // LIMIT
-      );
-      // setPage(1);
-      if (response.projects.length < LIMIT) {
-        setHasMore(false);
-      }
-
-      setProjects((prevProjects) => [...prevProjects, ...response.projects]);
-
-      setPage((prevPage) => prevPage + 1);
-    } catch (err) {
-    } finally {
-      setLoadingMore(false);
-    }
-  }
+  
 
   //================== single project============
   const getIntoProject = async (project: IProject) => {
@@ -130,42 +102,7 @@ export default function GetAllProjectsPage() {
 
     router.push("/pages/projectTask");
   };
-  //=========filter============
-  // const filteredProjects = useMemo(() => {
-  //   if (!searchTerm) {
-  //     return projects;
-  //   }
-  //   const lowerCaseSearch = searchTerm.toLowerCase();
-  //   return projects.filter((wrapper: IProjectRole) => {
-  //     const p = wrapper.project;
-  //     return (
-  //       p.name.toLowerCase().includes(lowerCaseSearch) ||
-  //       (p.description && p.description.toLowerCase().includes(lowerCaseSearch))
-  //     );
-  //   });
-  // }, [projects, searchTerm]);
-  //---------------------------------------
-  // const filteredProjects = useMemo(() => {
-  //   if (!projects) return [];
-  //   console.log("showArchive",showArchive);
-  //   console.log("in use memo",projects);
-
-  //   // סינון לפי ארכיון או פעילים
-  //   const archiveFilter = projects.filter((p) =>showArchive ? p.isArchived: !p.isArchived;);
-  // console.log("archiveProject",archiveFilter);
-
-  //   // סינון לפי חיפוש
-  //   if (!searchTerm) return archiveFilter;
-
-  //   const search = searchTerm.toLowerCase();
-  //   return archiveFilter.filter((wrapper) => {
-  //     const p = wrapper.project;
-  //     return (
-  //       p.name.toLowerCase().includes(search) ||
-  //       (p.description && p.description.toLowerCase().includes(search))
-  //     );
-  //   });
-  // }, [projects, searchTerm, showArchive]);
+  
 
   const filteredProjects = useMemo(() => {
     if (!projects) return [];
@@ -406,8 +343,7 @@ export default function GetAllProjectsPage() {
                       >
                         {p.description || t("noDescription")}
                       </Typography>
-                      <Archive projectId={p._id} userId={user!._id} />
-                      {/* <button onClick={()=>archive(p._id!,true)}>archive</button> */}
+                      <Archive projectId={p._id} userId={user!._id} archived={showArchive}/>
                     </CardContent>
 
                     <Box
