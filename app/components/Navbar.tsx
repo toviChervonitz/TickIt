@@ -126,10 +126,10 @@ export default function Navbar() {
           }}
         >
           {collapsed
-            ? lang === "he"
+            ? language === "he"
               ? <ChevronLeftIcon />
               : <ChevronRightIcon />
-            : lang === "he"
+            : language === "he"
               ? <ChevronRightIcon />
               : <ChevronLeftIcon />}
         </IconButton>
