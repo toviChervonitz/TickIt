@@ -14,12 +14,13 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import GroupsIcon from "@mui/icons-material/Groups";
 import InsightsIcon from "@mui/icons-material/Insights";
-import { useLanguage } from "../../context/LanguageContext";
 import { getTranslation } from "../../lib/i18n";
 import LanguageSwitcher from "@/app/components/LanguageSwitcher";
+import useAppStore from "@/app/store/useAppStore";
 
 export default function Home() {
-  const { lang, setLang } = useLanguage();
+  const { language, setLanguage } = useAppStore();
+
   const t = getTranslation();
 
   const features = [
@@ -158,11 +159,11 @@ export default function Home() {
                 <Box
                   component="img"
                   src={
-                    lang == "en"
+                    language == "en"
                       ? "https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6GsJ9GCMwQML3e425EoOuZNzIg9bAXKRUBCfx"
                       : "https://nya7he8ygy.ufs.sh/f/0tkL5NgbEAZ6s4gyOoetU4vEh1eKX9R0wMrFuyAsLZI6oQTb"
                   }
-                  alt={lang == "en" ? "StepUp dashboard illustration" : "איור דשבורד של StepUp"}
+                  alt={language == "en" ? "StepUp dashboard illustration" : "איור דשבורד של StepUp"}
                   sx={{
                     width: "100%",
                     display: "block",

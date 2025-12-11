@@ -30,8 +30,8 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import WarningAmberRoundedIcon from "@mui/icons-material/WarningAmberRounded";
 
 import { getTranslation } from "../lib/i18n";
-import { useLanguage } from "../context/LanguageContext";
 import { KANBAN_COLUMNS_CONFIG } from "../config/kanbanConfig";
+import useAppStore from "../store/useAppStore";
 
 interface TaskProps {
   _id: string;
@@ -70,9 +70,9 @@ const Task: React.FC<TaskProps> = ({
   onView,
   projectColor,
 }) => {
-  const { lang } = useLanguage();
+  const { language } = useAppStore();
   const t = getTranslation();
-  const isRTL = lang === "he";
+  const isRTL = language === "he";
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [statusMenuAnchor, setStatusMenuAnchor] = useState<null | HTMLElement>(

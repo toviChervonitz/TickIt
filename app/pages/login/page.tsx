@@ -23,7 +23,6 @@ import { signIn } from "next-auth/react";
 import { googleLoginService } from "@/app/lib/server/googleService";
 import GoogleIcon from "@mui/icons-material/Google";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
-import { useLanguage } from "@/app/context/LanguageContext";
 
 interface LoginResponse {
   status: "success" | "error";
