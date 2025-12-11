@@ -92,7 +92,7 @@ export default function GetAllProjectsPage() {
     }
   };
 
-  
+
 
   //================== single project============
   const getIntoProject = async (project: IProject) => {
@@ -102,7 +102,7 @@ export default function GetAllProjectsPage() {
 
     router.push("/pages/projectTask");
   };
-  
+
 
   const filteredProjects = useMemo(() => {
     if (!projects) return [];
@@ -165,7 +165,6 @@ export default function GetAllProjectsPage() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            <ShowArchive show={showArchive} setShowArchive={setShowArchive} />
 
             {/* 2. שדה קלט לחיפוש */}
             <TextField
@@ -184,6 +183,7 @@ export default function GetAllProjectsPage() {
                 sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" },
               }}
             />
+            <ShowArchive show={showArchive} setShowArchive={setShowArchive} />
 
             <Button
               variant="outlined"
@@ -311,6 +311,7 @@ export default function GetAllProjectsPage() {
                               <EditIcon fontSize="small" />
                             </IconButton>
                           )}
+                          <Archive projectId={p._id} userId={user!._id} archived={showArchive} />
                         </Box>
                       </Box>
 
@@ -343,7 +344,6 @@ export default function GetAllProjectsPage() {
                       >
                         {p.description || t("noDescription")}
                       </Typography>
-                      <Archive projectId={p._id} userId={user!._id} archived={showArchive}/>
                     </CardContent>
 
                     <Box
@@ -384,7 +384,6 @@ export default function GetAllProjectsPage() {
             <Typography color="text.secondary">{t("noProjectsYet")}</Typography>
           </Box>
         )}
-        {/* <Box ref={loadMoreRef} sx={{ height: 50 }} />  */}
         <Box />
       </Container>
 
