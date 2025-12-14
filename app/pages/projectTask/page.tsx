@@ -107,7 +107,6 @@ export default function GetProjectTasks() {
           users = res.users || [];
           }
         } else {
-          //if project is archived make api to bring that tasks
           data = tasks.filter(
             (t) => (t.projectId as { _id?: string })?._id === projectId
           );
