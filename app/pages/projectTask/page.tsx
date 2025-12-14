@@ -94,11 +94,16 @@ export default function GetProjectTasks() {
         console.log("isArchive:",isArchive);
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
+        console.log(role);
+
         let users = [];
         let data: ITask[] = [];
         if (role === "manager"||isArchive) {
+          console.log("123456789");
+          
           data = await GetTasksByProjectId(user._id, projectId,isArchive);
-
+          console.log("data",data);
+          
           const res = await getAllUsersByProjectId(projectId);
           users = res.users || [];
         } else {

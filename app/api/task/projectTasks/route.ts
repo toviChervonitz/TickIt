@@ -40,7 +40,11 @@ export async function GET(req: Request) {
     }
 
     let tasks;
-    if (archive) {
+    const isArchived = archive === "true";
+
+    if (isArchived ) {
+      console.log("archive",archive);
+      
       tasks = await Task.find({ projectId, userId })
         .populate("userId", "name")
         .populate("projectId", "name color");
