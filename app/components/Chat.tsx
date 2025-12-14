@@ -298,12 +298,16 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import Pusher from "pusher-js";
-import { getChatMessages, sendChatMessage, getLastReadMessage, updateLastReadMessage } from "@/app/lib/server/chatServer";
+import {
+  getChatMessages,
+  sendChatMessage,
+  getLastReadMessage,
+  updateLastReadMessage,
+} from "@/app/lib/server/chatServer";
 import useAppStore from "../store/useAppStore";
 import ChatMessageComp from "./ChatMessage";
 import { getTranslation } from "../lib/i18n";
-
-import { Box, TextField, Button, CircularProgress } from "@mui/material";
+import { Box, TextField, Button, CircularProgress, Divider } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 
 const CHAT_COLORS = {
@@ -319,6 +323,7 @@ export default function Chat() {
   const [newMessage, setNewMessage] = useState("");
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [loadingSend, setLoadingSend] = useState(false);
+  const [lastReadId, setLastReadId] = useState<string | null>(null);
 
   const [skip, setSkip] = useState(0);
   const limit = 30;
@@ -339,45 +344,43 @@ export default function Chat() {
         shouldAutoScrollRef.current = true;
         return;
       }
-
       if (initialLoadRef.current) {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        if (lastReadId) {
+          const el = document.getElementById(`msg-${lastReadId}`);
+          el?.scrollIntoView({ block: "center", behavior: "auto" });
+        } else {
+          messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+        }
         initialLoadRef.current = false;
       } else {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       }
     });
-  }, [messages]);
+  }, [messages, lastReadId]);
 
   // Initial load: fetch batches until last read is included
   useEffect(() => {
-    if (!projectId) return;
-    if (hasLoadedInitialMessagesRef.current) return;
-    if (isFetchingRef.current) return;
+    if (!projectId || hasLoadedInitialMessagesRef.current || isFetchingRef.current) return;
 
     (async () => {
       isFetchingRef.current = true;
       setLoadingInitial(true);
 
       try {
-        const lastReadMessageId = await getLastReadMessage(projectId);
+        const lastRead = await getLastReadMessage(projectId);
+        setLastReadId(lastRead);
 
         let skipCount = 0;
         let allMessages: any[] = [];
-        let foundLastRead = false;
+        let foundLastRead = !lastRead; // if no last read, no need to search
 
         while (!foundLastRead) {
           const batch = await getChatMessages(projectId, skipCount, limit);
           if (batch.length === 0) break;
 
-          const safeBatch = batch.map((m: any) => ({
-            ...m,
-            user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
-          }));
+          allMessages = [...batch, ...allMessages]; // append batch in correct order
 
-          allMessages = [...safeBatch, ...allMessages];
-
-          if (lastReadMessageId && batch.some((m: any) => m._id === lastReadMessageId)) {
+          if (lastRead && batch.some((m) => m.id === lastRead)) {
             foundLastRead = true;
           }
 
@@ -387,17 +390,8 @@ export default function Chat() {
         setMessages(allMessages);
         setSkip(skipCount);
         hasLoadedInitialMessagesRef.current = true;
-
-        requestAnimationFrame(() => {
-          if (lastReadMessageId) {
-            const el = document.getElementById(`msg-${lastReadMessageId}`);
-            el?.scrollIntoView({ block: "center", behavior: "auto" });
-          } else {
-            messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-          }
-        });
-      } catch (error) {
-        console.error("Error loading initial chat messages:", error);
+      } catch (err) {
+        console.error("Error loading initial chat messages:", err);
       } finally {
         isFetchingRef.current = false;
         setLoadingInitial(false);
@@ -405,12 +399,12 @@ export default function Chat() {
     })();
   }, [projectId, setMessages]);
 
-  // Scroll handler: fetch older and update last read
+  // Scroll handler: fetch older messages and update last read
   const handleScroll = useCallback(async () => {
     const container = containerRef.current;
     if (!container || isFetchingRef.current) return;
 
-    // Load older messages when scrolling to top
+    // Load older messages
     if (container.scrollTop <= 20 && skip !== 0) {
       isFetchingRef.current = true;
       const oldHeight = container.scrollHeight;
@@ -418,18 +412,12 @@ export default function Chat() {
 
       const older = await getChatMessages(projectId!, skip, limit);
       if (older.length > 0) {
-        const safe = older.map((m: any) => ({
-          ...m,
-          user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
-        }));
-
         const currentMessages = useAppStore.getState().messages;
-        setMessages([...safe, ...currentMessages]);
+        setMessages([...older, ...currentMessages]);
         setSkip(skip + limit);
 
         requestAnimationFrame(() => {
-          const newHeight = container.scrollHeight;
-          container.scrollTop = newHeight - oldHeight;
+          container.scrollTop = container.scrollHeight - oldHeight;
         });
       }
 
@@ -440,11 +428,12 @@ export default function Chat() {
     const messageElements = Array.from(container.querySelectorAll("[id^='msg-']")) as HTMLElement[];
     const containerBottom = container.scrollTop + container.clientHeight;
 
-    const visibleMessages = messageElements.filter(el => el.offsetTop + el.offsetHeight <= containerBottom);
+    const visibleMessages = messageElements.filter((el) => el.offsetTop + el.offsetHeight <= containerBottom);
     const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
     if (lastVisibleMessage) {
       const lastVisibleId = lastVisibleMessage.id.replace("msg-", "");
       updateLastReadMessage(projectId!, lastVisibleId);
+      setLastReadId(lastVisibleId);
     }
   }, [projectId, skip, setMessages]);
 
@@ -465,16 +454,13 @@ export default function Chat() {
     });
 
     const channel = pusher.subscribe(`private-project-${projectId}`);
-
     channel.bind("chatMessage-updated", (data: any) => {
       if (data.action === "ADD" && data.chatMessage) {
         const incoming = {
           ...data.chatMessage,
           user: data.chatMessage.user ?? { _id: "unknown", name: "Unknown", image: undefined },
         };
-
         if (user && incoming.user._id === user._id) return;
-
         const current = useAppStore.getState().messages;
         setMessages([...current, incoming]);
       }
@@ -489,25 +475,14 @@ export default function Chat() {
 
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !projectId) return;
-
     setLoadingSend(true);
     const messageToSend = newMessage.trim();
 
     try {
-      await sendChatMessage({
-        userId: user._id,
-        projectId,
-        message: messageToSend,
-      });
-
-      const newMessageObject = {
-        user: { _id: user._id, name: user.name, image: user.image },
-        message: messageToSend,
-        createdAt: new Date().toISOString(),
-      };
-
+      await sendChatMessage({ userId: user._id, projectId, message: messageToSend });
+      const newMsgObj = { user: { _id: user._id, name: user.name, image: user.image }, message: messageToSend, createdAt: new Date().toISOString() };
       const current = useAppStore.getState().messages;
-      setMessages([...current, newMessageObject as any]);
+      setMessages([...current, newMsgObj as any]);
       setNewMessage("");
     } finally {
       setLoadingSend(false);
@@ -521,15 +496,17 @@ export default function Chat() {
           const msgUser = msg.user ?? { _id: "unknown", name: "Unknown" };
           const isMe = msgUser._id === user?._id;
           return (
-            <ChatMessageComp
-              key={msg.id ?? index}
-              id={`msg-${msg.id ?? index}`} // ✅ add DOM id
-              username={msgUser.name}
-              profileImage={msgUser.image}
-              message={msg.message}
-              time={msg.createdAt}
-              isCurrentUser={isMe}
-            />
+            <React.Fragment key={msg.id ?? index}>
+              <ChatMessageComp
+                id={`msg-${msg.id ?? index}`}
+                username={msgUser.name}
+                profileImage={msgUser.image}
+                message={msg.message}
+                time={msg.createdAt}
+                isCurrentUser={isMe}
+              />
+              {lastReadId === msg.id && <Divider sx={{ my: 1, borderColor: "red" }} />} {/* last-read divider */}
+            </React.Fragment>
           );
         })}
         <div ref={messagesEndRef} />
@@ -547,20 +524,11 @@ export default function Chat() {
           inputProps={{ style: { textAlign: isRTL ? "right" : "left", direction: isRTL ? "rtl" : "ltr" } }}
           sx={{ "& .MuiOutlinedInput-root": { borderRadius: 50, paddingRight: isRTL ? "4px" : "14px", paddingLeft: isRTL ? "14px" : "4px" } }}
         />
-
         <Button
           variant="contained"
           onClick={handleSend}
           disabled={!newMessage.trim() || loadingSend}
-          sx={{
-            minWidth: "40px",
-            height: "40px",
-            borderRadius: "50%",
-            p: 0,
-            bgcolor: CHAT_COLORS.turquoise,
-            "&:hover": { bgcolor: CHAT_COLORS.darkTurquoise },
-            "&.Mui-disabled": { bgcolor: "rgba(0, 0, 0, 0.12)", color: "rgba(0, 0, 0, 0.26)" },
-          }}
+          sx={{ minWidth: "40px", height: "40px", borderRadius: "50%", p: 0, bgcolor: CHAT_COLORS.turquoise, "&:hover": { bgcolor: CHAT_COLORS.darkTurquoise }, "&.Mui-disabled": { bgcolor: "rgba(0,0,0,0.12)", color: "rgba(0,0,0,0.26)" } }}
         >
           {loadingSend ? <CircularProgress size={20} color="inherit" /> : <SendIcon sx={{ fontSize: 20, transform: isRTL ? "scaleX(-1)" : "none" }} />}
         </Button>
