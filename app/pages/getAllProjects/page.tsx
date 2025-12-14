@@ -49,13 +49,10 @@ export default function GetAllProjectsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  // const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const [editingProject, setEditingProject] = useState<ProjectForm | null>(
     null
   );
-  const [loadingMore, setLoadingMore] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
 
   // ==== edit ====
@@ -91,8 +88,6 @@ export default function GetAllProjectsPage() {
     }
   };
 
-
-
   //================== single project============
   const getIntoProject = async (project: IProject) => {
     setProjectId(project._id!);
@@ -102,16 +97,15 @@ export default function GetAllProjectsPage() {
     router.push("/pages/projectTask");
   };
 
+  const filterArchive = (projects: IProjectRole[]) => {
+    return projects.filter((p) => (showArchive ? p.isArchived : !p.isArchived));
+  };
 
   const filteredProjects = useMemo(() => {
     if (!projects) return [];
 
-    // 1️⃣ סינון לפי ארכיון
-    const archiveFiltered = projects.filter((p) =>
-      showArchive ? p.isArchived : !p.isArchived
-    );
+    const archiveFiltered = filterArchive(projects);
 
-    // 2️⃣ חיפוש
     if (!searchTerm) return archiveFiltered;
 
     const search = searchTerm.toLowerCase();
@@ -164,7 +158,6 @@ export default function GetAllProjectsPage() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
-
             {/* 2. שדה קלט לחיפוש */}
             <TextField
               variant="outlined"
@@ -182,7 +175,7 @@ export default function GetAllProjectsPage() {
                 sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" },
               }}
             />
-            <ShowArchive show={showArchive} setShowArchive={setShowArchive} />
+            <ShowArchive show={showArchive} setShowArchive={setShowArchive} filter={filterArchive} />
 
             <Button
               variant="outlined"
@@ -307,12 +300,20 @@ export default function GetAllProjectsPage() {
                                 },
                               }}
                             >
-                              <Tooltip title={t("editProject")} placement="top" arrow>
+                              <Tooltip
+                                title={t("editProject")}
+                                placement="top"
+                                arrow
+                              >
                                 <EditIcon fontSize="small" />
                               </Tooltip>
                             </IconButton>
                           )}
-                          <Archive projectId={p._id} userId={user!._id} archived={showArchive} />
+                          <Archive
+                            projectId={p._id}
+                            userId={user!._id}
+                            archived={showArchive}
+                          />
                         </Box>
                       </Box>
 
