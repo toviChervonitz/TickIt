@@ -10,6 +10,7 @@ import {
   GetTasksByProjectId,
   CreateTask,
   UpdateTaskStatus,
+  GetTasksByUserId,
 } from "@/app/lib/server/taskServer";
 import { getIsArchived, getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
@@ -107,6 +108,15 @@ export default function GetProjectTasks() {
             users = res.users || [];
           }
         } else {
+          if (tasks.length == 0) {
+            try {
+              const data = await GetTasksByUserId(user._id);
+              setTasks(data);
+            } catch (err: any) {
+              console.error(err);
+              setError(t("failedToFetchTasks"));
+            }
+          }
           data = tasks.filter(
             (t) => (t.projectId as { _id?: string })?._id === projectId
           );
