@@ -180,73 +180,138 @@ const useAppStore = create(
           }
         );
 
-        channel.bind("task-updated", (data: { action: "ADD" | "UPDATE" | "DELETE", task?: ITask, taskId?: string }) => {
-          console.log("Real-time Task Update Received:", data.action, data.task || data.taskId);
+        // channel.bind("task-updated", (data: { action: "ADD" | "UPDATE" | "DELETE", task?: ITask, taskId?: string }) => {
+        //   console.log("Real-time Task Update Received:", data.action, data.task || data.taskId);
 
-          const state = get();
-          const currentTasks = state.tasks;
-          let newTasks: ITask[] = [];
+        //   const state = get();
+        //   const currentTasks = state.tasks;
+        //   let newTasks: ITask[] = [];
 
-          const taskExists = data.task && currentTasks.some(t => t._id === data.task!._id);
+        //   const taskExists = data.task && currentTasks.some(t => t._id === data.task!._id);
 
-          switch (data.action) {
-            case "ADD":
-              if (data.task && !taskExists) {
-                newTasks = [data.task, ...currentTasks];
-              } else {
-                newTasks = currentTasks;
+        //   switch (data.action) {
+        //     case "ADD":
+        //       if (data.task && !taskExists) {
+        //         newTasks = [data.task, ...currentTasks];
+        //       } else {
+        //         newTasks = currentTasks;
+        //       }
+        //       if (data.task?.projectId?._id === state.projectId) {
+        //         const newProjectTasks = [data.task, ...state.projectTasks];
+        //         set({ projectTasks: newProjectTasks });
+        //       }
+        //       break;
+
+        //     case "UPDATE":
+        //       if (data.task && !taskExists) {
+        //         newTasks = [data.task, ...currentTasks];
+        //       } else {
+        //         newTasks = currentTasks.map(t =>
+        //           t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
+        //         );
+        //       }
+        //       if (data.task?.projectId?._id === state.projectId) {
+        //         const newProjectTasks = state.projectTasks.map(t =>
+        //           t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
+        //         );
+        //         set({ projectTasks: newProjectTasks });
+        //       }
+        //       break;
+
+        //     case "DELETE":
+        //       newTasks = currentTasks.filter(t => t._id !== data.taskId);
+        //       if (data.task?.projectId?._id === state.projectId) {
+        //         const newProjectTasks = state.projectTasks.filter(t => t._id !== data.taskId);
+        //         set({ projectTasks: newProjectTasks });
+        //       }
+        //       break;
+
+        //     default:
+        //       newTasks = currentTasks;
+        //   }
+
+        //   // ⭐ עדכון המערכים ב-Store ⭐
+        //   set({
+        //     tasks: newTasks,
+        //     projectTasks: state.projectId
+        //       ? newTasks.filter(t => {
+        //         if (!t?.projectId) return false;
+        //         if (typeof t.projectId === "object" && t.projectId._id) {
+        //           return t.projectId._id.toString() === state.projectId;
+        //         }
+        //         if (typeof t.projectId === "string") {
+        //           return t.projectId === state.projectId;
+        //         }
+        //         return false;
+        //       })
+        //       : state.projectTasks
+        //   });
+        // });
+        channel.bind(
+          "task-updated",
+          (data: { action: "ADD" | "UPDATE" | "DELETE"; task?: ITask; taskId?: string }) => {
+            const state = get();
+
+            /* ===============================
+               1️⃣ UPDATE TASKS (user tasks)
+               =============================== */
+            if (data.action === "ADD" && data.task) {
+              const exists = state.tasks.some(t => t._id === data.task!._id);
+              if (!exists) {
+                set({
+                  tasks: [data.task, ...state.tasks],
+                });
               }
-              if (data.task?.projectId?._id === state.projectId) {
-                const newProjectTasks = [data.task, ...state.projectTasks];
-                set({ projectTasks: newProjectTasks });
-              }
-              break;
+            }
 
-            case "UPDATE":
-              if (data.task && !taskExists) {
-                newTasks = [data.task, ...currentTasks];
-              } else {
-                newTasks = currentTasks.map(t =>
-                  t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
-                );
-              }
-              if (data.task?.projectId?._id === state.projectId) {
-                const newProjectTasks = state.projectTasks.map(t =>
-                  t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
-                );
-                set({ projectTasks: newProjectTasks });
-              }
-              break;
+            if (data.action === "UPDATE" && data.task) {
+              set({
+                tasks: state.tasks.map(t =>
+                  t._id === data.task!._id ? { ...t, ...data.task } : t
+                ),
+              });
+            }
 
-            case "DELETE":
-              newTasks = currentTasks.filter(t => t._id !== data.taskId);
-              if (data.task?.projectId?._id === state.projectId) {
-                const newProjectTasks = state.projectTasks.filter(t => t._id !== data.taskId);
-                set({ projectTasks: newProjectTasks });
-              }
-              break;
+            if (data.action === "DELETE" && data.taskId) {
+              set({
+                tasks: state.tasks.filter(t => t._id !== data.taskId),
+              });
+            }
 
-            default:
-              newTasks = currentTasks;
+            if (!state.projectId) return;
+
+            const taskProjectId =
+              typeof data.task?.projectId === "object"
+                ? data.task.projectId?._id
+                : data.task?.projectId;
+
+            if (taskProjectId !== state.projectId) return;
+
+            if (data.action === "ADD" && data.task) {
+              const exists = state.projectTasks.some(t => t._id === data.task!._id);
+              if (!exists) {
+                set({
+                  projectTasks: [data.task, ...state.projectTasks],
+                });
+              }
+            }
+
+            if (data.action === "UPDATE" && data.task) {
+              set({
+                projectTasks: state.projectTasks.map(t =>
+                  t._id === data.task!._id ? { ...t, ...data.task } : t
+                ),
+              });
+            }
+
+            if (data.action === "DELETE" && data.taskId) {
+              set({
+                projectTasks: state.projectTasks.filter(t => t._id !== data.taskId),
+              });
+            }
           }
+        );
 
-          // ⭐ עדכון המערכים ב-Store ⭐
-          set({
-            tasks: newTasks,
-            projectTasks: state.projectId
-              ? newTasks.filter(t => {
-                if (!t?.projectId) return false;
-                if (typeof t.projectId === "object" && t.projectId._id) {
-                  return t.projectId._id.toString() === state.projectId;
-                }
-                if (typeof t.projectId === "string") {
-                  return t.projectId === state.projectId;
-                }
-                return false;
-              })
-              : state.projectTasks
-          });
-        });
       },
 
       logout: () => {
