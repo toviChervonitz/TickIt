@@ -44,7 +44,7 @@ const LIMIT = 8;
 export default function GetAllProjectsPage() {
   const t = getTranslation();
 
-  const { user, projects, setProjects, setProjectId, setMessages, language,showArchive, setShowArchive } =
+  const { user, projects, setProjects, setProjectId, setMessages, language, showArchive } =
     useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -174,7 +174,7 @@ export default function GetAllProjectsPage() {
                 sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" },
               }}
             />
-            <ShowArchive show={showArchive} setShowArchive={setShowArchive} />
+            <ShowArchive show={showArchive}  />
 
             <Button
               variant="outlined"
