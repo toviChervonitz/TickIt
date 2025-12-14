@@ -146,7 +146,7 @@ export default function EditTask({
     MenuProps: {
       PaperProps: {
         style: {
-          direction: lang === "he" ? "rtl" : "ltr",
+          direction: isHebrew ? "rtl" : "ltr",
         },
       },
     },
