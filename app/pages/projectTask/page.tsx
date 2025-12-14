@@ -102,10 +102,10 @@ export default function GetProjectTasks() {
           console.log("123456789");
           
           data = await GetTasksByProjectId(user._id, projectId,isArchive);
-          console.log("data",data);
-          
+          if(role==="manager"){
           const res = await getAllUsersByProjectId(projectId);
           users = res.users || [];
+          }
         } else {
           //if project is archived make api to bring that tasks
           data = tasks.filter(
