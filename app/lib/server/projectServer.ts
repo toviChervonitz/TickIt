@@ -127,3 +127,32 @@ export async function toArchive(
   }
   return res;
 }
+
+//=============get is archived===========
+export async function getIsArchived(
+  projectId: string | undefined,  
+  userId: string | undefined
+) {
+  try {
+    const res = await fetch(
+      `/api/projectUser/getIsArchived?userId=${userId}&projectId=${projectId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      }
+    );
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(
+        data.message || data.error || "Failed to fetch isArchived status"
+      );
+    }
+    return data.isArchived;
+  } catch (error) {
+    console.error("Get isArchived Error:", error);
+    return false;
+  }
+}

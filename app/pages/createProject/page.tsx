@@ -20,7 +20,6 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import AddMember from "@/app/components/AddMember";
 import GenerateTasks from "@/app/components/generatedTasks";
 import { getTranslation } from "@/app/lib/i18n";
-import { useLanguage } from "@/app/context/LanguageContext";
 
 interface ProjectDetails {
   name: string;
@@ -35,12 +34,11 @@ interface User {
 
 
 export default function CreateProjectPage() {
-  const { lang } = useLanguage();
   const t = getTranslation();
   const steps = [t("projectDetails"), t("addTeamMembers"), t("createTasks")];
 
   const router = useRouter();
-  const { setProjectId, setProjectUsers, projectUsers, user } = useAppStore();
+  const { setProjectId, setProjectUsers, projectUsers, user, language } = useAppStore();
 
   const [step, setStep] = useState<number>(0);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails>({
@@ -247,7 +245,7 @@ export default function CreateProjectPage() {
                   <Button
                     variant="contained"
                     size="large"
-                    endIcon={lang === "en" ? <ArrowForwardIcon /> : <ArrowBackIcon />}
+                    endIcon={language === "en" ? <ArrowForwardIcon /> : <ArrowBackIcon />}
                     onClick={handleNextStep1}
                     disabled={loading || !projectDetails.name || !projectDetails.description}
                     sx={{
@@ -345,7 +343,7 @@ export default function CreateProjectPage() {
                   <Button
                     variant="contained"
                     size="large"
-                    endIcon={lang == "en" ? <ArrowForwardIcon /> : <ArrowBackIcon />}
+                    endIcon={language == "en" ? <ArrowForwardIcon /> : <ArrowBackIcon />}
                     onClick={() => setStep(2)}
                     disabled={loading || users.length === 0}
                     sx={{

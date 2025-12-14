@@ -23,6 +23,7 @@ import {
   DialogContent,
   TextField,
   InputAdornment,
+  Tooltip,
 } from "@mui/material";
 
 import AddIcon from "@mui/icons-material/Add";
@@ -32,7 +33,6 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import CircleIcon from "@mui/icons-material/Circle";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
 import EditProject, { ProjectForm } from "@/app/components/EditProject";
 import Archive from "@/app/components/Archive";
@@ -42,10 +42,9 @@ const MAIN_COLOR = "secondary.main";
 const LIMIT = 8;
 
 export default function GetAllProjectsPage() {
-  const { lang } = useLanguage();
   const t = getTranslation();
 
-  const { user, projects, setProjects, setProjectId, setMessages } =
+  const { user, projects, setProjects, setProjectId, setMessages, language } =
     useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -308,7 +307,9 @@ export default function GetAllProjectsPage() {
                                 },
                               }}
                             >
-                              <EditIcon fontSize="small" />
+                              <Tooltip title={t("editProject")} placement="top" arrow>
+                                <EditIcon fontSize="small" />
+                              </Tooltip>
                             </IconButton>
                           )}
                           <Archive projectId={p._id} userId={user!._id} archived={showArchive} />
@@ -367,7 +368,7 @@ export default function GetAllProjectsPage() {
                         }}
                       >
                         {t("viewProject")}{" "}
-                        {lang == "en" ? (
+                        {language == "en" ? (
                           <ArrowForwardIcon sx={{ fontSize: 18 }} />
                         ) : (
                           <ArrowBackIcon sx={{ fontSize: 18 }} />

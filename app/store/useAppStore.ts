@@ -2,7 +2,8 @@
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
-import { IChatMessage, IProject, IProjectRole, ITask, IUserSafe } from "../models/types";
+import { IChatMessage, IProject, IProjectRole, ITask, IUserSafe, Lang } from "../models/types";
+import { Language } from "@google/genai";
 
 type PusherClient = Pusher;
 
@@ -15,6 +16,7 @@ interface AppState {
   projects: IProjectRole[];
   pusherClient: PusherClient | null;
   messages: IChatMessage[];
+  language: Lang;
 
   setUser: (user: IUserSafe | null) => void;
   setProjectId: (projectId: string) => void;
@@ -23,6 +25,7 @@ interface AppState {
   setTasks: (tasks: ITask[]) => void;
   setProjects: (projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])) => void;
   getProjectName: (projectId: string) => string | null;
+  setLanguage: (lang: Lang) => void;
   setMessages: (messages: IChatMessage[]) => void;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
@@ -42,6 +45,7 @@ const useAppStore = create(
       projects: [],
       pusherClient: null,
       messages: [],
+      language: "en",
 
       setUser: (user) =>
         set((state) => ({ ...state, user })),
@@ -75,7 +79,7 @@ const useAppStore = create(
         const projectRole = projects.find(p => p.project._id === projectId);
         return projectRole?.project?.name || null;
       },
-
+      setLanguage: (language: Lang) => set({ language }),
       setMessages: (
         messagesOrFn: IChatMessage[] | ((prev: IChatMessage[]) => IChatMessage[])
       ) =>
@@ -260,6 +264,7 @@ const useAppStore = create(
           projectTasks: [],
           tasks: [],
           projects: [],
+          language: "en",
           pusherClient: null,
         });
       },
@@ -273,6 +278,7 @@ const useAppStore = create(
         projectTasks: state.projectTasks,
         tasks: state.tasks,
         projects: state.projects,
+        language: state.language
       }),
     } as MyPersist
   )

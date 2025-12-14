@@ -3,8 +3,10 @@
 import React from "react";
 import Link from "next/link";
 import { Box, Typography, Button } from "@mui/material";
+import { getTranslation } from "./lib/i18n";
 
 export default function NotFound() {
+  const t=getTranslation()
   return (
     <Box
       sx={{
@@ -39,7 +41,7 @@ export default function NotFound() {
           marginBottom: 1,
         }}
       >
-        הדף שחיפשת לא נמצא
+        {t("pageNotFound")}
       </Typography>
 
       <Typography
@@ -51,9 +53,7 @@ export default function NotFound() {
           lineHeight: 1.6,
         }}
       >
-        ייתכן שהכתובת שונתה או שהדף הועבר למקום אחר.
-        ניתן לחזור לדשבורד בלחיצה על הכפתור.
-      </Typography>
+{t("pageNotFoundDescription")}      </Typography>
 
       {/* כפתור */}
       <Button
@@ -72,8 +72,7 @@ export default function NotFound() {
           },
         }}
       >
-        חזרה לדשבורד
-      </Button>
+{t("returnToDashboard")}      </Button>
     </Box>
   );
 }

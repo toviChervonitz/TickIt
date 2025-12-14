@@ -1,13 +1,13 @@
 "use client";
 
-import { useLanguage } from "@/app/context/LanguageContext";
 import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Typography, Tooltip } from "@mui/material";
 import PublicIcon from "@mui/icons-material/Public";
 import React, { useState } from "react";
 import { Lang } from "../models/types";
+import useAppStore from "../store/useAppStore";
 
 export default function LanguageSwitcher() {
-    const { lang, setLang } = useLanguage();
+    const {language, setLanguage}=useAppStore()
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -21,13 +21,13 @@ export default function LanguageSwitcher() {
     };
 
     const changeLanguage = (lng: Lang) => {
-        setLang(lng);
+        setLanguage(lng)
         handleClose();
     };
 
     return (
         <>
-            <Tooltip title={lang === "en" ? "Change Language" : "שנה שפה"}
+            <Tooltip title={language === "en" ? "Change Language" : "שנה שפה"}
             >
                 <IconButton
                     onClick={handleOpen}

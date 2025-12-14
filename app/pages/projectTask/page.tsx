@@ -11,7 +11,7 @@ import {
   CreateTask,
   UpdateTaskStatus,
 } from "@/app/lib/server/taskServer";
-import { getUserRoleInProject } from "@/app/lib/server/projectServer";
+import { getIsArchived, getUserRoleInProject } from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
 import { ITask, IUser } from "@/app/models/types";
@@ -46,15 +46,15 @@ import SearchIcon from "@mui/icons-material/Search";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { useRouter } from "next/navigation";
 import { getTranslation } from "@/app/lib/i18n";
-import { useLanguage } from "@/app/context/LanguageContext";
 import ShowTask from "@/app/components/ShowTask";
 import ChatFloating from "@/app/components/ChatFloating";
-import { Lexend_Tera } from "next/font/google";
+import { get } from "http";
+import { log } from "util";
+// import { Lexend_Tera } from "next/font/google";
 
 export default function GetProjectTasks() {
-  const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName, setProjectTasks, projectTasks } =
+  const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName, setProjectTasks, projectTasks, language } =
     useAppStore();
-  const { lang } = useLanguage();
   const t = getTranslation();
   // Tasks Data
   // const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
@@ -90,14 +90,22 @@ export default function GetProjectTasks() {
     const loadProjectData = async () => {
       setLoading(true);
       try {
+        const isArchive=await getIsArchived(projectId,user._id);
+        console.log("isArchive:",isArchive);
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
+        console.log(role);
+
         let users = [];
         let data: ITask[] = [];
-        if (role === "manager") {
-          data = await GetTasksByProjectId(user._id, projectId);
+        if (role === "manager"||isArchive) {
+          console.log("123456789");
+          
+          data = await GetTasksByProjectId(user._id, projectId,isArchive);
+          if(role==="manager"){
           const res = await getAllUsersByProjectId(projectId);
           users = res.users || [];
+          }
         } else {
           data = tasks.filter(
             (t) => (t.projectId as { _id?: string })?._id === projectId
@@ -117,11 +125,9 @@ export default function GetProjectTasks() {
     loadProjectData();
   }, [projectId, user, setProjectTasks]);
 
-  // --- Filter Logic ---
   const filterAndSortTasks = (taskList: ITask[]) => {
     let result = [...taskList];
 
-    // 1. Search Filter
     if (searchQuery) {
       const lowerQuery = searchQuery.toLowerCase();
       result = result.filter(
@@ -188,7 +194,6 @@ export default function GetProjectTasks() {
     setOpenView(true);
   };
 
-  // --- Handlers ---
 
   const fetchProjectUsers = async () => {
     if (!projectId) return [];
@@ -249,13 +254,13 @@ export default function GetProjectTasks() {
       );
       setTasks(updated);
 
-      // Update filtered tasks as well to reflect change immediately
       const updatedProjectTasks = projectTasks.map((t) =>
         t._id === id ? { ...t, status: newStatus } : t
       );
       setProjectTasks(updatedProjectTasks);
 
       await UpdateTaskStatus(id, userId, newStatus);
+      
     } catch (err) {
       console.error("Failed to update task status:", err);
     }
@@ -332,7 +337,7 @@ export default function GetProjectTasks() {
                 "&:hover": { backgroundColor: "rgba(29,72,106,0.1)" },
               }}
             >
-              {lang === "en" ? <ArrowBackIcon /> : <ArrowForwardIcon />}
+              {language === "en" ? <ArrowBackIcon /> : <ArrowForwardIcon />}
             </IconButton>
 
             <Box>
@@ -424,7 +429,7 @@ export default function GetProjectTasks() {
                 label={t("assignee")}
                 SelectProps={{
                   MenuProps: {
-                    PaperProps: { dir: lang === "he" ? "rtl" : "ltr" },
+                    PaperProps: { dir: language === "he" ? "rtl" : "ltr" },
                   },
                 }}
                 sx={{
@@ -450,7 +455,7 @@ export default function GetProjectTasks() {
               label={t("sortBy")}
               SelectProps={{
                 MenuProps: {
-                  PaperProps: { dir: lang === "he" ? "rtl" : "ltr" },
+                  PaperProps: { dir: language === "he" ? "rtl" : "ltr" },
                 },
               }}
               sx={{
@@ -709,7 +714,7 @@ export default function GetProjectTasks() {
           onClose={() => setShowAddTask(false)}
           maxWidth="md"
           fullWidth
-          dir={lang === "he" ? "rtl" : "ltr"}
+          dir={language === "he" ? "rtl" : "ltr"}
         >
           <DialogTitle
             sx={{
@@ -742,7 +747,7 @@ export default function GetProjectTasks() {
           onClose={() => setShowAddUser(false)}
           maxWidth="sm"
           fullWidth
-          dir={lang === "he" ? "rtl" : "ltr"}
+          dir={language === "he" ? "rtl" : "ltr"}
         >
           <DialogTitle
             sx={{
@@ -779,7 +784,7 @@ export default function GetProjectTasks() {
             projectId={projectId!}
             onSaved={handleSaved}
             onCancel={() => setEditingTask(null)}
-            dir={lang === "he" ? "rtl" : "ltr"}
+            dir={language === "he" ? "rtl" : "ltr"}
           />
         )}
         <ShowTask

@@ -20,7 +20,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { useLanguage } from "../context/LanguageContext";
 
 export interface TaskFormData {
   title: string;
@@ -43,9 +42,8 @@ export default function TaskForm({
   onSubmit,
   variant = "popup",
 }: TaskFormProps) {
-  const { projectUsers } = useAppStore();
+  const { projectUsers, language } = useAppStore();
   const t = getTranslation();
-  const {lang}=useLanguage()
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -123,7 +121,7 @@ export default function TaskForm({
     MenuProps: {
       PaperProps: {
         style: {
-          direction: lang === "he" ? "rtl" : "ltr",
+          direction: language === "he" ? "rtl" : "ltr",
         },
       },
     },
@@ -136,42 +134,27 @@ export default function TaskForm({
     </MenuItem>
   ))}
 </TextField>
-<Box sx={{ direction: lang === "he" ? "rtl" : "ltr" }}>
-  <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={lang === "he" ? he : enUS}>
-    <DatePicker
-      label={t("dueDate")}
-      value={task.dueDate ? new Date(task.dueDate) : null}
-      onChange={(newValue) => {
-        setTask({ ...task, dueDate: newValue ? newValue.toISOString().split("T")[0] : "" });
-      }}
-      slotProps={{
-        textField: {
-          fullWidth: true,
-          size: "small",
-          required: true,
-          InputLabelProps: { shrink: true },
-        },
-        popper: {
-          sx: {
-            "& .MuiPickersCalendarHeader-root": {
-              justifyContent: lang === "he" ? "flex-end" : "flex-start",
-              flexDirection: lang === "he" ? "row-reverse" : "row",
-            },
-            "& .MuiPickersArrowSwitcher-root": {
-              flexDirection: lang === "he" ? "row-reverse" : "row",
-            },
-            "& .MuiPickersCalendarHeader-label": {
-              textAlign: lang === "he" ? "right" : "center",
-            },
-            "& .MuiPickersWeekdays-container": {
-              flexDirection: lang === "he" ? "row-reverse" : "row", // flip weekdays
-            },
-          },
-        },
-      }}
-    />
-  </LocalizationProvider>
-</Box>
+<TextField
+  label={t("dueDate")}
+  type="date"
+  name="dueDate"
+  value={task.dueDate}
+  required
+  onChange={handleChange}
+  InputLabelProps={{ shrink: true }}
+  fullWidth
+  sx={{
+    direction: language=="he" ? "rtl" : "ltr",
+    "& input": {
+      textAlign: language=="he" ? "right" : "left",
+    },
+  }}
+  InputProps={{
+    endAdornment: language=="he" ? (
+      <Box sx={{ order: -1, mr: 1 }}>{/* calendar icon placeholder */}</Box>
+    ) : undefined,
+  }}
+/>
 
           </Stack>
 
