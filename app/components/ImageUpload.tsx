@@ -2,13 +2,14 @@
 import { UploadButton } from "@/utils/uploadthing";
 import { useEffect, useState } from "react";
 import { Camera } from "lucide-react";
+import { getTranslation } from "../lib/i18n";
 interface ImageUploadProps {
   onUpload: (url: string) => void;
   image?: string;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload, image }) => {
-
+  const t=getTranslation()
   const [isUploading, setIsUploading] = useState(false);
   const [imgUrl, setImgUrl] = useState(image);
   useEffect(() => {
@@ -70,8 +71,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload, image }) => {
 
       {/* טקסט מתחת */}
       <p className="mt-2 text-sm cursor-pointer" style={{ color: "#1d486a" }}>
-        Click to choose profile picture
-      </p>
+{t("clickForPic")}      </p>
 
       {/* טוען */}
       {isUploading && (

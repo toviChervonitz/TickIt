@@ -239,28 +239,28 @@ export default function Chat() {
         }}
       >
 
-        <TextField
-          fullWidth
-          placeholder={t("typeMessage")}
-          variant="outlined"
-          size="small"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => (e.key === "Enter" ? handleSend() : null)}
-          disabled={loadingSend}
-          sx={{
-            "& .MuiOutlinedInput-root": {
-              borderRadius: 50,
-              paddingRight: isRTL ? "4px" : "14px",
-              paddingLeft: isRTL ? "14px" : "4px",
-            },
-            "& fieldset": {
-              borderColor: CHAT_COLORS.inputBorder,
-            },
-            direction: isRTL ? "rtl" : "ltr",
-            flexGrow: 1,
-          }}
-        />
+<TextField
+  fullWidth
+  placeholder={t("typeMessage")}
+  variant="outlined"
+  size="small"
+  value={newMessage}
+  onChange={(e) => setNewMessage(e.target.value)}
+  disabled={loadingSend}
+  inputProps={{
+    style: {
+      textAlign: isRTL ? "right" : "left",
+      direction: isRTL ? "rtl" : "ltr",
+    },
+  }}
+  sx={{
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 50,
+      paddingRight: isRTL ? "4px" : "14px",
+      paddingLeft: isRTL ? "14px" : "4px",
+    },
+  }}
+/>
 
         <Button
           variant="contained"
