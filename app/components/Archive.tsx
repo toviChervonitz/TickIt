@@ -1,3 +1,38 @@
+// import { toArchive } from "../lib/server/projectServer";
+// import useAppStore from "../store/useAppStore";
+
+// interface ArchiveProps {
+//   projectId: string | undefined;
+//   userId: string;
+//   archived: boolean;
+// }
+
+// export default function Archive({ projectId, userId, archived }: ArchiveProps) {
+//   const { projects, setProjects } = useAppStore();
+
+//   async function archive(isArchive: boolean) {
+//     const res = await toArchive(projectId, userId, isArchive);
+//     if (res.ok) {
+//       setProjects(
+//         projects.map((p) =>
+//           p.project._id === projectId ? { ...p, isArchived: isArchive } : p
+//         )
+//       );
+//     }
+
+//     console.log("return from archive-------------", res);
+//     console.log("state", archived);
+//   }
+//   return (
+//     <button onClick={() => archive(!archived)}>
+//       {archived ? "Restore" : "Archive"}
+//     </button>
+//   );
+// }
+
+import { IconButton, Tooltip } from "@mui/material";
+import ArchiveIcon from "@mui/icons-material/Archive";
+import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { toArchive } from "../lib/server/projectServer";
 import { GetTasksByProjectId } from "../lib/server/taskServer";
 import useAppStore from "../store/useAppStore";
@@ -30,9 +65,32 @@ export default function Archive({ projectId, userId, archived }: ArchiveProps) {
       console.log("state", archived);
     }
   }
+
   return (
-    <button onClick={() => archive(!archived)}>
-      {archived ? "Restore" : "Archive"}
-    </button>
+    <Tooltip
+      title={archived ? "Restore project" : "Archive project"}
+      placement="top"
+      arrow
+    >
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          e.stopPropagation();
+          archive(!archived);
+        }}
+        sx={{
+          color: archived ? "#777" : "primary.main",
+          "&:hover": {
+            backgroundColor: "rgba(61,210,204,0.15)",
+          },
+        }}
+      >
+        {archived ? (
+          <UnarchiveIcon fontSize="small" />
+        ) : (
+          <ArchiveIcon fontSize="small" />
+        )}
+      </IconButton>
+    </Tooltip>
   );
 }

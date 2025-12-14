@@ -2,8 +2,8 @@
 
 import { createTheme } from "@mui/material/styles";
 
-export const getTheme = (lang: "en" | "he" | "ar") => {
-  const direction = lang === "he" || lang === "ar" ? "rtl" : "ltr";
+export const getTheme = (lang: "en" | "he") => {
+  const direction = lang === "he"? "rtl" : "ltr";
 
   return createTheme({
     direction,

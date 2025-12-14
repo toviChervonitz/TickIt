@@ -8,7 +8,6 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import useAppStore from "@/app/store/useAppStore";
 import { Types } from "mongoose";
 import { ITask, IProject } from "@/app/models/types";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { getTranslation } from "@/app/lib/i18n";
 import ShowTask from "@/app/components/ShowTask";
 import {
@@ -51,11 +50,10 @@ function getProjectColor(projectId?: Types.ObjectId | IProject | string): string
 
 
 export default function CalendarPage() {
-  const { lang } = useLanguage();
   const t = getTranslation();
   const theme = useTheme();
 
-  const { user, tasks, setTasks } = useAppStore();
+  const { user, tasks, setTasks, language } = useAppStore();
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,7 +67,7 @@ export default function CalendarPage() {
     parse,
     startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 0 }),
     getDay,
-    locales: { [lang]: localesMap[lang] },
+    locales: { [language]: localesMap[language] },
   });
 
   useEffect(() => {
@@ -256,7 +254,7 @@ export default function CalendarPage() {
 
         .rbc-date-cell {
           padding: 8px;
-          text-align: ${lang === "he" ? "left" : "right"};
+          text-align: ${language === "he" ? "left" : "right"};
         }
 
         .rbc-date-cell.rbc-now {
@@ -265,7 +263,7 @@ export default function CalendarPage() {
         }
 
         .rbc-day-bg + .rbc-day-bg {
-          border-${lang === "he" ? "right" : "left"}: 1px solid ${theme.palette.divider};
+          border-${language === "he" ? "right" : "left"}: 1px solid ${theme.palette.divider};
         }
         /* Fix toolbar button rounding for RTL */
 :global([dir='rtl'] .rbc-toolbar button) {
@@ -285,7 +283,7 @@ export default function CalendarPage() {
       `}</style>
 
       <Box
-        dir={lang === "he" ? "rtl" : "ltr"}
+        dir={language === "he" ? "rtl" : "ltr"}
         sx={{ p: 3, maxWidth: 1400, mx: "auto" }}
       >
 
@@ -307,7 +305,7 @@ export default function CalendarPage() {
             endAccessor="end"
             style={{ height: 650 }}
             messages={t("messages") as any}
-            culture={lang}
+            culture={language}
             eventPropGetter={(e: any) => ({ style: e.style })}
             onSelectEvent={(e) => setSelectedTask(e.resource.task)}
             view={view}

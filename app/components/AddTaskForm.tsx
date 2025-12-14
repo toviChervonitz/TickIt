@@ -3,6 +3,11 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import useAppStore from "@/app/store/useAppStore";
 import { getTranslation } from "../lib/i18n";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
+import { he, enUS } from "date-fns/locale";
+import { InputAdornment } from "@mui/material";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 
 import {
   TextField,
@@ -15,7 +20,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import { useLanguage } from "../context/LanguageContext";
 
 export interface TaskFormData {
   title: string;
@@ -38,9 +42,8 @@ export default function TaskForm({
   onSubmit,
   variant = "popup",
 }: TaskFormProps) {
-  const { projectUsers } = useAppStore();
+  const { projectUsers, language } = useAppStore();
   const t = getTranslation();
-  const {lang}=useLanguage()
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -118,7 +121,7 @@ export default function TaskForm({
     MenuProps: {
       PaperProps: {
         style: {
-          direction: lang === "he" ? "rtl" : "ltr",
+          direction: language === "he" ? "rtl" : "ltr",
         },
       },
     },
@@ -131,18 +134,28 @@ export default function TaskForm({
     </MenuItem>
   ))}
 </TextField>
+<TextField
+  label={t("dueDate")}
+  type="date"
+  name="dueDate"
+  value={task.dueDate}
+  required
+  onChange={handleChange}
+  InputLabelProps={{ shrink: true }}
+  fullWidth
+  sx={{
+    direction: language=="he" ? "rtl" : "ltr",
+    "& input": {
+      textAlign: language=="he" ? "right" : "left",
+    },
+  }}
+  InputProps={{
+    endAdornment: language=="he" ? (
+      <Box sx={{ order: -1, mr: 1 }}>{/* calendar icon placeholder */}</Box>
+    ) : undefined,
+  }}
+/>
 
-            <TextField
-              type="date"
-              label={t("dueDate")}
-              name="dueDate"
-              fullWidth
-              size="small"
-              value={task.dueDate}
-              onChange={handleChange}
-              InputLabelProps={{ shrink: true }}
-              required
-            />
           </Stack>
 
           {/* Submit Button */}

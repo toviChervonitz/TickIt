@@ -31,7 +31,6 @@ import InsertChartIcon from "@mui/icons-material/InsertChart";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { logoutService } from "../lib/server/authServer";
-import { useLanguage } from "../context/LanguageContext";
 import { getTranslation } from "../lib/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
 
@@ -47,10 +46,9 @@ const hiddenRoutes = [
 ];
 
 export default function Navbar() {
-  const { user, logout } = useAppStore();
+  const { user, logout , language} = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
-  const { lang } = useLanguage();
   const t = getTranslation();
 
   const [hydrated, setHydrated] = useState(false);
@@ -98,53 +96,45 @@ export default function Navbar() {
         backgroundColor: "background.default",
       }}
     >
-{/* TOP BAR */}
-<Box
-  sx={{
-    display: "flex",
-    flexDirection: "column",
-    p: 2,
-    borderBottom: "1px solid #e8eaed",
-  }}
->
-  {/* ROW 1: collapse/expand button */}
-  <Box sx={{ display: "flex", justifyContent: "flex-end", mb: collapsed ? 0 : 1 }}>
-    <IconButton size="small" onClick={handleCollapseToggle}>
-      {collapsed
-        ? lang === "he"
-          ? <ChevronLeftIcon />
-          : <ChevronRightIcon />
-        : lang === "he"
-        ? <ChevronRightIcon />
-        : <ChevronLeftIcon />}
-    </IconButton>
-  </Box>
-
-  {/* DIVIDER BETWEEN ROWS */}
-  {!collapsed && <Divider sx={{ borderColor: "#e8eaed", mb: 1 }} />}
-
-  {/* ROW 2: Logo + Language (hidden in collapsed mode) */}
-  {!collapsed && (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}
-    >
-      {/* LOGO */}
+      {/* TOP BAR */}
       <Box
-        component="img"
-        src="/logo.png"
-        alt="TickIt Logo"
-        sx={{ height: 45, width: "auto" }}
-      />
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: collapsed ? "center" : "space-between",
+          p: 2,
+          borderBottom: "1px solid #e8eaed",
+        }}
+      >
+        {/* LOGO */}
+        {!collapsed && (
+          <Box
+            component="img"
+            src="/logo.png"
+            alt="TickIt Logo"
+            sx={{ height: 45, width: "auto" }}
+          />
+        )}
 
-      {/* LANGUAGE SWITCH */}
-      <LanguageSwitcher />
-    </Box>
-  )}
-</Box>
+        {/* COLLAPSE BUTTON */}
+        <IconButton
+          size="small"
+          onClick={handleCollapseToggle}
+          sx={{
+            backgroundColor: "rgba(0,0,0,0.04)",
+            "&:hover": { backgroundColor: "rgba(0,0,0,0.08)" },
+          }}
+        >
+          {collapsed
+            ? language === "he"
+              ? <ChevronLeftIcon />
+              : <ChevronRightIcon />
+            : language === "he"
+              ? <ChevronRightIcon />
+              : <ChevronLeftIcon />}
+        </IconButton>
+      </Box>
+
 
 
 
@@ -212,49 +202,70 @@ export default function Navbar() {
 
       {/* USER + LOGOUT */}
       {user && (
-        <Box sx={{ p: collapsed ? 0 : 2 }}>
+        < Box sx={{ p: collapsed ? 0 : 2 }}>
+
           <Stack
             direction="row"
             spacing={1.5}
             alignItems="center"
-            sx={{
-              p: collapsed ? 0 : 1.5,
-              borderRadius: 1.5,
-              cursor: "pointer",
-              "&:hover": { backgroundColor: "rgba(0,0,0,0.04)" },
-              transition: "background-color 0.2s ease",
-              justifyContent: collapsed ? "center" : "flex-start",
-            }}
-            onClick={handleProfile}
+            justifyContent={collapsed ? "center" : "space-between"}
           >
-            <Tooltip title={collapsed ? user.name : ""} placement="right">
-              <Avatar
-                src={user.image}
-                alt={user.name}
-                sx={{
-                  width: 36,
-                  height: 36,
-                  backgroundColor: "#3dd2cc",
-                  fontSize: "0.95rem",
-                  fontWeight: 600,
-                }}
-              >
-                {!user.image && user.name?.charAt(0).toUpperCase()}
-              </Avatar>
-            </Tooltip>
+            {/* LEFT SIDE — PROFILE (CLICKABLE) */}
+            <Stack
+              direction="row"
+              spacing={1.5}
+              alignItems="center"
+              sx={{
+                p: collapsed ? 0 : 1.5,
+                borderRadius: 1.5,
+                cursor: collapsed ? "default" : "pointer",
+                "&:hover": !collapsed ? { backgroundColor: "rgba(0,0,0,0.04)" } : {},
+              }}
+              onClick={!collapsed ? handleProfile : undefined}
+            >
+              <Tooltip title={collapsed ? user.name : ""} placement="right">
+                <Avatar
+                  src={user.image}
+                  alt={user.name}
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    backgroundColor: "#3dd2cc",
+                    fontSize: "0.95rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  {!user.image && user.name?.charAt(0).toUpperCase()}
+                </Avatar>
+              </Tooltip>
 
+              {!collapsed && (
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="body2" fontWeight={600} color="text.secondary" noWrap>
+                    {user.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: "text.secondary" }} noWrap>
+                    {t("viewProfile")}
+                  </Typography>
+                </Box>
+              )}
+            </Stack>
+
+            {/* RIGHT SIDE — LANGUAGE (NOT CLICKING PROFILE) */}
             {!collapsed && (
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="body2" fontWeight={600} color="text.secondary" noWrap>
-                  {user.name}
-                </Typography>
-                <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.75rem" }} noWrap>
-                  {t("viewProfile")}
-                </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+                onClick={(e) => e.stopPropagation()} // ← מונע פתיחת פרופיל
+              >
+                <LanguageSwitcher />
               </Box>
             )}
           </Stack>
 
+          {/* LOGOUT BUTTON */}
           <Tooltip title={collapsed ? t("logout") : ""} placement="right">
             <ListItemButton
               onClick={handleLogout}
@@ -284,13 +295,13 @@ export default function Navbar() {
             </ListItemButton>
           </Tooltip>
         </Box>
-      )}
-    </Box>
+      )
+      }
+    </Box >
   );
 
   return (
     <>
-      {/* MOBILE TOGGLE */}
       <IconButton
         onClick={handleDrawerToggle}
         sx={{

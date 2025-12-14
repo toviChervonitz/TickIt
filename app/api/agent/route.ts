@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 
 // Initialize GenAI client
 const ai = new GoogleGenAI({
-  apiKey: process.env.NEW_GEMINI || "",
+  apiKey: process.env.GEMINI_API_KEY || "",
 });
 
 // Helper: extract first JSON block from AI output
@@ -43,33 +43,42 @@ export async function POST(req: Request) {
 
     const startDate = project.createdAt.toISOString().split("T")[0];
 
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash"; // easily switch 2.0 <-> 2.5
+    const model =  "gemini-2.5-flash"; 
 
     const response = await ai.models.generateContent({
       model,
       contents: [
         {
           text: ` You are a project task generator.
-                  Generate BETWEEN 2 AND 5 actionable development tasks.
-                  Each task MUST include:
-                  - title
-                  - content (short, concise description, 1–3 sentences; do NOT add step-by-step instructions)
-                  - dueDate (ISO format YYYY-MM-DD)
 
-                  Due date rules:
-                  - Short tasks (< 2 hours) → due tomorrow.
-                  - Longer tasks → add days based on task length.
-                  - If a task depends on another, its dueDate must be after the dependent task’s dueDate.
+Determine response language ONLY from the user’s actual content values 
+(after labels such as "project name:" or "description:").
+Ignore English structural words like "project", "name", "description".
 
-                  The project starts on ${startDate}. Use this date to calculate due dates.
-                  Language: Use English by default unless the user's prompt is entirely in another language.
-                  Return ONLY valid JSON — an array of tasks. Do not add any explanations.
+Language rule:
+- If the user's content is mostly Hebrew → answer in Hebrew.
+- If the user's content is mostly English → answer in English.
+- If mixed → pick the dominant language.
+- If unclear → use English.
 
-                  Example output:
-                  [
-                    { "title": "Task 1", "content": "Short description", "dueDate": "2025-12-09" }
-                  ]
-                  Prompt: ${userPrompt}
+Generate BETWEEN 2 AND 5 actionable development tasks.
+Each task MUST include:
+- title
+- content (short, concise description, 1–3 sentences; no step-by-step instructions)
+- dueDate (ISO format YYYY-MM-DD)
+
+Due date rules:
+- Short tasks (< 2 hours) → due tomorrow.
+- Longer tasks → add days accordingly.
+- If a task depends on another → its dueDate must come after.
+
+The project starts on ${startDate}. Use this date to calculate due dates.
+
+Return ONLY valid JSON — an array of tasks.
+
+Prompt content:
+${userPrompt}
+
                 `,
 
         },

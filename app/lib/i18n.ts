@@ -1,15 +1,15 @@
-import { useLanguage } from "../context/LanguageContext";
 import en from "../locales/en.json";
 import he from "../locales/he.json";
+import useAppStore from "../store/useAppStore";
 
 type Translations = typeof en;
 
 export const getTranslation = () => {
-  const { lang } = useLanguage();
+  const { language } = useAppStore();
 
   const t = (key: keyof Translations): string => {
     // Type assertion ensures TS knows both en & he have the same keys
-    const translations: Translations = lang === "he" ? (he as unknown as Translations) : (en as Translations);
+    const translations: Translations = language === "he" ? (he as unknown as Translations) : (en as Translations);
     return (translations[key] as string) || key;
   };
 
