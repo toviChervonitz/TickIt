@@ -1,48 +1,4 @@
 
-// export async function sendChatMessage(payload: {
-//   userId: string;
-//   projectId: string;
-//   message: string;
-// }) {
-//   const res = await fetch("/api/chatMessage/setMessage", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json" },
-//     body: JSON.stringify(payload),
-//   });
-
-//   const data = await res.json();
-
-//   if (!res.ok) {
-//     // Throw the error returned from the server
-//     throw new Error(data.error || "Message creation failed");
-//   }
-
-//   // Return the populated chat message object
-//   return data.chatMessage;
-// }
-
-// export async function getChatMessages(projectId: string) {
-//   try {
-//     const res = await fetch(`/api/chatMessage/getMessages?projectId=${projectId}`, {
-//       method: "GET",
-//       headers: { "Content-Type": "application/json" },
-//       cache: "no-store",
-//     });
-
-//     const data = await res.json();
-
-//     if (!res.ok) {
-//       throw new Error(data.message || data.error || "Fetching chat failed");
-//     }
-
-//     // Return only the chat array, default to empty array if missing
-//     return data.chat ?? [];
-//   } catch (err: any) {
-//     console.error("Get chat Error:", err);
-//     return [];
-//   }
-// }
-
 export async function sendChatMessage(payload: {
   userId: string;
   projectId: string;
@@ -78,3 +34,112 @@ export async function getChatMessages(
 
   return data.chat ?? [];
 }
+// export async function getLastReadMessage(projectId: string) {
+//   try {
+    
+//     const res = await fetch(`/api/chatMessage/${projectId}/getLastRead`, {
+//       method: "GET",
+//       headers: { "Content-Type": "application/json" },
+//       cache: "no-store",
+    
+//     });
+
+//     const data = await res.json();
+
+//     if (res.ok && data.status === "success") {
+//       return data.lastReadMessageId || null;
+//     } else {
+//       console.error("Failed to get last read:", data);
+//       return null;
+//     }
+//   } catch (err) {
+//     console.error("Error fetching last read:", err);
+//     return null;
+//   }
+// }
+export async function getLastReadMessage(projectId: string) {
+  try {
+    const res = await fetch(`/api/chatMessage/getLastRead?projectId=${projectId}`, {
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.warn("getLastReadMessage non-200:", res.status);
+      return null;
+    }
+
+    const data = await res.json();
+
+    if (data?.status === "success") {
+      return data.lastReadMessageId || null;
+    } else {
+      console.error("Failed to get last read:", data);
+      return null;
+    }
+  } catch (err) {
+    console.error("Error fetching last read:", err);
+    return null;
+  }
+}
+
+// export async function updateLastReadMessage(
+//   projectId: string,
+//   lastReadMessageId: string,
+// ) {
+//   try {
+
+//     const res = await fetch(`api/chat/${projectId}/setLastRead`, {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//         // optional: send token if needed
+//       },
+//       body: JSON.stringify({ lastReadMessageId }),
+//     });
+
+//     const data = await res.json();
+
+//     if (res.ok && data.status === "success") {
+//       return data.lastReadMessageId;
+//     } else {
+//       console.error("Failed to update last read:", data);
+//       return null;
+//     }
+//   } catch (err) {
+//     console.error("Error updating last read:", err);
+//     return null;
+//   }
+// }
+
+export async function updateLastReadMessage(
+  projectId: string,
+  lastReadMessageId: string
+) {
+  try {
+    const res = await fetch(`/api/chatMessage/setLastRead`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId, lastReadMessageId }),
+    });
+
+    if (!res.ok) {
+      console.warn("updateLastReadMessage non-200:", res.status);
+      return null;
+    }
+
+    const data = await res.json();
+
+    if (data?.status === "success") {
+      return data.lastReadMessageId;
+    } else {
+      console.error("Failed to update last read:", data);
+      return null;
+    }
+  } catch (err) {
+    console.error("Error updating last read:", err);
+    return null;
+  }
+}
+
