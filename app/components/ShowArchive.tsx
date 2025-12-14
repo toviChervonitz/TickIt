@@ -15,6 +15,7 @@
 import { Button } from "@mui/material";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UndoIcon from "@mui/icons-material/Undo";
+import { getTranslation } from "../lib/i18n";
 
 interface ShowArchiveProps {
   show: boolean;
@@ -22,6 +23,8 @@ interface ShowArchiveProps {
 }
 
 export default function ShowArchive({ show, setShowArchive }: ShowArchiveProps) {
+    const t = getTranslation();
+  
   return (
     <Button
       variant={show ? "contained" : "outlined"}
@@ -42,7 +45,7 @@ export default function ShowArchive({ show, setShowArchive }: ShowArchiveProps) 
         },
       }}
     >
-      {show ? "Show all projects" : "Show archive"}
+      {show ? t("showAllProjects") : t("showArchive")}
     </Button>
   );
 }

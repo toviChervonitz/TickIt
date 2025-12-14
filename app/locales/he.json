@@ -258,7 +258,12 @@
   "progressOverTime": "התקדמות לאורך זמן" ,
   "daily": "יומי",
   "weekly": "שבועי",
-  "monthly": "חודשי"
+  "monthly": "חודשי",
+  "showAllProjects":"הצג את כל הפרויקטים",
+  "showArchive":"הצג ארכיון",
+  "clickForPic":"לחץ כדי לבחור תמונת פרופיל"
+
+
 
 
   
