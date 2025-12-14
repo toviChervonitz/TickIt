@@ -46,7 +46,7 @@ const hiddenRoutes = [
 ];
 
 export default function Navbar() {
-  const { user, logout , language} = useAppStore();
+  const { user, logout, language } = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
   const t = getTranslation();
@@ -59,6 +59,7 @@ export default function Navbar() {
 
   if (!hydrated || !pathname) return null;
   if (hiddenRoutes.includes(pathname)) return null;
+  if (!user) return null;
 
   const handleLogout = () => {
     logout();
