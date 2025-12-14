@@ -261,7 +261,10 @@
   "monthly": "חודשי",
   "showAllProjects":"הצג את כל הפרויקטים",
   "showArchive":"הצג ארכיון",
-  "clickForPic":"לחץ כדי לבחור תמונת פרופיל"
+  "clickForPic":"לחץ כדי לבחור תמונת פרופיל",
+  "restore": "שחזר פרויקט",
+  "archive": "לארכיון"
+
 
 
 
