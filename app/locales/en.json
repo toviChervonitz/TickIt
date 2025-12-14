@@ -246,6 +246,9 @@
   "progressOverTime": "Progress Over Time",
   "daily": "Daily",
   "weekly": "Weekly",
-  "monthly": "Monthly"
+  "monthly": "Monthly",
+  "showAllProjects":"Show all projects",
+  "showArchive":"Show archive",
+  "clickForPic":"Click to choose profile picture"
 
 }
