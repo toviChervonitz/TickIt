@@ -117,6 +117,7 @@ export async function UpdateTaskStatus(
   if (!res.ok) {
     throw new Error(data.error || "Failed to update task status.");
   }
+
   return { status: res.status, ...data };
 }
 export async function DeleteTask(taskId: string) {

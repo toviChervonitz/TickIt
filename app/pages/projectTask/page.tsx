@@ -12,7 +12,10 @@ import {
   UpdateTaskStatus,
   GetTasksByUserId,
 } from "@/app/lib/server/taskServer";
-import { getIsArchived, getUserRoleInProject } from "@/app/lib/server/projectServer";
+import {
+  getIsArchived,
+  getUserRoleInProject,
+} from "@/app/lib/server/projectServer";
 import { getAllUsersByProjectId } from "@/app/lib/server/userServer";
 import AddMember from "@/app/components/AddMember";
 import { ITask, IUser } from "@/app/models/types";
@@ -54,8 +57,17 @@ import { log } from "util";
 // import { Lexend_Tera } from "next/font/google";
 
 export default function GetProjectTasks() {
-  const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName, setProjectTasks, projectTasks, language } =
-    useAppStore();
+  const {
+    projectId,
+    tasks,
+    setTasks,
+    user,
+    setProjectUsers,
+    getProjectName,
+    setProjectTasks,
+    projectTasks,
+    language,
+  } = useAppStore();
   const t = getTranslation();
   // Tasks Data
   // const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
@@ -176,10 +188,26 @@ export default function GetProjectTasks() {
     setSortBy("dueDate");
   };
 
+  // const isOldTask = (task: any) => {
+  //   const due = new Date(task.dueDate);
+  //   return !isNaN(due.getTime()) && due.getDate() < 10;
+  // };
+  const TEN_DAYS = 10 * 24 * 60 * 60 * 1000;
+
   const isOldTask = (task: any) => {
-    const due = new Date(task.dueDate);
-    return !isNaN(due.getTime()) && due.getDate() < 10;
+    if (!task.completedDate) return false;
+
+    const completed = new Date(task.completedDate).getTime();
+    if (isNaN(completed)) return false;
+    const now = Date.now();
+    const diff = now - completed;
+    console.log("diff", diff);
+    console.log("tasks in is old?", task);
+
+    return diff > TEN_DAYS;
+    // return diff > 2 * 60 * 1000; // 2 minutes for testing
   };
+
   const hasActiveFilters =
     searchQuery || userFilter !== "all" || sortBy !== "dueDate";
 
@@ -189,8 +217,8 @@ export default function GetProjectTasks() {
   const doingTasks = displayedTasks.filter((t) => t.status === "doing");
   const doneTasks = displayedTasks.filter((t) => t.status === "done");
 
-  const doneTasksToDisplay = doneTasks.filter((t) => isOldTask(t));
-  const hiddenTasks = doneTasks.filter((t) => !isOldTask(t));
+  const doneTasksToDisplay = doneTasks.filter((t) => !isOldTask(t));
+  const hiddenTasks = doneTasks.filter((t) => isOldTask(t));
   const [showOld, setShowOld] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
@@ -200,7 +228,6 @@ export default function GetProjectTasks() {
     setSelectedTask(task || null);
     setOpenView(true);
   };
-
 
   const fetchProjectUsers = async () => {
     if (!projectId) return [];
@@ -233,9 +260,7 @@ export default function GetProjectTasks() {
     try {
       await DeleteTask(taskId);
       setTasks(tasks.filter((t) => t._id?.toString() !== taskId));
-      setProjectTasks(
-        projectTasks.filter((t) => t._id?.toString() !== taskId)
-      );
+      setProjectTasks(projectTasks.filter((t) => t._id?.toString() !== taskId));
     } catch (err) {
       console.error("Delete failed:", err);
     }
@@ -258,9 +283,7 @@ export default function GetProjectTasks() {
     const prevProjectTasks = projectTasks;
     try {
       setTasks(
-        tasks.map((t) =>
-          t._id === id ? { ...t, status: newStatus } : t
-        )
+        tasks.map((t) => (t._id === id ? { ...t, status: newStatus } : t))
       );
       setProjectTasks(
         projectTasks.map((t) =>
@@ -269,7 +292,6 @@ export default function GetProjectTasks() {
       );
 
       await UpdateTaskStatus(id, userId, newStatus);
-
     } catch (err) {
       console.error("Failed to update task status:", err);
       setProjectTasks(prevProjectTasks);
@@ -508,10 +530,10 @@ export default function GetProjectTasks() {
                 columnConfig.id === "todo"
                   ? todoTasks
                   : columnConfig.id === "doing"
-                    ? doingTasks
-                    : showOld
-                      ? doneTasks
-                      : doneTasksToDisplay;
+                  ? doingTasks
+                  : showOld
+                  ? doneTasks
+                  : doneTasksToDisplay;
 
               return (
                 <Grid item xs={12} md={4} key={columnConfig.id}>
@@ -556,8 +578,8 @@ export default function GetProjectTasks() {
                               {columnConfig.title === "To Do"
                                 ? t("todo")
                                 : columnConfig.title === "In Progress"
-                                  ? t("inProgress")
-                                  : t("completed")}
+                                ? t("inProgress")
+                                : t("completed")}
                             </Typography>
                           </Box>
 
@@ -607,7 +629,7 @@ export default function GetProjectTasks() {
                                 typeof task.userId === "string"
                                   ? task.userId
                                   : (task.userId as IUser)?._id?.toString() ||
-                                  "";
+                                    "";
                               const userName =
                                 typeof task.userId === "string"
                                   ? "Unknown"
@@ -621,8 +643,8 @@ export default function GetProjectTasks() {
                                 task.dueDate instanceof Date
                                   ? task.dueDate
                                   : task.dueDate
-                                    ? new Date(task.dueDate)
-                                    : undefined;
+                                  ? new Date(task.dueDate)
+                                  : undefined;
 
                               return (
                                 <Draggable
@@ -653,7 +675,8 @@ export default function GetProjectTasks() {
                                         onStatusChange={handleStatusChange}
                                         onView={handleViewTask}
                                         projectColor={
-                                          typeof task.projectId === "object" && "color" in task.projectId
+                                          typeof task.projectId === "object" &&
+                                          "color" in task.projectId
                                             ? task.projectId.color
                                             : "#888"
                                         }
@@ -681,7 +704,6 @@ export default function GetProjectTasks() {
                           )}
 
                           {provided.placeholder}
-
 
                           {hiddenTasks.length > 0 &&
                             columnConfig.title === "Completed" &&
