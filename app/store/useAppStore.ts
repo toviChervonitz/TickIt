@@ -11,6 +11,7 @@ import {
   Lang,
 } from "../models/types";
 import { Language } from "@google/genai";
+import { getIsArchived } from "../lib/server/projectServer";
 
 type PusherClient = Pusher;
 
@@ -260,23 +261,27 @@ const useAppStore = create(
         // });
         channel.bind(
           "task-updated",
-          (data: {
+          async (data: {
             action: "ADD" | "UPDATE" | "DELETE";
             task?: ITask;
             taskId?: string;
           }) => {
             const state = get();
 
-            /* ===============================
-               1️⃣ UPDATE TASKS (user tasks)
-               =============================== */
             if (data.action === "ADD" && data.task) {
               const exists = state.tasks.some((t) => t._id === data.task!._id);
-              if (!exists) {
-                set({
-                  tasks: [data.task, ...state.tasks],
-                });
-              }
+              if (exists) return;
+
+              const isArchived = await getIsArchived(
+                String(data.task.projectId?._id),
+                state.user?._id
+              );
+
+              if (isArchived) return;
+
+              set({
+                tasks: [data.task, ...state.tasks],
+              });
             }
 
             if (data.action === "UPDATE" && data.task) {
