@@ -94,13 +94,18 @@ export default function GetProjectTasks() {
         console.log("isArchive:",isArchive);
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
+        console.log(role);
+
         let users = [];
         let data: ITask[] = [];
         if (role === "manager"||isArchive) {
+          console.log("123456789");
+          
           data = await GetTasksByProjectId(user._id, projectId,isArchive);
-
+          if(role==="manager"){
           const res = await getAllUsersByProjectId(projectId);
           users = res.users || [];
+          }
         } else {
           //if project is archived make api to bring that tasks
           data = tasks.filter(
