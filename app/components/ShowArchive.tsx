@@ -15,29 +15,18 @@
 import { Button } from "@mui/material";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UndoIcon from "@mui/icons-material/Undo";
-import { IProjectRole } from "../models/types";
-import useAppStore from "../store/useAppStore";
+
 
 interface ShowArchiveProps {
   show: boolean;
   setShowArchive: (show: boolean) => void;
-  filter: (project: IProjectRole[]) => void;
 }
 
-export default function ShowArchive({
-  show,
-  setShowArchive,
-  filter,
-}: ShowArchiveProps) {
-  const { projects } = useAppStore();
-  function showArchiveClick() {
-    setShowArchive(!show);
-    filter(projects);
-  }
+export default function ShowArchive({show,setShowArchive}: ShowArchiveProps) {
   return (
     <Button
       variant={show ? "contained" : "outlined"}
-      onClick={() => showArchiveClick()}
+      onClick={() => setShowArchive(!show)}
       startIcon={show ? <UndoIcon /> : <ArchiveIcon />}
       sx={{
         textTransform: "none",

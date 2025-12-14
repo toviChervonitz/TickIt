@@ -44,7 +44,7 @@ const LIMIT = 8;
 export default function GetAllProjectsPage() {
   const t = getTranslation();
 
-  const { user, projects, setProjects, setProjectId, setMessages, language } =
+  const { user, projects, setProjects, setProjectId, setMessages, language,showArchive, setShowArchive } =
     useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -53,7 +53,6 @@ export default function GetAllProjectsPage() {
   const [editingProject, setEditingProject] = useState<ProjectForm | null>(
     null
   );
-  const [showArchive, setShowArchive] = useState(false);
 
   // ==== edit ====
 
@@ -175,7 +174,7 @@ export default function GetAllProjectsPage() {
                 sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" },
               }}
             />
-            <ShowArchive show={showArchive} setShowArchive={setShowArchive} filter={filterArchive} />
+            <ShowArchive show={showArchive} setShowArchive={setShowArchive} />
 
             <Button
               variant="outlined"
