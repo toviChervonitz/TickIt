@@ -90,21 +90,21 @@ export default function GetProjectTasks() {
     const loadProjectData = async () => {
       setLoading(true);
       try {
-        const isArchive=await getIsArchived(projectId,user._id);
-        console.log("isArchive:",isArchive);
+        const isArchive = await getIsArchived(projectId, user._id);
+        console.log("isArchive:", isArchive);
         const role = await getUserRoleInProject(user._id, projectId);
         setIsManager(role === "manager");
         console.log(role);
 
         let users = [];
         let data: ITask[] = [];
-        if (role === "manager"||isArchive) {
+        if (role === "manager" || isArchive) {
           console.log("123456789");
-          
-          data = await GetTasksByProjectId(user._id, projectId,isArchive);
-          if(role==="manager"){
-          const res = await getAllUsersByProjectId(projectId);
-          users = res.users || [];
+
+          data = await GetTasksByProjectId(user._id, projectId, isArchive);
+          if (role === "manager") {
+            const res = await getAllUsersByProjectId(projectId);
+            users = res.users || [];
           }
         } else {
           data = tasks.filter(
@@ -178,9 +178,6 @@ export default function GetProjectTasks() {
   const todoTasks = displayedTasks.filter((t) => t.status === "todo");
   const doingTasks = displayedTasks.filter((t) => t.status === "doing");
   const doneTasks = displayedTasks.filter((t) => t.status === "done");
-  // const doneTasks = displayedTasks.filter(
-  //   (t) => t.status === "done" && !isOldTask(t)
-  // );
 
   const doneTasksToDisplay = doneTasks.filter((t) => isOldTask(t));
   const hiddenTasks = doneTasks.filter((t) => !isOldTask(t));
@@ -248,21 +245,24 @@ export default function GetProjectTasks() {
     newStatus: "todo" | "doing" | "done",
     userId: string
   ) => {
+    const prevProjectTasks = projectTasks;
     try {
-      const updated = tasks.map((t) =>
-        t._id === id ? { ...t, status: newStatus } : t
+      setTasks(
+        tasks.map((t) =>
+          t._id === id ? { ...t, status: newStatus } : t
+        )
       );
-      setTasks(updated);
-
-      const updatedProjectTasks = projectTasks.map((t) =>
-        t._id === id ? { ...t, status: newStatus } : t
+      setProjectTasks(
+        projectTasks.map((t) =>
+          t._id === id ? { ...t, status: newStatus } : t
+        )
       );
-      setProjectTasks(updatedProjectTasks);
 
       await UpdateTaskStatus(id, userId, newStatus);
-      
+
     } catch (err) {
       console.error("Failed to update task status:", err);
+      setProjectTasks(prevProjectTasks);
     }
   };
 
