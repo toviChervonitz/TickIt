@@ -35,11 +35,12 @@ const detailIconStyle: SxProps<Theme> = {
 };
 
 const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
-  if (!task) return null;
 
   const { language } = useAppStore();
   const t = getTranslation();
   const theme = useTheme();
+  
+  if (!task) return null;
 
   const user = task.userId as IUser;
   const project = task.projectId as IProject;
@@ -92,10 +93,10 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
       >
         <Stack spacing={3}>
           {/* Assigned To */}
-           <Stack               direction={isRtl ? "row-reverse" : "row"}
- spacing={2} alignItems="center">
-             <Stack               direction={isRtl ? "row-reverse" : "row"}
- spacing={1} alignItems="center" minWidth="120px">
+          <Stack direction={isRtl ? "row-reverse" : "row"}
+            spacing={2} alignItems="center">
+            <Stack direction={isRtl ? "row-reverse" : "row"}
+              spacing={1} alignItems="center" minWidth="120px">
               <PersonOutlineIcon sx={detailIconStyle} color="secondary" />
               <Typography color="text.secondary" fontWeight={600}>
                 {t("assignedTo")}:
@@ -107,10 +108,10 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
           </Stack>
 
           {/* Project */}
-           <Stack               direction={isRtl ? "row-reverse" : "row"}
- spacing={2} alignItems="center">
-             <Stack               direction={isRtl ? "row-reverse" : "row"}
- spacing={1} alignItems="center" minWidth="120px">
+          <Stack direction={isRtl ? "row-reverse" : "row"}
+            spacing={2} alignItems="center">
+            <Stack direction={isRtl ? "row-reverse" : "row"}
+              spacing={1} alignItems="center" minWidth="120px">
               <FolderOutlinedIcon
                 sx={detailIconStyle}
                 color={project?.color ? undefined : "secondary"}
@@ -125,11 +126,11 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
             </Typography>
           </Stack>
           {/* Status */}
-           <Stack               direction={isRtl ? "row-reverse" : "row"}
- spacing={2} alignItems="center">
-             <Stack               direction={isRtl ? "row-reverse" : "row"}
- spacing={1} alignItems="center" minWidth="120px">
-               <ScheduleIcon color="secondary" sx={{ fontSize: "1.3rem" }} />
+          <Stack direction={isRtl ? "row-reverse" : "row"}
+            spacing={2} alignItems="center">
+            <Stack direction={isRtl ? "row-reverse" : "row"}
+              spacing={1} alignItems="center" minWidth="120px">
+              <ScheduleIcon color="secondary" sx={{ fontSize: "1.3rem" }} />
               <Typography
                 color="text.secondary"
                 fontWeight={600}
@@ -147,13 +148,13 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
             >
               {t(task.status) || "todo"}
             </Typography>
-           </Stack>
+          </Stack>
           {/* Due Date */}
           {task.dueDate && (
-           <Stack               direction={isRtl ? "row-reverse" : "row"}
- spacing={2} alignItems="center">
-             <Stack               direction={isRtl ? "row-reverse" : "row"}
- spacing={1} alignItems="center" minWidth="120px">
+            <Stack direction={isRtl ? "row-reverse" : "row"}
+              spacing={2} alignItems="center">
+              <Stack direction={isRtl ? "row-reverse" : "row"}
+                spacing={1} alignItems="center" minWidth="120px">
                 <CalendarTodayIcon sx={detailIconStyle} color="secondary" />
                 <Typography color="text.secondary" fontWeight={600}>
                   {t("dueDate")}:
@@ -166,32 +167,32 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
           )}
 
           {/* Details */}
-{task.content && (
-  <div dir={isRtl ? "rtl" : "ltr"} style={{ textAlign: isRtl ? "right" : "left", marginTop: 24 }}>
-    {/* Details title */}
-    <Typography color="text.secondary" fontWeight={700} mb={1}>
-      {t("details")}
-    </Typography>
+          {task.content && (
+            <div dir={isRtl ? "rtl" : "ltr"} style={{ textAlign: isRtl ? "right" : "left", marginTop: 24 }}>
+              {/* Details title */}
+              <Typography color="text.secondary" fontWeight={700} mb={1}>
+                {t("details")}
+              </Typography>
 
-    {/* Details content */}
-    <div
-      style={{
-        padding: 20,
-        backgroundColor: theme.palette.background.paper,
-        borderRadius: 12,
-        border: `1px solid ${theme.palette.divider}`,
-        whiteSpace: "pre-wrap",
-        fontSize: 15,
-        lineHeight: 1.7,
-        color: theme.palette.text.primary,
-        boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-        textAlign: isRtl ? "right" : "left",
-      }}
-    >
-      {task.content}
-    </div>
-  </div>
-)}
+              {/* Details content */}
+              <div
+                style={{
+                  padding: 20,
+                  backgroundColor: theme.palette.background.paper,
+                  borderRadius: 12,
+                  border: `1px solid ${theme.palette.divider}`,
+                  whiteSpace: "pre-wrap",
+                  fontSize: 15,
+                  lineHeight: 1.7,
+                  color: theme.palette.text.primary,
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                  textAlign: isRtl ? "right" : "left",
+                }}
+              >
+                {task.content}
+              </div>
+            </div>
+          )}
         </Stack>
       </DialogContent>
     </Dialog>
