@@ -133,55 +133,55 @@ export default function EditTask({
         />
 
         {/* User Select */}
-<TextField
-  select
-  label={t("assignTo")}
-  name="userId"
-  fullWidth
-  size="small"
-  value={task.userId}
-  onChange={handleChange}
-  required
-  SelectProps={{
-    MenuProps: {
-      PaperProps: {
-        style: {
-          direction: isHebrew ? "rtl" : "ltr",
-        },
-      },
-    },
-  }}
->
-  <MenuItem value="">-- {t("selectUser")} --</MenuItem>
-  {projectUsers?.map((user) => (
-    <MenuItem key={user._id} value={user._id}>
-      {user.email}
-    </MenuItem>
-  ))}
-</TextField>
+        <TextField
+          select
+          label={t("assignTo")}
+          name="userId"
+          fullWidth
+          size="small"
+          value={task.userId}
+          onChange={handleChange}
+          required
+          SelectProps={{
+            MenuProps: {
+              PaperProps: {
+                style: {
+                  direction: isHebrew ? "rtl" : "ltr",
+                },
+              },
+            },
+          }}
+        >
+          <MenuItem value="">-- {t("selectUser")} --</MenuItem>
+          {projectUsers?.map((user) => (
+            <MenuItem key={user._id} value={user._id}>
+              {user.email}
+            </MenuItem>
+          ))}
+        </TextField>
 
 
         {/* Due date */}
-<TextField
-  label={t("dueDate")}
-  type="date"
-  name="dueDate"
-  value={task.dueDate}
-  onChange={handleChange}
-  InputLabelProps={{ shrink: true }}
-  fullWidth
-  sx={{
-    direction: isHebrew ? "rtl" : "ltr",
-    "& input": {
-      textAlign: isHebrew ? "right" : "left",
-    },
-  }}
-  InputProps={{
-    endAdornment: isHebrew ? (
-      <Box sx={{ order: -1, mr: 1 }}>{/* calendar icon placeholder */}</Box>
-    ) : undefined,
-  }}
-/>
+        <TextField
+          label={t("dueDate")}
+          type="date"
+          name="dueDate"
+          value={task.dueDate}
+          onChange={handleChange}
+          InputLabelProps={{ shrink: true }}
+          fullWidth
+          sx={{
+            direction: isHebrew ? "rtl" : "ltr",
+            "& input": {
+              textAlign: isHebrew ? "right" : "left",
+            },
+          }}
+          InputProps={{
+            endAdornment: isHebrew ? (
+              <Box sx={{ order: -1, mr: 1 }}>{/* calendar icon placeholder */}</Box>
+            ) : undefined,
+          }}
+        />
       </DialogContent>
 
       {/* כפתורים */}
