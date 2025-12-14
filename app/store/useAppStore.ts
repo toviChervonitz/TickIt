@@ -2,14 +2,7 @@
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
-import {
-  IChatMessage,
-  IProject,
-  IProjectRole,
-  ITask,
-  IUserSafe,
-  Lang,
-} from "../models/types";
+import { IChatMessage, IProject, IProjectRole, ITask, IUserSafe, Lang } from "../models/types";
 import { Language } from "@google/genai";
 
 type PusherClient = Pusher;
@@ -24,23 +17,19 @@ interface AppState {
   pusherClient: PusherClient | null;
   messages: IChatMessage[];
   language: Lang;
-  showArchive: boolean;
 
   setUser: (user: IUserSafe | null) => void;
   setProjectId: (projectId: string) => void;
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
-  setProjects: (
-    projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])
-  ) => void;
+  setProjects: (projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])) => void;
   getProjectName: (projectId: string) => string | null;
   setLanguage: (lang: Lang) => void;
   setMessages: (messages: IChatMessage[]) => void;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
   subscribeToProjectUpdates: (projectId: string) => void;
-  setShowArchive: (showArchive: boolean) => void;
 }
 
 type MyPersist = PersistOptions<AppState, AppState>;
@@ -57,11 +46,12 @@ const useAppStore = create(
       pusherClient: null,
       messages: [],
       language: "en",
-      showArchive: false,
 
-      setUser: (user) => set((state) => ({ ...state, user })),
+      setUser: (user) =>
+        set((state) => ({ ...state, user })),
 
-      setProjectId: (projectId) => set((state) => ({ ...state, projectId })),
+      setProjectId: (projectId) =>
+        set((state) => ({ ...state, projectId })),
 
       setProjectUsers: (projectUsers) =>
         set((state) => ({ ...state, projectUsers })),
@@ -69,13 +59,14 @@ const useAppStore = create(
       setProjectTasks: (projectTasks) =>
         set((state) => ({ ...state, projectTasks })),
 
-      setTasks: (tasks) => set((state) => ({ ...state, tasks })),
+      setTasks: (tasks) =>
+        set((state) => ({ ...state, tasks })),
 
       setProjects: (projectsOrUpdater) =>
         set((state) => {
           let newProjects;
 
-          if (typeof projectsOrUpdater === "function") {
+          if (typeof projectsOrUpdater === 'function') {
             newProjects = projectsOrUpdater(state.projects);
           } else {
             newProjects = projectsOrUpdater;
@@ -85,14 +76,12 @@ const useAppStore = create(
         }),
       getProjectName: (projectId: string) => {
         const projects = get().projects;
-        const projectRole = projects.find((p) => p.project._id === projectId);
+        const projectRole = projects.find(p => p.project._id === projectId);
         return projectRole?.project?.name || null;
       },
       setLanguage: (language: Lang) => set({ language }),
       setMessages: (
-        messagesOrFn:
-          | IChatMessage[]
-          | ((prev: IChatMessage[]) => IChatMessage[])
+        messagesOrFn: IChatMessage[] | ((prev: IChatMessage[]) => IChatMessage[])
       ) =>
         set((state) => ({
           ...state,
@@ -134,7 +123,7 @@ const useAppStore = create(
               if (p.project._id === data.project._id) {
                 return {
                   ...p,
-                  project: data.project,
+                  project: data.project
                 } as IProjectRole;
               }
               return p;
@@ -147,10 +136,7 @@ const useAppStore = create(
 
       initializeRealtime: (userId: string) => {
         const state = get();
-        if (
-          state.pusherClient &&
-          (state.pusherClient as any).connection.state === "connected"
-        ) {
+        if (state.pusherClient && (state.pusherClient as any).connection.state === 'connected') {
           console.log("Pusher already initialized and connected.");
           return;
         }
@@ -160,9 +146,9 @@ const useAppStore = create(
           authEndpoint: "/api/pusher/auth",
           auth: {
             params: {
-              userId: userId,
-            },
-          },
+              userId: userId
+            }
+          }
         }) as PusherClient;
 
         set({ pusherClient });
@@ -173,9 +159,26 @@ const useAppStore = create(
           console.log(`Subscribed to private-user-${userId}`);
         });
 
-        channel.bind("project-list-updated", (data: { project: IProject }) => {
-          const updatedProjectData = data.project;
-          const currentProjects = get().projects;
+        channel.bind(
+          "project-list-updated",
+          (data: { project: IProject }) => {
+
+            const updatedProjectData = data.project;
+            const currentProjects = get().projects;
+
+            const updatedProjects = currentProjects.map((p) => {
+              if (p.project._id === updatedProjectData._id) {
+                return {
+                  ...p,
+                  project: updatedProjectData
+                };
+              }
+              return p;
+            });
+
+            set({ projects: updatedProjects });
+          }
+        );
 
         // channel.bind("task-updated", (data: { action: "ADD" | "UPDATE" | "DELETE", task?: ITask, taskId?: string }) => {
         //   console.log("Real-time Task Update Received:", data.action, data.task || data.taskId);
@@ -311,9 +314,6 @@ const useAppStore = create(
 
       },
 
-      setShowArchive: (showArchive) =>
-        set((state) => ({ ...state, showArchive })),
-      
       logout: () => {
         const state = get();
 
@@ -343,7 +343,7 @@ const useAppStore = create(
         projectTasks: state.projectTasks,
         tasks: state.tasks,
         projects: state.projects,
-        language: state.language,
+        language: state.language
       }),
     } as MyPersist
   )
