@@ -34,6 +34,7 @@ import { IconButton, Tooltip } from "@mui/material";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { toArchive } from "../lib/server/projectServer";
+import { GetTasksByProjectId } from "../lib/server/taskServer";
 import useAppStore from "../store/useAppStore";
 
 interface ArchiveProps {
@@ -43,7 +44,7 @@ interface ArchiveProps {
 }
 
 export default function Archive({ projectId, userId, archived }: ArchiveProps) {
-  const { projects, setProjects } = useAppStore();
+  const { projects, setProjects, setTasks, tasks } = useAppStore();
 
   async function archive(isArchive: boolean) {
     const res = await toArchive(projectId, userId, isArchive);
@@ -53,6 +54,15 @@ export default function Archive({ projectId, userId, archived }: ArchiveProps) {
           p.project._id === projectId ? { ...p, isArchived: isArchive } : p
         )
       );
+      if (isArchive) {
+        setTasks(tasks.filter((t) => t.projectId !== projectId));
+      } else {
+        const res = await GetTasksByProjectId(userId, projectId!, !isArchive);
+        setTasks([...tasks, ...res]);
+      }
+
+      console.log("return from archive-------------", res);
+      console.log("state", archived);
     }
   }
 

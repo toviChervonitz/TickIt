@@ -25,6 +25,7 @@ import LockIcon from "@mui/icons-material/Lock";
 import SaveIcon from "@mui/icons-material/Save";
 import { getTranslation } from "@/app/lib/i18n";
 import { Dialog } from "@mui/material"; // add this import at the top
+import { ROUTES } from "@/app/config/routes";
 
 
 export default function ProfilePage() {
@@ -108,7 +109,7 @@ export default function ProfilePage() {
       }
 
       setUser(result.user);
-      router.push("/pages/dashboard");
+      router.push(ROUTES.DASHBOARD);
     } catch (err: any) {
       console.error("Updating error:", err);
       setError(t("updatingFailed"));
@@ -298,7 +299,7 @@ export default function ProfilePage() {
               <Button
                 variant="outlined"
                 size="large"
-                onClick={() => router.push("/pages/dashboard")}
+                onClick={() => router.push(ROUTES.DASHBOARD)}
                 sx={{
                   px: 4,
                   py: 1.5,

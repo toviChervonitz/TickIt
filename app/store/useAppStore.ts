@@ -2,8 +2,16 @@
 import { create } from "zustand";
 import { persist, PersistOptions } from "zustand/middleware";
 import Pusher from "pusher-js";
-import { IChatMessage, IProject, IProjectRole, ITask, IUserSafe, Lang } from "../models/types";
+import {
+  IChatMessage,
+  IProject,
+  IProjectRole,
+  ITask,
+  IUserSafe,
+  Lang,
+} from "../models/types";
 import { Language } from "@google/genai";
+import { getIsArchived } from "../lib/server/projectServer";
 
 type PusherClient = Pusher;
 
@@ -17,15 +25,19 @@ interface AppState {
   pusherClient: PusherClient | null;
   messages: IChatMessage[];
   language: Lang;
+  showArchive: boolean;
 
   setUser: (user: IUserSafe | null) => void;
   setProjectId: (projectId: string) => void;
   setProjectUsers: (projectUsers: IUserSafe[]) => void;
   setProjectTasks: (projectTasks: ITask[]) => void;
   setTasks: (tasks: ITask[]) => void;
-  setProjects: (projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])) => void;
+  setProjects: (
+    projects: IProjectRole[] | ((prev: IProjectRole[]) => IProjectRole[])
+  ) => void;
   getProjectName: (projectId: string) => string | null;
   setLanguage: (lang: Lang) => void;
+  setShowArchive: (showArchive: boolean) => void;
   setMessages: (messages: IChatMessage[]) => void;
   logout: () => void;
   initializeRealtime: (userId: string) => void;
@@ -46,12 +58,11 @@ const useAppStore = create(
       pusherClient: null,
       messages: [],
       language: "en",
+      showArchive: false,
 
-      setUser: (user) =>
-        set((state) => ({ ...state, user })),
+      setUser: (user) => set((state) => ({ ...state, user })),
 
-      setProjectId: (projectId) =>
-        set((state) => ({ ...state, projectId })),
+      setProjectId: (projectId) => set((state) => ({ ...state, projectId })),
 
       setProjectUsers: (projectUsers) =>
         set((state) => ({ ...state, projectUsers })),
@@ -59,14 +70,13 @@ const useAppStore = create(
       setProjectTasks: (projectTasks) =>
         set((state) => ({ ...state, projectTasks })),
 
-      setTasks: (tasks) =>
-        set((state) => ({ ...state, tasks })),
+      setTasks: (tasks) => set((state) => ({ ...state, tasks })),
 
       setProjects: (projectsOrUpdater) =>
         set((state) => {
           let newProjects;
 
-          if (typeof projectsOrUpdater === 'function') {
+          if (typeof projectsOrUpdater === "function") {
             newProjects = projectsOrUpdater(state.projects);
           } else {
             newProjects = projectsOrUpdater;
@@ -76,12 +86,15 @@ const useAppStore = create(
         }),
       getProjectName: (projectId: string) => {
         const projects = get().projects;
-        const projectRole = projects.find(p => p.project._id === projectId);
+        const projectRole = projects.find((p) => p.project._id === projectId);
         return projectRole?.project?.name || null;
       },
       setLanguage: (language: Lang) => set({ language }),
+      setShowArchive: (showArchive: boolean) => set({ showArchive }),
       setMessages: (
-        messagesOrFn: IChatMessage[] | ((prev: IChatMessage[]) => IChatMessage[])
+        messagesOrFn:
+          | IChatMessage[]
+          | ((prev: IChatMessage[]) => IChatMessage[])
       ) =>
         set((state) => ({
           ...state,
@@ -123,7 +136,7 @@ const useAppStore = create(
               if (p.project._id === data.project._id) {
                 return {
                   ...p,
-                  project: data.project
+                  project: data.project,
                 } as IProjectRole;
               }
               return p;
@@ -136,7 +149,10 @@ const useAppStore = create(
 
       initializeRealtime: (userId: string) => {
         const state = get();
-        if (state.pusherClient && (state.pusherClient as any).connection.state === 'connected') {
+        if (
+          state.pusherClient &&
+          (state.pusherClient as any).connection.state === "connected"
+        ) {
           console.log("Pusher already initialized and connected.");
           return;
         }
@@ -146,9 +162,9 @@ const useAppStore = create(
           authEndpoint: "/api/pusher/auth",
           auth: {
             params: {
-              userId: userId
-            }
-          }
+              userId: userId,
+            },
+          },
         }) as PusherClient;
 
         set({ pusherClient });
@@ -159,94 +175,166 @@ const useAppStore = create(
           console.log(`Subscribed to private-user-${userId}`);
         });
 
+        channel.bind("project-list-updated", (data: { project: IProject }) => {
+          const updatedProjectData = data.project;
+          const currentProjects = get().projects;
+
+          const updatedProjects = currentProjects.map((p) => {
+            if (p.project._id === updatedProjectData._id) {
+              return {
+                ...p,
+                project: updatedProjectData,
+              };
+            }
+            return p;
+          });
+
+          set({ projects: updatedProjects });
+        });
+
+        // channel.bind("task-updated", (data: { action: "ADD" | "UPDATE" | "DELETE", task?: ITask, taskId?: string }) => {
+        //   console.log("Real-time Task Update Received:", data.action, data.task || data.taskId);
+
+        //   const state = get();
+        //   const currentTasks = state.tasks;
+        //   let newTasks: ITask[] = [];
+
+        //   const taskExists = data.task && currentTasks.some(t => t._id === data.task!._id);
+
+        //   switch (data.action) {
+        //     case "ADD":
+        //       if (data.task && !taskExists) {
+        //         newTasks = [data.task, ...currentTasks];
+        //       } else {
+        //         newTasks = currentTasks;
+        //       }
+        //       if (data.task?.projectId?._id === state.projectId) {
+        //         const newProjectTasks = [data.task, ...state.projectTasks];
+        //         set({ projectTasks: newProjectTasks });
+        //       }
+        //       break;
+
+        //     case "UPDATE":
+        //       if (data.task && !taskExists) {
+        //         newTasks = [data.task, ...currentTasks];
+        //       } else {
+        //         newTasks = currentTasks.map(t =>
+        //           t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
+        //         );
+        //       }
+        //       if (data.task?.projectId?._id === state.projectId) {
+        //         const newProjectTasks = state.projectTasks.map(t =>
+        //           t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
+        //         );
+        //         set({ projectTasks: newProjectTasks });
+        //       }
+        //       break;
+
+        //     case "DELETE":
+        //       newTasks = currentTasks.filter(t => t._id !== data.taskId);
+        //       if (data.task?.projectId?._id === state.projectId) {
+        //         const newProjectTasks = state.projectTasks.filter(t => t._id !== data.taskId);
+        //         set({ projectTasks: newProjectTasks });
+        //       }
+        //       break;
+
+        //     default:
+        //       newTasks = currentTasks;
+        //   }
+
+        //   // ⭐ עדכון המערכים ב-Store ⭐
+        //   set({
+        //     tasks: newTasks,
+        //     projectTasks: state.projectId
+        //       ? newTasks.filter(t => {
+        //         if (!t?.projectId) return false;
+        //         if (typeof t.projectId === "object" && t.projectId._id) {
+        //           return t.projectId._id.toString() === state.projectId;
+        //         }
+        //         if (typeof t.projectId === "string") {
+        //           return t.projectId === state.projectId;
+        //         }
+        //         return false;
+        //       })
+        //       : state.projectTasks
+        //   });
+        // });
         channel.bind(
-          "project-list-updated",
-          (data: { project: IProject }) => {
+          "task-updated",
+          async (data: {
+            action: "ADD" | "UPDATE" | "DELETE";
+            task?: ITask;
+            taskId?: string;
+          }) => {
+            const state = get();
 
-            const updatedProjectData = data.project;
-            const currentProjects = get().projects;
+            if (data.action === "ADD" && data.task) {
+              const exists = state.tasks.some((t) => t._id === data.task!._id);
+              if (exists) return;
 
-            const updatedProjects = currentProjects.map((p) => {
-              if (p.project._id === updatedProjectData._id) {
-                return {
-                  ...p,
-                  project: updatedProjectData
-                };
+              const isArchived = await getIsArchived(
+                String(data.task.projectId?._id),
+                state.user?._id
+              );
+
+              if (isArchived) return;
+
+              set({
+                tasks: [data.task, ...state.tasks],
+              });
+            }
+
+            if (data.action === "UPDATE" && data.task) {
+              set({
+                tasks: state.tasks.map((t) =>
+                  t._id === data.task!._id ? { ...t, ...data.task } : t
+                ),
+              });
+            }
+
+            if (data.action === "DELETE" && data.taskId) {
+              set({
+                tasks: state.tasks.filter((t) => t._id !== data.taskId),
+              });
+            }
+
+            if (!state.projectId) return;
+
+            const taskProjectId =
+              typeof data.task?.projectId === "object"
+                ? data.task.projectId?._id
+                : data.task?.projectId;
+
+            if (taskProjectId !== state.projectId) return;
+
+            if (data.action === "ADD" && data.task) {
+              const exists = state.projectTasks.some(
+                (t) => t._id === data.task!._id
+              );
+              if (!exists) {
+                set({
+                  projectTasks: [data.task, ...state.projectTasks],
+                });
               }
-              return p;
-            });
+            }
 
-            set({ projects: updatedProjects });
+            if (data.action === "UPDATE" && data.task) {
+              set({
+                projectTasks: state.projectTasks.map((t) =>
+                  t._id === data.task!._id ? { ...t, ...data.task } : t
+                ),
+              });
+            }
+
+            if (data.action === "DELETE" && data.taskId) {
+              set({
+                projectTasks: state.projectTasks.filter(
+                  (t) => t._id !== data.taskId
+                ),
+              });
+            }
           }
         );
-
-        channel.bind("task-updated", (data: { action: "ADD" | "UPDATE" | "DELETE", task?: ITask, taskId?: string }) => {
-          console.log("Real-time Task Update Received:", data.action, data.task || data.taskId);
-
-          const state = get();
-          const currentTasks = state.tasks;
-          let newTasks: ITask[] = [];
-
-          const taskExists = data.task && currentTasks.some(t => t._id === data.task!._id);
-
-          switch (data.action) {
-            case "ADD":
-              if (data.task && !taskExists) {
-                newTasks = [data.task, ...currentTasks];
-              } else {
-                newTasks = currentTasks;
-              }
-              if (data.task?.projectId?._id === state.projectId) {
-                const newProjectTasks = [data.task, ...state.projectTasks];
-                set({ projectTasks: newProjectTasks });
-              }
-              break;
-
-            case "UPDATE":
-              if (data.task && !taskExists) {
-                newTasks = [data.task, ...currentTasks];
-              } else {
-                newTasks = currentTasks.map(t =>
-                  t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
-                );
-              }
-              if (data.task?.projectId?._id === state.projectId) {
-                const newProjectTasks = state.projectTasks.map(t =>
-                  t._id === data.task?._id ? { ...t, ...data.task } as ITask : t
-                );
-                set({ projectTasks: newProjectTasks });
-              }
-              break;
-
-            case "DELETE":
-              newTasks = currentTasks.filter(t => t._id !== data.taskId);
-              if (data.task?.projectId?._id === state.projectId) {
-                const newProjectTasks = state.projectTasks.filter(t => t._id !== data.taskId);
-                set({ projectTasks: newProjectTasks });
-              }
-              break;
-
-            default:
-              newTasks = currentTasks;
-          }
-
-          // ⭐ עדכון המערכים ב-Store ⭐
-          set({
-            tasks: newTasks,
-            projectTasks: state.projectId
-              ? newTasks.filter(t => {
-                if (!t?.projectId) return false;
-                if (typeof t.projectId === "object" && t.projectId._id) {
-                  return t.projectId._id.toString() === state.projectId;
-                }
-                if (typeof t.projectId === "string") {
-                  return t.projectId === state.projectId;
-                }
-                return false;
-              })
-              : state.projectTasks
-          });
-        });
       },
 
       logout: () => {
@@ -278,7 +366,7 @@ const useAppStore = create(
         projectTasks: state.projectTasks,
         tasks: state.tasks,
         projects: state.projects,
-        language: state.language
+        language: state.language,
       }),
     } as MyPersist
   )
