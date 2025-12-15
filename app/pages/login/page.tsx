@@ -23,6 +23,7 @@ import { signIn } from "next-auth/react";
 import { googleLoginService } from "@/app/lib/server/googleService";
 import GoogleIcon from "@mui/icons-material/Google";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import { ROUTES } from "@/app/config/routes";
 
 interface LoginResponse {
   status: "success" | "error";
@@ -64,7 +65,7 @@ export default function LoginPage() {
         console.log("result from login page", result);
       }
       if (result.status === 404) {
-        router.push("/pages/register");
+        router.push(ROUTES.REGISTER);
         return;
       }
 
@@ -134,7 +135,7 @@ export default function LoginPage() {
         console.log("in if of minutes");
 
         router.push("/pages/createProject");
-      } else router.push("/pages/dashboard");
+      } else router.push(ROUTES.DASHBOARD);
     } catch (error: any) {
       console.error("Google sign-in error:", error.code || error);
       setError(t("googleSignInFailed"));
