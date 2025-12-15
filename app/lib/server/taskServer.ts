@@ -32,12 +32,8 @@ export async function CreateTask(form: any) {
   return { status: res.status, ...data };
 }
 
-
-
-
 export async function GetTasksByUserId(userId: string | undefined) {
   try {
-
     const res = await fetch(`/api/task/tasks?userId=${userId}`, {
       method: "GET",
       headers: {
@@ -59,19 +55,25 @@ export async function GetTasksByUserId(userId: string | undefined) {
   }
 }
 
-export async function GetTasksByProjectId(id: string, projectId: string | null,isArchived?:boolean) {
+export async function GetTasksByProjectId(
+  id: string,
+  projectId: string | null,
+  isArchived?: boolean
+) {
   if (!projectId) {
     throw new Error("Missing projectdId.");
   }
   try {
-
-    const res = await fetch(`/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+      }
+    );
 
     const data = await res.json();
 
@@ -87,7 +89,6 @@ export async function GetTasksByProjectId(id: string, projectId: string | null,i
 }
 
 export async function UpdateTask(taskId: string, updates: any) {
-
   const res = await fetch(`/api/task/editTask/${taskId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
@@ -100,10 +101,11 @@ export async function UpdateTask(taskId: string, updates: any) {
   return data;
 }
 
-
-export async function UpdateTaskStatus(taskId: string, userId: string, newStatus: "todo" | "doing" | "done") {
-
-
+export async function UpdateTaskStatus(
+  taskId: string,
+  userId: string,
+  newStatus: "todo" | "doing" | "done"
+) {
   const res = await fetch(`/api/task/editStatusTask/${taskId}`, {
     method: "PUT",
     headers: {
