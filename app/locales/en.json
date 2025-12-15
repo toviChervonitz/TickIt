@@ -235,7 +235,7 @@
   "completedTasks": "Completed Tasks",
   "noProject": "No Project",
   "details": "Details",
-  "assignedTo": "Assigned To",
+  "assignedTo": "Assigned To:",
   "projectChat": "Project Chat",
   "status": "Status",
   "expand": "Expand", 
@@ -251,6 +251,9 @@
   "showArchive":"Show archive",
   "clickForPic":"Click to choose profile picture",
   "restore": "Restore project",
-  "archive":"Archive project"
+  "archive":"Archive project",
+  "projectLabel": "Project:",
+  "statusLabel": "Status:",
+  "dateLabel":"Due Date:"
 
 }
