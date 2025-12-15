@@ -35,7 +35,7 @@ const EditProject = ({
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { lang } = { lang: "he" }; // Replace with context if needed
+  const { lang } = { lang: "he" }; 
   const isHebrew = lang === "he";
 
   useEffect(() => setMounted(true), []);
@@ -131,7 +131,7 @@ const EditProject = ({
       "&:hover": {
         background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
       },
-      mr: isHebrew ? 0 : 2, // ← margin for spacing
+      mr: isHebrew ? 0 : 2, 
       ml: isHebrew ? 2 : 0,
     }}
   >

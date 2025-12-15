@@ -22,7 +22,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Upsert: create or update
     const chatRead = await ChatRead.findOneAndUpdate(
       { userId: currentUser.id, projectId },
       { lastReadMessageId },

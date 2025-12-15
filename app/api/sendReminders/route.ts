@@ -1,8 +1,6 @@
-// /app/api/tasks/sendReminders/route.ts
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
-// import { sendReminderEmail } from "@/app/lib/mailer";
-import { ITask, IUser } from "@/app/models/types";
+import {  IUser } from "@/app/models/types";
 import Task from "@/app/models/TaskModel";
 
 export async function GET() {
@@ -15,7 +13,6 @@ export async function GET() {
     const dayAfter = new Date(tomorrow);
     dayAfter.setDate(tomorrow.getDate() + 1);
 
-    // Find tasks due tomorrow that are not done
     const tasks = await Task.find({
       dueDate: { $gte: tomorrow, $lt: dayAfter },
       status: { $ne: "done" },
@@ -27,7 +24,6 @@ export async function GET() {
       const user = task.userId as IUser | null;
       if (!user?.email) continue;
 
-      // await sendReminderEmail(user.email, task.title);
       console.log(`Sent reminder for task "${task.title}" to ${user.email}`);
       sentCount++;
     }
