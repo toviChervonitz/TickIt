@@ -20,6 +20,7 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import AddMember from "@/app/components/AddMember";
 import GenerateTasks from "@/app/components/generatedTasks";
 import { getTranslation } from "@/app/lib/i18n";
+import { ROUTES } from "@/app/config/routes";
 
 interface ProjectDetails {
   name: string;
@@ -118,7 +119,7 @@ export default function CreateProjectPage() {
   };
 
   const handleFinish = async () => {
-    router.push("/pages/dashboard");
+    router.push(ROUTES.DASHBOARD);
   };
 
   const handleProjectChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

@@ -33,6 +33,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { logoutService } from "../lib/server/authServer";
 import { getTranslation } from "../lib/i18n";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { ROUTES } from "../config/routes";
 
 const DRAWER_WIDTH = 260;
 const COLLAPSED_WIDTH = 60;
@@ -46,7 +47,7 @@ const hiddenRoutes = [
 ];
 
 export default function Navbar() {
-  const { user, logout , language} = useAppStore();
+  const { user, logout, language } = useAppStore();
   const router = useRouter();
   const pathname = usePathname();
   const t = getTranslation();
@@ -59,15 +60,24 @@ export default function Navbar() {
 
   if (!hydrated || !pathname) return null;
   if (hiddenRoutes.includes(pathname)) return null;
+  if (!user) return null;
 
-  const handleLogout = () => {
-    logout();
-    logoutService();
-    router.push("/");
+  const handleLogout = async() => {
+    try{
+      await logoutService();
+      logout();
+
+      router.push(ROUTES.LANDING);
+      router.refresh()
+    }
+    catch(err){
+      console.error("Logout error",err);
+      
+    }
   };
 
   const handleProfile = () => {
-    router.push("/pages/profile");
+    router.push(ROUTES.PROFILE);
     setMobileOpen(false);
   };
 
