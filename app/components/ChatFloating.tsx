@@ -14,7 +14,6 @@ export default function ChatFloating() {
 
   return (
     <>
-      {/* Floating Icon */}
       {!open && (
         <Tooltip title={t("openChat")} arrow>
           <IconButton
@@ -42,7 +41,6 @@ export default function ChatFloating() {
         </Tooltip>
       )}
 
-      {/* Chat Popup */}
       {open && (
         <Box
           sx={{
@@ -60,7 +58,6 @@ export default function ChatFloating() {
             zIndex: 1000,
           }}
         >
-          {/* Header */}
           <Box
             sx={{
               p: 2,
@@ -90,7 +87,6 @@ export default function ChatFloating() {
             </IconButton>
           </Box>
 
-          {/* Chat Content */}
           <Box sx={{ flex: 1, overflow: "hidden" }}>
             <Chat />
           </Box>

@@ -79,7 +79,6 @@ export default function TaskForm({
     >
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={variant === "popup" ? 2 : 3}>
-          {/* Title */}
           <TextField
             fullWidth
             label={t("taskTitle")}
@@ -90,7 +89,6 @@ export default function TaskForm({
             required
           />
 
-          {/* Content */}
           <TextField
             fullWidth
             label={t("taskContent")}
@@ -102,7 +100,6 @@ export default function TaskForm({
             rows={variant === "popup" ? 3 : 4}
           />
 
-          {/* Row */}
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={2}
@@ -153,14 +150,12 @@ export default function TaskForm({
                 endAdornment:
                   language == "he" ? (
                     <Box sx={{ order: -1, mr: 1 }}>
-                      {/* calendar icon placeholder */}
                     </Box>
                   ) : undefined,
               }}
             />
           </Stack>
 
-          {/* Submit Button */}
           <Box sx={{ width: "100%", mt: 1 }}>
             <Button
               type="submit"

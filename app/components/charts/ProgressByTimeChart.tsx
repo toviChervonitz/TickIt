@@ -100,7 +100,6 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
     <Stack spacing={2}>
       <Divider />
 
-      {/* FILTERS */}
       <Stack direction="row" spacing={2} alignItems="center">
         <TextField
           select
@@ -147,7 +146,6 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
         </ToggleButtonGroup>
       </Stack>
 
-      {/* GRAPH BOX */}
       <Box
         sx={{
           width: "100%",
