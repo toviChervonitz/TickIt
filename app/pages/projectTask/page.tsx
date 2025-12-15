@@ -52,9 +52,7 @@ import { useRouter } from "next/navigation";
 import { getTranslation } from "@/app/lib/i18n";
 import ShowTask from "@/app/components/ShowTask";
 import ChatFloating from "@/app/components/ChatFloating";
-import { get } from "http";
-import { log } from "util";
-// import { Lexend_Tera } from "next/font/google";
+
 
 export default function GetProjectTasks() {
   const {
@@ -69,19 +67,15 @@ export default function GetProjectTasks() {
     language,
   } = useAppStore();
   const t = getTranslation();
-  // Tasks Data
-  // const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
 
-  // Modals State
   const [editingTask, setEditingTask] = useState<EditTaskForm | null>(null);
   const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
   const [showAddUser, setShowAddUser] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
 
-  // Filters State
   const [searchQuery, setSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all");
   const [sortBy, setSortBy] = useState("dueDate");
@@ -159,7 +153,6 @@ export default function GetProjectTasks() {
       );
     }
 
-    // 2. User Filter (Assignee)
     if (userFilter !== "all") {
       result = result.filter((t) => {
         const tUserId =
@@ -168,7 +161,6 @@ export default function GetProjectTasks() {
       });
     }
 
-    // 3. Sort
     if (sortBy === "dueDate") {
       result.sort((a, b) => {
         if (!a.dueDate) return 1;
@@ -188,10 +180,7 @@ export default function GetProjectTasks() {
     setSortBy("dueDate");
   };
 
-  // const isOldTask = (task: any) => {
-  //   const due = new Date(task.dueDate);
-  //   return !isNaN(due.getTime()) && due.getDate() < 10;
-  // };
+
   const TEN_DAYS = 10 * 24 * 60 * 60 * 1000;
 
   const isOldTask = (task: any) => {
@@ -211,7 +200,6 @@ export default function GetProjectTasks() {
   const hasActiveFilters =
     searchQuery || userFilter !== "all" || sortBy !== "dueDate";
 
-  // --- Task Categories (Applied Filters) ---
   const displayedTasks = filterAndSortTasks(projectTasks);
   const todoTasks = displayedTasks.filter((t) => t.status === "todo");
   const doingTasks = displayedTasks.filter((t) => t.status === "doing");
@@ -350,7 +338,6 @@ export default function GetProjectTasks() {
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 4 }}>
       <Container maxWidth="xl">
-        {/* Header */}
         <Box
           sx={{
             mb: 4,
@@ -415,7 +402,6 @@ export default function GetProjectTasks() {
           )}
         </Box>
 
-        {/* Filters Toolbar */}
         <Box sx={{ mb: 4 }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
@@ -423,7 +409,6 @@ export default function GetProjectTasks() {
             alignItems="center"
             justifyContent="flex-end"
           >
-            {/* Search Bar */}
             <TextField
               placeholder={t("searchTasks")}
               value={searchQuery}
@@ -451,7 +436,6 @@ export default function GetProjectTasks() {
               }}
             />
 
-            {/* Filter: User */}
             {isManager && (
               <TextField
                 select
@@ -478,7 +462,6 @@ export default function GetProjectTasks() {
               </TextField>
             )}
 
-            {/* Sort */}
             <TextField
               select
               value={sortBy}
@@ -499,7 +482,6 @@ export default function GetProjectTasks() {
               <MenuItem value="title">{t("title")}</MenuItem>
             </TextField>
 
-            {/* Clear Filters */}
             {hasActiveFilters && (
               <Tooltip title={t("clearFilters")}>
                 <IconButton
@@ -522,7 +504,6 @@ export default function GetProjectTasks() {
           </Stack>
         </Box>
 
-        {/* Drag & Drop */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Grid container spacing={3}>
             {KANBAN_COLUMNS_CONFIG.map((columnConfig: any) => {
@@ -554,7 +535,6 @@ export default function GetProjectTasks() {
                           border: "1px solid #e8eaed",
                         }}
                       >
-                        {/* Column Header */}
                         <Box
                           sx={{
                             mb: 3,
@@ -594,7 +574,6 @@ export default function GetProjectTasks() {
                           />
                         </Box>
 
-                        {/* Tasks */}
                         <Box
                           sx={{
                             display: "flex",
@@ -740,7 +719,6 @@ export default function GetProjectTasks() {
           </Grid>
         </DragDropContext>
 
-        {/* Add Task Dialog */}
         <Dialog
           open={showAddTask}
           onClose={() => setShowAddTask(false)}
@@ -773,7 +751,6 @@ export default function GetProjectTasks() {
           </DialogContent>
         </Dialog>
 
-        {/* Add Member Dialog */}
         <Dialog
           open={showAddUser}
           onClose={() => setShowAddUser(false)}
@@ -808,7 +785,6 @@ export default function GetProjectTasks() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Task Dialog */}
         {editingTask && (
           <EditTask
             task={editingTask}

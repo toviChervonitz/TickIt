@@ -9,7 +9,6 @@ import {
   Divider,
   Stack,
   Avatar,
-  useTheme,
   alpha
 } from '@mui/material';
 import {
@@ -18,7 +17,7 @@ import {
   Lock as LockIcon
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
-import { ROUTES } from '../config/routes';
+import { ROUTES } from '../../config/routes';
 
 export default function UnauthorizedPage() {
   const router = useRouter();
@@ -148,7 +147,6 @@ export default function UnauthorizedPage() {
             Access Denied
           </Typography>
 
-          {/* Description */}
           <Typography
             variant="body1"
             sx={{
@@ -158,7 +156,7 @@ export default function UnauthorizedPage() {
               lineHeight: 1.6
             }}
           >
-            You don't have permission to access this resource.
+            You do not have permission to access this resource.
           </Typography>
 
           <Typography
