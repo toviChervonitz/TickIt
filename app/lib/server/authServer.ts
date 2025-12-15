@@ -1,6 +1,4 @@
-// authServer.ts
 import { loginSchema, registerSchema } from "../validation";
-import { signIn, getSession } from "next-auth/react";
 
 export async function Register(form: any) {
   const { error } = registerSchema.validate(form);
@@ -47,7 +45,7 @@ export async function Login(form: any) {
   return {  ...data, status: res.status };
 }
 
-//google
+
 
 import { signInWithPopup, signOut } from "firebase/auth";
 import { auth, provider } from "../firebase";

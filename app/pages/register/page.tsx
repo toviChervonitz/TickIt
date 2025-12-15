@@ -2,7 +2,6 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { Register, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
@@ -17,17 +16,11 @@ import {
   Alert,
   Link as MuiLink,
   Stack,
-  Avatar,
-  IconButton,
 } from "@mui/material";
 import Link from "next/link";
 import GoogleIcon from "@mui/icons-material/Google";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
-import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import { UploadButton } from "@uploadthing/react";
-import { ourFileRouter } from "@/app/api/uploadthing/core";
 import ImageUpload from "@/app/components/ImageUpload";
-import { register } from "module";
 import { googleRegisterService } from "@/app/lib/server/googleService";
 import { getTranslation } from "@/app/lib/i18n";
 interface RegisterResponse {
@@ -50,11 +43,6 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-  //   setImage(URL.createObjectURL(file));
-  // };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -198,67 +186,6 @@ export default function RegisterPage() {
             </Alert>
           )}
             <ImageUpload onUpload={setImage} image={image} />
-{/* 
-          <Box sx={{ textAlign: "center", mb: 4 }}>
-            <input
-              id="imageInput"
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleImageChange}
-            />
-
-            <Box sx={{ position: "relative", display: "inline-block" }}>
-              <Avatar
-                src={image}
-                alt={name}
-                sx={{
-                  width: 120,
-                  height: 120,
-                  cursor: "pointer",
-                  border: "4px solid",
-                  borderColor: "primary.main",
-                  backgroundColor: "#f0f0f0",
-                  fontSize: "3rem",
-                  color: "#9ca3af",
-                  "&:hover": {
-                    opacity: 0.8,
-                  },
-                  transition: "all 0.3s ease",
-                }}
-                onClick={() => document.getElementById("imageInput")?.click()}
-              >
-                {!image && name?.charAt(0).toUpperCase()}
-              </Avatar>
-
-              <IconButton
-                sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  right: 0,
-                  backgroundColor: "primary.main",
-                  color: "white",
-                  width: 40,
-                  height: 40,
-                  "&:hover": {
-                    backgroundColor: "primary.dark",
-                  },
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                }}
-                onClick={() => document.getElementById("imageInput")?.click()}
-              >
-                <CameraAltIcon fontSize="small" />
-              </IconButton>
-            </Box>
-
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ display: "block", mt: 2 }}
-            >
-              {t("uploadProfile")}
-            </Typography>
-          </Box> */}
 
           <Box component="form" onSubmit={handleSubmit}>
             <Box
