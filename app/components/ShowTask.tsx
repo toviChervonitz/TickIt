@@ -7,7 +7,6 @@ import {
   DialogTitle,
   DialogContent,
   Typography,
-  Box,
   IconButton,
   Stack,
   Divider,

@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -86,7 +86,7 @@ export default function EditTask({
       fullWidth
       maxWidth="sm"
       dir={dir}
-      disableScrollLock   // ← מונע את הקפיצה!
+      disableScrollLock  
       PaperProps={{
         sx: {
           borderRadius: "20px",

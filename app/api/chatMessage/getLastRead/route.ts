@@ -1,4 +1,3 @@
-// app/api/chatMessage/getLastRead/route.ts
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
@@ -13,7 +12,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ status: "error", message: "Unauthorized" }, { status: 401 });
     }
 
-    // Get projectId from query string
     const url = new URL(req.url);
     const projectId = url.searchParams.get("projectId");
     if (!projectId) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Typography, Tooltip } from "@mui/material";
+import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Tooltip } from "@mui/material";
 import PublicIcon from "@mui/icons-material/Public";
 import React, { useState } from "react";
 import { Lang } from "../models/types";

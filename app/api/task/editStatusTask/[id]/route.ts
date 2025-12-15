@@ -54,11 +54,6 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // if (status.toLowerCase() === "done") {
-    //   task.completedDate = new Date();
-    // } else if (role === "manager") {
-    //   task.completedDate = undefined;
-    // }
     const oldStatus = task.status.toLowerCase();
 
     task.status = status;

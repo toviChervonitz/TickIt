@@ -33,7 +33,7 @@ export default function ChatFloating() {
               zIndex: 1000,
               "& .MuiSvgIcon-root": {
                 fontSize: 36,
-                transform: language === "he" ? "scaleX(-1)" : "none", // flip for Hebrew
+                transform: language === "he" ? "scaleX(-1)" : "none",
               },
             }}
           >

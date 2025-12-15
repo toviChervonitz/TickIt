@@ -4,12 +4,10 @@ import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { GoogleGenAI } from "@google/genai";
 
-// Initialize GenAI client
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || "",
 });
 
-// Helper: extract first JSON block from AI output
 function extractJSON(raw: string): string | null {
   const match = raw.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
   return match ? match[0] : null;
@@ -105,9 +103,7 @@ ${userPrompt}
       return NextResponse.json({ error: "Invalid JSON from AI" }, { status: 500 });
     }
 
-    // ---------------------------
-    // Normalize tasks
-    // ---------------------------
+  
     const normalized = tasks.map((t: any) => ({
       title: t.title || "Untitled Task",
       content: t.content || "",
