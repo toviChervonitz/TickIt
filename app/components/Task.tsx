@@ -162,6 +162,7 @@ const Task: React.FC<TaskProps> = ({
       }}
     >
       <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
+        {/* Header */}
         <Box
           sx={{
             display: "flex",
@@ -208,6 +209,7 @@ const Task: React.FC<TaskProps> = ({
           </Stack>
         </Box>
 
+        {/* Title */}
         <Typography
           variant="h6"
           fontWeight={700}
@@ -217,6 +219,7 @@ const Task: React.FC<TaskProps> = ({
           {title}
         </Typography>
 
+        {/* Description */}
         {content && (
           <Typography
             variant="body2"
@@ -236,6 +239,7 @@ const Task: React.FC<TaskProps> = ({
 
         <Divider sx={{ my: 2 }} />
 
+        {/* Footer */}
         <Stack spacing={1}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <CalendarTodayIcon
@@ -270,6 +274,7 @@ const Task: React.FC<TaskProps> = ({
         </Stack>
       </CardContent>
 
+      {/* Status Menu */}
       <Menu
         dir={isRTL ? "rtl" : "ltr"}
         anchorEl={statusMenuAnchor}
@@ -291,6 +296,7 @@ const Task: React.FC<TaskProps> = ({
         ))}
       </Menu>
 
+      {/* Actions Menu */}
       {showButtons && (onEdit || onDelete) && (
         <Menu
           dir={isRTL ? "rtl" : "ltr"}
@@ -325,6 +331,7 @@ const Task: React.FC<TaskProps> = ({
         </Menu>
       )}
 
+      {/* Delete Confirmation Dialog */}
       <Dialog
         dir={isRTL ? "rtl" : "ltr"}
         open={confirmOpen}
@@ -340,6 +347,7 @@ const Task: React.FC<TaskProps> = ({
           },
         }}
       >
+        {/* Warning Icon Header */}
         <Box
           sx={{
             display: "flex",
@@ -393,46 +401,44 @@ const Task: React.FC<TaskProps> = ({
           >
           </Typography>
 
-          <Box sx={{ mt: 2 }}>
-            <Typography
-              sx={{
-                fontSize: "0.85rem",
-                color: "#374151",
-                mb: 1.5,
-                fontWeight: 500,
-                textAlign: isRTL ? "right" : "left",
-              }}
-            >
-              {isRTL 
-                ? 'הקלד "delete" כדי לאשר מחיקה'
-                : 'Type "delete" to confirm'}
-            </Typography>
-            <TextField
-              fullWidth
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              placeholder="delete"
-              autoFocus
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "10px",
-                  backgroundColor: "#f9fafb",
-                  "&:hover fieldset": {
-                    borderColor: "#d1d5db",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#dc2626",
-                    borderWidth: "2px",
-                  },
-                },
-              }}
-              onKeyPress={(e) => {
-                if (e.key === "Enter" && deleteConfirmText.toLowerCase() === "delete") {
-                  handleDeleteConfirm();
-                }
-              }}
-            />
-          </Box>
+          {/* Confirmation Input */}
+         <Box sx={{ mt: 2 }} dir={isRTL ? "rtl" : "ltr"}>
+  <Typography
+    sx={{
+      fontSize: "0.85rem",
+      color: "#374151",
+      mb: 1.5,
+      fontWeight: 500,
+    }}
+  >
+    {t("deleteToConfirm")}
+  </Typography>
+  <TextField
+    fullWidth
+    value={deleteConfirmText}
+    onChange={(e) => setDeleteConfirmText(e.target.value)}
+    placeholder="delete"
+    autoFocus
+    sx={{
+      "& .MuiOutlinedInput-root": {
+        borderRadius: "10px",
+        backgroundColor: "#f9fafb",
+        "&:hover fieldset": { borderColor: "#d1d5db" },
+        "&.Mui-focused fieldset": { borderColor: "#dc2626", borderWidth: "2px" },
+      },
+      "& .MuiInputBase-input": {
+        textAlign: isRTL ? "right" : "left",
+        direction: isRTL ? "rtl" : "ltr",
+      },
+    }}
+    onKeyPress={(e) => {
+      if (e.key === "Enter" && deleteConfirmText.toLowerCase() === "delete") {
+        handleDeleteConfirm();
+      }
+    }}
+  />
+</Box>
+
         </DialogContent>
 
         <DialogActions
@@ -444,6 +450,7 @@ const Task: React.FC<TaskProps> = ({
             pt: 1,
           }}
         >
+          {/* Cancel Button */}
           <Button
             variant="outlined"
             onClick={handleDialogClose}
@@ -465,6 +472,7 @@ const Task: React.FC<TaskProps> = ({
             {t("cancel")}
           </Button>
 
+          {/* Delete Button */}
           <Button
             variant="contained"
             onClick={handleDeleteConfirm}
