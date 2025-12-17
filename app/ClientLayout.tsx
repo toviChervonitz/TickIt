@@ -19,7 +19,6 @@ export default function ClientLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [hydrated, setHydrated] = useState(false);
   const { language } = useAppStore();
   const [hydrated,setHydrated]=useState(false);
 
