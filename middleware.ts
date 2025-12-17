@@ -1,26 +1,35 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { BLOCK_WHEN_LOGGED_IN, PROTECTED_ROUTES, PUBLIC_ROUTES, ROUTES } from "./app/config/routes";
 
 export function middleware(req: NextRequest) {
     const token = req.cookies.get("authToken")?.value;
+    let pathname = req.nextUrl.pathname;
 
-    const { pathname } = req.nextUrl;
-
-    const publicPaths = ["/pages/login", "/pages/register","/pages/forgotPassword", "/pages/resetPassword"];
-
-    if (publicPaths.includes(pathname)) {
+    if (pathname.startsWith("/api")) {
         return NextResponse.next();
     }
 
-    const isProtected = pathname.startsWith("/pages");
-
-    if (!token && isProtected) {
-        return NextResponse.redirect(new URL("/pages/login", req.url));
+    if (pathname !== "/" && pathname.endsWith("/")) {
+        pathname = pathname.slice(0, -1);
+    }
+  
+    if (token && BLOCK_WHEN_LOGGED_IN.includes(pathname)) {
+        return NextResponse.redirect(new URL(ROUTES.DASHBOARD, req.url));
     }
 
+    const isProtected = PROTECTED_ROUTES.some((p) => pathname.startsWith(p));
+    const isPublic = BLOCK_WHEN_LOGGED_IN.includes(pathname);
+
+    if (!token &&!isPublic) {
+        return NextResponse.redirect(new URL(ROUTES.UNAUTHORIZED, req.url));
+
+    }
+
+
     return NextResponse.next();
+
 }
 
 export const config = {
-    matcher: ["/((?!api|_next|public|favicon.ico).*)"],
+    matcher: ["/((?!_next|favicon.ico).*)"],
 };

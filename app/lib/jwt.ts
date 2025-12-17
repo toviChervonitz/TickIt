@@ -11,12 +11,6 @@ export interface TokenPayload {
   exp: number;
 }
 
-interface TokenUser {
-  [key: string]: any;
-  _id: string;
-  email: string;
-  name?: string;
-}
 
 export function createToken(payload: Omit<TokenPayload, "iat" | "exp">) {
   return jwt.sign(payload, SECRET, { expiresIn: "30d" });

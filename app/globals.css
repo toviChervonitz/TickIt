@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 
-/* צבעים */
 :root {
   --color-bg: #ffffff;
   --color-text: #1E293B;
@@ -14,7 +13,7 @@
 }
 
 
-/* טיפוגרפיה בסיסית */
+
 body {
   font-family: 'Rubik', 'Assistant', sans-serif;
   color: var(--color-text);
@@ -24,7 +23,6 @@ body {
   line-height: 1.6;
 }
 
-/* Hero section */
 .hero {
   text-align: center;
   padding: 6rem 1rem;
@@ -66,7 +64,6 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
-/* Features section */
 .features {
   background-color: #f9fafb;
   padding: 5rem 1rem;
@@ -93,7 +90,6 @@ body {
   margin-bottom: 0.5rem;
 }
 
-/* CTA section */
 .cta {
   background: var(--gradient-main);
   color: white;

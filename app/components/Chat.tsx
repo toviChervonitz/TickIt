@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Pusher from "pusher-js";
 import { getChatMessages, sendChatMessage } from "@/app/lib/server/chatServer";
 import useAppStore from "../store/useAppStore";

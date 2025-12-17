@@ -39,9 +39,8 @@ export default function TaskStatusPieChart({ tasks }: Props) {
     { name: t("done"), value: counts.done },
   ];
 
-  // Label inside slice: "45%"
   const renderInsideLabel = (props: any) => {
-    const { cx, cy, midAngle, outerRadius, value, index } = props;
+    const { cx, cy, midAngle, outerRadius, value } = props;
 
     if (total === 0 || value === 0) return null;
 

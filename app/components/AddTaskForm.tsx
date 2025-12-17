@@ -32,7 +32,7 @@ export interface TaskFormData {
 interface TaskFormProps {
   task: TaskFormData;
   setTask: (t: TaskFormData) => void;
-  onSubmit: () => Promise<void>; // חשוב! שיהיה async כדי שנוכל לחכות
+  onSubmit: () => Promise<void>; 
   variant?: "popup" | "page";
 }
 
@@ -61,7 +61,7 @@ export default function TaskForm({
     setLoading(true);
 
     try {
-      await onSubmit(); // שולח למסד נתונים
+      await onSubmit();
     } finally {
       setLoading(false);
     }
@@ -108,54 +108,56 @@ export default function TaskForm({
             spacing={2}
             justifyContent="space-between"
           >
-<TextField
-  select
-  label={t("assignTo")}
-  name="userId"
-  fullWidth
-  size="small"
-  value={task.userId}
-  onChange={handleChange}
-  required
-  SelectProps={{
-    MenuProps: {
-      PaperProps: {
-        style: {
-          direction: language === "he" ? "rtl" : "ltr",
-        },
-      },
-    },
-  }}
->
-  <MenuItem value="">-- {t("selectUser")} --</MenuItem>
-  {projectUsers?.map((user) => (
-    <MenuItem key={user._id} value={user._id}>
-      {user.email}
-    </MenuItem>
-  ))}
-</TextField>
-<TextField
-  label={t("dueDate")}
-  type="date"
-  name="dueDate"
-  value={task.dueDate}
-  required
-  onChange={handleChange}
-  InputLabelProps={{ shrink: true }}
-  fullWidth
-  sx={{
-    direction: language=="he" ? "rtl" : "ltr",
-    "& input": {
-      textAlign: language=="he" ? "right" : "left",
-    },
-  }}
-  InputProps={{
-    endAdornment: language=="he" ? (
-      <Box sx={{ order: -1, mr: 1 }}>{/* calendar icon placeholder */}</Box>
-    ) : undefined,
-  }}
-/>
-
+            <TextField
+              select
+              label={t("assignTo")}
+              name="userId"
+              fullWidth
+              size="small"
+              value={task.userId}
+              onChange={handleChange}
+              required
+              SelectProps={{
+                MenuProps: {
+                  PaperProps: {
+                    style: {
+                      direction: language === "he" ? "rtl" : "ltr",
+                    },
+                  },
+                },
+              }}
+            >
+              <MenuItem value="">-- {t("selectUser")} --</MenuItem>
+              {projectUsers?.map((user) => (
+                <MenuItem key={user._id} value={user._id}>
+                  {user.email}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label={t("dueDate")}
+              type="date"
+              name="dueDate"
+              value={task.dueDate}
+              required
+              onChange={handleChange}
+              InputLabelProps={{ shrink: true }}
+              fullWidth
+              sx={{
+                direction: language == "he" ? "rtl" : "ltr",
+                "& input": {
+                  textAlign: language == "he" ? "right" : "left",
+                },
+              }}
+              InputProps={{
+                endAdornment:
+                  language == "he" ? (
+                    <Box sx={{ order: -1, mr: 1 }}>
+                      {/* calendar icon placeholder */}
+                    </Box>
+                  ) : undefined,
+              }}
+            />
           </Stack>
 
           {/* Submit Button */}

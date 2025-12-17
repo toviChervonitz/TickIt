@@ -1,9 +1,7 @@
-import { getAuthenticatedUser } from "../jwt";
 import { taskSchema } from "../validation";
 import { getUserRoleInProject } from "./projectServer";
 
 export async function CreateTask(form: any) {
-  // Validate form
   const { error } = taskSchema.validate(form);
   if (error) {
     throw new Error(error.message);
@@ -15,7 +13,6 @@ export async function CreateTask(form: any) {
     throw new Error("You are not the manager of this project");
   }
 
-  // Create task
   const res = await fetch("/api/task/createTask", {
     method: "POST",
     headers: {
@@ -117,6 +114,7 @@ export async function UpdateTaskStatus(
   if (!res.ok) {
     throw new Error(data.error || "Failed to update task status.");
   }
+
   return { status: res.status, ...data };
 }
 export async function DeleteTask(taskId: string) {

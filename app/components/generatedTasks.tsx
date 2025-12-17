@@ -1,8 +1,6 @@
-
 "use client";
 
-import React, { useState } from "react";
-import useAppStore from "@/app/store/useAppStore";
+import { useState } from "react";
 import { TaskFormData } from "./AddTaskForm";
 import { handleGenerateContent } from "../lib/server/agentServer";
 import {
@@ -52,11 +50,12 @@ export default function GenerateTasks({
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [hiddenActionsIndex, setHiddenActionsIndex] = useState<number | null>(null);
+  const [hiddenActionsIndex, setHiddenActionsIndex] = useState<number | null>(
+    null
+  );
   const [taskEdits, setTaskEdits] = useState<GeneratedTask | null>(null);
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
 
-  // Generate tasks
   const handleGenerate = async () => {
     if (!projectDescription.trim()) return;
     setLoading(true);
@@ -73,21 +72,18 @@ export default function GenerateTasks({
         dueDate: t.dueDate || new Date().toISOString().split("T")[0],
       }));
       setGeneratedTasks(tasksWithDefaults);
-      setHasGeneratedOnce(true); // <-- added
-
+      setHasGeneratedOnce(true);
     }
 
     setLoading(false);
   };
 
-  // Start editing a task
   const startEditing = (index: number) => {
     setEditingIndex(index);
-    setHiddenActionsIndex(index); // HIDE add/reject for this task
+    setHiddenActionsIndex(index);
     setTaskEdits({ ...generatedTasks[index] });
   };
 
-  // Save edits
   const saveEdit = () => {
     if (editingIndex === null || !taskEdits) return;
 
@@ -97,18 +93,20 @@ export default function GenerateTasks({
     setGeneratedTasks(updatedTasks);
     setEditingIndex(null);
     setTaskEdits(null);
-    setHiddenActionsIndex(null); // SHOW buttons again
+    setHiddenActionsIndex(null);
   };
 
-  // Cancel editing
   const cancelEdit = () => {
     setEditingIndex(null);
     setTaskEdits(null);
-    setHiddenActionsIndex(null); // SHOW buttons again
+    setHiddenActionsIndex(null);
   };
 
-  // Field change handler
-  const handleChange = (index: number, field: keyof GeneratedTask, value: any) => {
+  const handleChange = (
+    index: number,
+    field: keyof GeneratedTask,
+    value: any
+  ) => {
     const updatedTasks = [...generatedTasks];
     updatedTasks[index] = { ...updatedTasks[index], [field]: value };
     setGeneratedTasks(updatedTasks);
@@ -116,7 +114,6 @@ export default function GenerateTasks({
     if (editingIndex === index) setTaskEdits(updatedTasks[index]);
   };
 
-  // Add a task
   const handleAdd = (index: number) => {
     const task = generatedTasks[index];
 
@@ -138,7 +135,6 @@ export default function GenerateTasks({
     }
   };
 
-  // Reject task
   const handleReject = (index: number) => {
     setGeneratedTasks((prev) => prev.filter((_, i) => i !== index));
     if (editingIndex === index) {
@@ -149,7 +145,7 @@ export default function GenerateTasks({
 
   return (
     <Box>
-{!hasGeneratedOnce && generatedTasks.length === 0 && (
+      {!hasGeneratedOnce && generatedTasks.length === 0 && (
         <Button
           variant="contained"
           onClick={handleGenerate}
@@ -168,24 +164,32 @@ export default function GenerateTasks({
                 <TextField
                   label="Title"
                   value={taskEdits.title}
-                  onChange={(e) => setTaskEdits({ ...taskEdits, title: e.target.value })}
+                  onChange={(e) =>
+                    setTaskEdits({ ...taskEdits, title: e.target.value })
+                  }
                   fullWidth
                 />
                 <TextField
                   label="Content"
                   value={taskEdits.content}
-                  onChange={(e) => setTaskEdits({ ...taskEdits, content: e.target.value })}
+                  onChange={(e) =>
+                    setTaskEdits({ ...taskEdits, content: e.target.value })
+                  }
                   multiline
                   rows={4}
                   fullWidth
                 />
                 <FormControl fullWidth>
-                  <InputLabel id={`assign-user-label-${index}`}>Assign User</InputLabel>
+                  <InputLabel id={`assign-user-label-${index}`}>
+                    Assign User
+                  </InputLabel>
                   <Select
                     labelId={`assign-user-label-${index}`}
                     value={taskEdits.userId || ""}
                     label={t("assignTo")}
-                    onChange={(e) => setTaskEdits({ ...taskEdits, userId: e.target.value })}
+                    onChange={(e) =>
+                      setTaskEdits({ ...taskEdits, userId: e.target.value })
+                    }
                   >
                     {projectUsers.map((user) => (
                       <MenuItem key={user._id} value={user._id}>
@@ -199,7 +203,9 @@ export default function GenerateTasks({
                   type="date"
                   label={t("dueDate")}
                   value={taskEdits.dueDate}
-                  onChange={(e) => setTaskEdits({ ...taskEdits, dueDate: e.target.value })}
+                  onChange={(e) =>
+                    setTaskEdits({ ...taskEdits, dueDate: e.target.value })
+                  }
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                 />
@@ -216,15 +222,21 @@ export default function GenerateTasks({
             ) : (
               <Stack spacing={2}>
                 <Typography variant="h6">{task.title}</Typography>
-                <Typography sx={{ whiteSpace: "pre-wrap" }}>{task.content}</Typography>
+                <Typography sx={{ whiteSpace: "pre-wrap" }}>
+                  {task.content}
+                </Typography>
 
                 <FormControl fullWidth>
-                  <InputLabel id={`assign-user-label-${index}`}>Assign User</InputLabel>
+                  <InputLabel id={`assign-user-label-${index}`}>
+                    Assign User
+                  </InputLabel>
                   <Select
                     labelId={`assign-user-label-${index}`}
                     value={task.userId || ""}
                     label={t("assignTo")}
-                    onChange={(e) => handleChange(index, "userId", e.target.value)}
+                    onChange={(e) =>
+                      handleChange(index, "userId", e.target.value)
+                    }
                   >
                     {projectUsers.map((user) => (
                       <MenuItem key={user._id} value={user._id}>
@@ -238,7 +250,9 @@ export default function GenerateTasks({
                   type="date"
                   label={t("dueDate")}
                   value={task.dueDate}
-                  onChange={(e) => handleChange(index, "dueDate", e.target.value)}
+                  onChange={(e) =>
+                    handleChange(index, "dueDate", e.target.value)
+                  }
                   InputLabelProps={{ shrink: true }}
                   fullWidth
                 />
@@ -246,7 +260,10 @@ export default function GenerateTasks({
                 <Stack direction="row" spacing={2}>
                   {hiddenActionsIndex !== index && (
                     <>
-                      <Button variant="contained" onClick={() => handleAdd(index)}>
+                      <Button
+                        variant="contained"
+                        onClick={() => handleAdd(index)}
+                      >
                         {t("add")}
                       </Button>
                       <Button
@@ -259,7 +276,10 @@ export default function GenerateTasks({
                     </>
                   )}
 
-                  <Button variant="outlined" onClick={() => startEditing(index)}>
+                  <Button
+                    variant="outlined"
+                    onClick={() => startEditing(index)}
+                  >
                     {t("edit")}
                   </Button>
                 </Stack>
