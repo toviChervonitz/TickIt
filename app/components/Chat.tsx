@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
@@ -17,112 +18,93 @@ const CHAT_COLORS = {
   background: "#f9f9f9",
 };
 
+const LIMIT = 30;
+
 export default function Chat() {
   const t = getTranslation();
   const { projectId, user, messages, setMessages, language } = useAppStore();
+
   const [newMessage, setNewMessage] = useState("");
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [loadingSend, setLoadingSend] = useState(false);
-
   const [skip, setSkip] = useState(0);
-  const limit = 30;
-  const shouldAutoScrollRef = useRef(true);
-  const hasLoadedInitialMessagesRef = useRef(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const initialLoadRef = useRef(true);
   const isFetchingRef = useRef(false);
+  const hasLoadedInitialRef = useRef(false);
 
   const isRTL = language === "he";
 
+  /* ---------- INITIAL LOAD ---------- */
   useEffect(() => {
-    requestAnimationFrame(() => {
-      if (!shouldAutoScrollRef.current) {
-        shouldAutoScrollRef.current = true;
-        return;
-      }
-
-      if (initialLoadRef.current) {
-        messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
-        initialLoadRef.current = false;
-      } else {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }
-    });
-  }, [messages]);
-
-  useEffect(() => {
-    if (!projectId) return;
-    if (hasLoadedInitialMessagesRef.current) return;
-    if (messages.length > 0 && !loadingInitial) return;
-    if (isFetchingRef.current) return;
+    if (!projectId || hasLoadedInitialRef.current) return;
 
     (async () => {
       isFetchingRef.current = true;
       setLoadingInitial(true);
-      try {
-        const chat = await getChatMessages(projectId, 0, limit);
 
-        const safeMessages = chat.map((m: any) => ({
+      try {
+        const chat = await getChatMessages(projectId, 0, LIMIT);
+
+        const safe = chat.map((m: any) => ({
           ...m,
-          user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
+          user: m.user ?? { _id: "unknown", name: "Unknown" },
         }));
 
-        setMessages(safeMessages);
-        setSkip(limit);
-        hasLoadedInitialMessagesRef.current = true;
-      } catch (error) {
-        console.error("Error loading initial chat messages:", error);
+        setMessages(safe);
+        setSkip(LIMIT);
+        hasLoadedInitialRef.current = true;
+
+        // 🔑 force bottom AFTER render
+        requestAnimationFrame(() => {
+          const c = containerRef.current;
+          if (c) c.scrollTop = c.scrollHeight;
+        });
       } finally {
         isFetchingRef.current = false;
         setLoadingInitial(false);
       }
     })();
-  }, [projectId, messages.length, setMessages, loadingInitial]);
+  }, [projectId, setMessages]);
 
+  /* ---------- PAGINATION ---------- */
   const handleScroll = useCallback(async () => {
-    const container = containerRef.current;
-    if (!container || isFetchingRef.current || skip === 0) return;
+    const c = containerRef.current;
+    if (!c || isFetchingRef.current || c.scrollTop > 40) return;
 
-    if (container.scrollTop <= 20) {
-      isFetchingRef.current = true;
+    isFetchingRef.current = true;
+    const prevHeight = c.scrollHeight;
 
-      const oldHeight = container.scrollHeight;
-      shouldAutoScrollRef.current = false;
-
-      const older = await getChatMessages(projectId!, skip, limit);
-      if (older.length === 0) {
-        isFetchingRef.current = false;
-        return;
-      }
+    try {
+      const older = await getChatMessages(projectId!, skip, LIMIT);
+      if (!older.length) return;
 
       const safe = older.map((m: any) => ({
         ...m,
-        user: m.user ?? { _id: "unknown", name: "Unknown", image: undefined },
+        user: m.user ?? { _id: "unknown", name: "Unknown" },
       }));
 
-      const currentMessages = useAppStore.getState().messages;
-      setMessages([...safe, ...currentMessages]);
-
-      setSkip(skip + limit);
+      const current = useAppStore.getState().messages;
+      setMessages([...safe, ...current]);
+      setSkip(skip + LIMIT);
 
       requestAnimationFrame(() => {
-        const newHeight = container.scrollHeight;
-        container.scrollTop = newHeight - oldHeight;
+        const newHeight = c.scrollHeight;
+        c.scrollTop = newHeight - prevHeight;
       });
-
+    } finally {
       isFetchingRef.current = false;
     }
-  }, [projectId, skip, limit, setMessages]);
+  }, [projectId, skip, setMessages]);
 
   useEffect(() => {
-    const div = containerRef.current;
-    if (!div) return;
-    div.addEventListener("scroll", handleScroll);
-    return () => div.removeEventListener("scroll", handleScroll);
+    const c = containerRef.current;
+    if (!c) return;
+    c.addEventListener("scroll", handleScroll);
+    return () => c.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  /* ---------- PUSHER ---------- */
   useEffect(() => {
     if (!projectId || !user) return;
 
@@ -134,18 +116,27 @@ export default function Chat() {
     const channel = pusher.subscribe(`private-project-${projectId}`);
 
     channel.bind("chatMessage-updated", (data: any) => {
-      if (data.action === "ADD" && data.chatMessage) {
-        const incoming = {
-          ...data.chatMessage,
-          user: data.chatMessage.user ?? { _id: "unknown", name: "Unknown", image: undefined },
-        };
+      if (data.action !== "ADD") return;
 
-        if (user && incoming.user._id === user._id) {
-          return;
-        }
+      const incoming = {
+        ...data.chatMessage,
+        user: data.chatMessage.user ?? { _id: "unknown", name: "Unknown" },
+      };
 
-        const current = useAppStore.getState().messages;
-        setMessages([...current, incoming]);
+      if (incoming.user._id === user._id) return;
+
+      const c = containerRef.current;
+      const nearBottom =
+        c &&
+        c.scrollHeight - c.scrollTop - c.clientHeight < 120;
+
+      const current = useAppStore.getState().messages;
+      setMessages([...current, incoming]);
+
+      if (nearBottom) {
+        requestAnimationFrame(() => {
+          if (c) c.scrollTop = c.scrollHeight;
+        });
       }
     });
 
@@ -156,11 +147,11 @@ export default function Chat() {
     };
   }, [projectId, user, setMessages]);
 
+  /* ---------- SEND ---------- */
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !projectId) return;
 
     setLoadingSend(true);
-    const messageToSend = newMessage.trim();
 
     try {
       await sendChatMessage({
@@ -169,140 +160,83 @@ export default function Chat() {
         message: newMessage.trim(),
       });
 
-      const newMessageObject = {
-        user: { _id: user._id, name: user.name, image: user.image },
-        message: messageToSend,
-        createdAt: new Date().toISOString(),
-      };
-
       const current = useAppStore.getState().messages;
-      setMessages([...current, newMessageObject as any]);
+      setMessages([
+        ...current,
+        {
+          user: { _id: user._id, name: user.name, image: user.image },
+          message: newMessage.trim(),
+          createdAt: new Date().toISOString(),
+        } as any,
+      ]);
+
       setNewMessage("");
+
+      requestAnimationFrame(() => {
+        const c = containerRef.current;
+        if (c) c.scrollTop = c.scrollHeight;
+      });
     } finally {
       setLoadingSend(false);
     }
   };
 
+  /* ---------- RENDER ---------- */
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        overflow: "hidden",
-      }}
-    >
+    <Box display="flex" flexDirection="column" height="100%" overflow="hidden">
       <Box
         ref={containerRef}
-        sx={{
-          flex: 1,
-          overflowY: "auto",
-          p: 2,
-          bgcolor: CHAT_COLORS.background,
-        }}
+        flex={1}
+        overflow="auto"
+        p={2}
+        bgcolor={CHAT_COLORS.background}
       >
-        {/* {loading && messages.length > 0 && (
+        {loadingInitial && (
           <Box display="flex" justifyContent="center" py={2}>
-            <CircularProgress size={24} sx={{ color: CHAT_COLORS.turquoise }} />
+            <CircularProgress size={24} />
           </Box>
         )}
 
-        {!loading && messages.length === 0 && (
-          <Box textAlign="center" py={2} color="text.secondary">
-            No messages yet. Start the conversation!
-          </Box>
-        )} */}
-
-        {messages.map((msg, index) => {
-          const msgUser = msg.user ?? { _id: "unknown", name: "Unknown" };
-          const isMe = msgUser._id === user?._id;
+        {messages.map((msg, i) => {
+          const u = msg.user ?? { _id: "unknown", name: "Unknown" };
           return (
             <ChatMessageComp
-              key={msg.id ?? index}
-              username={msgUser.name}
-              profileImage={msgUser.image}
+              key={msg.id ?? i}
+              username={u.name}
+              profileImage={u.image}
               message={msg.message}
               time={msg.createdAt}
-              isCurrentUser={isMe}
+              isCurrentUser={u._id === user?._id}
             />
           );
         })}
-        <div ref={messagesEndRef} />
       </Box>
 
-      <Box
-        sx={{
-          display: "flex",
-          p: 1,
-          gap: 1,
-          borderTop: `1px solid ${CHAT_COLORS.inputBorder}`,
-        }}
-      >
-
-<TextField
-  fullWidth
-  placeholder={t("typeMessage")}
-  variant="outlined"
-  size="small"
-  value={newMessage}
-  onChange={(e) => setNewMessage(e.target.value)}
-  disabled={loadingSend}
-  inputProps={{
-    style: {
-      textAlign: isRTL ? "right" : "left",
-      direction: isRTL ? "rtl" : "ltr",
-    },
-  }}
-  sx={{
-    "& .MuiOutlinedInput-root": {
-      borderRadius: 50,
-      paddingRight: isRTL ? "4px" : "14px",
-      paddingLeft: isRTL ? "14px" : "4px",
-    },
-  }}
-/>
+      <Box display="flex" p={1} gap={1} borderTop={`1px solid ${CHAT_COLORS.inputBorder}`}>
+        <TextField
+          fullWidth
+          placeholder={t("typeMessage")}
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          disabled={loadingSend}
+          size="small"
+          sx={{ direction: isRTL ? "rtl" : "ltr" }}
+        />
 
         <Button
           variant="contained"
           onClick={handleSend}
           disabled={!newMessage.trim() || loadingSend}
-          sx={{
-            minWidth: "40px",
-            height: "40px",
-            borderRadius: "50%",
-            p: 0,
-            bgcolor: CHAT_COLORS.turquoise,
-            "&:hover": { bgcolor: CHAT_COLORS.darkTurquoise },
-            "&.Mui-disabled": {
-              bgcolor: "rgba(0, 0, 0, 0.12)",
-              color: "rgba(0, 0, 0, 0.26)",
-            },
-          }}
+          sx={{ minWidth: 40, borderRadius: "50%" }}
         >
           {loadingSend ? (
             <CircularProgress size={20} color="inherit" />
           ) : (
-            <SendIcon
-              sx={{
-                fontSize: 20,
-                transform: isRTL ? "scaleX(-1)" : "none",
-              }}
-            />
+            <SendIcon sx={{ transform: isRTL ? "scaleX(-1)" : "none" }} />
           )}
         </Button>
       </Box>
     </Box>
   );
 }
-
-/**
- * chatGPT, can you follow these instructions:
- * i want to have it that when a user exits the chat, it will 
- * have saved the id of his last read message (how low he scrolled) and before 
- * closing the chat it updates it using the server function. then when entering 
- * the chat, if there are more messages after the one last read, it will make a 
- * divider line, and then put the rest of the unread messages. the divider line 
- * doesnt change as the user scrolls up and down. (if no unread messages, no need 
- * for divider). if the last read message is not in the first batch of 30 brought, 
- * assume there are no new messages and dont bring anymore-- no line. maybe the
- * store needs to save last read too?  */      
