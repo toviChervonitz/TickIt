@@ -96,7 +96,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
               spacing={1} alignItems="center" minWidth="120px">
               <PersonOutlineIcon sx={detailIconStyle} color="secondary" />
               <Typography color="text.secondary" fontWeight={600}>
-                {t("assignedTo")}:
+                {t("assignedTo")}
               </Typography>
             </Stack>
             <Typography fontSize={16} fontWeight={500} color="text.primary">
@@ -114,7 +114,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
                 style={{ color: project?.color || theme.palette.secondary.main }}
               />
               <Typography color="text.secondary" fontWeight={600}>
-                {t("project")}:
+                {t("projectLabel")}
               </Typography>
             </Stack>
             <Typography fontSize={16} fontWeight={500} color="text.primary">
@@ -131,7 +131,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
                 fontWeight={600}
                 letterSpacing={0.3}
               >
-                {t("status")}:
+                {t("statusLabel")}
               </Typography>
             </Stack>
 
@@ -151,7 +151,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
                 spacing={1} alignItems="center" minWidth="120px">
                 <CalendarTodayIcon sx={detailIconStyle} color="secondary" />
                 <Typography color="text.secondary" fontWeight={600}>
-                  {t("dueDate")}:
+                  {t("dateLabel")}
                 </Typography>
               </Stack>
               <Typography fontSize={16} fontWeight={500} color="text.primary">
