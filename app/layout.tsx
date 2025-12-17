@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: "TickIt",
   description: "Task Management App",
   icons: {
-    icon: "/logo.ico",
+    icon: `/logo.ico`,
   },
 };
 
