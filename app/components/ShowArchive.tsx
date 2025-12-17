@@ -15,13 +15,18 @@
 import { Button } from "@mui/material";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UndoIcon from "@mui/icons-material/Undo";
+import { getTranslation } from "../lib/i18n";
+import useAppStore from "../store/useAppStore";
+
 
 interface ShowArchiveProps {
   show: boolean;
-  setShowArchive: (show: boolean) => void;
 }
 
-export default function ShowArchive({ show, setShowArchive }: ShowArchiveProps) {
+export default function ShowArchive({show}: ShowArchiveProps) {
+  const { setShowArchive } = useAppStore();
+    const t = getTranslation();
+  
   return (
     <Button
       variant={show ? "contained" : "outlined"}
@@ -42,7 +47,7 @@ export default function ShowArchive({ show, setShowArchive }: ShowArchiveProps) 
         },
       }}
     >
-      {show ? "Show all projects" : "Show archive"}
+      {show ? t("showAllProjects") : t("showArchive")}
     </Button>
   );
 }
