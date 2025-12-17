@@ -412,9 +412,7 @@ const Task: React.FC<TaskProps> = ({
                 textAlign: isRTL ? "right" : "left",
               }}
             >
-              {isRTL 
-                ? 'הקלד "delete" כדי לאשר מחיקה'
-                : 'Type "delete" to confirm'}
+              {t("deleteToConfirm")}
             </Typography>
             <TextField
               fullWidth

@@ -213,17 +213,26 @@ export default function Chat() {
       </Box>
 
       <Box display="flex" p={1} gap={1} borderTop={`1px solid ${CHAT_COLORS.inputBorder}`}>
-        <TextField
-          fullWidth
-          placeholder={t("typeMessage")}
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          disabled={loadingSend}
-          size="small"
-          sx={{ direction: isRTL ? "rtl" : "ltr" }}
-        />
-
+<TextField
+  fullWidth
+  placeholder={t("typeMessage")}
+  value={newMessage}
+  onChange={(e) => setNewMessage(e.target.value)}
+  onKeyDown={(e) => e.key === "Enter" && handleSend()}
+  disabled={loadingSend}
+  size="small"
+  inputProps={{
+    style: {
+      textAlign: isRTL ? "right" : "left",
+      direction: isRTL ? "rtl" : "ltr",
+    },
+  }}
+  sx={{
+    "& .MuiOutlinedInput-root": {
+      direction: isRTL ? "rtl" : "ltr",
+    },
+  }}
+/>
         <Button
           variant="contained"
           onClick={handleSend}

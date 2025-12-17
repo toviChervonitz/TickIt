@@ -266,7 +266,8 @@
   "archive": "לארכיון",
   "projectLabel": ":פרויקט",
   "statusLabel": ":מצב",
-  "dateLabel":":תאריך יעד"
+  "dateLabel":":תאריך יעד",
+  "deleteToConfirm": "הקלד delete כדי לאשר מחיקה"
 
 
 

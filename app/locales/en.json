@@ -254,6 +254,7 @@
   "archive":"Archive project",
   "projectLabel": "Project:",
   "statusLabel": "Status:",
-  "dateLabel":"Due Date:"
+  "dateLabel":"Due Date:",
+  "deleteToConfirm": "Type delete to confirm"
 
 }
