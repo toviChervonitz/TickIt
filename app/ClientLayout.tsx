@@ -14,10 +14,12 @@ import useAppStore from "./store/useAppStore";
 const cacheLtr = createCache({ key: "mui" });
 
 export default function ClientLayout({
+
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [hydrated, setHydrated] = useState(false);
   const { language } = useAppStore();
   const [hydrated,setHydrated]=useState(false);
 
@@ -31,11 +33,9 @@ export default function ClientLayout({
   );
 
   const theme = useMemo(() => getTheme(language), [language]);
-  // const hydrated = useAppStore.persist?.hasHydrated?.();
-useEffect(() => setHydrated(true), []);
 
-  if (!hydrated ) return null;
-
+  useEffect(() => setHydrated(true), []);
+  if (!hydrated) return null;
 
   return (
     <CacheProvider value={language === "he" ? cacheRtl : cacheLtr}>
