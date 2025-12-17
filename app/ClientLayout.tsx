@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import { getTheme } from "../theme/theme";
 import Navbar from "./components/Navbar";
@@ -19,6 +19,7 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   const { language } = useAppStore();
+  const [hydrated,setHydrated]=useState(false);
 
   const cacheRtl = useMemo(
     () =>
@@ -30,8 +31,9 @@ export default function ClientLayout({
   );
 
   const theme = useMemo(() => getTheme(language), [language]);
+  // const hydrated = useAppStore.persist?.hasHydrated?.();
+useEffect(() => setHydrated(true), []);
 
-  const hydrated = useAppStore.persist?.hasHydrated?.();
   if (!hydrated ) return null;
 
 
