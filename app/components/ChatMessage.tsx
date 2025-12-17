@@ -3,7 +3,6 @@
 import { Box, Typography, Avatar } from "@mui/material";
 
 interface ChatMessageProps {
-  id?: string; 
   username: string;
   profileImage?: string;
   message: string;
@@ -21,7 +20,6 @@ const CHAT_COLORS = {
 };
 
 export default function ChatMessageComp({
-  id, 
   username,
   profileImage,
   message,
@@ -59,7 +57,6 @@ export default function ChatMessageComp({
 
   return (
     <Box
-      id={id} 
       sx={{
         display: "flex",
         justifyContent: isCurrentUser ? "flex-end" : "flex-start",
@@ -121,9 +118,7 @@ export default function ChatMessageComp({
           component="div"
           sx={{
             fontSize: "10px",
-            color: isCurrentUser
-              ? CHAT_COLORS.currentUserTime
-              : CHAT_COLORS.otherUserTime,
+            color: isCurrentUser ? CHAT_COLORS.currentUserTime : CHAT_COLORS.otherUserTime,
             textAlign: "right",
             mt: 0.5,
           }}

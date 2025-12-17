@@ -249,7 +249,7 @@
   "collapse": "כווץ",
   "noProject": "אין פרויקט",
   "details": "פרטים",
-  "assignedTo": "הוקצה ל",
+  "assignedTo": ":הוקצה ל",
   "projectChat": "צ'אט הפרויקט",
   "status": "מצב",
   "insightsAndAnalytics": "תובנות ואנליטיקה",
@@ -261,7 +261,17 @@
   "monthly": "חודשי",
   "showAllProjects":"הצג את כל הפרויקטים",
   "showArchive":"הצג ארכיון",
-  "clickForPic":"לחץ כדי לבחור תמונת פרופיל"
+  "clickForPic":"לחץ כדי לבחור תמונת פרופיל",
+  "restore": "שחזר פרויקט",
+  "archive": "לארכיון",
+  "projectLabel": ":פרויקט",
+  "statusLabel": ":מצב",
+  "dateLabel":":תאריך יעד",
+  "deleteToConfirm": "הקלד delete כדי לאשר מחיקה"
+
+
+
+
 
 
 
