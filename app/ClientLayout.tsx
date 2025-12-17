@@ -21,6 +21,7 @@ export default function ClientLayout({
 }) {
   const [hydrated, setHydrated] = useState(false);
   const { language } = useAppStore();
+  const [hydrated,setHydrated]=useState(false);
 
   const cacheRtl = useMemo(
     () =>

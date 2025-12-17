@@ -194,7 +194,7 @@ export default function GetProjectTasks() {
     console.log("tasks in is old?", task);
 
     return diff > TEN_DAYS;
-    // return diff > 2 * 60 * 1000; // 2 minutes for testing
+    //return diff > 2 * 60 * 1000; // 2 minutes for testing
   };
 
   const hasActiveFilters =
