@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import { getTheme } from "../theme/theme";
 import Navbar from "./components/Navbar";
@@ -14,10 +14,12 @@ import useAppStore from "./store/useAppStore";
 const cacheLtr = createCache({ key: "mui" });
 
 export default function ClientLayout({
+
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [hydrated, setHydrated] = useState(false);
   const { language } = useAppStore();
 
   const cacheRtl = useMemo(
@@ -31,9 +33,8 @@ export default function ClientLayout({
 
   const theme = useMemo(() => getTheme(language), [language]);
 
-  const hydrated = useAppStore.persist?.hasHydrated?.();
-  if (!hydrated ) return null;
-
+  useEffect(() => setHydrated(true), []);
+  if (!hydrated) return null;
 
   return (
     <CacheProvider value={language === "he" ? cacheRtl : cacheLtr}>
