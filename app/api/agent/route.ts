@@ -5,7 +5,7 @@ import ProjectUser from "@/app/models/ProjectUserModel";
 import { GoogleGenAI } from "@google/genai";
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || "",
+  apiKey: process.env.NEW_GEMINI || "",
 });
 
 function extractJSON(raw: string): string | null {
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
 
     const startDate = project.createdAt.toISOString().split("T")[0];
 
-    const model =  "gemini-2.5-flash"; 
+    const model =  "models/gemini-2.0-flash"; 
 
     const response = await ai.models.generateContent({
       model,
