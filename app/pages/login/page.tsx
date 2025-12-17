@@ -4,7 +4,6 @@ import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Login, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
-import { IUserSafe } from "@/app/models/types";
 import { getTranslation } from "@/app/lib/i18n";
 import {
   Box,
@@ -19,18 +18,11 @@ import {
   Stack,
 } from "@mui/material";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 import { googleLoginService } from "@/app/lib/server/googleService";
 import GoogleIcon from "@mui/icons-material/Google";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { ROUTES } from "@/app/config/routes";
 
-interface LoginResponse {
-  status: "success" | "error";
-  message?: string;
-  user?: IUserSafe;
-  token?: string;
-}
 
 export default function LoginPage() {
   const t = getTranslation();
@@ -121,10 +113,9 @@ export default function LoginPage() {
       }
       console.log("data in google log in", data);
       setUser(data.user);
-      //check if user created just now then send it to createProject page
-      // if(time)
-      const createdAt = new Date(data.user.createdAt); // התאריך שמתקבל מהשרת
-      const now = new Date(); // הזמן הנוכחי
+      
+      const createdAt = new Date(data.user.createdAt); 
+      const now = new Date(); 
 
       const diffMs = now.getTime() - createdAt.getTime();
 

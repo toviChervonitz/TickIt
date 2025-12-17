@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { Box, Typography, Button } from "@mui/material";
 import { getTranslation } from "./lib/i18n";
@@ -20,7 +19,6 @@ export default function NotFound() {
         backgroundColor: "#FBFAF7", 
       }}
     >
-      {/* מספר 404 */}
       <Typography
         sx={{
           fontSize: { xs: 150, md: 190 },
@@ -32,7 +30,6 @@ export default function NotFound() {
         404
       </Typography>
 
-      {/* טקסט מתחת ל־404 */}
       <Typography
         sx={{
           fontSize: { xs: 22, md: 28 },
@@ -55,7 +52,6 @@ export default function NotFound() {
       >
 {t("pageNotFoundDescription")}      </Typography>
 
-      {/* כפתור */}
       <Button
         variant="contained"
         component={Link}

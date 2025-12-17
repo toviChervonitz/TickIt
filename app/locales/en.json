@@ -166,7 +166,7 @@
   "remindersEmailActions": "Reminders, email actions & calendar sync",
   "smartTask": "Smart Task",
   "managementSystem": "Management System",
-  "manageProjects": "Manage projects, prioritize tasks, and collaborate seamlessly —all in one efficient and beautifully organized platform.",
+  "manageProjects": "Manage projects, prioritize tasks, and collaborate seamlessly - all in one efficient and beautifully organized platform.",
   "login": "Login",
   "everythingYourTeamNeeds": "Everything Your Team Needs",
   "advancedTools": "Advanced tools for project management, collaboration, and progress tracking",
@@ -235,7 +235,7 @@
   "completedTasks": "Completed Tasks",
   "noProject": "No Project",
   "details": "Details",
-  "assignedTo": "Assigned To",
+  "assignedTo": "Assigned To:",
   "projectChat": "Project Chat",
   "status": "Status",
   "expand": "Expand", 
@@ -249,6 +249,12 @@
   "monthly": "Monthly",
   "showAllProjects":"Show all projects",
   "showArchive":"Show archive",
-  "clickForPic":"Click to choose profile picture"
+  "clickForPic":"Click to choose profile picture",
+  "restore": "Restore project",
+  "archive":"Archive project",
+  "projectLabel": "Project:",
+  "statusLabel": "Status:",
+  "dateLabel":"Due Date:",
+  "deleteToConfirm": "Type delete to confirm"
 
 }

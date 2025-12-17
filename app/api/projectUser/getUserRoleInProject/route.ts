@@ -1,5 +1,5 @@
 import { dbConnect } from "@/app/lib/DB";
-import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
+import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
 
@@ -24,7 +24,6 @@ export async function GET(req: Request) {
     }
 
     const userId = currentUser.id;
-    // const userId = searchParams.get("userId");
 
     const projectUser = await ProjectUser.findOne({ userId, projectId });
 

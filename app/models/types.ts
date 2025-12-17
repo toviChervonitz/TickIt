@@ -1,13 +1,11 @@
 import mongoose from "mongoose";
 
-// Project interfaces
 export interface IProject {
   _id?: string;
   name: string;
   description?: string;
   tasks?: mongoose.Types.ObjectId[];
   color: string;
-  // isArchived:boolean;
 }
 
 export type Lang = "en" | "he";
@@ -19,10 +17,6 @@ export interface IProjectRole {
   isArchived:boolean;
 }
 
-// export interface IProjectRole {
-//   project: IProject;
-//   role: "manager" | "viewer";
-// }
 
 export interface IProjectUser {
   _id?: string;
@@ -33,7 +27,6 @@ export interface IProjectUser {
   updatedAt?: Date;
 }
 
-// Task interface
 export interface ITask {
   _id?: string;
   title: string;
@@ -46,30 +39,28 @@ export interface ITask {
   projectId?: mongoose.Types.ObjectId | IProject;
 }
 
-// User types
 export type IUser =
   | {
-    _id?: string;           // include _id
+    _id?: string;          
     provider: "credentials";
     name: string;
     email: string;
     tel?: string;
-    password: string;        // required for manual users
+    password: string;      
     image?: string;
   }
   | {
-    _id?: string;           // include _id
+    _id?: string;         
     provider: "google";
     name: string;
     email: string;
     tel?: string;
-    password?: undefined;    // optional/undefined for Google users
+    password?: undefined; 
     image?: string;
   };
 
-// Safe user for frontend (no password)
 export interface IUserSafe {
-  _id: string; // include _id for TS safety
+  _id: string; 
   name: string;
   email: string;
   tel?: string;

@@ -19,7 +19,7 @@ import LanguageSwitcher from "@/app/components/LanguageSwitcher";
 import useAppStore from "@/app/store/useAppStore";
 
 export default function Home() {
-  const { language, setLanguage } = useAppStore();
+  const { language } = useAppStore();
 
   const t = getTranslation();
 
@@ -72,7 +72,6 @@ export default function Home() {
           maxWidth="lg"
           sx={{ py: { xs: 8, md: 12 }, position: "relative", zIndex: 1 }}
         >
-          {/* LANGUAGE TOGGLE BUTTON */}
           <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
             <LanguageSwitcher />
           </Box>
@@ -89,7 +88,6 @@ export default function Home() {
                   border: "1px solid rgba(61,210,204,0.3)",
                 }}
               />
-              {/* ... rest of your component remains the same ... */}
 
               <Typography
                 variant="h2"
