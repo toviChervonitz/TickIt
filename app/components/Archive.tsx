@@ -4,6 +4,7 @@ import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { toArchive } from "../lib/server/projectServer";
 import { GetTasksByProjectId } from "../lib/server/taskServer";
 import useAppStore from "../store/useAppStore";
+import { getTranslation } from "../lib/i18n";
 
 interface ArchiveProps {
   projectId: string | undefined;
@@ -11,8 +12,7 @@ interface ArchiveProps {
   archived: boolean;
 }
 
-
-export default function Archive({ projectId, archived }: ArchiveProps) {
+export default function Archive({ projectId, archived , userId }: ArchiveProps) {
   const { projects, setProjects, setTasks, tasks } = useAppStore();
   const t = getTranslation()
 
@@ -28,6 +28,7 @@ export default function Archive({ projectId, archived }: ArchiveProps) {
       if (isArchive) {
         setTasks(tasks.filter((t) => t.projectId !== projectId));
       } else {
+        // const res = await GetTasksByProjectId(userId,projectId!, !isArchive);
         const res = await GetTasksByProjectId(projectId!, !isArchive);
         setTasks([...tasks, ...res]);
       }
