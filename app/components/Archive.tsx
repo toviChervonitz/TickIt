@@ -28,7 +28,8 @@ export default function Archive({ projectId, archived , userId }: ArchiveProps) 
       if (isArchive) {
         setTasks(tasks.filter((t) => t.projectId !== projectId));
       } else {
-        const res = await GetTasksByProjectId(userId,projectId!, !isArchive);
+        // const res = await GetTasksByProjectId(userId,projectId!, !isArchive);
+        const res = await GetTasksByProjectId(projectId!, !isArchive);
         setTasks([...tasks, ...res]);
       }
 

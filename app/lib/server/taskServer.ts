@@ -56,7 +56,7 @@ export async function GetTasksByUserId(userId: string | undefined) {
 }
 
 export async function GetTasksByProjectId(
-  id: string,
+  // id: string,
   projectId: string | null,
   isArchived?: boolean
 ) {
@@ -65,7 +65,8 @@ export async function GetTasksByProjectId(
   }
   try {
     const res = await fetch(
-      `/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`,
+      // `/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`,
+      `/api/task/projectTasks?projectId=${projectId}&&archive=${isArchived}`,
       {
         method: "GET",
         headers: {
