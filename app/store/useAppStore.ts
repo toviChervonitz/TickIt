@@ -145,6 +145,21 @@ const useAppStore = create(
             set({ projects: updatedProjects });
           }
         );
+        //check if this work (update status task in projectTask...)
+        channel.bind(
+          "task-updated",
+          (data: { action: "UPDATE"; task: ITask }) => {
+            if (data.action !== "UPDATE") return;
+
+            const state = get();
+
+            set({
+              projectTasks: state.projectTasks.map((t) =>
+                t._id === data.task._id ? { ...t, ...data.task } : t
+              ),
+            });
+          }
+        );
       },
 
       initializeRealtime: (userId: string) => {
@@ -224,10 +239,22 @@ const useAppStore = create(
               });
             }
 
+            // if (data.action === "DELETE" && data.taskId) {
+            //   set({
+            //     tasks: state.tasks.filter((t) => t._id !== data.taskId),
+            //   });
+            // }
+
+            // Remove from both tasks and projectTasks
+            // check if this works correctly
             if (data.action === "DELETE" && data.taskId) {
               set({
                 tasks: state.tasks.filter((t) => t._id !== data.taskId),
+                projectTasks: state.projectTasks.filter(
+                  (t) => t._id !== data.taskId
+                ),
               });
+              return;
             }
 
             if (!state.projectId) return;

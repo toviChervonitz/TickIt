@@ -79,6 +79,20 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
       console.error("Pusher error on status update:", pusherError);
     }
 
+    //check if this work (update status task in projectTask...)
+    try {
+      await pusher.trigger(
+        `private-project-${task.projectId}`,
+        "task-updated",
+        {
+          action: "UPDATE",
+          task,
+        }
+      );
+    } catch (pusherError) {
+      console.error("Pusher error on status update:", pusherError);
+    }
+
     return NextResponse.json({ status: "success", message: "Task status updated successfully", task: updatedTaskPopulated }, { status: 200 });
   } catch (err: any) {
     console.error(err);
