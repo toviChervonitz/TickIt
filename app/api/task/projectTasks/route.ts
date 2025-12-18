@@ -13,7 +13,6 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get("projectId");
     const archive = searchParams.get("archive");
-    const userId = searchParams.get("userId");
 
     if (!projectId) {
       return NextResponse.json(
@@ -43,9 +42,8 @@ export async function GET(req: Request) {
     const isArchived = archive === "true";
 
     if (isArchived ) {
-      console.log("archive",archive);
       
-      tasks = await Task.find({ projectId, userId })
+      tasks = await Task.find({ projectId, userId:currentUser.id })
         .populate("userId", "name")
         .populate("projectId", "name color");
     } else {

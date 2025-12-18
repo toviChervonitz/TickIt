@@ -4,12 +4,10 @@ import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { GoogleGenAI } from "@google/genai";
 
-// Initialize GenAI client
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY || "",
+  apiKey: process.env.NEW_GEMINI || "",
 });
 
-// Helper: extract first JSON block from AI output
 function extractJSON(raw: string): string | null {
   const match = raw.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
   return match ? match[0] : null;
@@ -43,10 +41,10 @@ export async function POST(req: Request) {
 
     const startDate = project.createdAt.toISOString().split("T")[0];
 
-    const model =  "gemini-2.5-flash"; 
+    // const model =  "models/gemini-2.0-flash"; 
 
     const response = await ai.models.generateContent({
-      model,
+      model:"gemini-2.5-flash-lite",//"gemini-2.5-flash",
       contents: [
         {
           text: ` You are a project task generator.
@@ -105,9 +103,7 @@ ${userPrompt}
       return NextResponse.json({ error: "Invalid JSON from AI" }, { status: 500 });
     }
 
-    // ---------------------------
-    // Normalize tasks
-    // ---------------------------
+  
     const normalized = tasks.map((t: any) => ({
       title: t.title || "Untitled Task",
       content: t.content || "",

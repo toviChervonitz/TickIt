@@ -4,7 +4,6 @@ import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Login, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
-import { IUserSafe } from "@/app/models/types";
 import { getTranslation } from "@/app/lib/i18n";
 import {
   Box,
@@ -19,18 +18,11 @@ import {
   Stack,
 } from "@mui/material";
 import Link from "next/link";
-import { signIn } from "next-auth/react";
 import { googleLoginService } from "@/app/lib/server/googleService";
 import GoogleIcon from "@mui/icons-material/Google";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { ROUTES } from "@/app/config/routes";
 
-interface LoginResponse {
-  status: "success" | "error";
-  message?: string;
-  user?: IUserSafe;
-  token?: string;
-}
 
 export default function LoginPage() {
   const t = getTranslation();
@@ -62,7 +54,6 @@ export default function LoginPage() {
     try {
       const result = await Login({ email, password });
       if (result) {
-        console.log("result from login page", result);
       }
       if (result.status === 404) {
         router.push(ROUTES.REGISTER);
@@ -95,9 +86,7 @@ export default function LoginPage() {
     setGoogleLoading(true);
     try {
       const res = await signInWithGoogle();
-      console.log("res user in google sign in", res);
       const idToken = await res.getIdToken();
-      console.log("Firebase ID Token:", idToken);
 
       const userData = {
         email: res.email,
@@ -106,8 +95,7 @@ export default function LoginPage() {
         image: res.photoURL,
       };
       const { ok, status, data } = await googleLoginService(userData, idToken);
-      console.log("status", status);
-      console.log("ok", ok);
+ 
       if (!ok) {
         setGoogleLoading(false);
         if (status === 401) {
@@ -119,20 +107,16 @@ export default function LoginPage() {
         }
         return;
       }
-      console.log("data in google log in", data);
       setUser(data.user);
-      //check if user created just now then send it to createProject page
-      // if(time)
-      const createdAt = new Date(data.user.createdAt); // התאריך שמתקבל מהשרת
-      const now = new Date(); // הזמן הנוכחי
+      
+      const createdAt = new Date(data.user.createdAt); 
+      const now = new Date(); 
 
       const diffMs = now.getTime() - createdAt.getTime();
 
       const diffMinutes = diffMs / 1000 / 60;
-      console.log("diffminutes", diffMinutes);
 
       if (Number(diffMinutes) <= 5) {
-        console.log("in if of minutes");
 
         router.push("/pages/createProject");
       } else router.push(ROUTES.DASHBOARD);

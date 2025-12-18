@@ -3,43 +3,27 @@ import { dbConnect } from "@/app/lib/DB";
 import "@/app/models/ProjectModel";
 import "@/app/models/UserModel";
 import Task from "@/app/models/TaskModel";
-import mongoose from "mongoose";
-import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
+import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 
 export async function GET(req: Request) {
   await dbConnect();
 
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
-    if (!userId) {
-      return NextResponse.json(
-        { status: "error", message: "userId is required" },
-        { status: 400 }
-      );
+
+    const currentUser = await getAuthenticatedUser();
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    const isSameUser = await compareToken(userId);
-
-    if (!isSameUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
-
-    //bring all tasks that not belong to projects in archive
-    // const tasks = await Task.find({ userId })
-    //     .populate("userId", "name")
-    //     .populate("projectId", "name color");
     const archivedLinks = await ProjectUser.find({
-      userId,
+      userId:currentUser.id,
       isArchived: true,
     }).select("projectId");
 
     const archivedProjectIds = archivedLinks.map((l) => l.projectId);
 
-    // ---- שלב 2: מביאים משימות שלא שייכות לפרויקטים אלה ----
     const tasks = await Task.find({
-      userId,
+      userId: currentUser.id,
       projectId: { $nin: archivedProjectIds },
     })
       .populate("userId", "name")

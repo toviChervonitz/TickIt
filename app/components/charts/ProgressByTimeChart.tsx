@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useMemo, useState } from "react";
@@ -37,12 +36,12 @@ interface TaskCompletionChartProps {
 const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
   const theme = useTheme();
   const [range, setRange] = useState<Range>("day");
+  const [total, setTotal] = useState<Range>("day");
   const [selectedProject, setSelectedProject] = useState<string>("all");
   const t = getTranslation();
   const { language } = useAppStore();
   const isRTL = language === "he";
 
-  // ----------------- Helpers -----------------
   const formatDate = (d: Date) => d.toISOString().split("T")[0];
 
   const getWeekStart = (date: Date) => {
@@ -56,7 +55,6 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
     return `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(-2)}-01`;
   };
 
-  // ----------------- Project Names -----------------
   const projectNames = useMemo(() => {
     const names = new Set<string>();
     tasks.forEach((t) => {
@@ -65,11 +63,13 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
     return ["all", ...Array.from(names)];
   }, [tasks]);
 
-  // ----------------- Build Graph Data -----------------
   const groupedData = useMemo(() => {
     const filtered = tasks.filter((t) => {
       if (t.status !== "done" || !t.completedDate) return false;
-      if (selectedProject !== "all" && (t.projectId as any).name !== selectedProject)
+      if (
+        selectedProject !== "all" &&
+        (t.projectId as any).name !== selectedProject
+      )
         return false;
       return true;
     });
@@ -87,91 +87,45 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
       map.set(key, (map.get(key) || 0) + 1);
     });
 
-    let total = 0;
-    return Array.from(map, ([date, count]) => {
-      total += count;
-      return { date, count: total };
-    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+   return Array.from(map.entries())
+    .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+    .reduce<{ date: string; count: number }[]>((acc, [date, count]) => {
+      const prevTotal = acc.length ? acc[acc.length - 1].count : 0;
+      acc.push({ date, count: prevTotal + count });
+      return acc;
+    }, []);
   }, [tasks, range, selectedProject]);
 
-  // ----------------- UI -----------------
   return (
     <Stack spacing={2}>
       <Divider />
 
-      {/* FILTERS */}
       <Stack direction="row" spacing={2} alignItems="center">
-                      <TextField
-                        select
-                        value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-                        size="small"
-                        SelectProps={{
-                          MenuProps: {
-                            PaperProps: { dir: language === "he" ? "rtl" : "ltr" },
-                          },
-                        }}
-                        sx={{
-                          width: { xs: "100%", sm: 160 },
-                          "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                        }}
-                      >
-                         <MenuItem value="all">{t("allProjects")}</MenuItem>
-{projectNames
-  .filter((name) => name !== "all") // exclude "all" here
-  .map((name) => (
-    <MenuItem key={name} value={name}>
-      {name}
-    </MenuItem>
-))}
-
-                      </TextField>
-        
-        {/* <Select
+        <TextField
+          select
           value={selectedProject}
           onChange={(e) => setSelectedProject(e.target.value)}
           size="small"
-          MenuProps={{
-            PaperProps: {
-              sx: {
-                direction: isRTL ? "rtl" : "ltr",
-                "& .MuiMenuItem-root": {
-                  textAlign: isRTL ? "right" : "left",
-                  justifyContent: isRTL ? "flex-end" : "flex-start",
-                },
-              },
+          SelectProps={{
+            MenuProps: {
+              PaperProps: { dir: language === "he" ? "rtl" : "ltr" },
             },
           }}
           sx={{
-            minWidth: 150,
-            background: theme.palette.background.paper,
-            borderRadius: 2,
-            direction: isRTL ? "rtl" : "ltr",
-
-            "& .MuiSelect-select": {
-              textAlign: isRTL ? "right" : "left",
-              paddingInlineStart: "12px",
-              paddingInlineEnd: "12px", // leave arrow on left
-            },
-
-            "& .MuiInputBase-input": {
-              textAlign: isRTL ? "right" : "left",
-            },
+            width: { xs: "100%", sm: 160 },
+            "& .MuiOutlinedInput-root": { borderRadius: 2 },
           }}
         >
-          {projectNames.map((name) => (
-            <MenuItem
-              key={name}
-              value={name}
-              sx={{
-                textAlign: isRTL ? "right" : "left",
-                justifyContent: isRTL ? "flex-end" : "flex-start",
-              }}
-            >
-              {name === "all" ? t("allProjects") : name}
-            </MenuItem>
-          ))}
-        </Select> */}
+          <MenuItem value="all">{t("allProjects")}</MenuItem>
+          {projectNames
+            .filter((name) => name !== "all")
+            .map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+        </TextField>
+
 
         <ToggleButtonGroup
           exclusive
@@ -192,7 +146,6 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
         </ToggleButtonGroup>
       </Stack>
 
-      {/* GRAPH BOX */}
       <Box
         sx={{
           width: "100%",
@@ -205,7 +158,10 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
       >
         <ResponsiveContainer>
           <LineChart data={groupedData}>
-            <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={theme.palette.divider}
+            />
             <XAxis dataKey="date" />
             <YAxis allowDecimals={false} />
             <Tooltip formatter={(value) => [value, t("completedTasks")]} />

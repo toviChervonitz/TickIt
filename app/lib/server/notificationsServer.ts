@@ -1,14 +1,11 @@
-// lib/client/projectUserClient.ts
-// lib/server/taskServer.ts
 import { ITask } from "@/app/models/types";
 
 
 export async function GetRecentAssignedTasks(
-  userId: string,
   days: number = 2
 ): Promise<ITask[]> {
   const res = await fetch(
-    `/api/task/getRecentTasks?userId=${userId}&days=${days}`
+    `/api/task/getRecentTasks?days=${days}`
   );
 
   if (!res.ok) {
@@ -26,7 +23,7 @@ export async function getRecentProjects(): Promise<{ _id: string; name: string }
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // if you’re using cookies for auth
+      credentials: "include", 
     });
 
     if (!res.ok) {

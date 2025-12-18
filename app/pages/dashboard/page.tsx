@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const fetchedTasks: ITask[] = await GetTasksByUserId(user._id);
+        const fetchedTasks: ITask[] = await GetTasksByUserId();
         setTasks(fetchedTasks);
 
         const now = new Date();
@@ -77,10 +77,9 @@ const Dashboard: React.FC = () => {
           return taskDate >= now && taskDate <= sevenDaysLater;
         });
 
-        console.log("Upcoming tasks filtered:", filtered.length, "tasks");
         setUpcomingTasks(filtered);
 
-        const recentTasks = await GetRecentAssignedTasks(user._id.toString(), 2);
+        const recentTasks = await GetRecentAssignedTasks(2);
         setRecentAssignedTasks(recentTasks);
 
         const recentProj = await getRecentProjects();
@@ -113,7 +112,6 @@ const Dashboard: React.FC = () => {
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
       <Container maxWidth="xl">
-        {/* Header */}
         <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box>
             <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
@@ -149,7 +147,6 @@ const Dashboard: React.FC = () => {
           </Button>
         </Box>
 
-        {/* Stats Cards */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <Card
@@ -284,9 +281,7 @@ const Dashboard: React.FC = () => {
           </Grid>
         </Grid>
 
-        {/* Progress Chart & Upcoming Tasks - Side by Side */}
         <Grid container spacing={3}>
-          {/* Progress Chart */}
           <Grid item xs={12} md={6}>
             <Card
               sx={{
@@ -312,7 +307,6 @@ const Dashboard: React.FC = () => {
             </Card>
           </Grid>
 
-          {/* Upcoming Tasks */}
           <Grid item xs={12} md={6}>
             <Card
               sx={{
@@ -449,9 +443,9 @@ const Dashboard: React.FC = () => {
               </Typography>
             </Box>
 
-            <Grid container spacing={3}> {/* Use Grid for side-by-side layout */}
+            <Grid container spacing={3}>
               {recentProjects.length > 0 && (
-                <Grid item xs={12} md={6}> {/* Takes 12 columns on small, 6 on medium and up */}
+                <Grid item xs={12} md={6}> 
                   <Alert
                     severity="info"
                     icon={<FolderIcon />}
@@ -459,7 +453,7 @@ const Dashboard: React.FC = () => {
                       borderRadius: 2,
                       backgroundColor: "background.default",
                       border: "1px solid #1d486a",
-                      height: '100%', // Ensure consistent height for side-by-side
+                      height: '100%', 
                       "& .MuiAlert-icon": {
                         color: "#1d486a",
                       },
@@ -479,7 +473,7 @@ const Dashboard: React.FC = () => {
                 </Grid>
               )}
               {recentAssignedTasks.length > 0 && (
-                <Grid item xs={12} md={6}> {/* Takes 12 columns on small, 6 on medium and up */}
+                <Grid item xs={12} md={6}> 
                   <Alert
                     severity="success"
                     icon={<AssignmentIcon />}
@@ -487,7 +481,7 @@ const Dashboard: React.FC = () => {
                       borderRadius: 2,
                       backgroundColor: "background.default",
                       border: "1px solid #3dd2cc",
-                      height: '100%', // Ensure consistent height for side-by-side
+                      height: '100%',
                       "& .MuiAlert-icon": {
                         color: "#3dd2cc",
                       },

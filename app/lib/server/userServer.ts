@@ -1,4 +1,3 @@
-import { getAuthenticatedUser } from "../jwt";
 
 export async function AddUserToProject(
   projectId: string,
@@ -31,7 +30,6 @@ export async function UpdateUser(
 ) {
   if (!email) throw new Error("User email is required");
 
-  console.log("userId: ", userId);
 
   const res = await fetch("/api/users/user", {
     method: "PUT",
@@ -65,8 +63,8 @@ export async function AddManagerToProject(userId: string, projectId: string) {
     },
     body: JSON.stringify({
       projectId,
-      userId: userId, // send the manager's userId
-      role: "manager", // force role to manager
+      userId: userId, 
+      role: "manager", 
     }),
   });
 
@@ -78,7 +76,6 @@ export async function AddManagerToProject(userId: string, projectId: string) {
   return { status: res.status, ...data };
 }
 
-//get all user in project
 export async function getAllUsersByProjectId(projectId: string | null) {
   try {
 

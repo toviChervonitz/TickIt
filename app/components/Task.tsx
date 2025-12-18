@@ -402,46 +402,43 @@ const Task: React.FC<TaskProps> = ({
           </Typography>
 
           {/* Confirmation Input */}
-          <Box sx={{ mt: 2 }}>
-            <Typography
-              sx={{
-                fontSize: "0.85rem",
-                color: "#374151",
-                mb: 1.5,
-                fontWeight: 500,
-                textAlign: isRTL ? "right" : "left",
-              }}
-            >
-              {isRTL 
-                ? 'הקלד "delete" כדי לאשר מחיקה'
-                : 'Type "delete" to confirm'}
-            </Typography>
-            <TextField
-              fullWidth
-              value={deleteConfirmText}
-              onChange={(e) => setDeleteConfirmText(e.target.value)}
-              placeholder="delete"
-              autoFocus
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: "10px",
-                  backgroundColor: "#f9fafb",
-                  "&:hover fieldset": {
-                    borderColor: "#d1d5db",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#dc2626",
-                    borderWidth: "2px",
-                  },
-                },
-              }}
-              onKeyPress={(e) => {
-                if (e.key === "Enter" && deleteConfirmText.toLowerCase() === "delete") {
-                  handleDeleteConfirm();
-                }
-              }}
-            />
-          </Box>
+         <Box sx={{ mt: 2 }} dir={isRTL ? "rtl" : "ltr"}>
+  <Typography
+    sx={{
+      fontSize: "0.85rem",
+      color: "#374151",
+      mb: 1.5,
+      fontWeight: 500,
+    }}
+  >
+    {t("deleteToConfirm")}
+  </Typography>
+  <TextField
+    fullWidth
+    value={deleteConfirmText}
+    onChange={(e) => setDeleteConfirmText(e.target.value)}
+    placeholder="delete"
+    autoFocus
+    sx={{
+      "& .MuiOutlinedInput-root": {
+        borderRadius: "10px",
+        backgroundColor: "#f9fafb",
+        "&:hover fieldset": { borderColor: "#d1d5db" },
+        "&.Mui-focused fieldset": { borderColor: "#dc2626", borderWidth: "2px" },
+      },
+      "& .MuiInputBase-input": {
+        textAlign: isRTL ? "right" : "left",
+        direction: isRTL ? "rtl" : "ltr",
+      },
+    }}
+    onKeyPress={(e) => {
+      if (e.key === "Enter" && deleteConfirmText.toLowerCase() === "delete") {
+        handleDeleteConfirm();
+      }
+    }}
+  />
+</Box>
+
         </DialogContent>
 
         <DialogActions

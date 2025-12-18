@@ -35,7 +35,7 @@ const EditProject = ({
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const { lang } = { lang: "he" }; // Replace with context if needed
+  const { lang } = { lang: "he" }; 
   const isHebrew = lang === "he";
 
   useEffect(() => setMounted(true), []);
@@ -69,7 +69,6 @@ const EditProject = ({
 
   return (
     <Box sx={{ width: "100%", p: 1 }}>
-      {/* Title */}
       <Typography
         variant="h6"
         sx={{
@@ -83,7 +82,6 @@ const EditProject = ({
 
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={2.5}>
-          {/* Project Name */}
           <TextField
             label={t("title")}
             name="name"
@@ -96,7 +94,6 @@ const EditProject = ({
             }}
           />
 
-          {/* Project Description */}
           <TextField
             label={t("content")}
             name="description"
@@ -111,13 +108,11 @@ const EditProject = ({
             }}
           />
 
-          {/* Buttons */}
 <Stack
   direction="row"
   justifyContent={isHebrew ? "flex-start" : "flex-end"}
   sx={{ direction: isHebrew ? "rtl" : "ltr" }}
 >
-  {/* Save Changes */}
   <Button
     type="submit"
     variant="contained"
@@ -131,14 +126,13 @@ const EditProject = ({
       "&:hover": {
         background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
       },
-      mr: isHebrew ? 0 : 2, // ← margin for spacing
+      mr: isHebrew ? 0 : 2, 
       ml: isHebrew ? 2 : 0,
     }}
   >
     {loading ? <CircularProgress size={22} sx={{ color: "white" }} /> : t("saveChanges")}
   </Button>
 
-  {/* Cancel */}
   <Button
     variant="outlined"
     onClick={onCancel}

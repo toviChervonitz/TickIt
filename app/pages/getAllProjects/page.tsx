@@ -3,12 +3,11 @@
 import {
   GetAllProjectsByUserId,
   openProject,
-  toArchive,
 } from "@/app/lib/server/projectServer";
 import { IProject, IProjectRole } from "@/app/models/types";
 import useAppStore from "@/app/store/useAppStore";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Box,
   Container,
@@ -30,7 +29,6 @@ import AddIcon from "@mui/icons-material/Add";
 import FolderIcon from "@mui/icons-material/Folder";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import CircleIcon from "@mui/icons-material/Circle";
 import EditIcon from "@mui/icons-material/Edit";
 import SearchIcon from "@mui/icons-material/Search";
 import { getTranslation } from "@/app/lib/i18n";
@@ -44,8 +42,15 @@ const LIMIT = 8;
 export default function GetAllProjectsPage() {
   const t = getTranslation();
 
-  const { user, projects, setProjects, setProjectId, setMessages, language, showArchive } =
-    useAppStore();
+  const {
+    user,
+    projects,
+    setProjects,
+    setProjectId,
+    setMessages,
+    language,
+    showArchive,
+  } = useAppStore();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -53,8 +58,6 @@ export default function GetAllProjectsPage() {
   const [editingProject, setEditingProject] = useState<ProjectForm | null>(
     null
   );
-
-  // ==== edit ====
 
   const handleEdit = (p: IProjectRole) => {
     setEditingProject({
@@ -67,17 +70,15 @@ export default function GetAllProjectsPage() {
   const handleSaved = async () => {
     setEditingProject(null);
     if (!user) return;
-    const refreshed = await GetAllProjectsByUserId(user._id!);
+    const refreshed = await GetAllProjectsByUserId();
     setProjects(refreshed.projects || []);
   };
-
-  // ========= Fetch =========
 
   const fetchProjects = async () => {
     if (!user?._id) return;
     setLoading(true);
     try {
-      const response = await GetAllProjectsByUserId(user._id!);
+      const response = await GetAllProjectsByUserId();
       setProjects(response.projects || []);
       if (response.projects.length < LIMIT) setHasMore(false);
     } catch (err) {
@@ -87,11 +88,10 @@ export default function GetAllProjectsPage() {
     }
   };
 
-  //================== single project============
   const getIntoProject = async (project: IProject) => {
     setProjectId(project._id!);
-    setMessages([]); // clear messages when entering a new project
-    const res = await openProject(project._id, user?._id);
+    setMessages([]);
+    await openProject(project._id);
 
     router.push("/pages/projectTask");
   };
@@ -120,7 +120,6 @@ export default function GetAllProjectsPage() {
 
   const projectsToDisplay = filteredProjects;
 
-  console.log("projectsToDisplay", projectsToDisplay);
 
   useEffect(() => {
     fetchProjects();
@@ -129,7 +128,6 @@ export default function GetAllProjectsPage() {
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 5 }}>
       <Container maxWidth="xl">
-        {/* Header */}
         <Box
           sx={{
             mb: 5,
@@ -157,7 +155,6 @@ export default function GetAllProjectsPage() {
               width: { xs: "100%", sm: "auto" },
             }}
           >
-            {/* 2. שדה קלט לחיפוש */}
             <TextField
               variant="outlined"
               placeholder={t("searchProjects")}
@@ -174,7 +171,7 @@ export default function GetAllProjectsPage() {
                 sx: { borderRadius: "10px", backgroundColor: "#f0f2f5" },
               }}
             />
-            <ShowArchive show={showArchive}  />
+            <ShowArchive show={showArchive} />
 
             <Button
               variant="outlined"
@@ -200,7 +197,7 @@ export default function GetAllProjectsPage() {
             </Button>
           </Box>
         </Box>
-        {/* Projects Grid */}
+
         {loading ? (
           <Grid container spacing={3}>
             {[1, 2, 3, 4].map((n) => (
@@ -217,10 +214,8 @@ export default function GetAllProjectsPage() {
           <Grid container spacing={3} alignItems="stretch">
             {projectsToDisplay.map((wrapper: IProjectRole) => {
               const p = wrapper.project;
-              // console.log("p : ", p);
               if (!p) return;
               const dotColor = p.color;
-              // const dotColor = p.color|| "#F7F5F0";
 
               return (
                 <Grid
@@ -234,7 +229,6 @@ export default function GetAllProjectsPage() {
                 >
                   <Card
                     elevation={0}
-                    // onClick={() => getIntoProject(p)}
                     sx={{
                       width: "100%",
                       display: "flex",
@@ -279,8 +273,9 @@ export default function GetAllProjectsPage() {
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <CircleIcon
-                            sx={{ fontSize: 14, color: dotColor || "#F7F5F0" }}
+                          {/* <CircleIcon sx={{ fontSize: 14, color: dotColor || "#F7F5F0" }}/> */}
+                          <FolderIcon
+                            sx={{ fontSize: 18, color: dotColor || "#888" }}
                           />
 
                           {wrapper.role === "manager" && (
@@ -316,7 +311,6 @@ export default function GetAllProjectsPage() {
                         </Box>
                       </Box>
 
-                      {/* Name */}
                       <Typography
                         variant="h6"
                         fontWeight={700}
@@ -329,7 +323,6 @@ export default function GetAllProjectsPage() {
                         {p.name}
                       </Typography>
 
-                      {/* Description */}
                       <Typography
                         variant="body2"
                         color="text.secondary"

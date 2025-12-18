@@ -7,7 +7,6 @@ import {
   DialogTitle,
   DialogContent,
   Typography,
-  Box,
   IconButton,
   Stack,
   Divider,
@@ -63,7 +62,6 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
         },
       }}
     >
-      {/* HEADER */}
       <DialogTitle
         sx={{
           display: "flex",
@@ -92,14 +90,13 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
         }}
       >
         <Stack spacing={3}>
-          {/* Assigned To */}
           <Stack direction={isRtl ? "row-reverse" : "row"}
             spacing={2} alignItems="center">
             <Stack direction={isRtl ? "row-reverse" : "row"}
               spacing={1} alignItems="center" minWidth="120px">
               <PersonOutlineIcon sx={detailIconStyle} color="secondary" />
               <Typography color="text.secondary" fontWeight={600}>
-                {t("assignedTo")}:
+                {t("assignedTo")}
               </Typography>
             </Stack>
             <Typography fontSize={16} fontWeight={500} color="text.primary">
@@ -107,7 +104,6 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
             </Typography>
           </Stack>
 
-          {/* Project */}
           <Stack direction={isRtl ? "row-reverse" : "row"}
             spacing={2} alignItems="center">
             <Stack direction={isRtl ? "row-reverse" : "row"}
@@ -118,14 +114,13 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
                 style={{ color: project?.color || theme.palette.secondary.main }}
               />
               <Typography color="text.secondary" fontWeight={600}>
-                {t("project")}:
+                {t("projectLabel")}
               </Typography>
             </Stack>
             <Typography fontSize={16} fontWeight={500} color="text.primary">
               {project?.name || t("noProject")}
             </Typography>
           </Stack>
-          {/* Status */}
           <Stack direction={isRtl ? "row-reverse" : "row"}
             spacing={2} alignItems="center">
             <Stack direction={isRtl ? "row-reverse" : "row"}
@@ -136,7 +131,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
                 fontWeight={600}
                 letterSpacing={0.3}
               >
-                {t("status")}:
+                {t("statusLabel")}
               </Typography>
             </Stack>
 
@@ -149,7 +144,6 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
               {t(task.status) || "todo"}
             </Typography>
           </Stack>
-          {/* Due Date */}
           {task.dueDate && (
             <Stack direction={isRtl ? "row-reverse" : "row"}
               spacing={2} alignItems="center">
@@ -157,7 +151,7 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
                 spacing={1} alignItems="center" minWidth="120px">
                 <CalendarTodayIcon sx={detailIconStyle} color="secondary" />
                 <Typography color="text.secondary" fontWeight={600}>
-                  {t("dueDate")}:
+                  {t("dateLabel")}
                 </Typography>
               </Stack>
               <Typography fontSize={16} fontWeight={500} color="text.primary">
@@ -166,15 +160,12 @@ const ShowTask: React.FC<ShowTaskProps> = ({ open, onClose, task }) => {
             </Stack>
           )}
 
-          {/* Details */}
           {task.content && (
             <div dir={isRtl ? "rtl" : "ltr"} style={{ textAlign: isRtl ? "right" : "left", marginTop: 24 }}>
-              {/* Details title */}
               <Typography color="text.secondary" fontWeight={700} mb={1}>
                 {t("details")}
               </Typography>
 
-              {/* Details content */}
               <div
                 style={{
                   padding: 20,
