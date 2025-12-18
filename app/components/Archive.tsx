@@ -11,6 +11,7 @@ interface ArchiveProps {
   archived: boolean;
 }
 
+
 export default function Archive({ projectId, archived }: ArchiveProps) {
   const { projects, setProjects, setTasks, tasks } = useAppStore();
   const t = getTranslation()
