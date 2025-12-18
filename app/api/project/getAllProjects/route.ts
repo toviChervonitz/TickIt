@@ -4,7 +4,7 @@ import "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request) {
+export async function GET() {
   await dbConnect();
 
   try {
@@ -21,7 +21,6 @@ export async function GET(req: Request) {
       .select("lastOpenedAt")
       .select("isArchived")
       .sort({ lastOpenedAt: -1 });
-    console.log("projectLink", projectLinks);
 
     const projectsWithRoles = projectLinks.map((link) => ({
       project: link.projectId,

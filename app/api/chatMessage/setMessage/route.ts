@@ -46,8 +46,6 @@ export async function POST(req: Request) {
       : { _id: "unknown", name: "Unknown", image: undefined };
     delete messageObj.userId;
 
-    console.log("✅ Chat Message created:", messageObj);
-    console.log("massage length is: ", messageObj.length);
     
     await pusher.trigger(`private-project-${projectId}`, "chatMessage-updated", {
       action: "ADD",

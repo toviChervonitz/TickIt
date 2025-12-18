@@ -54,7 +54,6 @@ export default function LoginPage() {
     try {
       const result = await Login({ email, password });
       if (result) {
-        console.log("result from login page", result);
       }
       if (result.status === 404) {
         router.push(ROUTES.REGISTER);
@@ -87,9 +86,7 @@ export default function LoginPage() {
     setGoogleLoading(true);
     try {
       const res = await signInWithGoogle();
-      console.log("res user in google sign in", res);
       const idToken = await res.getIdToken();
-      console.log("Firebase ID Token:", idToken);
 
       const userData = {
         email: res.email,
@@ -98,8 +95,7 @@ export default function LoginPage() {
         image: res.photoURL,
       };
       const { ok, status, data } = await googleLoginService(userData, idToken);
-      console.log("status", status);
-      console.log("ok", ok);
+ 
       if (!ok) {
         setGoogleLoading(false);
         if (status === 401) {
@@ -111,7 +107,6 @@ export default function LoginPage() {
         }
         return;
       }
-      console.log("data in google log in", data);
       setUser(data.user);
       
       const createdAt = new Date(data.user.createdAt); 
@@ -120,10 +115,8 @@ export default function LoginPage() {
       const diffMs = now.getTime() - createdAt.getTime();
 
       const diffMinutes = diffMs / 1000 / 60;
-      console.log("diffminutes", diffMinutes);
 
       if (Number(diffMinutes) <= 5) {
-        console.log("in if of minutes");
 
         router.push("/pages/createProject");
       } else router.push(ROUTES.DASHBOARD);

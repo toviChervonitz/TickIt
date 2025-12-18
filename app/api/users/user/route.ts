@@ -21,8 +21,8 @@ export async function PUT(req: Request) {
     }
 
 
-    const userComper = await compareToken(userId)
-    if (!userComper) {
+    const userCompere = await compareToken(userId)
+    if (!userCompere) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 

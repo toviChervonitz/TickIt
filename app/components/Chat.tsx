@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -35,7 +34,6 @@ export default function Chat() {
 
   const isRTL = language === "he";
 
-  /* ---------- INITIAL LOAD ---------- */
   useEffect(() => {
     if (!projectId || hasLoadedInitialRef.current) return;
 
@@ -67,7 +65,6 @@ export default function Chat() {
     })();
   }, [projectId, setMessages]);
 
-  /* ---------- PAGINATION ---------- */
   const handleScroll = useCallback(async () => {
     const c = containerRef.current;
     if (!c || isFetchingRef.current || c.scrollTop > 40) return;
@@ -104,7 +101,6 @@ export default function Chat() {
     return () => c.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
-  /* ---------- PUSHER ---------- */
   useEffect(() => {
     if (!projectId || !user) return;
 
@@ -127,8 +123,7 @@ export default function Chat() {
 
       const c = containerRef.current;
       const nearBottom =
-        c &&
-        c.scrollHeight - c.scrollTop - c.clientHeight < 120;
+        c && c.scrollHeight - c.scrollTop - c.clientHeight < 120;
 
       const current = useAppStore.getState().messages;
       setMessages([...current, incoming]);
@@ -147,7 +142,6 @@ export default function Chat() {
     };
   }, [projectId, user, setMessages]);
 
-  /* ---------- SEND ---------- */
   const handleSend = async () => {
     if (!newMessage.trim() || !user || !projectId) return;
 
@@ -212,27 +206,32 @@ export default function Chat() {
         })}
       </Box>
 
-      <Box display="flex" p={1} gap={1} borderTop={`1px solid ${CHAT_COLORS.inputBorder}`}>
-<TextField
-  fullWidth
-  placeholder={t("typeMessage")}
-  value={newMessage}
-  onChange={(e) => setNewMessage(e.target.value)}
-  onKeyDown={(e) => e.key === "Enter" && handleSend()}
-  disabled={loadingSend}
-  size="small"
-  inputProps={{
-    style: {
-      textAlign: isRTL ? "right" : "left",
-      direction: isRTL ? "rtl" : "ltr",
-    },
-  }}
-  sx={{
-    "& .MuiOutlinedInput-root": {
-      direction: isRTL ? "rtl" : "ltr",
-    },
-  }}
-/>
+      <Box
+        display="flex"
+        p={1}
+        gap={1}
+        borderTop={`1px solid ${CHAT_COLORS.inputBorder}`}
+      >
+        <TextField
+          fullWidth
+          placeholder={t("typeMessage")}
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+          disabled={loadingSend}
+          size="small"
+          inputProps={{
+            style: {
+              textAlign: isRTL ? "right" : "left",
+              direction: isRTL ? "rtl" : "ltr",
+            },
+          }}
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              direction: isRTL ? "rtl" : "ltr",
+            },
+          }}
+        />
         <Button
           variant="contained"
           onClick={handleSend}

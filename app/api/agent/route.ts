@@ -41,10 +41,10 @@ export async function POST(req: Request) {
 
     const startDate = project.createdAt.toISOString().split("T")[0];
 
-    const model =  "models/gemini-2.0-flash"; 
+    // const model =  "models/gemini-2.0-flash"; 
 
     const response = await ai.models.generateContent({
-      model,
+      model:"gemini-2.5-flash-lite",//"gemini-2.5-flash",
       contents: [
         {
           text: ` You are a project task generator.

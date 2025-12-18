@@ -8,14 +8,12 @@ export default function RealtimeLoader() {
 
     useEffect(() => {
         if (user?._id) {
-            console.log("Realtime connection started.");
             initializeRealtime(user._id);
         }
     }, [user, initializeRealtime]);
 
     useEffect(() => {
         if (projectId) {
-            console.log("Subscribing to current project updates:", projectId);
             subscribeToProjectUpdates(projectId);
         }
 

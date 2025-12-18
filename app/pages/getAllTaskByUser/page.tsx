@@ -51,7 +51,7 @@ export default function UserTasks() {
       if (!user?._id) return;
 
       try {
-        const data = await GetTasksByUserId(user._id);
+        const data = await GetTasksByUserId();
         setTasks(data);
       } catch (err: any) {
         console.error(err);

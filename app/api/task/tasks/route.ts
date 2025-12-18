@@ -10,28 +10,20 @@ export async function GET(req: Request) {
   await dbConnect();
 
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
-    if (!userId) {
-      return NextResponse.json(
-        { status: "error", message: "userId is required" },
-        { status: 400 }
-      );
-    }
 
     const currentUser = await getAuthenticatedUser();
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const archivedLinks = await ProjectUser.find({
-      userId,
+      userId:currentUser.id,
       isArchived: true,
     }).select("projectId");
 
     const archivedProjectIds = archivedLinks.map((l) => l.projectId);
 
     const tasks = await Task.find({
-      userId,
+      userId: currentUser.id,
       projectId: { $nin: archivedProjectIds },
     })
       .populate("userId", "name")
