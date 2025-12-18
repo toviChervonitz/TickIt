@@ -37,7 +37,7 @@ export const registerSchema = Joi.object({
         "string.pattern.base":
           "Password must be at least 6 characters long and include an letter and a number.",
       }),
-      otherwise: Joi.forbidden(), 
+      otherwise: Joi.forbidden(), // disallow password for google users
     }),
 
   image: Joi.string().uri().optional().allow(""),

@@ -25,6 +25,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Cleanup reset code
     await ResetCode.deleteOne({ email });
 
     return NextResponse.json({ success: true });

@@ -1,3 +1,5 @@
+// app/api/pusher/auth/route.ts
+
 import { NextResponse } from 'next/server';
 import Pusher from 'pusher'; 
 

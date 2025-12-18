@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from "react";
@@ -8,7 +7,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import { IconButton, Box, Typography, Tooltip } from "@mui/material";
 import { getTranslation } from "../lib/i18n";
 import useAppStore from "../store/useAppStore";
-
 export default function ChatFloating() {
   const [open, setOpen] = useState(false);
   const t = getTranslation();
@@ -16,6 +14,7 @@ export default function ChatFloating() {
 
   return (
     <>
+      {/* Floating Icon */}
       {!open && (
         <Tooltip title={t("openChat")} arrow>
           <IconButton
@@ -32,7 +31,10 @@ export default function ChatFloating() {
               borderRadius: "50%",
               boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
               zIndex: 1000,
-              "& .MuiSvgIcon-root": { fontSize: 36, transform: language === "he" ? "scaleX(-1)" : "none" },
+              "& .MuiSvgIcon-root": {
+                fontSize: 36,
+                transform: language === "he" ? "scaleX(-1)" : "none", // flip for Hebrew
+              },
             }}
           >
             <ChatIcon />
@@ -40,6 +42,7 @@ export default function ChatFloating() {
         </Tooltip>
       )}
 
+      {/* Chat Popup */}
       {open && (
         <Box
           sx={{
@@ -57,6 +60,7 @@ export default function ChatFloating() {
             zIndex: 1000,
           }}
         >
+          {/* Header */}
           <Box
             sx={{
               p: 2,
@@ -67,17 +71,28 @@ export default function ChatFloating() {
               justifyContent: "space-between",
             }}
           >
-            <Typography sx={{ fontSize: "1.1rem", fontWeight: 600, ml: 1, direction: language === "he" ? "rtl" : "ltr" }}>
+            <Typography
+              sx={{
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                ml: 1,
+                direction: language === "he" ? "rtl" : "ltr",
+              }}
+            >
               {t("projectChat")}
             </Typography>
-            <IconButton onClick={() => setOpen(false)} sx={{ color: "#fff" }} size="small">
+            <IconButton
+              onClick={() => setOpen(false)}
+              sx={{ color: "#fff" }}
+              size="small"
+            >
               <CloseIcon fontSize="small" />
             </IconButton>
           </Box>
 
+          {/* Chat Content */}
           <Box sx={{ flex: 1, overflow: "hidden" }}>
-<Chat
-/>
+            <Chat />
           </Box>
         </Box>
       )}

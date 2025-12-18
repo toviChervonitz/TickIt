@@ -1,12 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import {
-  Calendar,
-  dateFnsLocalizer,
-  Event as RBCEvent,
-  View,
-} from "react-big-calendar";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Calendar, dateFnsLocalizer, Event as RBCEvent, View } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS, he } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -15,8 +10,19 @@ import { Types } from "mongoose";
 import { ITask, IProject } from "@/app/models/types";
 import { getTranslation } from "@/app/lib/i18n";
 import ShowTask from "@/app/components/ShowTask";
-import { Box, Typography, Paper, useTheme, alpha } from "@mui/material";
-import { GetTasksByUserId } from "@/app/lib/server/taskServer";
+import {
+  Box,
+  Typography,
+  Chip,
+  Paper,
+  Stack,
+  Slide,
+  useTheme,
+  alpha,
+} from "@mui/material";
+import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
+import { TransitionProps } from "@mui/material/transitions";
+
 
 function getProjectKey(projectId?: Types.ObjectId | IProject | string): string {
   if (!projectId) return "Default";
@@ -26,9 +32,7 @@ function getProjectKey(projectId?: Types.ObjectId | IProject | string): string {
   return "Default";
 }
 
-function getProjectName(
-  projectId?: Types.ObjectId | IProject | string
-): string {
+function getProjectName(projectId?: Types.ObjectId | IProject | string): string {
   if (!projectId) return "Default";
   if (typeof projectId === "string") return "Default";
   if (projectId instanceof Types.ObjectId) return "Default";
@@ -36,15 +40,14 @@ function getProjectName(
   return "Default";
 }
 
-function getProjectColor(
-  projectId?: Types.ObjectId | IProject | string
-): string {
+function getProjectColor(projectId?: Types.ObjectId | IProject | string): string {
   if (!projectId) return "#888";
   if (typeof projectId !== "string" && !(projectId instanceof Types.ObjectId)) {
     return (projectId as any).color || "#888";
   }
   return "#888";
 }
+
 
 export default function CalendarPage() {
   const t = getTranslation();
@@ -78,7 +81,8 @@ export default function CalendarPage() {
 
       if (!tasks || tasks.length === 0) {
         try {
-          const fetchedTasks = await GetTasksByUserId();
+          const { GetTasksByUserId } = await import("@/app/lib/server/taskServer");
+          const fetchedTasks = await GetTasksByUserId(user._id);
           if (isMounted) setTasks(fetchedTasks);
         } catch (err) {
           console.error("Failed to fetch tasks:", err);
@@ -150,7 +154,9 @@ export default function CalendarPage() {
         justifyContent="center"
         minHeight="100vh"
       >
-        <Typography color="text.secondary">{t("loadingTasks")}</Typography>
+        <Typography color="text.secondary">
+          {t("loadingTasks")}
+        </Typography>
       </Box>
     );
   }
@@ -163,7 +169,9 @@ export default function CalendarPage() {
         justifyContent="center"
         minHeight="100vh"
       >
-        <Typography color="text.secondary">{t("loadingUser")}</Typography>
+        <Typography color="text.secondary">
+          {t("loadingUser")}
+        </Typography>
       </Box>
     );
   }
@@ -255,9 +263,7 @@ export default function CalendarPage() {
         }
 
         .rbc-day-bg + .rbc-day-bg {
-          border-${language === "he" ? "right" : "left"}: 1px solid ${
-        theme.palette.divider
-      };
+          border-${language === "he" ? "right" : "left"}: 1px solid ${theme.palette.divider};
         }
         /* Fix toolbar button rounding for RTL */
 :global([dir='rtl'] .rbc-toolbar button) {
@@ -280,6 +286,8 @@ export default function CalendarPage() {
         dir={language === "he" ? "rtl" : "ltr"}
         sx={{ p: 3, maxWidth: 1400, mx: "auto" }}
       >
+
+        {/* Calendar */}
         <Paper
           elevation={3}
           sx={{

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -51,11 +52,11 @@ export default function Navbar() {
   const pathname = usePathname();
   const t = getTranslation();
 
+  const [hydrated, setHydrated] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-
-  const hydrated = useAppStore.persist?.hasHydrated?.();
+  useEffect(() => setHydrated(true), []);
 
   if (!hydrated || !pathname) return null;
   if (hiddenRoutes.includes(pathname)) return null;
@@ -85,24 +86,15 @@ export default function Navbar() {
 
   const menuItems = [
     { text: t("dashboard"), icon: <HomeIcon />, path: "/pages/dashboard" },
-    {
-      text: t("projects"),
-      icon: <FolderIcon />,
-      path: "/pages/getAllProjects",
-    },
-    {
-      text: t("tasks"),
-      icon: <AssignmentIcon />,
-      path: "/pages/getAllTaskByUser",
-    },
-    {
-      text: t("calendar"),
-      icon: <CalendarTodayIcon />,
-      path: "/pages/calendar",
-    },
+    { text: t("projects"), icon: <FolderIcon />, path: "/pages/getAllProjects" },
+    { text: t("tasks"), icon: <AssignmentIcon />, path: "/pages/getAllTaskByUser" },
+    { text: t("calendar"), icon: <CalendarTodayIcon />, path: "/pages/calendar" },
     { text: t("charts"), icon: <InsertChartIcon />, path: "/pages/charts" },
   ];
 
+  // ================================
+  //        FIXED TOP BAR HERE
+  // ================================
   const drawerContent = (
     <Box
       sx={{
@@ -114,6 +106,7 @@ export default function Navbar() {
         backgroundColor: "background.default",
       }}
     >
+      {/* TOP BAR */}
       <Box
         sx={{
           display: "flex",
@@ -123,6 +116,7 @@ export default function Navbar() {
           borderBottom: "1px solid #e8eaed",
         }}
       >
+        {/* LOGO */}
         {!collapsed && (
           <Box
             component="img"
@@ -132,6 +126,7 @@ export default function Navbar() {
           />
         )}
 
+        {/* COLLAPSE BUTTON */}
         <IconButton
           size="small"
           onClick={handleCollapseToggle}
@@ -140,20 +135,20 @@ export default function Navbar() {
             "&:hover": { backgroundColor: "rgba(0,0,0,0.08)" },
           }}
         >
-          {collapsed ? (
-            language === "he" ? (
-              <ChevronLeftIcon />
-            ) : (
-              <ChevronRightIcon />
-            )
-          ) : language === "he" ? (
-            <ChevronRightIcon />
-          ) : (
-            <ChevronLeftIcon />
-          )}
+          {collapsed
+            ? language === "he"
+              ? <ChevronLeftIcon />
+              : <ChevronRightIcon />
+            : language === "he"
+              ? <ChevronRightIcon />
+              : <ChevronLeftIcon />}
         </IconButton>
       </Box>
 
+
+
+
+      {/* MENU ITEMS */}
       <List sx={{ flex: 1, px: 1, py: 2 }}>
         {menuItems.map((item) => {
           const isActive =
@@ -177,9 +172,7 @@ export default function Navbar() {
                     px: collapsed ? 0 : 2,
                     mb: 0.5,
                     justifyContent: collapsed ? "center" : "flex-start",
-                    backgroundColor: isActive
-                      ? "rgba(61,210,204,0.12)"
-                      : "transparent",
+                    backgroundColor: isActive ? "rgba(61,210,204,0.12)" : "transparent",
                     "&:hover": {
                       backgroundColor: isActive
                         ? "rgba(61,210,204,0.18)"
@@ -217,14 +210,17 @@ export default function Navbar() {
 
       <Divider sx={{ borderColor: "#e8eaed" }} />
 
+      {/* USER + LOGOUT */}
       {user && (
-        <Box sx={{ p: collapsed ? 0 : 2 }}>
+        < Box sx={{ p: collapsed ? 0 : 2 }}>
+
           <Stack
             direction="row"
             spacing={1.5}
             alignItems="center"
             justifyContent={collapsed ? "center" : "space-between"}
           >
+            {/* LEFT SIDE — PROFILE (CLICKABLE) */}
             <Stack
               direction="row"
               spacing={1.5}
@@ -233,9 +229,7 @@ export default function Navbar() {
                 p: collapsed ? 0 : 1.5,
                 borderRadius: 1.5,
                 cursor: collapsed ? "default" : "pointer",
-                "&:hover": !collapsed
-                  ? { backgroundColor: "rgba(0,0,0,0.04)" }
-                  : {},
+                "&:hover": !collapsed ? { backgroundColor: "rgba(0,0,0,0.04)" } : {},
               }}
               onClick={!collapsed ? handleProfile : undefined}
             >
@@ -257,38 +251,31 @@ export default function Navbar() {
 
               {!collapsed && (
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography
-                    variant="body2"
-                    fontWeight={600}
-                    color="text.secondary"
-                    noWrap
-                  >
+                  <Typography variant="body2" fontWeight={600} color="text.secondary" noWrap>
                     {user.name}
                   </Typography>
-                  <Typography
-                    variant="caption"
-                    sx={{ color: "text.secondary" }}
-                    noWrap
-                  >
+                  <Typography variant="caption" sx={{ color: "text.secondary" }} noWrap>
                     {t("viewProfile")}
                   </Typography>
                 </Box>
               )}
             </Stack>
 
+            {/* RIGHT SIDE — LANGUAGE (NOT CLICKING PROFILE) */}
             {!collapsed && (
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
                 }}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()} // ← מונע פתיחת פרופיל
               >
                 <LanguageSwitcher />
               </Box>
             )}
           </Stack>
 
+          {/* LOGOUT BUTTON */}
           <Tooltip title={collapsed ? t("logout") : ""} placement="right">
             <ListItemButton
               onClick={handleLogout}
@@ -301,13 +288,7 @@ export default function Navbar() {
                 "&:hover": { backgroundColor: "rgba(244,67,54,0.08)" },
               }}
             >
-              <ListItemIcon
-                sx={{
-                  color: "#d93025",
-                  minWidth: 36,
-                  justifyContent: "center",
-                }}
-              >
+              <ListItemIcon sx={{ color: "#d93025", minWidth: 36, justifyContent: "center" }}>
                 <LogoutIcon fontSize="small" />
               </ListItemIcon>
 
@@ -324,8 +305,9 @@ export default function Navbar() {
             </ListItemButton>
           </Tooltip>
         </Box>
-      )}
-    </Box>
+      )
+      }
+    </Box >
   );
 
   return (
@@ -346,6 +328,7 @@ export default function Navbar() {
         {mobileOpen ? <CloseIcon /> : <MenuIcon />}
       </IconButton>
 
+      {/* MOBILE DRAWER */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -363,6 +346,7 @@ export default function Navbar() {
         {drawerContent}
       </Drawer>
 
+      {/* DESKTOP DRAWER */}
       <Drawer
         variant="permanent"
         sx={{

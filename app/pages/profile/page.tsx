@@ -14,13 +14,17 @@ import {
   Card,
   Alert,
   Stack,
+  Avatar,
+  IconButton,
   Divider,
   GridLegacy as Grid,
 } from "@mui/material";
+import CameraAltIcon from "@mui/icons-material/CameraAlt";
 import PersonIcon from "@mui/icons-material/Person";
 import LockIcon from "@mui/icons-material/Lock";
 import SaveIcon from "@mui/icons-material/Save";
 import { getTranslation } from "@/app/lib/i18n";
+import { Dialog } from "@mui/material"; // add this import at the top
 import { ROUTES } from "@/app/config/routes";
 
 
@@ -46,6 +50,16 @@ export default function ProfilePage() {
     setImage(user.image || "");
   }, [user]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -107,6 +121,7 @@ export default function ProfilePage() {
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
       <Container maxWidth="md">
+        {/* Header */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h4" fontWeight={800} color="primary.main" mb={1}>
             {t("profileSettings")}
@@ -124,6 +139,7 @@ export default function ProfilePage() {
             boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
           }}
         >
+          {/* Error Alert */}
           {error && (
             <Alert
               severity="error"
@@ -135,10 +151,12 @@ export default function ProfilePage() {
           )}
 
           <Box component="form" onSubmit={handleSubmit}>
+            {/* Profile Image Section */}
             <ImageUpload onUpload={setImage} image={user?.image} />
 
             <Divider sx={{ my: 4 }} />
 
+            {/* Personal Information Section */}
             <Box sx={{ mb: 4 }}>
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}
@@ -201,6 +219,7 @@ export default function ProfilePage() {
 
             <Divider sx={{ my: 4 }} />
 
+            {/* Change Password Section */}
             <Box sx={{ mb: 4 }}>
               <Box
                 sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}
@@ -268,6 +287,7 @@ export default function ProfilePage() {
               </Stack>
             </Box>
 
+            {/* Submit Button */}
             <Box
               sx={{
                 display: "flex",

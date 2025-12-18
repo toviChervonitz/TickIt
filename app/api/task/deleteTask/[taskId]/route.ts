@@ -70,6 +70,7 @@ export async function DELETE(
           taskId: taskId 
         }
       );
+      console.log(`Pusher trigger sent to assignee ${assigneeIdToDelete} for task deletion.`);
     } catch (pusherError) {
       console.error("Pusher error on task deletion:", pusherError);
     }

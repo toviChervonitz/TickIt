@@ -4,7 +4,6 @@ import UnarchiveIcon from "@mui/icons-material/Unarchive";
 import { toArchive } from "../lib/server/projectServer";
 import { GetTasksByProjectId } from "../lib/server/taskServer";
 import useAppStore from "../store/useAppStore";
-import { getTranslation } from "../lib/i18n";
 
 interface ArchiveProps {
   projectId: string | undefined;
@@ -17,7 +16,7 @@ export default function Archive({ projectId, archived }: ArchiveProps) {
   const t = getTranslation()
 
   async function archive(isArchive: boolean) {
-    const res = await toArchive(projectId, isArchive);
+    const res = await toArchive(projectId, userId, isArchive);
     if (res.ok) {
 
       setProjects(
@@ -32,13 +31,14 @@ export default function Archive({ projectId, archived }: ArchiveProps) {
         setTasks([...tasks, ...res]);
       }
 
-
+      console.log("return from archive-------------", res);
+      console.log("state", archived);
     }
   }
 
   return (
     <Tooltip
-      title={archived ? t("restore") : t("archive")}
+      title={archived ? "Restore project" : "Archive project"}
       placement="top"
       arrow
     >

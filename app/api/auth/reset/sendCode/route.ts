@@ -9,21 +9,26 @@ export async function POST(req: Request) {
   try {
     const { email } = await req.json();
 
+    // Check user exists
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
+    // Generate 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
+    // Expiration timestamp (10 min)
     const expiresAt = Date.now() + 10 * 60 * 1000;
 
+    // Save or update code in DB
     await ResetCode.findOneAndUpdate(
       { email },
       { code, expiresAt },
       { upsert: true }
     );
 
+    // Send code by email
     await sendResetCodeEmail(email, code);
 
     return NextResponse.json({ success: true });

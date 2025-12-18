@@ -24,6 +24,7 @@ export async function GET(req: Request) {
     }
 
     const userId = currentUser.id;
+    // const userId = searchParams.get("userId");
 
     const projectUser = await ProjectUser.findOne({ userId, projectId });
 
