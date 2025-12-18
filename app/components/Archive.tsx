@@ -49,9 +49,11 @@ export default function Archive({ projectId, userId, archived }: ArchiveProps) {
   async function archive(isArchive: boolean) {
     const res = await toArchive(projectId, userId, isArchive);
     if (res.ok) {
+      console.log("project ", projects);
+      
       setProjects(
         projects.map((p) =>
-          p.project._id === projectId ? { ...p, isArchived: isArchive } : p
+          p?.project?._id === projectId ? { ...p, isArchived: isArchive } : p
         )
       );
       if (isArchive) {
