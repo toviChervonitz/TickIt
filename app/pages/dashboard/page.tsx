@@ -469,11 +469,14 @@ const Dashboard: React.FC = () => {
                       {t("projectUpdates")}
                     </Typography>
                     <List dense>
-                      {recentProjects.map((p) => (
-                        <ListItem key={p._id} sx={{ py: 0 }}>
-                          <ListItemText primary={`• ${p.name}`} />
-                        </ListItem>
-                      ))}
+                      {recentProjects.map((p) => {
+                        if (!p) return null;
+                        return (
+                          <ListItem key={p._id} sx={{ py: 0 }}>
+                            <ListItemText primary={`• ${p.name}`} />
+                          </ListItem>
+                        )
+                      })}
                     </List>
                   </Alert>
                 </Grid>
