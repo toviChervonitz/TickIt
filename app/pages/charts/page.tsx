@@ -10,6 +10,7 @@ import TaskStatusChart from "@/app/components/charts/progressChart";
 import TasksByProjectBarChart from "@/app/components/charts/tasksByProject";
 import CompletedTasksLineChart from "@/app/components/charts/ProgressByTimeChart";
 import { getTranslation } from "@/app/lib/i18n";
+import { GetTasksByUserId } from "@/app/lib/server/taskServer";
 
 export default function Charts() {
   const { user, tasks, setTasks } = useAppStore();
@@ -27,10 +28,7 @@ export default function Charts() {
 
       if (!tasks || tasks.length === 0) {
         try {
-          const { GetTasksByUserId } = await import("@/app/lib/server/taskServer");
-          console.log("Fetching tasks for user:", user._id);
-          const fetchedTasks = await GetTasksByUserId(user._id);
-          console.log("Fetched tasks:", fetchedTasks);
+          const fetchedTasks = await GetTasksByUserId();
           if (isMounted) setTasks(fetchedTasks);
         } catch (err) {
           console.error("Failed to fetch tasks:", err);

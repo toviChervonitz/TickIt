@@ -17,8 +17,6 @@ import {
   Box,
   Paper,
   CircularProgress,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
 
 export interface TaskFormData {
@@ -44,8 +42,6 @@ export default function TaskForm({
 }: TaskFormProps) {
   const { projectUsers, language } = useAppStore();
   const t = getTranslation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [loading, setLoading] = useState(false);
 

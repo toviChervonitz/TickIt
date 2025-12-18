@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Task from "@/app/components/Task";
 import EditTask, { TaskForm as EditTaskForm } from "@/app/components/editTask";
@@ -97,18 +97,15 @@ export default function GetProjectTasks() {
     const loadProjectData = async () => {
       setLoading(true);
       try {
-        const isArchive = await getIsArchived(projectId, user._id);
-        console.log("isArchive:", isArchive);
-        const role = await getUserRoleInProject(user._id, projectId);
+        const isArchive = await getIsArchived(projectId);
+        const role = await getUserRoleInProject( projectId);
         setIsManager(role === "manager");
-        console.log(role);
 
         let users = [];
         let data: ITask[] = [];
         if (role === "manager" || isArchive) {
-          console.log("123456789");
 
-          data = await GetTasksByProjectId(user._id, projectId, isArchive);
+          data = await GetTasksByProjectId( projectId, isArchive);
           if (role === "manager") {
             const res = await getAllUsersByProjectId(projectId);
             users = res.users || [];
@@ -116,7 +113,7 @@ export default function GetProjectTasks() {
         } else {
           if (tasks.length == 0) {
             try {
-              const data = await GetTasksByUserId(user._id);
+              const data = await GetTasksByUserId();
               setTasks(data);
             } catch (err: any) {
               console.error(err);
@@ -190,8 +187,6 @@ export default function GetProjectTasks() {
     if (isNaN(completed)) return false;
     const now = Date.now();
     const diff = now - completed;
-    console.log("diff", diff);
-    console.log("tasks in is old?", task);
 
     return diff > TEN_DAYS;
     //return diff > 2 * 60 * 1000; // 2 minutes for testing
@@ -229,7 +224,7 @@ export default function GetProjectTasks() {
   const handleEdit = async (taskId: string) => {
     if (!isManager) return;
     const t = projectTasks.find((t) => t._id?.toString() === taskId);
-    if (!t?._id) return console.log("Task not found");
+    if (!t?._id) return 
 
     const users = await fetchProjectUsers();
     setEditingTask({
@@ -258,7 +253,7 @@ export default function GetProjectTasks() {
     setEditingTask(null);
     if (!user || !projectId) return;
 
-    const updated = await GetTasksByProjectId(user._id, projectId);
+    const updated = await GetTasksByProjectId(projectId);
     setTasks(updated);
     setProjectTasks(updated);
   };

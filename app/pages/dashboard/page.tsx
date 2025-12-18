@@ -60,7 +60,7 @@ const Dashboard: React.FC = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const fetchedTasks: ITask[] = await GetTasksByUserId(user._id);
+        const fetchedTasks: ITask[] = await GetTasksByUserId();
         setTasks(fetchedTasks);
 
         const now = new Date();
@@ -77,10 +77,9 @@ const Dashboard: React.FC = () => {
           return taskDate >= now && taskDate <= sevenDaysLater;
         });
 
-        console.log("Upcoming tasks filtered:", filtered.length, "tasks");
         setUpcomingTasks(filtered);
 
-        const recentTasks = await GetRecentAssignedTasks(user._id.toString(), 2);
+        const recentTasks = await GetRecentAssignedTasks(2);
         setRecentAssignedTasks(recentTasks);
 
         const recentProj = await getRecentProjects();

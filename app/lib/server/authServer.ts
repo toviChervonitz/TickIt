@@ -30,9 +30,7 @@ export async function Login(form: any) {
     body: JSON.stringify(form),
   });
   const data = await res.json();
-  console.log("data",data);
-  console.log("res",res);
-  
+
 
   if (res.status >= 500) {
     throw new Error(data.message || "Server error");
@@ -53,7 +51,6 @@ import { auth, provider } from "../firebase";
 export async function signInWithGoogle() {
   try {
     const result = await signInWithPopup(auth, provider);
-    console.log("result of google connect", result);
     const user = result.user;
     return user;
   } catch (error) {

@@ -24,11 +24,9 @@ export async function GET() {
       const user = task.userId as IUser | null;
       if (!user?.email) continue;
 
-      console.log(`Sent reminder for task "${task.title}" to ${user.email}`);
       sentCount++;
     }
 
-    console.log(`Total reminders sent: ${sentCount}`);
     return NextResponse.json({ status: "success", sentCount });
   } catch (err: any) {
     console.error("SendReminders Error:", err);

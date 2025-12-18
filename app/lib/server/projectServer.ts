@@ -23,10 +23,10 @@ export async function CreateProject(form: any) {
   return { status: res.status, ...data };
 }
 export async function GetAllProjectsByUserId(
-  userId: string | null | undefined
+  // userId: string | null | undefined
 ) {
   try {
-    const res = await fetch(`/api/project/getAllProjects?userId=${userId}`, {
+    const res = await fetch(`/api/project/getAllProjects`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -46,12 +46,12 @@ export async function GetAllProjectsByUserId(
 }
 
 export async function getUserRoleInProject(
-  userId: string | undefined,
+  // userId: string | undefined,
   projectId: string | null
 ) {
   try {
     const res = await fetch(
-      `/api/projectUser/getUserRoleInProject?userId=${userId}&projectId=${projectId}`,
+      `/api/projectUser/getUserRoleInProject?projectId=${projectId}`,
       {
         method: "GET",
         headers: {
@@ -93,12 +93,12 @@ export async function UpdateProject(
 }
 export async function openProject(
   projectId: string | undefined,
-  userId: string | undefined
+  // userId: string | undefined
 ) {
   const res = await fetch("/api/projectUser/usageUpdate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, projectId }),
+    body: JSON.stringify({ projectId }),
   });
   if (!res.ok) {
     throw new Error("Project update last open failed");
@@ -107,13 +107,13 @@ export async function openProject(
 }
 export async function toArchive(
   projectId: string | undefined,
-  userId: string | undefined,
+  // userId: string | undefined,
   isArchive: boolean
 ) {
   const res = await fetch("/api/projectUser/archive", {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, projectId, isArchive }),
+    body: JSON.stringify({ projectId, isArchive }),
   });
   if (!res.ok) {
     throw new Error("Project update last open failed");
@@ -123,11 +123,11 @@ export async function toArchive(
 
 export async function getIsArchived(
   projectId: string | undefined,  
-  userId: string | undefined
+  // userId: string | undefined
 ) {
   try {
     const res = await fetch(
-      `/api/projectUser/getIsArchived?userId=${userId}&projectId=${projectId}`,
+      `/api/projectUser/getIsArchived?projectId=${projectId}`,
       {
         method: "GET",
         headers: {

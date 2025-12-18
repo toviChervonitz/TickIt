@@ -30,7 +30,6 @@ export async function UpdateUser(
 ) {
   if (!email) throw new Error("User email is required");
 
-  console.log("userId: ", userId);
 
   const res = await fetch("/api/users/user", {
     method: "PUT",

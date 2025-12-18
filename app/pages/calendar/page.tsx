@@ -16,6 +16,7 @@ import { ITask, IProject } from "@/app/models/types";
 import { getTranslation } from "@/app/lib/i18n";
 import ShowTask from "@/app/components/ShowTask";
 import { Box, Typography, Paper, useTheme, alpha } from "@mui/material";
+import { GetTasksByUserId } from "@/app/lib/server/taskServer";
 
 function getProjectKey(projectId?: Types.ObjectId | IProject | string): string {
   if (!projectId) return "Default";
@@ -77,10 +78,7 @@ export default function CalendarPage() {
 
       if (!tasks || tasks.length === 0) {
         try {
-          const { GetTasksByUserId } = await import(
-            "@/app/lib/server/taskServer"
-          );
-          const fetchedTasks = await GetTasksByUserId(user._id);
+          const fetchedTasks = await GetTasksByUserId();
           if (isMounted) setTasks(fetchedTasks);
         } catch (err) {
           console.error("Failed to fetch tasks:", err);

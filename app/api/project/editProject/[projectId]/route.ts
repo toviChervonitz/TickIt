@@ -89,7 +89,6 @@ export async function PUT(
                 project: updatedProjectObject
             }
         );
-        console.log(`Pusher trigger sent to project ${projectId} for update.`);
     } catch (pusherError) {
         console.error("Pusher error on project update:", pusherError);
     }
