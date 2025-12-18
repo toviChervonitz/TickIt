@@ -272,17 +272,13 @@ export default function GetAllProjectsPage() {
                           }}
                         >
                           <FolderIcon
-                            sx={{ color: MAIN_COLOR, fontSize: 28 }}
+                            sx={{ color: dotColor, fontSize: 28 }}
                           />
                         </Box>
 
                         <Box
                           sx={{ display: "flex", alignItems: "center", gap: 1 }}
                         >
-                          <CircleIcon
-                            sx={{ fontSize: 14, color: dotColor || "#F7F5F0" }}
-                          />
-
                           {wrapper.role === "manager" && (
                             <IconButton
                               size="small"

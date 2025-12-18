@@ -20,8 +20,6 @@ import {
   useTheme,
   alpha,
 } from "@mui/material";
-import CalendarMonthIcon from "@mui/icons-material/CalendarMonth";
-import { TransitionProps } from "@mui/material/transitions";
 
 
 function getProjectKey(projectId?: Types.ObjectId | IProject | string): string {
@@ -41,6 +39,8 @@ function getProjectName(projectId?: Types.ObjectId | IProject | string): string 
 }
 
 function getProjectColor(projectId?: Types.ObjectId | IProject | string): string {
+  console.log(projectId);
+  
   if (!projectId) return "#888";
   if (typeof projectId !== "string" && !(projectId instanceof Types.ObjectId)) {
     return (projectId as any).color || "#888";
@@ -100,7 +100,7 @@ export default function CalendarPage() {
     };
   }, [user, tasks, setTasks]);
 
-  const events: RBCEvent[] = useMemo(() => {
+  const events: RBCEvent[] = useMemo(() => {    
     return (tasks || []).map((task) => {
       const isCompleted = task.status === "done" || !!task.completedDate;
       const start = task.dueDate ? new Date(task.dueDate) : today;

@@ -46,7 +46,7 @@ export default function TaskStatusPieChart({ tasks }: Props) {
     if (total === 0 || value === 0) return null;
 
     const RAD = Math.PI / 180;
-    const radius = outerRadius * 0.6; 
+    const radius = outerRadius * 0.6;
     const x = cx + radius * Math.cos(-midAngle * RAD);
     const y = cy + radius * Math.sin(-midAngle * RAD);
 
@@ -66,28 +66,44 @@ export default function TaskStatusPieChart({ tasks }: Props) {
       </text>
     );
   };
-  
+
 
   return (
     <div className="w-full h-[400px]">
-      <ResponsiveContainer> 
-        <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            outerRadius={110}
-            label={renderInsideLabel} 
-          >
-            {data.map((entry, index) => (
-              <Cell key={index} fill={COLORS[index]} />
-            ))}
-          </Pie>
+      {total === 0 ? (
+        <div
+          style={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#6b7280",
+            fontSize: "0.95rem",
+            textAlign: "center",
+          }}
+        >
+          {t("noDataToDisplay")}
+        </div>
+      ) : (
+        <ResponsiveContainer>
+          <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+            <Pie
+              data={data}
+              dataKey="value"
+              nameKey="name"
+              outerRadius={110}
+              label={renderInsideLabel}
+            >
+              {data.map((entry, index) => (
+                <Cell key={index} fill={COLORS[index]} />
+              ))}
+            </Pie>
 
-          <Tooltip formatter={(value: number) => [`${value} tasks`]} />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
+            <Tooltip formatter={(value: number) => [`${value} tasks`]} />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 }
