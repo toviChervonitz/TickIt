@@ -1,18 +1,13 @@
 import { dbConnect } from "@/app/lib/DB";
-import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   await dbConnect();
-  const { projectId } = await req.json();
-  const currentUser=await getAuthenticatedUser();
-  if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const { userId, projectId } = await req.json();
   try {
     await ProjectUser.findOneAndUpdate(
-      { userId:currentUser.id, projectId },
+      { userId, projectId },
       { $set: { lastOpenedAt: new Date() } }
     );
 

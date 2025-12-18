@@ -1,18 +1,21 @@
+import { getAuthenticatedUser } from "../jwt";
 import { taskSchema } from "../validation";
 import { getUserRoleInProject } from "./projectServer";
 
 export async function CreateTask(form: any) {
+  // Validate form
   const { error } = taskSchema.validate(form);
   if (error) {
     throw new Error(error.message);
   }
 
-  const role = await getUserRoleInProject(form.projectId);
+  const role = await getUserRoleInProject(form.managerId, form.projectId);
 
   if (role !== "manager") {
     throw new Error("You are not the manager of this project");
   }
 
+  // Create task
   const res = await fetch("/api/task/createTask", {
     method: "POST",
     headers: {
@@ -29,11 +32,9 @@ export async function CreateTask(form: any) {
   return { status: res.status, ...data };
 }
 
-export async function GetTasksByUserId(
-  // userId: string | undefined
-) {
+export async function GetTasksByUserId(userId: string | undefined) {
   try {
-    const res = await fetch(`/api/task/tasks`, {
+    const res = await fetch(`/api/task/tasks?userId=${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -55,7 +56,7 @@ export async function GetTasksByUserId(
 }
 
 export async function GetTasksByProjectId(
-  // id: string,
+  id: string,
   projectId: string | null,
   isArchived?: boolean
 ) {
@@ -64,7 +65,7 @@ export async function GetTasksByProjectId(
   }
   try {
     const res = await fetch(
-      `/api/task/projectTasks?projectId=${projectId}&&archive=${isArchived}`,
+      `/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`,
       {
         method: "GET",
         headers: {
@@ -116,7 +117,6 @@ export async function UpdateTaskStatus(
   if (!res.ok) {
     throw new Error(data.error || "Failed to update task status.");
   }
-
   return { status: res.status, ...data };
 }
 export async function DeleteTask(taskId: string) {

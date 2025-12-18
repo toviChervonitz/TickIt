@@ -109,6 +109,7 @@ export default function ForgotPasswordPage() {
             background: "linear-gradient(180deg, #ffffff 0%, #fdfcfa 100%)",
           }}
         >
+          {/* Header */}
           <Box sx={{ textAlign: "center", mb: 4 }}>
             <Box
               sx={{
@@ -135,6 +136,7 @@ export default function ForgotPasswordPage() {
             </Typography>
           </Box>
 
+          {/* Stepper */}
           <Box sx={{ mb: 4 }}>
             <Stepper activeStep={step - 1} alternativeLabel>
               {steps.map((label) => (
@@ -160,12 +162,14 @@ export default function ForgotPasswordPage() {
             </Stepper>
           </Box>
 
+          {/* Error Alert */}
           {error && (
             <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }} onClose={() => setError("")}>
               {error}
             </Alert>
           )}
 
+          {/* Step 1: Enter Email */}
           {step === 1 && (
             <Stack spacing={3}>
               <Box>
@@ -214,6 +218,7 @@ export default function ForgotPasswordPage() {
             </Stack>
           )}
 
+          {/* Step 2: Verify Code */}
           {step === 2 && (
             <Stack spacing={3}>
               <Box>
@@ -281,6 +286,7 @@ export default function ForgotPasswordPage() {
             </Stack>
           )}
 
+          {/* Step 3: Reset Password */}
           {step === 3 && (
             <Stack spacing={3}>
               <Box>

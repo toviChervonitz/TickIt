@@ -23,6 +23,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { title, content, dueDate, projectId, userId } = body;
 
+    // Validate input
     const { error } = taskSchema.validate(body);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -35,22 +36,25 @@ export async function POST(req: Request) {
 
     const loggedInUserId = currentUser.id;
 
+    // Ensure project exists
     const project = await Project.findById(projectId);
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
+    // ✅ Check that logged-in user is manager of the project
     const projectUser = await ProjectUser.findOne({ userId: loggedInUserId, projectId });
     if (!projectUser || projectUser.role !== "manager") {
       return NextResponse.json({ error: "You are not the manager of this project" }, { status: 403 });
     }
 
+    // Create task (assigned to userId from body)
     const newTask = await Task.create({
       title,
       content,
       dueDate: dueDate ? new Date(dueDate) : undefined,
       projectId,
-      userId, 
+      userId, // task assignee
       status: "todo",
       createdAt: new Date(),
     });

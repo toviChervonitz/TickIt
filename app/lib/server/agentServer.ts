@@ -22,11 +22,12 @@ export const handleGenerateContent = async (
       throw new Error(data.message || data.error || "Generating tasks failed");
     }
 
+    // Ensure each task has title, content, dueDate
     const tasks: TaskFormData[] = (data || []).map((task: any) => ({
       title: task.title || "",
       content: task.content || "",
       dueDate: task.dueDate || "",
-      userId: "",       
+      userId: "",        // initially unassigned
       status: "todo",
     }));
 

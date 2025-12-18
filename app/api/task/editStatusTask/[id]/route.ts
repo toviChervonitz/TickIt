@@ -14,21 +14,15 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-export async function PUT(
-  req: Request,
-  context: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
+
   await dbConnect();
 
   try {
     const { id: taskId } = await context.params;
     const { status } = await req.json();
 
-    if (!status)
-      return NextResponse.json(
-        { error: "Missing status field" },
-        { status: 400 }
-      );
+    if (!status) return NextResponse.json({ error: "Missing status field" }, { status: 400 });
 
     const currentUser = await getAuthenticatedUser();
     if (!currentUser) {
@@ -36,13 +30,9 @@ export async function PUT(
     }
 
     const task = await Task.findById(taskId);
-    if (!task)
-      return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
 
-    const projectUser = await ProjectUser.findOne({
-      userId: currentUser.id,
-      projectId: task.projectId,
-    });
+    const projectUser = await ProjectUser.findOne({ userId: currentUser.id, projectId: task.projectId });
     if (!projectUser) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -54,16 +44,11 @@ export async function PUT(
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const oldStatus = task.status.toLowerCase();
 
-    task.status = status;
-
-    if (status === "done" && oldStatus !== "done") {
+    if (status.toLowerCase() === "done") {
       task.completedDate = new Date();
-    }
-
-    if (oldStatus === "done" && status !== "done") {
-      task.completedDate = null;
+    } else if (role === "manager") {
+      task.completedDate = undefined;
     }
 
     task.status = status;
@@ -82,27 +67,21 @@ export async function PUT(
     const assigneeId = task.userId.toString();
 
     try {
-      await pusher.trigger(`private-user-${assigneeId}`, "task-updated", {
-        action: "UPDATE",
-        task: updatedTaskPopulated,
-      });
+      await pusher.trigger(
+        `private-user-${assigneeId}`,
+        "task-updated",
+        {
+          action: "UPDATE",
+          task: updatedTaskPopulated
+        }
+      );
     } catch (pusherError) {
       console.error("Pusher error on status update:", pusherError);
     }
 
-    return NextResponse.json(
-      {
-        status: "success",
-        message: "Task status updated successfully",
-        task: updatedTaskPopulated,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ status: "success", message: "Task status updated successfully", task: updatedTaskPopulated }, { status: 200 });
   } catch (err: any) {
     console.error(err);
-    return NextResponse.json(
-      { error: "Server error", details: err.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Server error", details: err.message }, { status: 500 });
   }
 }

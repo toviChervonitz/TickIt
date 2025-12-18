@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, FormEvent } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -86,7 +86,7 @@ export default function EditTask({
       fullWidth
       maxWidth="sm"
       dir={dir}
-      disableScrollLock  
+      disableScrollLock   // ← מונע את הקפיצה!
       PaperProps={{
         sx: {
           borderRadius: "20px",
@@ -102,14 +102,17 @@ export default function EditTask({
         },
       }}
     >
+      {/* כותרת */}
       <DialogTitle
         sx={{ fontWeight: 700, color: "primary.main", textAlign: "left" }}
       >
         {t("editTask")}
       </DialogTitle>
 
+      {/* גוף */}
       <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
 
+        {/* Title (disabled) */}
         <TextField
           label={t("title")}
           value={task.title}
@@ -118,6 +121,7 @@ export default function EditTask({
           sx={{ bgcolor: "#f3f3f3", borderRadius: 2 }}
         />
 
+        {/* Content */}
         <TextField
           label={t("content")}
           name="content"
@@ -128,6 +132,7 @@ export default function EditTask({
           fullWidth
         />
 
+        {/* User Select */}
         <TextField
           select
           label={t("assignTo")}
@@ -156,6 +161,7 @@ export default function EditTask({
         </TextField>
 
 
+        {/* Due date */}
         <TextField
           label={t("dueDate")}
           type="date"
@@ -172,12 +178,13 @@ export default function EditTask({
           }}
           InputProps={{
             endAdornment: isHebrew ? (
-              <Box sx={{ order: -1, mr: 1 }}></Box>
+              <Box sx={{ order: -1, mr: 1 }}>{/* calendar icon placeholder */}</Box>
             ) : undefined,
           }}
         />
       </DialogContent>
 
+      {/* כפתורים */}
       <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button
           variant="outlined"

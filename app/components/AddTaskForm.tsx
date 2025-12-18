@@ -17,6 +17,8 @@ import {
   Box,
   Paper,
   CircularProgress,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 
 export interface TaskFormData {
@@ -30,7 +32,7 @@ export interface TaskFormData {
 interface TaskFormProps {
   task: TaskFormData;
   setTask: (t: TaskFormData) => void;
-  onSubmit: () => Promise<void>; 
+  onSubmit: () => Promise<void>; // חשוב! שיהיה async כדי שנוכל לחכות
   variant?: "popup" | "page";
 }
 
@@ -42,6 +44,8 @@ export default function TaskForm({
 }: TaskFormProps) {
   const { projectUsers, language } = useAppStore();
   const t = getTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [loading, setLoading] = useState(false);
 
@@ -57,7 +61,7 @@ export default function TaskForm({
     setLoading(true);
 
     try {
-      await onSubmit();
+      await onSubmit(); // שולח למסד נתונים
     } finally {
       setLoading(false);
     }
@@ -75,6 +79,7 @@ export default function TaskForm({
     >
       <Box component="form" onSubmit={handleSubmit}>
         <Stack spacing={variant === "popup" ? 2 : 3}>
+          {/* Title */}
           <TextField
             fullWidth
             label={t("taskTitle")}
@@ -85,6 +90,7 @@ export default function TaskForm({
             required
           />
 
+          {/* Content */}
           <TextField
             fullWidth
             label={t("taskContent")}
@@ -96,62 +102,63 @@ export default function TaskForm({
             rows={variant === "popup" ? 3 : 4}
           />
 
+          {/* Row */}
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={2}
             justifyContent="space-between"
           >
-            <TextField
-              select
-              label={t("assignTo")}
-              name="userId"
-              fullWidth
-              size="small"
-              value={task.userId}
-              onChange={handleChange}
-              required
-              SelectProps={{
-                MenuProps: {
-                  PaperProps: {
-                    style: {
-                      direction: language === "he" ? "rtl" : "ltr",
-                    },
-                  },
-                },
-              }}
-            >
-              <MenuItem value="">-- {t("selectUser")} --</MenuItem>
-              {projectUsers?.map((user) => (
-                <MenuItem key={user._id} value={user._id}>
-                  {user.email}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label={t("dueDate")}
-              type="date"
-              name="dueDate"
-              value={task.dueDate}
-              required
-              onChange={handleChange}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-              sx={{
-                direction: language == "he" ? "rtl" : "ltr",
-                "& input": {
-                  textAlign: language == "he" ? "right" : "left",
-                },
-              }}
-              InputProps={{
-                endAdornment:
-                  language == "he" ? (
-                    <Box sx={{ order: -1, mr: 1 }}>
-                    </Box>
-                  ) : undefined,
-              }}
-            />
+<TextField
+  select
+  label={t("assignTo")}
+  name="userId"
+  fullWidth
+  size="small"
+  value={task.userId}
+  onChange={handleChange}
+  required
+  SelectProps={{
+    MenuProps: {
+      PaperProps: {
+        style: {
+          direction: language === "he" ? "rtl" : "ltr",
+        },
+      },
+    },
+  }}
+>
+  <MenuItem value="">-- {t("selectUser")} --</MenuItem>
+  {projectUsers?.map((user) => (
+    <MenuItem key={user._id} value={user._id}>
+      {user.email}
+    </MenuItem>
+  ))}
+</TextField>
+<TextField
+  label={t("dueDate")}
+  type="date"
+  name="dueDate"
+  value={task.dueDate}
+  required
+  onChange={handleChange}
+  InputLabelProps={{ shrink: true }}
+  fullWidth
+  sx={{
+    direction: language=="he" ? "rtl" : "ltr",
+    "& input": {
+      textAlign: language=="he" ? "right" : "left",
+    },
+  }}
+  InputProps={{
+    endAdornment: language=="he" ? (
+      <Box sx={{ order: -1, mr: 1 }}>{/* calendar icon placeholder */}</Box>
+    ) : undefined,
+  }}
+/>
+
           </Stack>
 
+          {/* Submit Button */}
           <Box sx={{ width: "100%", mt: 1 }}>
             <Button
               type="submit"

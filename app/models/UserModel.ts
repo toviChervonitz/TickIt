@@ -17,7 +17,7 @@ provider: {
   type: String,
   enum: ["credentials", "google"],
   required: true,
-  default: "credentials", 
+  default: "credentials", // ✅
 },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
@@ -33,7 +33,11 @@ provider: {
   { timestamps: true }
 );
 
-
+// ✅ Defensive fix for Turbopack / ESM environment
+// Sometimes mongoose.models is undefined initially
+// if (!mongoose.models) {
+//   (mongoose as any).models = {};
+// }
 
 const User: Model<IUserDoc> =
   mongoose.models.User || mongoose.model<IUserDoc>("User", UserSchema);

@@ -1,25 +1,20 @@
 import { dbConnect } from "@/app/lib/DB";
-import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
 
 export async function PATCH(req: Request) {
   await dbConnect();
-  const { projectId, isArchive } = await req.json();
-
+  const { userId, projectId, isArchive } = await req.json();
   try {
-    const currentUser = await getAuthenticatedUser();
-    if (!currentUser) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
     await ProjectUser.findOneAndUpdate(
-      { userId: currentUser.id, projectId },
+      { userId, projectId },
       { $set: { isArchived: isArchive } }
     );
+    console.log("in archive route");
 
     return NextResponse.json({ success: true });
   } catch (err: any) {
-    console.error("patch archived Error:", err);
+    console.error("Get Projects Error:", err);
     return NextResponse.json(
       { status: "error", message: "Server error" },
       { status: 500 }
