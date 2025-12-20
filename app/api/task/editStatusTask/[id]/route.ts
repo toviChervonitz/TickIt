@@ -86,7 +86,7 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
         "task-updated",
         {
           action: "UPDATE",
-          task,
+          task: updatedTaskPopulated,
         }
       );
     } catch (pusherError) {

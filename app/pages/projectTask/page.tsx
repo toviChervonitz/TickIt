@@ -101,8 +101,8 @@ export default function GetProjectTasks() {
         let data: ITask[] = [];
         if (role === "manager" || isArchive) {
           console.log("123456789");
-
-          data = await GetTasksByProjectId(user._id, projectId, isArchive);
+          console.log("projectId in client is: ", projectId);
+          data = await GetTasksByProjectId(projectId, isArchive);
           if (role === "manager") {
             const res = await getAllUsersByProjectId(projectId);
             users = res.users || [];
@@ -244,8 +244,8 @@ export default function GetProjectTasks() {
   const handleSaved = async () => {
     setEditingTask(null);
     if (!user || !projectId) return;
-
-    const updated = await GetTasksByProjectId(user._id, projectId);
+    const isArchive = await getIsArchived(projectId, user._id);
+    const updated = await GetTasksByProjectId(projectId, isArchive);
     setTasks(updated);
     setProjectTasks(updated);
   };
