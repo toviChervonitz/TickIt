@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import Task from "@/app/models/TaskModel";
+import "@/app/models/ProjectModel";
+import "@/app/models/UserModel";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import Pusher from "pusher";

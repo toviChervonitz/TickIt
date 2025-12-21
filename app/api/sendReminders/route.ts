@@ -1,9 +1,9 @@
 // /app/api/tasks/sendReminders/route.ts
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
-// import { sendReminderEmail } from "@/app/lib/mailer";
 import { ITask, IUser } from "@/app/models/types";
 import Task from "@/app/models/TaskModel";
+import "@/app/models/UserModel";
 
 export async function GET() {
   try {
