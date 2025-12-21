@@ -187,8 +187,8 @@ export default function GetProjectTasks() {
   const doingTasks = displayedTasks.filter((t) => t.status === "doing");
   const doneTasks = displayedTasks.filter((t) => t.status === "done");
 
-  const doneTasksToDisplay = doneTasks.filter((t) => isOldTask(t));
-  const hiddenTasks = doneTasks.filter((t) => !isOldTask(t));
+  const doneTasksToDisplay = doneTasks.filter((t) => !isOldTask(t));
+  const hiddenTasks = doneTasks.filter((t) => isOldTask(t));
   const [showOld, setShowOld] = useState(false);
   const [openView, setOpenView] = useState(false);
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
