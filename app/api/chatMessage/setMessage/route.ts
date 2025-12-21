@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import Pusher from "pusher";
+import "@/app/models/UserModel";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
 import Project from "@/app/models/ProjectModel";
 import ChatMessage from "@/app/models/ChatMessageModel";
