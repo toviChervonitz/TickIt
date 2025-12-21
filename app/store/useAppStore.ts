@@ -86,7 +86,10 @@ const useAppStore = create(
         }),
       getProjectName: (projectId: string) => {
         const projects = get().projects;
-        const projectRole = projects.find((p) => p.project._id === projectId);
+        console.log("project objects", projects);
+        const projectRole = projects.find(
+          (p) => p.project?._id === projectId
+        );
         return projectRole?.project?.name || null;
       },
       setLanguage: (language: Lang) => set({ language }),

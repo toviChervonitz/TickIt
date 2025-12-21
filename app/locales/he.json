@@ -245,7 +245,7 @@
   "openChat": "פתח צ'אט",
   "projectsLegend": "אגדת פרויקטים",
   "completedTasks": "משימות שהושלמו",
-  "expand": "הרחב", 
+  "expand": "הרחב",
   "collapse": "כווץ",
   "noProject": "אין פרויקט",
   "details": "פרטים",
@@ -255,19 +255,13 @@
   "insightsAndAnalytics": "תובנות ואנליטיקה",
   "generalProgress": "התקדמות כללית",
   "tasksByProject": "משימות לפי פרויקט",
-  "progressOverTime": "התקדמות לאורך זמן" ,
+  "progressOverTime": "התקדמות לאורך זמן",
   "daily": "יומי",
   "weekly": "שבועי",
   "monthly": "חודשי",
-  "showAllProjects":"הצג את כל הפרויקטים",
-  "showArchive":"הצג ארכיון",
-  "clickForPic":"לחץ כדי לבחור תמונת פרופיל",
-  "noDataToDisplay":"אין נתונים להצגה"
-
-
-
-
-  
-
-
+  "showAllProjects": "הצג את כל הפרויקטים",
+  "showArchive": "הצג ארכיון",
+  "clickForPic": "לחץ כדי לבחור תמונת פרופיל",
+  "noDataToDisplay": "אין נתונים להצגה",
+  "generatingTasks": "מייצר משימות..."
 }
