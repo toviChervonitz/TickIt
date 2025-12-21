@@ -3,6 +3,7 @@ import { dbConnect } from "@/app/lib/DB";
 import "@/app/models/UserModel";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
+import "@/app/models/UserModel";
 import ChatMessage from "@/app/models/ChatMessageModel";
 import { NextResponse } from "next/server";
 

@@ -2,6 +2,7 @@ import { dbConnect } from "@/app/lib/DB";
 import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { NextResponse } from "next/server";
+import "@/app/models/UserModel";
 
 export async function GET(req: Request) {
   await dbConnect();

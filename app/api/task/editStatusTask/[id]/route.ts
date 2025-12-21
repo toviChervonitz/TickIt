@@ -2,8 +2,9 @@ import { dbConnect } from "@/app/lib/DB";
 import {getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import Task from "@/app/models/TaskModel";
-import { ITask } from "@/app/models/types";
 import { NextResponse } from "next/server";
+import "@/app/models/UserModel";
+import "@/app/models/ProjectModel";
 import Pusher from "pusher";
 
 const pusher = new Pusher({

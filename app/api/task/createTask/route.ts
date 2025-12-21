@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import Task from "@/app/models/TaskModel";
 import Project from "@/app/models/ProjectModel";
+import "@/app/models/UserModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { taskSchema } from "@/app/lib/validation";
 import Pusher from "pusher";
