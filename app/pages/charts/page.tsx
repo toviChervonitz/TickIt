@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Box, GridLegacy as Grid, Paper, Typography, Stack } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, GridLegacy as Grid, Paper, Typography, useTheme, Stack } from "@mui/material";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import TimelineIcon from "@mui/icons-material/Timeline";
@@ -12,7 +12,7 @@ import CompletedTasksLineChart from "@/app/components/charts/ProgressByTimeChart
 import { getTranslation } from "@/app/lib/i18n";
 
 export default function Charts() {
-  const { user, tasks, setTasks } = useAppStore();
+  const { user, tasks, projects, setTasks } = useAppStore();
   const [loading, setLoading] = useState(true);
   const t = getTranslation();
 
@@ -66,6 +66,7 @@ export default function Charts() {
 
       <Grid container spacing={3}>
 
+        {/* ----- GENERAL PROGRESS ----- */}
         <Grid item xs={12} md={6}>
           <Paper
             elevation={3}
@@ -87,6 +88,7 @@ export default function Charts() {
           </Paper>
         </Grid>
 
+        {/* ----- TASKS PER PROJECT ----- */}
         <Grid item xs={12} md={6}>
           <Paper
             elevation={3}
@@ -108,6 +110,7 @@ export default function Charts() {
           </Paper>
         </Grid>
 
+        {/* ----- DONE OVER TIME ----- */}
         <Grid item xs={12}>
           <Paper
             elevation={3}

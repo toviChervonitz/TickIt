@@ -3,12 +3,6 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
 import useAppStore from "@/app/store/useAppStore";
 import { getTranslation } from "../lib/i18n";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { he, enUS } from "date-fns/locale";
-import { InputAdornment } from "@mui/material";
-import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-
 import {
   TextField,
   Button,
@@ -17,8 +11,6 @@ import {
   Box,
   Paper,
   CircularProgress,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
 
 export interface TaskFormData {
@@ -32,7 +24,7 @@ export interface TaskFormData {
 interface TaskFormProps {
   task: TaskFormData;
   setTask: (t: TaskFormData) => void;
-  onSubmit: () => Promise<void>; 
+  onSubmit: () => Promise<void>;
   variant?: "popup" | "page";
 }
 
@@ -44,9 +36,6 @@ export default function TaskForm({
 }: TaskFormProps) {
   const { projectUsers, language } = useAppStore();
   const t = getTranslation();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-
   const [loading, setLoading] = useState(false);
 
   const handleChange = (
@@ -59,7 +48,6 @@ export default function TaskForm({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       await onSubmit();
     } finally {
@@ -68,52 +56,77 @@ export default function TaskForm({
   };
 
   return (
-    <Paper
-      elevation={variant === "popup" ? 0 : 1}
-      sx={{
-        p: variant === "popup" ? 1 : 3,
-        bgcolor: "transparent",
-        boxShadow: "none",
-        width: "100%",
-      }}
-    >
-      <Box component="form" onSubmit={handleSubmit}>
+    <Box component="form" onSubmit={handleSubmit}>
+      <Box
+        sx={{
+          backgroundColor: variant === "page" ? "#fff" : "transparent",
+          borderRadius: variant === "page" ? 2 : 0,
+          px: variant === "page" ? 2 : 0,
+          py: variant === "page" ? 2 : 0,
+        }}
+      >
         <Stack spacing={variant === "popup" ? 2 : 3}>
-          <TextField
-            fullWidth
-            label={t("taskTitle")}
-            name="title"
-            value={task.title}
-            onChange={handleChange}
-            size="small"
-            required
-          />
+          {/* Title + Content */}
+          {variant === "page" ? (
+            <Stack direction="row" spacing={3}>
+              <TextField
+                label={t("taskTitle")}
+                name="title"
+                value={task.title}
+                onChange={handleChange}
+                size="small"
+                required
+                sx={{ flex: 1 }}
+              />
 
-          <TextField
-            fullWidth
-            label={t("taskContent")}
-            name="content"
-            value={task.content}
-            onChange={handleChange}
-            size="small"
-            multiline
-            rows={variant === "popup" ? 3 : 4}
-          />
+              <TextField
+                label={t("taskContent")}
+                name="content"
+                value={task.content}
+                onChange={handleChange}
+                size="small"
+                sx={{ flex: 1 }}
+              />
+            </Stack>
+          ) : (
+            <>
+              <TextField
+                fullWidth
+                label={t("taskTitle")}
+                name="title"
+                value={task.title}
+                onChange={handleChange}
+                size="small"
+                required
+              />
 
+              <TextField
+                fullWidth
+                label={t("taskContent")}
+                name="content"
+                value={task.content}
+                onChange={handleChange}
+                size="small"
+                multiline
+                rows={3}
+              />
+            </>
+          )}
+
+          {/* Assign + Due Date */}
           <Stack
-            direction={{ xs: "column", sm: "row" }}
-            spacing={2}
-            justifyContent="space-between"
+            direction={variant === "page" ? "row" : { xs: "column", sm: "row" }}
+            spacing={3}
           >
             <TextField
               select
               label={t("assignTo")}
               name="userId"
-              fullWidth
-              size="small"
               value={task.userId}
               onChange={handleChange}
+              size="small"
               required
+              sx={{ flex: 1 }}
               SelectProps={{
                 MenuProps: {
                   PaperProps: {
@@ -131,54 +144,44 @@ export default function TaskForm({
                 </MenuItem>
               ))}
             </TextField>
+
             <TextField
               label={t("dueDate")}
               type="date"
               name="dueDate"
               value={task.dueDate}
-              required
               onChange={handleChange}
+              size="small"
+              required
               InputLabelProps={{ shrink: true }}
-              fullWidth
               sx={{
-                direction: language == "he" ? "rtl" : "ltr",
+                flex: 1,
+                direction: language === "he" ? "rtl" : "ltr",
                 "& input": {
-                  textAlign: language == "he" ? "right" : "left",
+                  textAlign: language === "he" ? "right" : "left",
                 },
-              }}
-              InputProps={{
-                endAdornment:
-                  language == "he" ? (
-                    <Box sx={{ order: -1, mr: 1 }}>
-                    </Box>
-                  ) : undefined,
               }}
             />
           </Stack>
 
-          <Box sx={{ width: "100%", mt: 1 }}>
+          {/* Submit */}
+          <Box sx={{ mt: 2 ,width: '100%'}}>
             <Button
-              type="submit"
               variant="contained"
-              fullWidth
+              size="small"
+              onClick={handleSubmit}
               disabled={loading}
+              fullWidth
               sx={{
                 textTransform: "none",
-                py: 1.3,
-                background:
-                  variant === "popup"
-                    ? "linear-gradient(to bottom, #3dd2cc, #2dbfb9)"
-                    : "#1B4A71",
+                background: "linear-gradient(to bottom, #3dd2cc, #2dbfb9)",
                 "&:hover": {
-                  background:
-                    variant === "popup"
-                      ? "linear-gradient(to bottom, #2dbfb9, #1fa9a3)"
-                      : "#163B5A",
+                  background: "linear-gradient(to bottom, #2dbfb9, #1fa9a3)",
                 },
               }}
             >
               {loading ? (
-                <CircularProgress size={22} sx={{ color: "white" }} />
+                <CircularProgress size={18} sx={{ color: "#fff" }} />
               ) : (
                 t("addTask")
               )}
@@ -186,6 +189,7 @@ export default function TaskForm({
           </Box>
         </Stack>
       </Box>
-    </Paper>
+    </Box>
   );
 }
+

@@ -1,3 +1,4 @@
+// lib/resetServer.ts
 export async function sendResetCode(email: string) {
   
   if (!email) throw new Error("Email is required");
@@ -13,7 +14,7 @@ export async function sendResetCode(email: string) {
     throw new Error(data.message || data.error || "Failed to send reset code");
   }
 
-  return await res.json(); 
+  return await res.json(); // { success: true }
 }
 
 export async function verifyResetCode(email: string, code: string) {
@@ -28,7 +29,7 @@ export async function verifyResetCode(email: string, code: string) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || data.error || "Failed to verify code");
 
-  return data; 
+  return data; // { success: true }
 }
 
 export async function updatePasswordAPI(email: string, password: string) {
@@ -43,5 +44,5 @@ export async function updatePasswordAPI(email: string, password: string) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || data.error|| "Failed to update password");
 
-  return data; 
+  return data; // { success: true }
 }

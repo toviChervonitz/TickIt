@@ -1,10 +1,12 @@
+// /app/api/users/addMembers/route.ts
 import { generatePassword } from "@/utils/generatePassword";
 import { NextResponse } from "next/server";
 import User from "@/app/models/UserModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { hashPassword } from "@/app/lib/bcrypt";
-import { getAuthenticatedUser } from "@/app/lib/jwt";
+import { getAuthenticatedUser, verifyToken } from "@/app/lib/jwt";
 import { sendExistMail, sendPasswordEmail } from "@/app/lib/mailer";
+import mongoose from "mongoose";
 import { dbConnect } from "@/app/lib/DB";
 
 interface AddMemberBody {

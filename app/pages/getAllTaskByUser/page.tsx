@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import useAppStore from "@/app/store/useAppStore";
 import { GetTasksByUserId, UpdateTaskStatus } from "@/app/lib/server/taskServer";
@@ -33,6 +33,7 @@ export default function UserTasks() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [projectFilter, setProjectFilter] = useState("all");
   const [sortBy, setSortBy] = useState("dueDate");
@@ -105,6 +106,7 @@ export default function UserTasks() {
     handleStatusChange(draggableId, newStatus, userId);
   };
 
+  // Get unique projects for filter
   const projects = Array.from(
     new Set(
       tasks
@@ -113,9 +115,11 @@ export default function UserTasks() {
     )
   );
 
+  // Filter and sort tasks
   const filterAndSortTasks = (taskList: ITask[]) => {
     let filtered = taskList;
 
+    // Search filter
     if (searchQuery) {
       filtered = filtered.filter(
         (t) =>
@@ -124,12 +128,14 @@ export default function UserTasks() {
       );
     }
 
+    // Project filter
     if (projectFilter !== "all") {
       filtered = filtered.filter(
         (t) => (t.projectId as IProject)?.name === projectFilter
       );
     }
 
+    // Sort
     if (sortBy === "dueDate") {
       filtered = [...filtered].sort((a, b) => {
         if (!a.dueDate) return 1;
@@ -177,6 +183,7 @@ export default function UserTasks() {
     <Box sx={{ minHeight: "100vh", backgroundColor: "#ffffff", py: 4 }}>
       <Container maxWidth="xl">
 
+        {/* Header & Filter Row Combined */}
         <Box
           sx={{
             mb: 5,
@@ -187,6 +194,7 @@ export default function UserTasks() {
             gap: 3
           }}
         >
+          {/* Left Side: Title */}
           <Box>
             <Typography variant="h4" fontWeight={800} color="primary.main" gutterBottom>
               {t("myTasks")}
@@ -196,12 +204,14 @@ export default function UserTasks() {
             </Typography>
           </Box>
 
+          {/* Right Side: Minimal Filters */}
           <Stack
             direction={{ xs: 'column', sm: 'row' }}
             spacing={2}
             alignItems="center"
             sx={{ width: { xs: '100%', md: 'auto' } }}
           >
+            {/* Search Bar */}
             <TextField
               placeholder={t("search")}
               value={searchQuery}
@@ -224,6 +234,7 @@ export default function UserTasks() {
               }}
             />
 
+            {/* Filter: Project */}
             <TextField
               select
               value={projectFilter}
@@ -244,6 +255,7 @@ export default function UserTasks() {
               ))}
             </TextField>
 
+            {/* Sort */}
             <TextField
               select
               value={sortBy}
@@ -260,6 +272,7 @@ export default function UserTasks() {
               <MenuItem value="title">{t("title")}</MenuItem>
             </TextField>
 
+            {/* Clear Filters Button */}
             {hasActiveFilters && (
               <Tooltip title={t("clearFilters")}>
                 <IconButton
@@ -279,6 +292,7 @@ export default function UserTasks() {
           </Stack>
         </Box>
 
+        {/* Kanban Board */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Grid container spacing={3}>
             {KANBAN_COLUMNS_CONFIG.map((columnConfig: any) => {
@@ -313,6 +327,7 @@ export default function UserTasks() {
                         }}
                       >
 
+                        {/* Column Header */}
                         <Box
                           sx={{
                             mb: 3,
@@ -349,6 +364,7 @@ export default function UserTasks() {
                           />
                         </Box>
 
+                        {/* Tasks */}
                         <Box
                           sx={{
                             display: "flex",

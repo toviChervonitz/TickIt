@@ -1,23 +1,48 @@
-"use client"
+"use client";
 
-import { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
+
 import { CreateProject } from "@/app/lib/server/projectServer";
-import {  AddManagerToProject } from "@/app/lib/server/userServer";
+import { AddManagerToProject } from "@/app/lib/server/userServer";
 import { CreateTask } from "@/app/lib/server/taskServer";
+
 import useAppStore from "@/app/store/useAppStore";
 import TaskForm, { TaskFormData } from "@/app/components/AddTaskForm";
+import AddMember from "@/app/components/AddMember";
+import GenerateTasks from "@/app/components/generatedTasks";
+
 import {
-  Box, Container, Typography, TextField, Button, Card, Stepper, Step, StepLabel, Alert, Stack,
-  List, ListItem, ListItemText, Chip, Paper,
+  Box,
+  Container,
+  Typography,
+  TextField,
+  Button,
+  Card,
+  Stepper,
+  Step,
+  StepLabel,
+  Alert,
+  Stack,
+  List,
+  ListItem,
+  ListItemText,
+  Chip,
+  Paper,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
+
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import FolderIcon from "@mui/icons-material/Folder";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
-import AddMember from "@/app/components/AddMember";
-import GenerateTasks from "@/app/components/generatedTasks";
+import CircularProgress from "@mui/material/CircularProgress";
+
+
 import { getTranslation } from "@/app/lib/i18n";
 import { ROUTES } from "@/app/config/routes";
 
@@ -32,60 +57,62 @@ interface User {
   name: string;
 }
 
-
 export default function CreateProjectPage() {
   const t = getTranslation();
   const steps = [t("projectDetails"), t("addTeamMembers"), t("createTasks")];
 
   const router = useRouter();
-  const { setProjectId, setProjectUsers, projectUsers, user, language } = useAppStore();
+  const { setProjectId, setProjectUsers, projectUsers, user, language } =
+    useAppStore();
 
-  const [step, setStep] = useState<number>(0);
+  const [step, setStep] = useState(0);
   const [projectDetails, setProjectDetails] = useState<ProjectDetails>({
     name: "",
     description: "",
   });
   const [users, setUsers] = useState<User[]>([]);
-  const [projectIdLocal, setProjectIdLocal] = useState<string>("");
+  const [projectIdLocal, setProjectIdLocal] = useState("");
   const [tasks, setTasks] = useState<TaskFormData[]>([]);
   const [task, setTask] = useState<TaskFormData>({
     title: "",
     content: "",
     userId: "",
     dueDate: "",
-    status: "todo"
+    status: "todo",
   });
 
-  const [error, setError] = useState<string>("");
+  const [openGenerateModal, setOpenGenerateModal] = useState(false);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [aiLoading, setAiLoading] = useState(false);
+
+
+  /* -------------------- handlers -------------------- */
+
+  const handleProjectChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setProjectDetails((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleNextStep1 = async () => {
-    if (loading) return;
-
     try {
       setLoading(true);
-      setError("");
-
       const result = await CreateProject(projectDetails);
+      if (!result?.project?._id) throw new Error();
 
-      if (result?.status === "error") {
-        throw new Error(result.message || "Failed to create project");
-      }
+      const newId = result.project._id;
+      setProjectIdLocal(newId);
+      setProjectId(newId);
 
-      if (!result?.project?._id) throw new Error("Invalid project ID");
-
-      const newProjectId = result.project._id;
-      setProjectIdLocal(newProjectId);
-      setProjectId(newProjectId);
-      setProjectUsers([]);
-
-      const manager = await AddManagerToProject(user!._id, newProjectId);
-      setProjectUsers([manager]);
+      const manager = await AddManagerToProject(user!._id, newId);
       setUsers([manager]);
+      setProjectUsers([manager]);
 
       setStep(1);
-    } catch (err: any) {
-      setError(err.message || t("failedCreateProject"));
+    } catch {
+      setError(t("failedCreateProject"));
     } finally {
       setLoading(false);
     }
@@ -99,53 +126,43 @@ export default function CreateProjectPage() {
 
     try {
       setLoading(true);
-      setError("");
-
-      const createdTask = await CreateTask({
+      const created = await CreateTask({
         ...task,
         projectId: projectIdLocal,
         managerId: user!._id,
       });
 
-      const realTask = createdTask.task || createdTask;
+      const realTask = created.task || created;
       setTasks((prev) => [...prev, realTask]);
       setTask({ title: "", content: "", userId: "", dueDate: "", status: "todo" });
-    } catch (err: any) {
-      setError(err.message || t("failedCreateTask"));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFinish = async () => {
+  const handleFinish = () => {
     router.push(ROUTES.DASHBOARD);
   };
 
-  const handleProjectChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setProjectDetails((prev) => ({ ...prev, [name]: value }));
-  };
+  /* -------------------- render -------------------- */
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        backgroundColor: "#ffffff",
-        py: 6,
-      }}
-    >
+    <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 6 }}>
       <Container maxWidth="lg">
-        <Box sx={{ textAlign: "center", mb: 5 }}>
-          <Typography variant="h3" fontWeight={800} color="primary.main" mb={1}>
+        {/* Header */}
+        <Box textAlign="center" mb={5}>
+          <Typography variant="h3" fontWeight={800} color="primary.main">
             {t("createProject")}
           </Typography>
-          <Typography variant="h6" color="text.secondary">
-            {t("followProjectSteps")}          </Typography>
+          <Typography color="text.secondary">
+            {t("followProjectSteps")}
+          </Typography>
         </Box>
 
+        {/* Stepper */}
         <Card sx={{ mb: 4, p: 4, backgroundColor: "#f9f7f4", border: "1px solid #e8eaed" }}>
           <Stepper activeStep={step} alternativeLabel>
-            {steps.map((label) => (
+            {steps.map((label, index) => (
               <Step key={label}>
                 <StepLabel
                   StepIconProps={{
@@ -167,16 +184,13 @@ export default function CreateProjectPage() {
         </Card>
 
         {error && (
-          <Alert
-            severity="error"
-            sx={{ mb: 3, borderRadius: 2 }}
-            onClose={() => setError("")}
-          >
+          <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
             {error}
           </Alert>
         )}
 
-        <Card sx={{ p: 5, backgroundColor: "#f9f7f4", border: "1px solid #e8eaed" }}>
+        <Card sx={{ p: 5 }}>
+          {/* ---------------- STEP 0 ---------------- */}
           {step === 0 && (
             <Box>
               <Stack direction="row" alignItems="center" spacing={2} mb={4}>
@@ -260,6 +274,8 @@ export default function CreateProjectPage() {
             </Box>
           )}
 
+
+          {/* ---------------- STEP 1 ---------------- */}
           {step === 1 && (
             <Box>
               <Stack direction="row" alignItems="center" spacing={2} mb={4}>
@@ -287,6 +303,7 @@ export default function CreateProjectPage() {
               </Stack>
 
               <Stack spacing={3}>
+                {/* AddMember Component */}
                 <AddMember
                   projectId={projectIdLocal}
                   onUserAdded={(addedUser) => {
@@ -356,77 +373,79 @@ export default function CreateProjectPage() {
             </Box>
           )}
 
+          {/* ---------------- STEP 2 ---------------- */}
           {step === 2 && (
-            <Box>
-              <Box sx={{ display: "flex", gap: 4, mb: 3 }}>
-                <Box sx={{ flex: 1 }}>
-                  <Stack spacing={3}>
-                    <TaskForm task={task} setTask={setTask} onSubmit={handleAddTask} variant="page"/>
+            <Stack spacing={4}>
+              {/* Add Task */}
+              <Paper sx={{ p: 3 }}>
+                <Typography variant="h6" mb={2}>
+                  {t("addTask")}
+                </Typography>
+                <TaskForm
+                  task={task}
+                  setTask={setTask}
+                  onSubmit={handleAddTask}
+                  variant="page"
+                />
+              </Paper>
 
-                    {tasks.length > 0 && (
-                      <Paper sx={{ p: 2, backgroundColor: "#ffffff" }}>
-                        <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                          {t("tasksCreated")} ({tasks.length})
-                        </Typography>
-                        <List>
-                          {tasks.map((taskItem, idx) => {
-                            let assignedName = t("unassigned");
-                            const userIdRaw = taskItem.userId as any;
-                            if (typeof userIdRaw === "string" && userIdRaw) {
-                              assignedName = users.find(u => u._id === userIdRaw)?.name || t("unassigned");
-                            } else if (userIdRaw && typeof userIdRaw === "object") {
-                              assignedName =
-                                userIdRaw.name ||
-                                users.find(u => u._id === (userIdRaw._id || userIdRaw.id))?.name ||
-                                t("unassigned");
-                            }
+              {/* Tasks List */}
+              {tasks.length > 0 && (
+                <Paper sx={{ p: 3, backgroundColor: "#ffffff" }}>
+                  <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                    {t("tasksCreated")} ({tasks.length})
+                  </Typography>
 
-                            return (
-                              <ListItem
-                                key={idx}
-                                sx={{
-                                  borderRadius: 2,
-                                  mb: 1,
-                                  backgroundColor: "#fafaf9",
-                                  "&:hover": { backgroundColor: "#f5f5f5" },
-                                }}
-                              >
-                                <ListItemText
-                                  primary={taskItem.title || "(No Title)"}
-                                  secondary={assignedName}
-                                  primaryTypographyProps={{ fontWeight: 600 }}
-                                />
-                              </ListItem>
-                            );
-                          })}
-                        </List>
-                      </Paper>
-                    )}
-                  </Stack>
-                </Box>
+                  <List>
+                    {tasks.map((taskItem, idx) => {
+                      let assignedName = t("unassigned");
+                      const userIdRaw = taskItem.userId as any;
 
-                <Box sx={{ flex: 1 }}>
-                  <GenerateTasks
-                    projectName={projectDetails.name}
-                    projectDescription={projectDetails.description}
-                    projectId={projectIdLocal}
-                    projectUsers={projectUsers}
-                    onAddTask={async (generatedTask) => {
-                      const savedTask = await CreateTask({
-                        ...generatedTask,
-                        projectId: projectIdLocal,
-                        managerId: user!._id,
-                      });
+                      if (typeof userIdRaw === "string" && userIdRaw) {
+                        assignedName =
+                          users.find((u) => u._id === userIdRaw)?.name || t("unassigned");
+                      } else if (userIdRaw && typeof userIdRaw === "object") {
+                        assignedName =
+                          userIdRaw.name ||
+                          users.find((u) => u._id === userIdRaw._id)?.name ||
+                          t("unassigned");
+                      }
 
-                      const realTask = savedTask.task || savedTask;
+                      return (
+                        <ListItem
+                          key={idx}
+                          sx={{
+                            borderRadius: 2,
+                            mb: 1,
+                            backgroundColor: "#fafaf9",
+                            "&:hover": { backgroundColor: "#f5f5f5" },
+                          }}
+                        >
+                          <ListItemText
+                            primary={taskItem.title}
+                            secondary={assignedName}
+                            primaryTypographyProps={{ fontWeight: 600 }}
+                          />
+                        </ListItem>
+                      );
+                    })}
+                  </List>
+                </Paper>
+              )}
 
-                      setTasks((prev) => [...prev, realTask]);
-                    }}
-                  />
-                </Box>
-              </Box>
 
-              <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+              {/* Buttons */}
+              <Stack direction="row" justifyContent="space-between">
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setAiLoading(true);
+                    setOpenGenerateModal(true);
+                  }}
+                >
+                  {t("generateTasks")}
+                </Button>
+
                 <Button
                   variant="contained"
                   size="large"
@@ -445,11 +464,77 @@ export default function CreateProjectPage() {
                 >
                   {loading ? t("finishing") : t("finishProject")}
                 </Button>
-              </Box>
-            </Box>
+              </Stack>
+            </Stack>
           )}
         </Card>
       </Container>
-    </Box>
+
+      {/* -------- Generate Tasks Modal -------- */}
+      <Dialog
+        open={openGenerateModal}
+        onClose={() => setOpenGenerateModal(false)}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>{t("generateTasks")}</DialogTitle>
+        <DialogContent dividers sx={{ position: "relative", minHeight: 300 }}>
+          <GenerateTasks
+            autoGenerate
+            projectName={projectDetails.name}
+            projectDescription={projectDetails.description}
+            projectId={projectIdLocal}
+            projectUsers={projectUsers}
+            onAddTask={async (generatedTask) => {
+              const saved = await CreateTask({
+                ...generatedTask,
+                projectId: projectIdLocal,
+                managerId: user!._id,
+              });
+
+              const realTask = saved.task || saved;
+              setTasks((prev) => [...prev, realTask]);
+            }}
+            onFinish={() => {
+              setAiLoading(false);
+            }}
+          />
+
+          {/* Overlay Loading */}
+          {aiLoading && (
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                backgroundColor: "rgba(255,255,255,0.85)",
+                zIndex: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "column",
+                gap: 2,
+              }}
+            >
+              <CircularProgress
+                size={48}
+                thickness={4}
+                sx={{ color: "#1d486a" }}
+              />
+              <Typography color="text.secondary" fontWeight={500}>
+                {t("generatingTasks")}...
+              </Typography>
+            </Box>
+          )}
+
+        </DialogContent>
+
+
+        <DialogActions>
+          <Button onClick={() => setOpenGenerateModal(false)}>
+            {t("close")}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box >
   );
 }

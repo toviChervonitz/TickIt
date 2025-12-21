@@ -1,6 +1,6 @@
 "use client";
 
-import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Tooltip } from "@mui/material";
+import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Typography, Tooltip } from "@mui/material";
 import PublicIcon from "@mui/icons-material/Public";
 import React, { useState } from "react";
 import { Lang } from "../models/types";
@@ -40,7 +40,9 @@ export default function LanguageSwitcher() {
                     }}
                 >
                     <PublicIcon sx={{ fontSize: 28 }} />
-                  
+                    {/* <Typography sx={{ ml: 1, fontWeight: "bold" }}>
+                        {lang === "en" ? "EN" : "עב"}
+                    </Typography> */}
                 </IconButton>
             </Tooltip>
 
@@ -55,7 +57,11 @@ export default function LanguageSwitcher() {
                     <ListItemText primary="עברית" />
                 </MenuItem>
 
-             
+                {/* future languages */}
+                {/* <MenuItem onClick={() => changeLanguage("fr")}>
+          <ListItemIcon>🇫🇷</ListItemIcon>
+          <ListItemText primary="Français" />
+        </MenuItem> */}
             </Menu>
         </>
     );

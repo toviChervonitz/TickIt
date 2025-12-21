@@ -1,7 +1,9 @@
+import { getAuthenticatedUser } from "../jwt";
 import { taskSchema } from "../validation";
 import { getUserRoleInProject } from "./projectServer";
 
 export async function CreateTask(form: any) {
+  // Validate form
   const { error } = taskSchema.validate(form);
   if (error) {
     throw new Error(error.message);
@@ -13,6 +15,7 @@ export async function CreateTask(form: any) {
     throw new Error("You are not the manager of this project");
   }
 
+  // Create task
   const res = await fetch("/api/task/createTask", {
     method: "POST",
     headers: {
@@ -53,16 +56,20 @@ export async function GetTasksByUserId(userId: string | undefined) {
 }
 
 export async function GetTasksByProjectId(
-  id: string,
+  // id: string,
   projectId: string | null,
   isArchived?: boolean
 ) {
+  
+  console.log("projectId: ",projectId);
+  
   if (!projectId) {
     throw new Error("Missing projectdId.");
   }
   try {
     const res = await fetch(
-      `/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`,
+      // `/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`,
+      `/api/task/projectTasks?projectId=${projectId}&&archive=${isArchived}`,
       {
         method: "GET",
         headers: {
@@ -114,7 +121,6 @@ export async function UpdateTaskStatus(
   if (!res.ok) {
     throw new Error(data.error || "Failed to update task status.");
   }
-
   return { status: res.status, ...data };
 }
 export async function DeleteTask(taskId: string) {

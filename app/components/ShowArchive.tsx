@@ -1,4 +1,17 @@
-"use client"
+// interface ShowArchiveProps {
+//   show: boolean;
+//   setShowArchive: (show: boolean) => void;
+// }
+
+// export default function ShowArchive({
+//   show,
+//   setShowArchive,
+// }: ShowArchiveProps) {
+//   return <button onClick={() => setShowArchive(!show)}>
+//       {show ? "Show all projects " : "Show archive"}
+//     </button>;
+// }
+
 import { Button } from "@mui/material";
 import ArchiveIcon from "@mui/icons-material/Archive";
 import UndoIcon from "@mui/icons-material/Undo";

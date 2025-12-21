@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useMemo, useState } from "react";
@@ -36,12 +37,12 @@ interface TaskCompletionChartProps {
 const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
   const theme = useTheme();
   const [range, setRange] = useState<Range>("day");
-  const [total, setTotal] = useState<Range>("day");
   const [selectedProject, setSelectedProject] = useState<string>("all");
   const t = getTranslation();
   const { language } = useAppStore();
   const isRTL = language === "he";
 
+  // ----------------- Helpers -----------------
   const formatDate = (d: Date) => d.toISOString().split("T")[0];
 
   const getWeekStart = (date: Date) => {
@@ -55,6 +56,7 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
     return `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(-2)}-01`;
   };
 
+  // ----------------- Project Names -----------------
   const projectNames = useMemo(() => {
     const names = new Set<string>();
     tasks.forEach((t) => {
@@ -63,13 +65,11 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
     return ["all", ...Array.from(names)];
   }, [tasks]);
 
+  // ----------------- Build Graph Data -----------------
   const groupedData = useMemo(() => {
     const filtered = tasks.filter((t) => {
       if (t.status !== "done" || !t.completedDate) return false;
-      if (
-        selectedProject !== "all" &&
-        (t.projectId as any).name !== selectedProject
-      )
+      if (selectedProject !== "all" && (t.projectId as any).name !== selectedProject)
         return false;
       return true;
     });
@@ -87,19 +87,19 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
       map.set(key, (map.get(key) || 0) + 1);
     });
 
-   return Array.from(map.entries())
-    .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
-    .reduce<{ date: string; count: number }[]>((acc, [date, count]) => {
-      const prevTotal = acc.length ? acc[acc.length - 1].count : 0;
-      acc.push({ date, count: prevTotal + count });
-      return acc;
-    }, []);
+    let total = 0;
+    return Array.from(map, ([date, count]) => {
+      total += count;
+      return { date, count: total };
+    }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [tasks, range, selectedProject]);
 
+  // ----------------- UI -----------------
   return (
     <Stack spacing={2}>
       <Divider />
 
+      {/* FILTERS */}
       <Stack direction="row" spacing={2} alignItems="center">
         <TextField
           select
@@ -118,14 +118,14 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
         >
           <MenuItem value="all">{t("allProjects")}</MenuItem>
           {projectNames
-            .filter((name) => name !== "all")
+            .filter((name) => name !== "all") // exclude "all" here
             .map((name) => (
               <MenuItem key={name} value={name}>
                 {name}
               </MenuItem>
             ))}
-        </TextField>
 
+        </TextField>
 
         <ToggleButtonGroup
           exclusive
@@ -146,6 +146,7 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
         </ToggleButtonGroup>
       </Stack>
 
+      {/* GRAPH BOX */}
       <Box
         sx={{
           width: "100%",
@@ -156,25 +157,39 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
           boxShadow: "inset 0 0 6px rgba(0,0,0,0.05)",
         }}
       >
-        <ResponsiveContainer>
-          <LineChart data={groupedData}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke={theme.palette.divider}
-            />
-            <XAxis dataKey="date" />
-            <YAxis allowDecimals={false} />
-            <Tooltip formatter={(value) => [value, t("completedTasks")]} />
-            <Line
-              type="monotone"
-              dataKey="count"
-              stroke={theme.palette.primary.main}
-              strokeWidth={3}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {groupedData.length === 0 ? (
+          <Box
+            sx={{
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "text.secondary",
+              fontSize: "0.95rem",
+              textAlign: "center",
+            }}
+          >
+            {t("noDataToDisplay")}
+          </Box>
+        ) : (
+          <ResponsiveContainer>
+            <LineChart data={groupedData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+              <XAxis dataKey="date" />
+              <YAxis allowDecimals={false} />
+              <Tooltip formatter={(value) => [value, t("completedTasks")]} />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke={theme.palette.primary.main}
+                strokeWidth={3}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+
       </Box>
     </Stack>
   );

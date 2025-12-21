@@ -1,4 +1,6 @@
+import ProjectModel from "@/app/models/ProjectModel";
 import { projectSchema } from "../validation";
+import { getAuthenticatedUser } from "../jwt";
 
 export async function CreateProject(form: any) {
   const { error } = projectSchema.validate(form);
@@ -22,11 +24,14 @@ export async function CreateProject(form: any) {
   }
   return { status: res.status, ...data };
 }
+//==================fetch===========
 export async function GetAllProjectsByUserId(
   userId: string | null | undefined
 ) {
+  // export async function GetAllProjectsByUserId(userId: string | null, skip=0, limit=8) {
   try {
     const res = await fetch(`/api/project/getAllProjects?userId=${userId}`, {
+      // const res = await fetch(`/api/project/getAllProjects?userId=${userId}&skip=${skip}&limit=${limit}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -91,6 +96,7 @@ export async function UpdateProject(
   }
   return data;
 }
+//===========open project================
 export async function openProject(
   projectId: string | undefined,
   userId: string | undefined
@@ -105,6 +111,7 @@ export async function openProject(
   }
   return res;
 }
+//============archive=============
 export async function toArchive(
   projectId: string | undefined,
   userId: string | undefined,
@@ -121,6 +128,7 @@ export async function toArchive(
   return res;
 }
 
+//=============get is archived===========
 export async function getIsArchived(
   projectId: string | undefined,  
   userId: string | undefined

@@ -1,3 +1,5 @@
+// lib/client/projectUserClient.ts
+// lib/server/taskServer.ts
 import { ITask } from "@/app/models/types";
 
 
@@ -24,7 +26,7 @@ export async function getRecentProjects(): Promise<{ _id: string; name: string }
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", 
+      credentials: "include", // if you’re using cookies for auth
     });
 
     if (!res.ok) {
