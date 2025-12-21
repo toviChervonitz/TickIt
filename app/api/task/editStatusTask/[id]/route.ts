@@ -1,5 +1,5 @@
 import { dbConnect } from "@/app/lib/DB";
-import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
+import {getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import Task from "@/app/models/TaskModel";
 import { ITask } from "@/app/models/types";
@@ -20,7 +20,9 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
 
   try {
     const { id: taskId } = await context.params;
-    const { status } = await req.json();
+    var { status } = await req.json();
+
+    status = status?.toLowerCase();
 
     if (!status) return NextResponse.json({ error: "Missing status field" }, { status: 400 });
 
@@ -44,11 +46,15 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const oldStatus = task.status.toLowerCase();
 
-    if (status.toLowerCase() === "done") {
+    task.status = status;
+
+    if(status === 'done' && oldStatus !== 'done') {
       task.completedDate = new Date();
-    } else if (role === "manager") {
-      task.completedDate = undefined;
+    } 
+    else if(status !== 'done' && oldStatus === 'done') {
+      task.completedDate = null;
     }
 
     task.status = status;
@@ -73,6 +79,20 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
         {
           action: "UPDATE",
           task: updatedTaskPopulated
+        }
+      );
+    } catch (pusherError) {
+      console.error("Pusher error on status update:", pusherError);
+    }
+
+    //check if this work (update status task in projectTask...)
+    try {
+      await pusher.trigger(
+        `private-project-${task.projectId}`,
+        "task-updated",
+        {
+          action: "UPDATE",
+          task: updatedTaskPopulated,
         }
       );
     } catch (pusherError) {

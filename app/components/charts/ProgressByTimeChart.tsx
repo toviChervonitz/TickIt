@@ -101,77 +101,31 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
 
       {/* FILTERS */}
       <Stack direction="row" spacing={2} alignItems="center">
-                      <TextField
-                        select
-                        value={selectedProject}
-          onChange={(e) => setSelectedProject(e.target.value)}
-                        size="small"
-                        SelectProps={{
-                          MenuProps: {
-                            PaperProps: { dir: language === "he" ? "rtl" : "ltr" },
-                          },
-                        }}
-                        sx={{
-                          width: { xs: "100%", sm: 160 },
-                          "& .MuiOutlinedInput-root": { borderRadius: 2 },
-                        }}
-                      >
-                         <MenuItem value="all">{t("allProjects")}</MenuItem>
-{projectNames
-  .filter((name) => name !== "all") // exclude "all" here
-  .map((name) => (
-    <MenuItem key={name} value={name}>
-      {name}
-    </MenuItem>
-))}
-
-                      </TextField>
-        
-        {/* <Select
+        <TextField
+          select
           value={selectedProject}
           onChange={(e) => setSelectedProject(e.target.value)}
           size="small"
-          MenuProps={{
-            PaperProps: {
-              sx: {
-                direction: isRTL ? "rtl" : "ltr",
-                "& .MuiMenuItem-root": {
-                  textAlign: isRTL ? "right" : "left",
-                  justifyContent: isRTL ? "flex-end" : "flex-start",
-                },
-              },
+          SelectProps={{
+            MenuProps: {
+              PaperProps: { dir: language === "he" ? "rtl" : "ltr" },
             },
           }}
           sx={{
-            minWidth: 150,
-            background: theme.palette.background.paper,
-            borderRadius: 2,
-            direction: isRTL ? "rtl" : "ltr",
-
-            "& .MuiSelect-select": {
-              textAlign: isRTL ? "right" : "left",
-              paddingInlineStart: "12px",
-              paddingInlineEnd: "12px", // leave arrow on left
-            },
-
-            "& .MuiInputBase-input": {
-              textAlign: isRTL ? "right" : "left",
-            },
+            width: { xs: "100%", sm: 160 },
+            "& .MuiOutlinedInput-root": { borderRadius: 2 },
           }}
         >
-          {projectNames.map((name) => (
-            <MenuItem
-              key={name}
-              value={name}
-              sx={{
-                textAlign: isRTL ? "right" : "left",
-                justifyContent: isRTL ? "flex-end" : "flex-start",
-              }}
-            >
-              {name === "all" ? t("allProjects") : name}
-            </MenuItem>
-          ))}
-        </Select> */}
+          <MenuItem value="all">{t("allProjects")}</MenuItem>
+          {projectNames
+            .filter((name) => name !== "all") // exclude "all" here
+            .map((name) => (
+              <MenuItem key={name} value={name}>
+                {name}
+              </MenuItem>
+            ))}
+
+        </TextField>
 
         <ToggleButtonGroup
           exclusive
@@ -203,22 +157,39 @@ const TaskCompletionChart: React.FC<TaskCompletionChartProps> = ({ tasks }) => {
           boxShadow: "inset 0 0 6px rgba(0,0,0,0.05)",
         }}
       >
-        <ResponsiveContainer>
-          <LineChart data={groupedData}>
-            <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
-            <XAxis dataKey="date" />
-            <YAxis allowDecimals={false} />
-            <Tooltip formatter={(value) => [value, t("completedTasks")]} />
-            <Line
-              type="monotone"
-              dataKey="count"
-              stroke={theme.palette.primary.main}
-              strokeWidth={3}
-              dot={{ r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {groupedData.length === 0 ? (
+          <Box
+            sx={{
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "text.secondary",
+              fontSize: "0.95rem",
+              textAlign: "center",
+            }}
+          >
+            {t("noDataToDisplay")}
+          </Box>
+        ) : (
+          <ResponsiveContainer>
+            <LineChart data={groupedData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
+              <XAxis dataKey="date" />
+              <YAxis allowDecimals={false} />
+              <Tooltip formatter={(value) => [value, t("completedTasks")]} />
+              <Line
+                type="monotone"
+                dataKey="count"
+                stroke={theme.palette.primary.main}
+                strokeWidth={3}
+                dot={{ r: 4 }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
+
       </Box>
     </Stack>
   );

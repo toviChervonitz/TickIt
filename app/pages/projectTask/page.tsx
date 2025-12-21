@@ -49,27 +49,21 @@ import { useRouter } from "next/navigation";
 import { getTranslation } from "@/app/lib/i18n";
 import ShowTask from "@/app/components/ShowTask";
 import ChatFloating from "@/app/components/ChatFloating";
-import { get } from "http";
-import { log } from "util";
-// import { Lexend_Tera } from "next/font/google";
+
 
 export default function GetProjectTasks() {
   const { projectId, tasks, setTasks, user, setProjectUsers, getProjectName, setProjectTasks, projectTasks, language } =
     useAppStore();
   const t = getTranslation();
-  // Tasks Data
-  // const [filteredTasks, setFilteredTasks] = useState<ITask[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false);
 
-  // Modals State
   const [editingTask, setEditingTask] = useState<EditTaskForm | null>(null);
   const [projectUsers, setLocalProjectUsers] = useState<IUser[]>([]);
   const [showAddUser, setShowAddUser] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
 
-  // Filters State
   const [searchQuery, setSearchQuery] = useState("");
   const [userFilter, setUserFilter] = useState("all");
   const [sortBy, setSortBy] = useState("dueDate");
@@ -100,9 +94,7 @@ export default function GetProjectTasks() {
         let users = [];
         let data: ITask[] = [];
         if (role === "manager" || isArchive) {
-          console.log("123456789");
-
-          data = await GetTasksByProjectId(user._id, projectId, isArchive);
+          data = await GetTasksByProjectId(projectId, isArchive);
           if (role === "manager") {
             const res = await getAllUsersByProjectId(projectId);
             users = res.users || [];
@@ -147,7 +139,6 @@ export default function GetProjectTasks() {
       );
     }
 
-    // 2. User Filter (Assignee)
     if (userFilter !== "all") {
       result = result.filter((t) => {
         const tUserId =
@@ -156,7 +147,6 @@ export default function GetProjectTasks() {
       });
     }
 
-    // 3. Sort
     if (sortBy === "dueDate") {
       result.sort((a, b) => {
         if (!a.dueDate) return 1;
@@ -176,14 +166,22 @@ export default function GetProjectTasks() {
     setSortBy("dueDate");
   };
 
+  const TEN_DAYS = 10 * 24 * 60 * 60 * 1000;
+
   const isOldTask = (task: any) => {
-    const due = new Date(task.dueDate);
-    return !isNaN(due.getTime()) && due.getDate() < 10;
+    if (!task.completedDate) return false;
+
+    const completed = new Date(task.completedDate).getTime();
+    if (isNaN(completed)) return false;
+    const now = Date.now();
+    const diff = now - completed;
+
+    return diff > TEN_DAYS;
   };
+
   const hasActiveFilters =
     searchQuery || userFilter !== "all" || sortBy !== "dueDate";
 
-  // --- Task Categories (Applied Filters) ---
   const displayedTasks = filterAndSortTasks(projectTasks);
   const todoTasks = displayedTasks.filter((t) => t.status === "todo");
   const doingTasks = displayedTasks.filter((t) => t.status === "doing");
@@ -244,8 +242,8 @@ export default function GetProjectTasks() {
   const handleSaved = async () => {
     setEditingTask(null);
     if (!user || !projectId) return;
-
-    const updated = await GetTasksByProjectId(user._id, projectId);
+    const isArchive = await getIsArchived(projectId, user._id);
+    const updated = await GetTasksByProjectId(projectId, isArchive);
     setTasks(updated);
     setProjectTasks(updated);
   };

@@ -13,7 +13,6 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const projectId = searchParams.get("projectId");
     const archive = searchParams.get("archive");
-    const userId = searchParams.get("userId");
 
     if (!projectId) {
       return NextResponse.json(
@@ -26,6 +25,7 @@ export async function GET(req: Request) {
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const userId = currentUser.id;
 
     const isMember = await ProjectUserModel.findOne({
       userId: currentUser.id,
@@ -42,9 +42,9 @@ export async function GET(req: Request) {
     let tasks;
     const isArchived = archive === "true";
 
-    if (isArchived ) {
-      console.log("archive",archive);
-      
+    if (isArchived) {
+      console.log("archive", archive);
+
       tasks = await Task.find({ projectId, userId })
         .populate("userId", "name")
         .populate("projectId", "name color");

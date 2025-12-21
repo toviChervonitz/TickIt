@@ -1,8 +1,6 @@
-
 "use client";
 
-import React, { useState } from "react";
-import useAppStore from "@/app/store/useAppStore";
+import React, { useEffect, useState } from "react";
 import { TaskFormData } from "./AddTaskForm";
 import { handleGenerateContent } from "../lib/server/agentServer";
 import {
@@ -38,6 +36,8 @@ interface GenerateTasksProps {
   projectId: string;
   projectUsers: User[];
   onAddTask: (task: TaskFormData) => void;
+  autoGenerate?: boolean;
+  onFinish?: () => void;
 }
 
 export default function GenerateTasks({
@@ -46,6 +46,8 @@ export default function GenerateTasks({
   projectId,
   projectUsers,
   onAddTask,
+  autoGenerate,
+  onFinish,
 }: GenerateTasksProps) {
   const t = getTranslation();
 
@@ -56,29 +58,64 @@ export default function GenerateTasks({
   const [taskEdits, setTaskEdits] = useState<GeneratedTask | null>(null);
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
 
+  useEffect(() => {
+    if (autoGenerate && !hasGeneratedOnce) {
+      handleGenerate();
+    }
+  }, [autoGenerate, hasGeneratedOnce]);
+
   // Generate tasks
+  // const handleGenerate = async () => {
+  //   if (!projectDescription.trim()) return;
+  //   setLoading(true);
+
+  //   const result = await handleGenerateContent(
+  //     `Name: ${projectName}. Description: ${projectDescription}`,
+  //     projectId
+  //   );
+
+  //   if (Array.isArray(result)) {
+  //     const tasksWithDefaults = result.map((t: any) => ({
+  //       ...t,
+  //       userId: "",
+  //       dueDate: t.dueDate || new Date().toISOString().split("T")[0],
+  //     }));
+  //     setGeneratedTasks(tasksWithDefaults);
+  //     setHasGeneratedOnce(true); // <-- added
+
+  //   }
+
+  //   setLoading(false);
+  // };
   const handleGenerate = async () => {
     if (!projectDescription.trim()) return;
+
     setLoading(true);
 
-    const result = await handleGenerateContent(
-      `Name: ${projectName}. Description: ${projectDescription}`,
-      projectId
-    );
+    try {
+      const result = await handleGenerateContent(
+        `Name: ${projectName}. Description: ${projectDescription}`,
+        projectId
+      );
 
-    if (Array.isArray(result)) {
-      const tasksWithDefaults = result.map((t: any) => ({
-        ...t,
-        userId: "",
-        dueDate: t.dueDate || new Date().toISOString().split("T")[0],
-      }));
-      setGeneratedTasks(tasksWithDefaults);
-      setHasGeneratedOnce(true); // <-- added
+      if (Array.isArray(result)) {
+        const tasksWithDefaults = result.map((t: any) => ({
+          ...t,
+          userId: "",
+          dueDate: t.dueDate || new Date().toISOString().split("T")[0],
+        }));
 
+        setGeneratedTasks(tasksWithDefaults);
+        setHasGeneratedOnce(true);
+      }
+    } catch (err) {
+      console.error("Failed to generate tasks", err);
+    } finally {
+      setLoading(false);
+      onFinish?.();
     }
-
-    setLoading(false);
   };
+
 
   // Start editing a task
   const startEditing = (index: number) => {
@@ -149,7 +186,7 @@ export default function GenerateTasks({
 
   return (
     <Box>
-{!hasGeneratedOnce && generatedTasks.length === 0 && (
+      {!autoGenerate && !hasGeneratedOnce && generatedTasks.length === 0 && (
         <Button
           variant="contained"
           onClick={handleGenerate}

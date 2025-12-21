@@ -60,6 +60,9 @@ export async function GetTasksByProjectId(
   projectId: string | null,
   isArchived?: boolean
 ) {
+  
+  console.log("projectId: ",projectId);
+  
   if (!projectId) {
     throw new Error("Missing projectdId.");
   }

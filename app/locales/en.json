@@ -249,6 +249,9 @@
   "monthly": "Monthly",
   "showAllProjects":"Show all projects",
   "showArchive":"Show archive",
-  "clickForPic":"Click to choose profile picture"
+  "clickForPic":"Click to choose profile picture",
+  "noDataToDisplay":"No data to display",
+  "generatingTasks":"Generating tasks..."
+
 
 }

@@ -86,7 +86,10 @@ const useAppStore = create(
         }),
       getProjectName: (projectId: string) => {
         const projects = get().projects;
-        const projectRole = projects.find((p) => p.project._id === projectId);
+        console.log("project objects", projects);
+        const projectRole = projects.find(
+          (p) => p.project?._id === projectId
+        );
         return projectRole?.project?.name || null;
       },
       setLanguage: (language: Lang) => set({ language }),
@@ -143,6 +146,21 @@ const useAppStore = create(
             });
 
             set({ projects: updatedProjects });
+          }
+        );
+        //check if this work (update status task in projectTask...)
+        channel.bind(
+          "task-updated",
+          (data: { action: "UPDATE"; task: ITask }) => {
+            if (data.action !== "UPDATE") return;
+
+            const state = get();
+
+            set({
+              projectTasks: state.projectTasks.map((t) =>
+                t._id === data.task._id ? { ...t, ...data.task } : t
+              ),
+            });
           }
         );
       },
@@ -224,10 +242,22 @@ const useAppStore = create(
               });
             }
 
+            // if (data.action === "DELETE" && data.taskId) {
+            //   set({
+            //     tasks: state.tasks.filter((t) => t._id !== data.taskId),
+            //   });
+            // }
+
+            // Remove from both tasks and projectTasks
+            // check if this works correctly
             if (data.action === "DELETE" && data.taskId) {
               set({
                 tasks: state.tasks.filter((t) => t._id !== data.taskId),
+                projectTasks: state.projectTasks.filter(
+                  (t) => t._id !== data.taskId
+                ),
               });
+              return;
             }
 
             if (!state.projectId) return;

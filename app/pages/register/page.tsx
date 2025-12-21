@@ -28,8 +28,9 @@ import { UploadButton } from "@uploadthing/react";
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 import ImageUpload from "@/app/components/ImageUpload";
 import { register } from "module";
-import { googleRegisterService } from "@/app/lib/server/googleService";
+import { googleLoginService, googleRegisterService } from "@/app/lib/server/googleService";
 import { getTranslation } from "@/app/lib/i18n";
+import { ROUTES } from "@/app/config/routes";
 interface RegisterResponse {
   status: "success" | "error";
   message?: string;
@@ -49,12 +50,6 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-
-  // const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-  //   setImage(URL.createObjectURL(file));
-  // };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -93,40 +88,65 @@ export default function RegisterPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (loading) return;
-    setLoading(true);
+    if (googleLoading) return;
     setError("");
-
+    setGoogleLoading(true);
     try {
-      const user = await signInWithGoogle();
+      const res = await signInWithGoogle();
+      console.log("res user in google sign in", res);
+      const idToken = await res.getIdToken();
+      console.log("Firebase ID Token:", idToken);
+
       const userData = {
-        name: user.displayName,
-        email: user.email,
-        image: user.photoURL,
+        email: res.email,
+        googleId: res.uid,
+        name: res.displayName,
+        image: res.photoURL,
       };
-
-      const { ok, data } = await googleRegisterService(userData);
-
+      const { ok, status, data } = await googleLoginService(userData, idToken);
+      console.log("status", status);
+      console.log("ok", ok);
       if (!ok) {
-        setError(t("googleSignInFailed"));
+        setGoogleLoading(false);
+        if (status === 401) {
+          setError("Unauthorized Google access");
+        } else if (status === 400) {
+          setError("Some Google user details are missing");
+        } else {
+          setError("Google login failed");
+        }
         return;
       }
-
+      console.log("data in google log in", data);
       setUser(data.user);
-      router.push("/pages/createProject");
+      //check if user created just now then send it to createProject page
+      // if(time)
+      const createdAt = new Date(data.user.createdAt); // התאריך שמתקבל מהשרת
+      const now = new Date(); // הזמן הנוכחי
+
+      const diffMs = now.getTime() - createdAt.getTime();
+
+      const diffMinutes = diffMs / 1000 / 60;
+      console.log("diffminutes", diffMinutes);
+
+      if (Number(diffMinutes) <= 5) {
+        console.log("in if of minutes");
+
+        router.push("/pages/createProject");
+      } else router.push(ROUTES.DASHBOARD);
     } catch (error: any) {
       console.error("Google sign-in error:", error.code || error);
       setError(t("googleSignInFailed"));
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
   const handleChange =
     (setter: React.Dispatch<React.SetStateAction<string>>) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-    };
+      (e: ChangeEvent<HTMLInputElement>) => {
+        setter(e.target.value);
+      };
 
   return (
     <Box
@@ -197,8 +217,8 @@ export default function RegisterPage() {
               {error}
             </Alert>
           )}
-            <ImageUpload onUpload={setImage} image={image} />
-{/* 
+          <ImageUpload onUpload={setImage} image={image} />
+          {/* 
           <Box sx={{ textAlign: "center", mb: 4 }}>
             <input
               id="imageInput"
