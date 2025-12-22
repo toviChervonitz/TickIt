@@ -194,7 +194,7 @@ export default function GetProjectTasks() {
   const [selectedTask, setSelectedTask] = useState<ITask | null>(null);
 
   const handleViewTask = (taskId: string) => {
-    const task = tasks.find((t) => t._id === taskId);
+    const task = projectTasks.find((t) => t._id === taskId);
     setSelectedTask(task || null);
     setOpenView(true);
   };
