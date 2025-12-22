@@ -49,8 +49,8 @@ export default function Charts() {
     };
   }, [user, tasks, setTasks]);
 
-  if (loading) return <div>{t("loadingTasks")}...</div>;
-  if (!user?._id) return <div>{t("loadingUser")}...</div>;
+  // if (loading) return <div>{t("loadingTasks")}...</div>;
+  // if (!user?._id) return <div>{t("loadingUser")}...</div>;
 
 
   return (

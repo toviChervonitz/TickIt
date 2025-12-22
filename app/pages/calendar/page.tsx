@@ -146,20 +146,20 @@ export default function CalendarPage() {
     }));
   }, [tasks]);
 
-  if (loading) {
-    return (
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        minHeight="100vh"
-      >
-        <Typography color="text.secondary">
-          {t("loadingTasks")}
-        </Typography>
-      </Box>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Box
+  //       display="flex"
+  //       alignItems="center"
+  //       justifyContent="center"
+  //       minHeight="100vh"
+  //     >
+  //       <Typography color="text.secondary">
+  //         {t("loadingTasks")}
+  //       </Typography>
+  //     </Box>
+  //   );
+  // }
 
   if (!user?._id) {
     return (
