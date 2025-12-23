@@ -3,6 +3,7 @@ import { getAuthenticatedUser } from "@/app/lib/jwt";
 import Project from "@/app/models/ProjectModel";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import { GoogleGenAI } from "@google/genai";
+import { dbConnect } from "@/app/lib/DB";
 
 // Initialize GenAI client
 const ai = new GoogleGenAI({
@@ -16,6 +17,7 @@ function extractJSON(raw: string): string | null {
 }
 
 export async function POST(req: Request) {
+  await dbConnect();
   try {
     const projectId = req.headers.get("x-project-id");
     if (!projectId)
