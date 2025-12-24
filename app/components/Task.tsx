@@ -162,7 +162,6 @@ const Task: React.FC<TaskProps> = ({
       }}
     >
       <CardContent sx={{ p: 2.5, "&:last-child": { pb: 2.5 } }}>
-        {/* Header */}
         <Box
           sx={{
             display: "flex",
@@ -209,7 +208,6 @@ const Task: React.FC<TaskProps> = ({
           </Stack>
         </Box>
 
-        {/* Title */}
         <Typography
           variant="h6"
           fontWeight={700}
@@ -219,7 +217,6 @@ const Task: React.FC<TaskProps> = ({
           {title}
         </Typography>
 
-        {/* Description */}
         {content && (
           <Typography
             variant="body2"
@@ -239,7 +236,6 @@ const Task: React.FC<TaskProps> = ({
 
         <Divider sx={{ my: 2 }} />
 
-        {/* Footer */}
         <Stack spacing={1}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <CalendarTodayIcon
@@ -274,7 +270,6 @@ const Task: React.FC<TaskProps> = ({
         </Stack>
       </CardContent>
 
-      {/* Status Menu */}
       <Menu
         dir={isRTL ? "rtl" : "ltr"}
         anchorEl={statusMenuAnchor}
@@ -296,7 +291,6 @@ const Task: React.FC<TaskProps> = ({
         ))}
       </Menu>
 
-      {/* Actions Menu */}
       {showButtons && (onEdit || onDelete) && (
         <Menu
           dir={isRTL ? "rtl" : "ltr"}
@@ -331,7 +325,6 @@ const Task: React.FC<TaskProps> = ({
         </Menu>
       )}
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         dir={isRTL ? "rtl" : "ltr"}
         open={confirmOpen}
@@ -347,7 +340,6 @@ const Task: React.FC<TaskProps> = ({
           },
         }}
       >
-        {/* Warning Icon Header */}
         <Box
           sx={{
             display: "flex",
@@ -401,7 +393,6 @@ const Task: React.FC<TaskProps> = ({
           >
           </Typography>
 
-          {/* Confirmation Input */}
           <Box sx={{ mt: 2 }}>
             <Typography
               sx={{
@@ -453,7 +444,6 @@ const Task: React.FC<TaskProps> = ({
             pt: 1,
           }}
         >
-          {/* Cancel Button */}
           <Button
             variant="outlined"
             onClick={handleDialogClose}
@@ -475,7 +465,6 @@ const Task: React.FC<TaskProps> = ({
             {t("cancel")}
           </Button>
 
-          {/* Delete Button */}
           <Button
             variant="contained"
             onClick={handleDeleteConfirm}

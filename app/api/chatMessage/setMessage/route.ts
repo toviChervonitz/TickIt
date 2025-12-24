@@ -28,7 +28,6 @@ export async function POST(req: Request) {
     const project = await Project.findById(projectId);
     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-    // Create the chat message
     const newMessage = await ChatMessage.create({
       userId,
       projectId,
@@ -36,10 +35,8 @@ export async function POST(req: Request) {
       createdAt: new Date(),
     });
 
-    // Populate the user info
     await newMessage.populate("userId", "_id name image");
 
-    // Convert to plain object and reformat
     const messageObj = newMessage.toObject();
     messageObj.user = messageObj.userId
       ? {
@@ -50,10 +47,7 @@ export async function POST(req: Request) {
       : { _id: "unknown", name: "Unknown", image: undefined };
     delete messageObj.userId;
 
-    console.log("✅ Chat Message created:", messageObj);
-    console.log("massage length is: ", messageObj.length);
-    
-    // Trigger Pusher to **project channel** so all members get the update
+
     await pusher.trigger(`private-project-${projectId}`, "chatMessage-updated", {
       action: "ADD",
       chatMessage: messageObj,

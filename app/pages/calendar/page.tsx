@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Calendar, dateFnsLocalizer, Event as RBCEvent, View } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { enUS, he } from "date-fns/locale";
@@ -20,6 +20,7 @@ import {
   useTheme,
   alpha,
 } from "@mui/material";
+import { GetTasksByUserId } from "@/app/lib/server/taskServer";
 
 
 function getProjectKey(projectId?: Types.ObjectId | IProject | string): string {
@@ -39,7 +40,6 @@ function getProjectName(projectId?: Types.ObjectId | IProject | string): string 
 }
 
 function getProjectColor(projectId?: Types.ObjectId | IProject | string): string {
-  console.log(projectId);
 
   if (!projectId) return "#888";
   if (typeof projectId !== "string" && !(projectId instanceof Types.ObjectId)) {
@@ -81,8 +81,7 @@ export default function CalendarPage() {
 
       if (!tasks || tasks.length === 0) {
         try {
-          const { GetTasksByUserId } = await import("@/app/lib/server/taskServer");
-          const fetchedTasks = await GetTasksByUserId(user._id);
+          const fetchedTasks = await GetTasksByUserId();
           if (isMounted) setTasks(fetchedTasks);
         } catch (err) {
           console.error("Failed to fetch tasks:", err);
@@ -273,7 +272,6 @@ export default function CalendarPage() {
         sx={{ p: 3, maxWidth: 1400, mx: "auto" }}
       >
 
-        {/* Calendar */}
         <Paper
           elevation={3}
           sx={{

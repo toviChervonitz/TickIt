@@ -42,11 +42,10 @@ export async function GET(req: Request) {
 
     const rawMessages = await ChatMessage.find({ projectId })
       .populate("userId", "_id name image")
-      .sort({ createdAt: -1 }) // newest first
+      .sort({ createdAt: -1 }) 
       .skip(skip)
       .limit(limit);
 
-    // re-sort oldest → newest for the UI
     const ordered = rawMessages.reverse();
 
     const messages = ordered.map((msg) => {

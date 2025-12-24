@@ -18,7 +18,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload, image }) => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      {/* עיגול פרופיל */}
       <div className="relative w-[120px] h-[120px]">
         <div
           className="w-full h-full rounded-full border-4 flex items-center justify-center overflow-hidden"
@@ -46,14 +45,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload, image }) => {
             width: "42px",
             height: "42px",
             backgroundColor: "#1d486a",
-            bottom: "-4px", // תיקון מיקום מדויק
-            right: "-4px", // תיקון מיקום מדויק
+            bottom: "-4px", 
+            right: "-4px", 
           }}
         >
           <Camera size={20} color="white" />
         </div>
 
-        {/* שכבת העלאה שקופה */}
         <div className="absolute inset-0 opacity-0 cursor-pointer">
           <UploadButton
             endpoint="imageUploader"
@@ -69,11 +67,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onUpload, image }) => {
         </div>
       </div>
 
-      {/* טקסט מתחת */}
       <p className="mt-2 text-sm cursor-pointer" style={{ color: "#1d486a" }}>
 {t("clickForPic")}      </p>
 
-      {/* טוען */}
       {isUploading && (
         <p className="text-sm mt-2" style={{ color: "#1d486a" }}>
           Uploading...

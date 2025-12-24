@@ -10,7 +10,6 @@ import {
   IUserSafe,
   Lang,
 } from "../models/types";
-import { Language } from "@google/genai";
 import { getIsArchived } from "../lib/server/projectServer";
 
 type PusherClient = Pusher;
@@ -86,7 +85,6 @@ const useAppStore = create(
         }),
       getProjectName: (projectId: string) => {
         const projects = get().projects;
-        console.log("project objects", projects);
         const projectRole = projects.find(
           (p) => p.project?._id === projectId
         );
@@ -119,20 +117,17 @@ const useAppStore = create(
         const channelName = `private-project-${projectId}`;
 
         if (pusherClient.channel(channelName)?.subscribed) {
-          console.log(`Already subscribed to project channel: ${channelName}`);
           return;
         }
 
         const channel = pusherClient.subscribe(channelName);
 
         channel.bind("pusher:subscription_succeeded", () => {
-          console.log(`Subscribed to project channel: ${channelName}`);
         });
 
         channel.bind(
           "project-updated",
           (data: { action: "UPDATE"; project: IProject }) => {
-            console.log("Real-time Project Update Received:", data.project);
 
             const currentProjects = get().projects;
             const updatedProjects = currentProjects.map((p) => {
@@ -148,7 +143,6 @@ const useAppStore = create(
             set({ projects: updatedProjects });
           }
         );
-        //check if this work (update status task in projectTask...)
         channel.bind(
           "task-updated",
           (data: { action: "UPDATE"; task: ITask }) => {
@@ -171,7 +165,6 @@ const useAppStore = create(
           state.pusherClient &&
           (state.pusherClient as any).connection.state === "connected"
         ) {
-          console.log("Pusher already initialized and connected.");
           return;
         }
 
@@ -190,7 +183,6 @@ const useAppStore = create(
         const channel = pusherClient.subscribe(`private-user-${userId}`);
 
         channel.bind("pusher:subscription_succeeded", () => {
-          console.log(`Subscribed to private-user-${userId}`);
         });
 
         channel.bind("project-list-updated", (data: { project: IProject }) => {
@@ -223,8 +215,7 @@ const useAppStore = create(
               if (exists) return;
 
               const isArchived = await getIsArchived(
-                String(data.task.projectId?._id),
-                state.user?._id
+                String(data.task.projectId?._id)
               );
 
               if (isArchived) return;
@@ -242,15 +233,7 @@ const useAppStore = create(
               });
             }
 
-            // if (data.action === "DELETE" && data.taskId) {
-            //   set({
-            //     tasks: state.tasks.filter((t) => t._id !== data.taskId),
-            //   });
-            // }
-
-            // Remove from both tasks and projectTasks
-            // check if this works correctly
-            if (data.action === "DELETE" && data.taskId) {
+      if (data.action === "DELETE" && data.taskId) {
               set({
                 tasks: state.tasks.filter((t) => t._id !== data.taskId),
                 projectTasks: state.projectTasks.filter(
@@ -304,7 +287,6 @@ const useAppStore = create(
 
         if (state.pusherClient) {
           state.pusherClient.disconnect();
-          console.log("Pusher disconnected on logout.");
         }
 
         set({

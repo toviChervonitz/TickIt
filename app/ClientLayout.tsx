@@ -12,7 +12,6 @@ import rtlPlugin from "stylis-plugin-rtl";
 import { prefixer } from "stylis";
 import useAppStore from "./store/useAppStore";
 
-// LTR cache outside component
 const cacheLtr = createCache({ key: "mui" });
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
