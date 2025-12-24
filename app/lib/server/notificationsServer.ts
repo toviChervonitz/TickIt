@@ -1,15 +1,9 @@
-// lib/client/projectUserClient.ts
-// lib/server/taskServer.ts
 import { ITask } from "@/app/models/types";
 
-
 export async function GetRecentAssignedTasks(
-  userId: string,
   days: number = 2
 ): Promise<ITask[]> {
-  const res = await fetch(
-    `/api/task/getRecentTasks?userId=${userId}&days=${days}`
-  );
+  const res = await fetch(`/api/task/getRecentTasks?days=${days}`);
 
   if (!res.ok) {
     throw new Error("Failed to fetch recent tasks");
@@ -18,15 +12,16 @@ export async function GetRecentAssignedTasks(
   return res.json();
 }
 
-
-export async function getRecentProjects(): Promise<{ _id: string; name: string }[]> {
+export async function getRecentProjects(): Promise<
+  { _id: string; name: string }[]
+> {
   try {
     const res = await fetch("/api/projectUser/getRecentProjectUsers", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      credentials: "include", // if you’re using cookies for auth
+      credentials: "include",
     });
 
     if (!res.ok) {

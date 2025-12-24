@@ -17,7 +17,7 @@ export default function Archive({ projectId, archived , userId }: ArchiveProps) 
   const t = getTranslation()
 
   async function archive(isArchive: boolean) {
-    const res = await toArchive(projectId, userId, isArchive);
+    const res = await toArchive(projectId, isArchive);
     if (res.ok) {
 
       setProjects(
@@ -28,13 +28,11 @@ export default function Archive({ projectId, archived , userId }: ArchiveProps) 
       if (isArchive) {
         setTasks(tasks.filter((t) => t.projectId !== projectId));
       } else {
-        // const res = await GetTasksByProjectId(userId,projectId!, !isArchive);
         const res = await GetTasksByProjectId(projectId!, !isArchive);
         setTasks([...tasks, ...res]);
       }
 
-      console.log("return from archive-------------", res);
-      console.log("state", archived);
+
     }
   }
 

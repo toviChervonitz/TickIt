@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import Task from "@/app/components/Task";
 import EditTask, { TaskForm as EditTaskForm } from "@/app/components/editTask";
@@ -85,11 +85,9 @@ export default function GetProjectTasks() {
     const loadProjectData = async () => {
       setLoading(true);
       try {
-        const isArchive = await getIsArchived(projectId, user._id);
-        console.log("isArchive:", isArchive);
-        const role = await getUserRoleInProject(user._id, projectId);
+        const isArchive = await getIsArchived(projectId);
+        const role = await getUserRoleInProject( projectId);
         setIsManager(role === "manager");
-        console.log(role);
 
         let users = [];
         let data: ITask[] = [];
@@ -102,7 +100,7 @@ export default function GetProjectTasks() {
         } else {
           if (tasks.length == 0) {
             try {
-              const data = await GetTasksByUserId(user._id);
+              const data = await GetTasksByUserId();
               setTasks(data);
             } catch (err: any) {
               console.error(err);
@@ -212,7 +210,7 @@ export default function GetProjectTasks() {
   const handleEdit = async (taskId: string) => {
     if (!isManager) return;
     const t = projectTasks.find((t) => t._id?.toString() === taskId);
-    if (!t?._id) return console.log("Task not found");
+    if (!t?._id) return 
 
     const users = await fetchProjectUsers();
     setEditingTask({
@@ -242,7 +240,7 @@ export default function GetProjectTasks() {
   const handleSaved = async () => {
     setEditingTask(null);
     if (!user || !projectId) return;
-    const isArchive = await getIsArchived(projectId, user._id);
+    const isArchive = await getIsArchived(projectId);
     const updated = await GetTasksByProjectId(projectId, isArchive);
     setTasks(updated);
     setProjectTasks(updated);
@@ -326,7 +324,6 @@ export default function GetProjectTasks() {
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 4 }}>
       <Container maxWidth="xl">
-        {/* Header */}
         <Box
           sx={{
             mb: 4,
@@ -391,7 +388,6 @@ export default function GetProjectTasks() {
           )}
         </Box>
 
-        {/* Filters Toolbar */}
         <Box sx={{ mb: 4 }}>
           <Stack
             direction={{ xs: "column", sm: "row" }}
@@ -399,7 +395,6 @@ export default function GetProjectTasks() {
             alignItems="center"
             justifyContent="flex-end"
           >
-            {/* Search Bar */}
             <TextField
               placeholder={t("searchTasks")}
               value={searchQuery}
@@ -427,7 +422,6 @@ export default function GetProjectTasks() {
               }}
             />
 
-            {/* Filter: User */}
             {isManager && (
               <TextField
                 select
@@ -454,7 +448,6 @@ export default function GetProjectTasks() {
               </TextField>
             )}
 
-            {/* Sort */}
             <TextField
               select
               value={sortBy}
@@ -475,7 +468,6 @@ export default function GetProjectTasks() {
               <MenuItem value="title">{t("title")}</MenuItem>
             </TextField>
 
-            {/* Clear Filters */}
             {hasActiveFilters && (
               <Tooltip title={t("clearFilters")}>
                 <IconButton
@@ -498,7 +490,6 @@ export default function GetProjectTasks() {
           </Stack>
         </Box>
 
-        {/* Drag & Drop */}
         <DragDropContext onDragEnd={handleDragEnd}>
           <Grid container spacing={3}>
             {KANBAN_COLUMNS_CONFIG.map((columnConfig: any) => {
@@ -530,7 +521,6 @@ export default function GetProjectTasks() {
                           border: "1px solid #e8eaed",
                         }}
                       >
-                        {/* Column Header */}
                         <Box
                           sx={{
                             mb: 3,
@@ -570,7 +560,6 @@ export default function GetProjectTasks() {
                           />
                         </Box>
 
-                        {/* Tasks */}
                         <Box
                           sx={{
                             display: "flex",
@@ -716,7 +705,6 @@ export default function GetProjectTasks() {
           </Grid>
         </DragDropContext>
 
-        {/* Add Task Dialog */}
         <Dialog
           open={showAddTask}
           onClose={() => setShowAddTask(false)}
@@ -749,7 +737,6 @@ export default function GetProjectTasks() {
           </DialogContent>
         </Dialog>
 
-        {/* Add Member Dialog */}
         <Dialog
           open={showAddUser}
           onClose={() => setShowAddUser(false)}
@@ -784,7 +771,6 @@ export default function GetProjectTasks() {
           </DialogContent>
         </Dialog>
 
-        {/* Edit Task Dialog */}
         {editingTask && (
           <EditTask
             task={editingTask}

@@ -1,5 +1,5 @@
 import { dbConnect } from "@/app/lib/DB";
-import {getAuthenticatedUser } from "@/app/lib/jwt";
+import { getAuthenticatedUser } from "@/app/lib/jwt";
 import ProjectUser from "@/app/models/ProjectUserModel";
 import Task from "@/app/models/TaskModel";
 import { NextResponse } from "next/server";
@@ -15,17 +15,23 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
-
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
   await dbConnect();
 
   try {
     const { id: taskId } = await context.params;
-    var { status } = await req.json();
+    let { status } = await req.json();
 
     status = status?.toLowerCase();
 
-    if (!status) return NextResponse.json({ error: "Missing status field" }, { status: 400 });
+    if (!status)
+      return NextResponse.json(
+        { error: "Missing status field" },
+        { status: 400 }
+      );
 
     const currentUser = await getAuthenticatedUser();
     if (!currentUser) {
@@ -33,9 +39,13 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     }
 
     const task = await Task.findById(taskId);
-    if (!task) return NextResponse.json({ error: "Task not found" }, { status: 404 });
+    if (!task)
+      return NextResponse.json({ error: "Task not found" }, { status: 404 });
 
-    const projectUser = await ProjectUser.findOne({ userId: currentUser.id, projectId: task.projectId });
+    const projectUser = await ProjectUser.findOne({
+      userId: currentUser.id,
+      projectId: task.projectId,
+    });
     if (!projectUser) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -51,10 +61,9 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
 
     task.status = status;
 
-    if(status === 'done' && oldStatus !== 'done') {
+    if (status === "done" && oldStatus !== "done") {
       task.completedDate = new Date();
-    } 
-    else if(status !== 'done' && oldStatus === 'done') {
+    } else if (status !== "done" && oldStatus === "done") {
       task.completedDate = null;
     }
 
@@ -74,19 +83,14 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
     const assigneeId = task.userId.toString();
 
     try {
-      await pusher.trigger(
-        `private-user-${assigneeId}`,
-        "task-updated",
-        {
-          action: "UPDATE",
-          task: updatedTaskPopulated
-        }
-      );
+      await pusher.trigger(`private-user-${assigneeId}`, "task-updated", {
+        action: "UPDATE",
+        task: updatedTaskPopulated,
+      });
     } catch (pusherError) {
       console.error("Pusher error on status update:", pusherError);
     }
 
-    //check if this work (update status task in projectTask...)
     try {
       await pusher.trigger(
         `private-project-${task.projectId}`,
@@ -100,9 +104,19 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
       console.error("Pusher error on status update:", pusherError);
     }
 
-    return NextResponse.json({ status: "success", message: "Task status updated successfully", task: updatedTaskPopulated }, { status: 200 });
+    return NextResponse.json(
+      {
+        status: "success",
+        message: "Task status updated successfully",
+        task: updatedTaskPopulated,
+      },
+      { status: 200 }
+    );
   } catch (err: any) {
     console.error(err);
-    return NextResponse.json({ error: "Server error", details: err.message }, { status: 500 });
+    return NextResponse.json(
+      { error: "Server error", details: err.message },
+      { status: 500 }
+    );
   }
 }

@@ -43,7 +43,6 @@ export async function GET(req: Request) {
     const isArchived = archive === "true";
 
     if (isArchived) {
-      console.log("archive", archive);
 
       tasks = await Task.find({ projectId, userId })
         .populate("userId", "name")

@@ -87,7 +87,6 @@ export default function CreateProjectPage() {
   const [aiLoading, setAiLoading] = useState(false);
 
 
-  /* -------------------- handlers -------------------- */
 
   const handleProjectChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -144,12 +143,10 @@ export default function CreateProjectPage() {
     router.push(ROUTES.DASHBOARD);
   };
 
-  /* -------------------- render -------------------- */
 
   return (
     <Box sx={{ minHeight: "100vh", backgroundColor: "#fff", py: 6 }}>
       <Container maxWidth="lg">
-        {/* Header */}
         <Box textAlign="center" mb={5}>
           <Typography variant="h3" fontWeight={800} color="primary.main">
             {t("createProject")}
@@ -159,10 +156,9 @@ export default function CreateProjectPage() {
           </Typography>
         </Box>
 
-        {/* Stepper */}
         <Card sx={{ mb: 4, p: 4, backgroundColor: "#f9f7f4", border: "1px solid #e8eaed" }}>
           <Stepper activeStep={step} alternativeLabel>
-            {steps.map((label, index) => (
+            {steps.map((label) => (
               <Step key={label}>
                 <StepLabel
                   StepIconProps={{
@@ -190,7 +186,6 @@ export default function CreateProjectPage() {
         )}
 
         <Card sx={{ p: 5 }}>
-          {/* ---------------- STEP 0 ---------------- */}
           {step === 0 && (
             <Box>
               <Stack direction="row" alignItems="center" spacing={2} mb={4}>
@@ -275,7 +270,6 @@ export default function CreateProjectPage() {
           )}
 
 
-          {/* ---------------- STEP 1 ---------------- */}
           {step === 1 && (
             <Box>
               <Stack direction="row" alignItems="center" spacing={2} mb={4}>
@@ -303,7 +297,6 @@ export default function CreateProjectPage() {
               </Stack>
 
               <Stack spacing={3}>
-                {/* AddMember Component */}
                 <AddMember
                   projectId={projectIdLocal}
                   onUserAdded={(addedUser) => {
@@ -373,10 +366,8 @@ export default function CreateProjectPage() {
             </Box>
           )}
 
-          {/* ---------------- STEP 2 ---------------- */}
           {step === 2 && (
             <Stack spacing={4}>
-              {/* Add Task */}
               <Paper sx={{ p: 3 }}>
                 <Typography variant="h6" mb={2}>
                   {t("addTask")}
@@ -389,7 +380,6 @@ export default function CreateProjectPage() {
                 />
               </Paper>
 
-              {/* Tasks List */}
               {tasks.length > 0 && (
                 <Paper sx={{ p: 3, backgroundColor: "#ffffff" }}>
                   <Typography variant="subtitle1" fontWeight={600} mb={2}>
@@ -434,7 +424,6 @@ export default function CreateProjectPage() {
               )}
 
 
-              {/* Buttons */}
               <Stack direction="row" justifyContent="space-between">
                 <Button
                   variant="contained"
@@ -470,7 +459,6 @@ export default function CreateProjectPage() {
         </Card>
       </Container>
 
-      {/* -------- Generate Tasks Modal -------- */}
       <Dialog
         open={openGenerateModal}
         onClose={() => setOpenGenerateModal(false)}
@@ -500,7 +488,6 @@ export default function CreateProjectPage() {
             }}
           />
 
-          {/* Overlay Loading */}
           {aiLoading && (
             <Box
               sx={{

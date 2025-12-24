@@ -1,13 +1,10 @@
-// /app/api/user/getId/route.ts
 import { NextResponse } from "next/server";
 import { dbConnect } from "@/app/lib/DB";
 import User from "@/app/models/UserModel";
 import bcrypt from "bcryptjs";
-import { compareToken, getAuthenticatedUser } from "@/app/lib/jwt";
+import { compareToken } from "@/app/lib/jwt";
 import { hashPassword } from "@/app/lib/bcrypt";
-import { unauthorized } from "next/navigation";
 
-// PUT: Update all user details by email
 export async function PUT(req: Request) {
   await dbConnect();
 
@@ -24,8 +21,8 @@ export async function PUT(req: Request) {
     }
 
 
-    const userComper = await compareToken(userId)
-    if (!userComper) {
+    const userCompere = await compareToken(userId)
+    if (!userCompere) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
@@ -57,7 +54,6 @@ export async function PUT(req: Request) {
       updates.password = hashed;
     }
 
-    // Find user by email and update all other fields
     const updatedUser = await User.findOneAndUpdate(
       { email },
       { $set: updates },

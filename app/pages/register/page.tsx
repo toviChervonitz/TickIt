@@ -2,7 +2,6 @@
 
 import React, { useState, FormEvent, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { Register, signInWithGoogle } from "@/app/lib/server/authServer";
 import useAppStore from "@/app/store/useAppStore";
 import { IUserSafe } from "@/app/models/types";
@@ -17,18 +16,12 @@ import {
   Alert,
   Link as MuiLink,
   Stack,
-  Avatar,
-  IconButton,
 } from "@mui/material";
 import Link from "next/link";
 import GoogleIcon from "@mui/icons-material/Google";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
-import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import { UploadButton } from "@uploadthing/react";
-import { ourFileRouter } from "@/app/api/uploadthing/core";
 import ImageUpload from "@/app/components/ImageUpload";
-import { register } from "module";
-import { googleLoginService, googleRegisterService } from "@/app/lib/server/googleService";
+import { googleLoginService } from "@/app/lib/server/googleService";
 import { getTranslation } from "@/app/lib/i18n";
 import { ROUTES } from "@/app/config/routes";
 interface RegisterResponse {
@@ -93,9 +86,7 @@ export default function RegisterPage() {
     setGoogleLoading(true);
     try {
       const res = await signInWithGoogle();
-      console.log("res user in google sign in", res);
       const idToken = await res.getIdToken();
-      console.log("Firebase ID Token:", idToken);
 
       const userData = {
         email: res.email,
@@ -104,8 +95,6 @@ export default function RegisterPage() {
         image: res.photoURL,
       };
       const { ok, status, data } = await googleLoginService(userData, idToken);
-      console.log("status", status);
-      console.log("ok", ok);
       if (!ok) {
         setGoogleLoading(false);
         if (status === 401) {
@@ -117,20 +106,16 @@ export default function RegisterPage() {
         }
         return;
       }
-      console.log("data in google log in", data);
       setUser(data.user);
-      //check if user created just now then send it to createProject page
-      // if(time)
-      const createdAt = new Date(data.user.createdAt); // התאריך שמתקבל מהשרת
-      const now = new Date(); // הזמן הנוכחי
+  
+      const createdAt = new Date(data.user.createdAt); 
+      const now = new Date(); 
 
       const diffMs = now.getTime() - createdAt.getTime();
 
       const diffMinutes = diffMs / 1000 / 60;
-      console.log("diffminutes", diffMinutes);
 
       if (Number(diffMinutes) <= 5) {
-        console.log("in if of minutes");
 
         router.push("/pages/createProject");
       } else router.push(ROUTES.DASHBOARD);
@@ -218,68 +203,6 @@ export default function RegisterPage() {
             </Alert>
           )}
           <ImageUpload onUpload={setImage} image={image} />
-          {/* 
-          <Box sx={{ textAlign: "center", mb: 4 }}>
-            <input
-              id="imageInput"
-              type="file"
-              accept="image/*"
-              style={{ display: "none" }}
-              onChange={handleImageChange}
-            />
-
-            <Box sx={{ position: "relative", display: "inline-block" }}>
-              <Avatar
-                src={image}
-                alt={name}
-                sx={{
-                  width: 120,
-                  height: 120,
-                  cursor: "pointer",
-                  border: "4px solid",
-                  borderColor: "primary.main",
-                  backgroundColor: "#f0f0f0",
-                  fontSize: "3rem",
-                  color: "#9ca3af",
-                  "&:hover": {
-                    opacity: 0.8,
-                  },
-                  transition: "all 0.3s ease",
-                }}
-                onClick={() => document.getElementById("imageInput")?.click()}
-              >
-                {!image && name?.charAt(0).toUpperCase()}
-              </Avatar>
-
-              <IconButton
-                sx={{
-                  position: "absolute",
-                  bottom: 0,
-                  right: 0,
-                  backgroundColor: "primary.main",
-                  color: "white",
-                  width: 40,
-                  height: 40,
-                  "&:hover": {
-                    backgroundColor: "primary.dark",
-                  },
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                }}
-                onClick={() => document.getElementById("imageInput")?.click()}
-              >
-                <CameraAltIcon fontSize="small" />
-              </IconButton>
-            </Box>
-
-            <Typography
-              variant="caption"
-              color="text.secondary"
-              sx={{ display: "block", mt: 2 }}
-            >
-              {t("uploadProfile")}
-            </Typography>
-          </Box> */}
-
           <Box component="form" onSubmit={handleSubmit}>
             <Box
               sx={{

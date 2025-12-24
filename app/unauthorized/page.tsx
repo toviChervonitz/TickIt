@@ -40,7 +40,6 @@ export default function UnauthorizedPage() {
         overflow: "hidden",
       }}
     >
-      {/* subtle grid overlay */}
       <Box
         sx={{
           position: "absolute",
@@ -63,7 +62,6 @@ export default function UnauthorizedPage() {
             border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
           }}
         >
-          {/* icon */}
           <Box sx={{ position: "relative", mb: 4 }}>
             <Avatar
               sx={{
@@ -104,7 +102,6 @@ export default function UnauthorizedPage() {
             />
           </Box>
 
-          {/* chip */}
           <Chip
             label="403 · RESTRICTED"
             size="small"
@@ -118,7 +115,6 @@ export default function UnauthorizedPage() {
             }}
           />
 
-          {/* title */}
           <Typography
             variant="h4"
             component="h1"
@@ -131,7 +127,6 @@ export default function UnauthorizedPage() {
             Access Restricted
           </Typography>
 
-          {/* description */}
           <Typography
             variant="body1"
             sx={{
@@ -150,7 +145,6 @@ export default function UnauthorizedPage() {
             Permissions are managed by project roles.
           </Typography>
 
-          {/* accent divider */}
           <Box
             sx={{
               width: 88,
@@ -162,7 +156,6 @@ export default function UnauthorizedPage() {
             }}
           />
 
-          {/* action */}
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={2}
@@ -180,7 +173,6 @@ export default function UnauthorizedPage() {
 
           <Divider sx={{ mb: 4 }} />
 
-          {/* footer */}
           <Stack
             direction="row"
             spacing={1}

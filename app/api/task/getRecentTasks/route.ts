@@ -10,7 +10,6 @@ export async function GET(req: Request) {
   await dbConnect();
 
   try {
-    // ✅ Authenticate the user
     const currentUser = await getAuthenticatedUser();
     if (!currentUser) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -24,13 +23,11 @@ export async function GET(req: Request) {
 
     const userObjectId = new Types.ObjectId(currentUser.id);
 
-    // 1️⃣ Fetch tasks assigned to this user in the last `days` days
-    let tasks = await TaskModel.find({
+    const tasks = await TaskModel.find({
       userId: userObjectId,
       createdAt: { $gte: pastDate },
     }).populate("projectId", "name");
 
-    // 2️⃣ Filter out tasks where the user is the manager
     const filteredTasks: typeof tasks = [];
 
     for (const task of tasks) {
@@ -44,7 +41,6 @@ export async function GET(req: Request) {
         projectId: task.projectId._id,
       });
 
-      // keep task only if user is NOT manager
       if (!userProject || userProject.role !== "manager") {
         filteredTasks.push(task);
       }
