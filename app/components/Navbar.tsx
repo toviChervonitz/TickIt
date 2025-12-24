@@ -52,11 +52,10 @@ export default function Navbar() {
   const pathname = usePathname();
   const t = getTranslation();
 
-  const [hydrated, setHydrated] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => setHydrated(true), []);
+  const hydrated = useAppStore.persist?.hasHydrated?.();
 
   if (!hydrated || !pathname) return null;
   if (hiddenRoutes.includes(pathname)) return null;
@@ -92,9 +91,7 @@ export default function Navbar() {
     { text: t("charts"), icon: <InsertChartIcon />, path: "/pages/charts" },
   ];
 
-  // ================================
-  //        FIXED TOP BAR HERE
-  // ================================
+
   const drawerContent = (
     <Box
       sx={{
@@ -106,7 +103,7 @@ export default function Navbar() {
         backgroundColor: "background.default",
       }}
     >
-      {/* TOP BAR */}
+    
       <Box
         sx={{
           display: "flex",
@@ -116,7 +113,7 @@ export default function Navbar() {
           borderBottom: "1px solid #e8eaed",
         }}
       >
-        {/* LOGO */}
+       
         {!collapsed && (
           <Box
             component="img"
@@ -126,7 +123,7 @@ export default function Navbar() {
           />
         )}
 
-        {/* COLLAPSE BUTTON */}
+       
         <IconButton
           size="small"
           onClick={handleCollapseToggle}
@@ -148,7 +145,7 @@ export default function Navbar() {
 
 
 
-      {/* MENU ITEMS */}
+     
       <List sx={{ flex: 1, px: 1, py: 2 }}>
         {menuItems.map((item) => {
           const isActive =
@@ -210,7 +207,7 @@ export default function Navbar() {
 
       <Divider sx={{ borderColor: "#e8eaed" }} />
 
-      {/* USER + LOGOUT */}
+     
       {user && (
         < Box sx={{ p: collapsed ? 0 : 2 }}>
 
@@ -220,7 +217,6 @@ export default function Navbar() {
             alignItems="center"
             justifyContent={collapsed ? "center" : "space-between"}
           >
-            {/* LEFT SIDE — PROFILE (CLICKABLE) */}
             <Stack
               direction="row"
               spacing={1.5}
@@ -261,21 +257,19 @@ export default function Navbar() {
               )}
             </Stack>
 
-            {/* RIGHT SIDE — LANGUAGE (NOT CLICKING PROFILE) */}
             {!collapsed && (
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
                 }}
-                onClick={(e) => e.stopPropagation()} // ← מונע פתיחת פרופיל
+                onClick={(e) => e.stopPropagation()} 
               >
                 <LanguageSwitcher />
               </Box>
             )}
           </Stack>
 
-          {/* LOGOUT BUTTON */}
           <Tooltip title={collapsed ? t("logout") : ""} placement="right">
             <ListItemButton
               onClick={handleLogout}
@@ -328,7 +322,6 @@ export default function Navbar() {
         {mobileOpen ? <CloseIcon /> : <MenuIcon />}
       </IconButton>
 
-      {/* MOBILE DRAWER */}
       <Drawer
         variant="temporary"
         open={mobileOpen}
@@ -346,7 +339,6 @@ export default function Navbar() {
         {drawerContent}
       </Drawer>
 
-      {/* DESKTOP DRAWER */}
       <Drawer
         variant="permanent"
         sx={{

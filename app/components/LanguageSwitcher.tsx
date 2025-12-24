@@ -40,9 +40,6 @@ export default function LanguageSwitcher() {
                     }}
                 >
                     <PublicIcon sx={{ fontSize: 28 }} />
-                    {/* <Typography sx={{ ml: 1, fontWeight: "bold" }}>
-                        {lang === "en" ? "EN" : "עב"}
-                    </Typography> */}
                 </IconButton>
             </Tooltip>
 
@@ -57,11 +54,6 @@ export default function LanguageSwitcher() {
                     <ListItemText primary="עברית" />
                 </MenuItem>
 
-                {/* future languages */}
-                {/* <MenuItem onClick={() => changeLanguage("fr")}>
-          <ListItemIcon>🇫🇷</ListItemIcon>
-          <ListItemText primary="Français" />
-        </MenuItem> */}
             </Menu>
         </>
     );

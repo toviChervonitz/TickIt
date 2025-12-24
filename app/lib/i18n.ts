@@ -8,7 +8,6 @@ export const getTranslation = () => {
   const { language } = useAppStore();
 
   const t = (key: keyof Translations): string => {
-    // Type assertion ensures TS knows both en & he have the same keys
     const translations: Translations = language === "he" ? (he as unknown as Translations) : (en as Translations);
     return (translations[key] as string) || key;
   };

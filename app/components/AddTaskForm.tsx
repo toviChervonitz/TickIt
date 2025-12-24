@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import useAppStore from "@/app/store/useAppStore";
 import { getTranslation } from "../lib/i18n";
 import {
@@ -9,7 +9,6 @@ import {
   Stack,
   MenuItem,
   Box,
-  Paper,
   CircularProgress,
 } from "@mui/material";
 
@@ -66,7 +65,6 @@ export default function TaskForm({
         }}
       >
         <Stack spacing={variant === "popup" ? 2 : 3}>
-          {/* Title + Content */}
           {variant === "page" ? (
             <Stack direction="row" spacing={3}>
               <TextField
@@ -113,7 +111,6 @@ export default function TaskForm({
             </>
           )}
 
-          {/* Assign + Due Date */}
           <Stack
             direction={variant === "page" ? "row" : { xs: "column", sm: "row" }}
             spacing={3}
@@ -164,7 +161,6 @@ export default function TaskForm({
             />
           </Stack>
 
-          {/* Submit */}
           <Box sx={{ mt: 2 ,width: '100%'}}>
             <Button
               variant="contained"

@@ -64,29 +64,6 @@ export default function GenerateTasks({
     }
   }, [autoGenerate, hasGeneratedOnce]);
 
-  // Generate tasks
-  // const handleGenerate = async () => {
-  //   if (!projectDescription.trim()) return;
-  //   setLoading(true);
-
-  //   const result = await handleGenerateContent(
-  //     `Name: ${projectName}. Description: ${projectDescription}`,
-  //     projectId
-  //   );
-
-  //   if (Array.isArray(result)) {
-  //     const tasksWithDefaults = result.map((t: any) => ({
-  //       ...t,
-  //       userId: "",
-  //       dueDate: t.dueDate || new Date().toISOString().split("T")[0],
-  //     }));
-  //     setGeneratedTasks(tasksWithDefaults);
-  //     setHasGeneratedOnce(true); // <-- added
-
-  //   }
-
-  //   setLoading(false);
-  // };
   const handleGenerate = async () => {
     if (!projectDescription.trim()) return;
 
@@ -117,14 +94,12 @@ export default function GenerateTasks({
   };
 
 
-  // Start editing a task
   const startEditing = (index: number) => {
     setEditingIndex(index);
-    setHiddenActionsIndex(index); // HIDE add/reject for this task
+    setHiddenActionsIndex(index); 
     setTaskEdits({ ...generatedTasks[index] });
   };
 
-  // Save edits
   const saveEdit = () => {
     if (editingIndex === null || !taskEdits) return;
 
@@ -134,17 +109,17 @@ export default function GenerateTasks({
     setGeneratedTasks(updatedTasks);
     setEditingIndex(null);
     setTaskEdits(null);
-    setHiddenActionsIndex(null); // SHOW buttons again
+    setHiddenActionsIndex(null); 
   };
 
-  // Cancel editing
+
   const cancelEdit = () => {
     setEditingIndex(null);
     setTaskEdits(null);
-    setHiddenActionsIndex(null); // SHOW buttons again
+    setHiddenActionsIndex(null); 
   };
 
-  // Field change handler
+
   const handleChange = (index: number, field: keyof GeneratedTask, value: any) => {
     const updatedTasks = [...generatedTasks];
     updatedTasks[index] = { ...updatedTasks[index], [field]: value };
@@ -153,7 +128,7 @@ export default function GenerateTasks({
     if (editingIndex === index) setTaskEdits(updatedTasks[index]);
   };
 
-  // Add a task
+
   const handleAdd = (index: number) => {
     const task = generatedTasks[index];
 
@@ -175,7 +150,7 @@ export default function GenerateTasks({
     }
   };
 
-  // Reject task
+  
   const handleReject = (index: number) => {
     setGeneratedTasks((prev) => prev.filter((_, i) => i !== index));
     if (editingIndex === index) {

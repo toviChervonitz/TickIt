@@ -7,7 +7,7 @@ export async function CreateTask(form: any) {
     throw new Error(error.message);
   }
 
-  const role = await getUserRoleInProject(form.managerId, form.projectId);
+  const role = await getUserRoleInProject(form.projectId);
 
   if (role !== "manager") {
     throw new Error("You are not the manager of this project");
@@ -29,9 +29,9 @@ export async function CreateTask(form: any) {
   return { status: res.status, ...data };
 }
 
-export async function GetTasksByUserId(userId: string | undefined) {
+export async function GetTasksByUserId() {
   try {
-    const res = await fetch(`/api/task/tasks?userId=${userId}`, {
+    const res = await fetch(`/api/task/tasks`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -53,19 +53,16 @@ export async function GetTasksByUserId(userId: string | undefined) {
 }
 
 export async function GetTasksByProjectId(
-  // id: string,
   projectId: string | null,
   isArchived?: boolean
 ) {
   
-  console.log("projectId: ",projectId);
   
   if (!projectId) {
     throw new Error("Missing projectdId.");
   }
   try {
     const res = await fetch(
-      // `/api/task/projectTasks?projectId=${projectId}&&userId=${id}&&archive=${isArchived}`,
       `/api/task/projectTasks?projectId=${projectId}&&archive=${isArchived}`,
       {
         method: "GET",
